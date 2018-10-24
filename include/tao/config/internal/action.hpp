@@ -37,7 +37,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, json::null ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, json::null ) );
             }
          };
 
@@ -49,7 +49,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, true ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, true ) );
             }
          };
 
@@ -61,7 +61,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, false ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, false ) );
             }
          };
 
@@ -73,7 +73,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, std::stoul( in.string() ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, std::stoul( in.string() ) ) );
             }
          };
 
@@ -85,7 +85,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, get_env( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, get_env( st.str ) ) );
             }
          };
 
@@ -97,7 +97,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, read_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, read_file( st.str ) ) );
             }
          };
 
@@ -109,7 +109,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, json::parse_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, json::parse_file( st.str ) ) );
             }
          };
 
@@ -121,7 +121,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, json::jaxn::parse_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, json::jaxn::parse_file( st.str ) ) );
             }
          };
 
@@ -133,7 +133,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, json::cbor::parse_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, json::cbor::parse_file( st.str ) ) );
             }
          };
 
@@ -145,7 +145,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, json::msgpack::parse_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, json::msgpack::parse_file( st.str ) ) );
             }
          };
 
@@ -157,7 +157,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back( entry::atom( in, json::ubjson::parse_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, json::ubjson::parse_file( st.str ) ) );
             }
          };
 
@@ -172,7 +172,7 @@ namespace tao
 
                std::ostringstream oss;
                to_stream( oss, access( *st.ostack.back(), st.key ) );
-               st.lstack.back()->emplace_back( entry::atom( in, oss.str() ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in, oss.str() ) );
 
                st.key.clear();
             }
@@ -209,10 +209,10 @@ namespace tao
                assert( !st.ostack.empty() );
                assert( !st.lstack.empty() );
 
-               auto& d = *st.lstack.back();
-               auto& s = access( *st.ostack.front(), st.key );
+               concat& d = *st.lstack.back();
+               const concat& s = access( *st.ostack.front(), st.key );
 
-               d.insert( d.end(), s.begin(), s.end() );
+               d.v.insert( d.v.end(), s.v.begin(), s.v.end() );
 
                st.key.clear();
             }
@@ -275,7 +275,7 @@ namespace tao
                assert( !st.ostack.empty() );
 
                st.lstack.emplace_back( &assign( in, *st.ostack.back(), st.key ) );
-               st.lstack.back()->clear();
+               st.lstack.back()->v.clear();
 
                st.key.clear();
             }

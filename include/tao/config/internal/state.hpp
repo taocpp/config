@@ -9,7 +9,7 @@
 
 #include "json.hpp"
 #include "pointer.hpp"
-#include "value.hpp"
+#include "entry.hpp"
 
 namespace tao
 {
@@ -28,7 +28,7 @@ namespace tao
 
             // General Structure
 
-            std::vector< list_t* > lstack;  // Current rules::value_list
+            std::vector< concat* > lstack;  // Current rules::value_list
             std::vector< array_t* > astack;  // Array contexts via '['
             std::vector< object_t* > ostack;  // Object contexts via '{'
 
@@ -44,7 +44,7 @@ namespace tao
             {
                assert( !lstack.empty() );
 
-               lstack.back()->emplace_back( entry::atom( in, std::move( v ) ) );
+               lstack.back()->v.emplace_back( entry::atom( in, std::move( v ) ) );
             }
 
             template< typename Input >
@@ -52,7 +52,7 @@ namespace tao
             {
                assert( !lstack.empty() );
 
-               lstack.back()->emplace_back( entry::atom( in, std::move( v ) ) );
+               lstack.back()->v.emplace_back( entry::atom( in, std::move( v ) ) );
             }
 
             template< typename Input >
@@ -60,7 +60,7 @@ namespace tao
             {
                assert( !lstack.empty() );
 
-               lstack.back()->emplace_back( entry::indirect( in, std::move( v ) ) );
+               lstack.back()->v.emplace_back( entry::indirect( in, std::move( v ) ) );
             }
          };
 

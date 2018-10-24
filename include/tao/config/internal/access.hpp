@@ -8,7 +8,7 @@
 
 #include "pointer.hpp"
 #include "utility.hpp"
-#include "value.hpp"
+#include "entry.hpp"
 
 namespace tao
 {
@@ -16,11 +16,11 @@ namespace tao
    {
       namespace internal
       {
-         inline const list_t& access( const list_t& l, const pointer& p );
+         inline const concat& access( const concat& l, const pointer& p );
 
-         inline const list_t& access_name( const list_t& l, const std::string& k, const pointer& p )
+         inline const concat& access_name( const concat& l, const std::string& k, const pointer& p )
          {
-            for( const auto& i : reverse( l ) ) {
+            for( const auto& i : reverse( l.v ) ) {
                if( !i.is_object() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
@@ -33,9 +33,9 @@ namespace tao
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline const list_t& access_index( const list_t& l, std::size_t n, const pointer& p )
+         inline const concat& access_index( const concat& l, std::size_t n, const pointer& p )
          {
-            for( const auto& i : l ) {
+            for( const auto& i : l.v ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
@@ -49,9 +49,9 @@ namespace tao
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline const list_t& access_minus( const list_t& l, const pointer& p )
+         inline const concat& access_minus( const concat& l, const pointer& p )
          {
-            for( const auto& i : reverse( l ) ) {
+            for( const auto& i : reverse( l.v ) ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
@@ -62,13 +62,13 @@ namespace tao
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline const list_t& access( const list_t& l, const token& t, const pointer& p )
+         inline const concat& access( const concat& l, const token& t, const pointer& p )
          {
-            switch( t.t ) {
+            switch( t.type() ) {
                case token::NAME:
-                  return access_name( l, t.k, p );
+                  return access_name( l, t.name(), p );
                case token::INDEX:
-                  return access_index( l, t.i, p );
+                  return access_index( l, t.index(), p );
                case token::STAR:
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );  // TODO: Proper exception messages everywhere.
                case token::MINUS:
@@ -77,7 +77,7 @@ namespace tao
             assert( false );
          }
 
-         inline const list_t& access( const list_t& l, const pointer& p )
+         inline const concat& access( const concat& l, const pointer& p )
          {
             if( p.empty() ) {
                return l;
@@ -85,11 +85,11 @@ namespace tao
             return access( l, p.front(), pop_front( p ) );
          }
 
-         inline const list_t& access( const object_t& o, const token& t, const pointer& p )
+         inline const concat& access( const object_t& o, const token& t, const pointer& p )
          {
-            switch( t.t ) {
+            switch( t.type() ) {
                case token::NAME:
-                  return access( o.at( t.k ), p );  // TODO: Proper exception message on key-not-found.
+                  return access( o.at( t.name() ), p );  // TODO: Proper exception message on key-not-found.
                case token::INDEX:
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                case token::STAR:
@@ -100,7 +100,7 @@ namespace tao
             assert( false );
          }
 
-         inline const list_t& access( const object_t& o, const pointer& p )
+         inline const concat& access( const object_t& o, const pointer& p )
          {
             assert( !p.empty() );
 

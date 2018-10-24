@@ -87,7 +87,7 @@ namespace tao
             struct phase2_key : pegtl::list_must< phase2_part, dot > {};
             struct phase2_top : pegtl::list_must< phase2_part, dot > {};
 
-            struct phase1_content : pegtl::star< pegtl::not_one< '"' > > {};  // TODO: ?
+            struct phase1_content : pegtl::star< pegtl::not_one< '"' > > {};  // TODO!
             struct phase1_string : pegtl::if_must< quote_2, phase1_content, quote_2 > {};
 
             struct env_value : pegtl::if_must< env_s, wsp, phase1_string > {};

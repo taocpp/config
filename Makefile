@@ -4,7 +4,7 @@
 
 CXXSTD = -std=c++17
 CPPFLAGS = -pedantic -I../json/include -Iinclude
-CXXFLAGS = -Wall -Wextra -Werror -O3
+CXXFLAGS = -Wall -Wextra -Werror -O3 -ftemplate-backtrace-limit=0
 
 SOURCES := $(shell find src -name '*.cpp')
 DEPENDS := $(SOURCES:%.cpp=build/%.d)

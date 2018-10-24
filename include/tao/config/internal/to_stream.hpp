@@ -6,8 +6,7 @@
 
 #include <ostream>
 
-#include "json.hpp"
-#include "value.hpp"
+#include "traits.hpp"
 
 namespace tao
 {
@@ -15,48 +14,6 @@ namespace tao
    {
       namespace internal
       {
-         template< typename T >
-         struct traits
-            : public json::traits< T >
-         {
-         };
-
-         template<>
-         struct traits< json::value >
-         {
-            template< template< typename... > class, typename Consumer >
-            static void produce( Consumer& c, const json::value& v )
-            {
-               json::events::from_value( c, v );
-            }
-         };
-
-         template<>
-         struct traits< entry >
-         {
-            template< template< typename... > class, typename Consumer >
-            static void produce( Consumer& c, const entry& v )
-            {
-               switch( v.type() ) {
-                  case type::ATOM:
-                     json::events::produce< traits >( c, v.get_atom() );
-                     return;
-                  case type::ARRAY:
-                     json::events::produce< traits >( c, v.get_array() );
-                     return;
-                  case type::OBJECT:
-                     json::events::produce< traits >( c, v.get_object() );
-                     return;
-                  case type::NOTHING:
-                     assert( false );
-                  case type::INDIRECT:
-                     json::events::produce< traits >( c, v.get_indirect() );
-                     return;
-               }
-               assert( false );
-            }
-         };
-
          template< typename T >
          inline void to_stream( std::ostream& os, const T& t )
          {

@@ -13,7 +13,7 @@
 #include "phase2_state.hpp"
 #include "state.hpp"
 #include "string_state.hpp"
-#include "value.hpp"
+#include "entry.hpp"
 
 namespace tao
 {
@@ -50,11 +50,11 @@ namespace tao
             : public pegtl::normal< rules::element >
          {
             template< typename Input >
-            static void start( const Input&, state& st )
+            static void start( const Input& in, state& st )
             {
                assert( !st.astack.empty() );
 
-               st.lstack.emplace_back( &st.astack.back()->emplace_back() );
+               st.lstack.emplace_back( &st.astack.back()->emplace_back( in ) );
             }
 
             template< typename Input >
@@ -76,7 +76,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.astack.emplace_back( &st.lstack.back()->emplace_back( entry::array( in ) ).get_array() );
+               st.astack.emplace_back( &st.lstack.back()->v.emplace_back( entry::array( in ) ).get_array() );
             }
 
             template< typename Input >
@@ -97,7 +97,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.ostack.emplace_back( &st.lstack.back()->emplace_back( entry::object( in ) ).get_object() );
+               st.ostack.emplace_back( &st.lstack.back()->v.emplace_back( entry::object( in ) ).get_object() );
             }
 
             template< typename Input >

@@ -4,7 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_ADDITION_HH
 #define TAO_CONFIG_INTERNAL_ADDITION_HH
 
-#include "value.hpp"
+#include "entry.hpp"
 
 namespace tao
 {

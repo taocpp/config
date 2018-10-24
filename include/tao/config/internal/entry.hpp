@@ -1,14 +1,15 @@
 // Copyright (c) 2018 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_VALUE_HPP
-#define TAO_CONFIG_INTERNAL_VALUE_HPP
+#ifndef TAO_CONFIG_INTERNAL_ENTRY_HPP
+#define TAO_CONFIG_INTERNAL_ENTRY_HPP
 
 #include <map>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
+#include "concat.hpp"
 #include "pegtl.hpp"
 #include "json.hpp"
 
@@ -18,21 +19,9 @@ namespace tao
    {
       namespace internal
       {
-         class entry;
-
-         enum class type : std::uint8_t
-         {
-            ATOM,
-            ARRAY,
-            OBJECT,
-            NOTHING,
-            INDIRECT
-         };
-
-         using list_t = std::vector< entry >;
          using atom_t = json::value;
-         using array_t = std::vector< list_t >;
-         using object_t = std::map< std::string, list_t >;
+         using array_t = std::vector< concat >;
+         using object_t = std::map< std::string, concat >;
          using indirect_t = json::value;
 
          union entry_union
@@ -60,6 +49,15 @@ namespace tao
          class entry
          {
          public:
+            enum kind : char
+            {
+               ATOM,
+               ARRAY,
+               OBJECT,
+               NOTHING,
+               INDIRECT
+            };
+
             entry( entry&& r ) noexcept
                : m_type( r.m_type ),
                  m_position( std::move( r.m_position ) )
@@ -68,7 +66,7 @@ namespace tao
             }
 
             entry( const entry& r )
-               : m_type( internal::type::NOTHING ),
+               : m_type( NOTHING ),
                  m_position( r.m_position )
             {
                embed( r );
@@ -95,34 +93,34 @@ namespace tao
                ( *this ) = ( std::move( t ) );
             }
 
-            internal::type type() const noexcept
+            kind type() const noexcept
             {
                return m_type;
             }
 
             bool is_atom() const noexcept
             {
-               return m_type == internal::type::ATOM;
+               return m_type == ATOM;
             }
 
             bool is_array() const noexcept
             {
-               return m_type == internal::type::ARRAY;
+               return m_type == ARRAY;
             }
 
             bool is_object() const noexcept
             {
-               return m_type == internal::type::OBJECT;
+               return m_type == OBJECT;
             }
 
             bool is_nothing() const noexcept
             {
-               return m_type == internal::type::NOTHING;
+               return m_type == NOTHING;
             }
 
             bool is_indirect() const noexcept
             {
-               return m_type == internal::type::INDIRECT;
+               return m_type == INDIRECT;
             }
 
             void reset()
@@ -135,28 +133,28 @@ namespace tao
             {
                discard();
                new( &m_union.v ) atom_t( std::forward< T >( t ) );
-               m_type = internal::type::ATOM;
+               m_type = ATOM;
             }
 
             void set_array()
             {
                discard();
                new( &m_union.a ) array_t();
-               m_type = internal::type::ARRAY;
+               m_type = ARRAY;
             }
 
             void set_object()
             {
                discard();
                new( &m_union.o ) object_t();
-               m_type = internal::type::OBJECT;
+               m_type = OBJECT;
             }
 
             void set_indirect( json::value&& v )
             {
                discard();
                new( &m_union.i ) indirect_t( std::move( v ) );
-               m_type = internal::type::INDIRECT;
+               m_type = INDIRECT;
             }
 
             template< typename Input, typename T >
@@ -261,7 +259,7 @@ namespace tao
             template< typename Input >
             explicit
             entry( const Input& in )
-               : m_type( internal::type::NOTHING ),
+               : m_type( NOTHING ),
                  m_position( in.position() )
             {
             }
@@ -269,39 +267,39 @@ namespace tao
             void discard() noexcept
             {
                switch( m_type ) {
-                  case internal::type::ATOM:
+                  case ATOM:
                      m_union.v.~basic_value();
                      break;
-                  case internal::type::ARRAY:
+                  case ARRAY:
                      m_union.a.~vector();
                      break;
-                  case internal::type::OBJECT:
+                  case OBJECT:
                      m_union.o.~map();
                      break;
-                  case internal::type::NOTHING:
+                  case NOTHING:
                      break;
-                  case internal::type::INDIRECT:
+                  case INDIRECT:
                      m_union.i.~basic_value();
                      break;
                }
-               m_type = type::NOTHING;
+               m_type = NOTHING;
             }
 
             void seize( entry&& r ) noexcept
             {
                switch( r.m_type ) {
-                  case internal::type::ATOM:
+                  case ATOM:
                      new( &m_union.v ) atom_t( std::move( r.m_union.v ) );
                      break;
-                  case internal::type::ARRAY:
+                  case ARRAY:
                      new( &m_union.a ) array_t( std::move( r.m_union.a ) );
                      break;
-                  case internal::type::OBJECT:
+                  case OBJECT:
                      new( &m_union.o ) object_t( std::move( r.m_union.o ) );
                      break;
-                  case internal::type::NOTHING:
+                  case NOTHING:
                      break;
-                  case internal::type::INDIRECT:
+                  case INDIRECT:
                      new( &m_union.i ) indirect_t( std::move( r.m_union.i ) );
                      break;
                }
@@ -311,25 +309,25 @@ namespace tao
             void embed( const entry& r )
             {
                switch( r.m_type ) {
-                  case internal::type::ATOM:
+                  case ATOM:
                      new( &m_union.v ) atom_t( r.m_union.v );
                      break;
-                  case internal::type::ARRAY:
+                  case ARRAY:
                      new( &m_union.a ) array_t( r.m_union.a );
                      break;
-                  case internal::type::OBJECT:
+                  case OBJECT:
                      new( &m_union.o ) object_t( r.m_union.o );
                      break;
-                  case internal::type::NOTHING:
+                  case NOTHING:
                      break;
-                  case internal::type::INDIRECT:
+                  case INDIRECT:
                      new( &m_union.i ) indirect_t( r.m_union.i );
                      break;
                }
             }
 
             mutable bool m_phase2_recursion_marker = false;
-            internal::type m_type;
+            kind m_type;
             entry_union m_union;
             pegtl::position m_position;
          };

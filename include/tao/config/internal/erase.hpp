@@ -8,7 +8,7 @@
 
 #include "pointer.hpp"
 #include "utility.hpp"
-#include "value.hpp"
+#include "entry.hpp"
 
 namespace tao
 {
@@ -16,11 +16,11 @@ namespace tao
    {
       namespace internal
       {
-         inline void erase( list_t& l, const pointer& p, const token& f );
+         inline void erase( concat& l, const pointer& p, const token& f );
 
-         inline void erase_name( list_t& l, const std::string& k )
+         inline void erase_name( concat& l, const std::string& k )
          {
-            for( auto& i : l ) {
+            for( auto& i : l.v ) {
                if( !i.is_object() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
@@ -28,9 +28,9 @@ namespace tao
             }
          }
 
-         inline void erase_index( list_t& l, std::size_t n )
+         inline void erase_index( concat& l, std::size_t n )
          {
-            for( auto& i : l ) {
+            for( auto& i : l.v ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
@@ -46,9 +46,9 @@ namespace tao
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline void erase_star( list_t& l )
+         inline void erase_star( concat& l )
          {
-            for( auto& i : l ) {
+            for( auto& i : l.v ) {
                if( i.is_array() ) {
                   i.get_array().clear();
                }
@@ -61,9 +61,9 @@ namespace tao
             }
          }
 
-         inline void erase_minus( list_t& l )
+         inline void erase_minus( concat& l )
          {
-            for( auto& i : reverse( l ) ) {
+            for( auto& i : reverse( l.v ) ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
@@ -77,13 +77,13 @@ namespace tao
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline void erase( list_t& l, const token& f )
+         inline void erase( concat& l, const token& f )
          {
-            switch( f.t ) {
+            switch( f.type() ) {
                case token::NAME:
-                  return erase_name( l, f.k );
+                  return erase_name( l, f.name() );
                case token::INDEX:
-                  return erase_index( l, f.i );
+                  return erase_index( l, f.index() );
                case token::STAR:
                   return erase_star( l );
                case token::MINUS:
@@ -92,9 +92,9 @@ namespace tao
             assert( false );
          }
 
-         inline void erase_name( list_t& l, const std::string& k, const pointer& p, const token& f )
+         inline void erase_name( concat& l, const std::string& k, const pointer& p, const token& f )
          {
-            for( auto& i : reverse( l ) ) {
+            for( auto& i : reverse( l.v ) ) {
                if( !i.is_object() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
@@ -106,9 +106,9 @@ namespace tao
             }
          }
 
-         inline void erase_index( list_t& l, std::size_t n, const pointer& p, const token& f )
+         inline void erase_index( concat& l, std::size_t n, const pointer& p, const token& f )
          {
-            for( auto& i : l ) {
+            for( auto& i : l.v ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
@@ -122,9 +122,9 @@ namespace tao
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline void erase_minus( list_t& l, const pointer& p, const token& f )
+         inline void erase_minus( concat& l, const pointer& p, const token& f )
          {
-            for( auto& i : reverse( l ) ) {
+            for( auto& i : reverse( l.v ) ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
@@ -135,13 +135,13 @@ namespace tao
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline void erase( list_t& l, const token& t, const pointer& p, const token& f )
+         inline void erase( concat& l, const token& t, const pointer& p, const token& f )
          {
-            switch( t.t ) {
+            switch( t.type() ) {
                case token::NAME:
-                  return erase_name( l, t.k, p, f );
+                  return erase_name( l, t.name(), p, f );
                case token::INDEX:
-                  return erase_index( l, t.i, p, f );
+                  return erase_index( l, t.index(), p, f );
                case token::STAR:
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );  // TODO: Or implement this again?
                case token::MINUS:
@@ -150,7 +150,7 @@ namespace tao
             assert( false );
          }
 
-         inline void erase( list_t& l, const pointer& p, const token& f )
+         inline void erase( concat& l, const pointer& p, const token& f )
          {
             if( p.empty() ) {
                erase( l, f );
@@ -162,13 +162,13 @@ namespace tao
 
          inline void erase( object_t& o, const token& t, const pointer& p )
          {
-            switch( t.t ) {
+            switch( t.type() ) {
                case token::NAME:
                   if( p.empty() ) {
-                     o.erase( t.k );
+                     o.erase( t.name() );
                   }
                   else {
-                     erase( o.at( t.k ), pop_back( p ), p.back() );  // TODO: Proper exception message on key-not-found.
+                     erase( o.at( t.name() ), pop_back( p ), p.back() );  // TODO: Proper exception message on key-not-found.
                   }
                   return;
                case token::INDEX:

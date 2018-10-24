@@ -59,26 +59,26 @@ namespace tao
                const phase2_guard p2g( e );
 
                switch( e.type() ) {
-                  case type::ATOM:
+                  case entry::ATOM:
                      return process_atom< Traits >( e.get_atom() );
-                  case type::ARRAY:
+                  case entry::ARRAY:
                      return process_array< Traits >( e.get_array() );
-                  case type::OBJECT:
+                  case entry::OBJECT:
                      return process_object< Traits >( e.get_object() );
-                  case type::NOTHING:
+                  case entry::NOTHING:
                      throw std::runtime_error( "TODO - how could this happen?" );
-                  case type::INDIRECT:
+                  case entry::INDIRECT:
                      return process_indirect< Traits >( e.get_indirect() );
                }
                assert( false );
             }
 
             template< template< typename... > class Traits >
-            json::basic_value< Traits > process_list( const list_t& l ) const
+            json::basic_value< Traits > process_list( const concat& l ) const
             {
                std::vector< json::basic_value< Traits > > t;
 
-               for( const auto& i : l ) {
+               for( const auto& i : l.v ) {
                   t.emplace_back( process_entry< Traits >( i ) );
                }
                return value_addition( t );
@@ -114,7 +114,7 @@ namespace tao
                return t;
             }
 
-            const list_t& process_reference( const indirect_t& r ) const
+            const concat& process_reference( const indirect_t& r ) const
             {
                pointer p;
 
