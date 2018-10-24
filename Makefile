@@ -13,12 +13,15 @@ BINARIES := $(SOURCES:%.cpp=build/%)
 TESTFILES := $(shell find tests -name '*.config')
 TESTCASES := $(TESTFILES:%.config=%)
 
-.PHONY: all test
+.PHONY: all test clean
 
 all: test $(BINARIES)
 
 test: build/src/test/config/tests
 	build/src/test/config/tests $(TESTCASES)
+
+clean:
+	rm -rf build/src
 
 build/%.d: %.cpp Makefile
 	@mkdir -p $(@D)
@@ -27,4 +30,6 @@ build/%.d: %.cpp Makefile
 build/%: %.cpp build/%.d
 	$(CXX) $(CXXSTD) $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
+ifeq ($(findstring $(MAKECMDGOALS),clean),)
 -include $(DEPENDS)
+endif

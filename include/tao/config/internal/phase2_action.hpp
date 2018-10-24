@@ -5,7 +5,7 @@
 #define TAO_CONFIG_INTERNAL_PHASE2_ACTION_HPP
 
 #include "grammar.hpp"
-#include "phase2_state.hpp"
+#include "reference_state.hpp"
 
 namespace tao
 {
@@ -22,7 +22,7 @@ namespace tao
          template<>
          struct phase2_action< rules::round_a >
          {
-            static void apply0( phase2_state& st )
+            static void apply0( reference_state& st )
             {
                assert( !st.rstack.empty() );
 
@@ -33,7 +33,7 @@ namespace tao
          template<>
          struct phase2_action< rules::round_z >
          {
-            static void apply0( phase2_state& st )
+            static void apply0( reference_state& st )
             {
                assert( !st.rstack.empty() );
 
@@ -45,7 +45,7 @@ namespace tao
          struct phase2_action< rules::phase2_name >
          {
             template< typename Input >
-            static void apply( const Input& in, phase2_state& st )
+            static void apply( const Input& in, reference_state& st )
             {
                assert( !st.rstack.empty() );
                assert( st.rstack.back()->is_array() );
@@ -58,7 +58,7 @@ namespace tao
          struct phase2_action< rules::phase2_index >
          {
             template< typename Input >
-            static void apply( const Input& in, phase2_state& st )
+            static void apply( const Input& in, reference_state& st )
             {
                assert( !st.rstack.empty() );
                assert( st.rstack.back()->is_array() );

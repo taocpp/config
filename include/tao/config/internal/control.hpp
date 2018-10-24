@@ -10,7 +10,7 @@
 #include "json.hpp"
 #include "pegtl.hpp"
 #include "phase2_action.hpp"
-#include "phase2_state.hpp"
+#include "reference_state.hpp"
 #include "state.hpp"
 #include "string_state.hpp"
 #include "entry.hpp"
@@ -41,7 +41,7 @@ namespace tao
 
          template<>
          struct control< rules::phase2_top >
-            : public change_state_and_action< rules::phase2_top, phase2_state, phase2_action >
+            : public change_state_and_action< rules::phase2_top, reference_state, phase2_action >
          {
          };
 

@@ -24,7 +24,7 @@ namespace tao
          using atom_t = json::value;
          using array_t = std::vector< concat >;
          using object_t = std::map< std::string, concat >;
-         using indirect_t = json::value;
+         using reference_t = json::value;
 
          union entry_union
          {
@@ -45,7 +45,7 @@ namespace tao
             atom_t v;
             array_t a;
             object_t o;
-            indirect_t i;
+            reference_t i;
          };
 
          class entry
@@ -57,7 +57,7 @@ namespace tao
                ARRAY,
                OBJECT,
                NOTHING,
-               INDIRECT
+               REFERENCE
             };
 
             entry( entry&& r ) noexcept
@@ -120,9 +120,9 @@ namespace tao
                return m_type == NOTHING;
             }
 
-            bool is_indirect() const noexcept
+            bool is_reference() const noexcept
             {
-               return m_type == INDIRECT;
+               return m_type == REFERENCE;
             }
 
             void reset()
@@ -152,11 +152,11 @@ namespace tao
                m_type = OBJECT;
             }
 
-            void set_indirect( json::value&& v )
+            void set_reference( json::value&& v )
             {
                discard();
-               new( &m_union.i ) indirect_t( std::move( v ) );
-               m_type = INDIRECT;
+               new( &m_union.i ) reference_t( std::move( v ) );
+               m_type = REFERENCE;
             }
 
             template< typename T >
@@ -181,10 +181,10 @@ namespace tao
                return r;
             }
 
-            static entry indirect( const position& p, json::value&& v )
+            static entry reference( const position& p, json::value&& v )
             {
                entry r( p );
-               r.set_indirect( std::move( v ) );
+               r.set_reference( std::move( v ) );
                return r;
             }
 
@@ -206,9 +206,9 @@ namespace tao
                return m_union.o;
             }
 
-            indirect_t& get_indirect() noexcept
+            reference_t& get_reference() noexcept
             {
-               assert( is_indirect() );
+               assert( is_reference() );
                return m_union.i;
             }
 
@@ -230,9 +230,9 @@ namespace tao
                return m_union.o;
             }
 
-            const indirect_t& get_indirect() const noexcept
+            const reference_t& get_reference() const noexcept
             {
-               assert( is_indirect() );
+               assert( is_reference() );
                return m_union.i;
             }
 
@@ -276,7 +276,7 @@ namespace tao
                      break;
                   case NOTHING:
                      break;
-                  case INDIRECT:
+                  case REFERENCE:
                      m_union.i.~basic_value();
                      break;
                }
@@ -297,8 +297,8 @@ namespace tao
                      break;
                   case NOTHING:
                      break;
-                  case INDIRECT:
-                     new( &m_union.i ) indirect_t( std::move( r.m_union.i ) );
+                  case REFERENCE:
+                     new( &m_union.i ) reference_t( std::move( r.m_union.i ) );
                      break;
                }
                r.discard();
@@ -318,8 +318,8 @@ namespace tao
                      break;
                   case NOTHING:
                      break;
-                  case INDIRECT:
-                     new( &m_union.i ) indirect_t( r.m_union.i );
+                  case REFERENCE:
+                     new( &m_union.i ) reference_t( r.m_union.i );
                      break;
                }
             }
@@ -348,8 +348,8 @@ namespace tao
                      return;
                   case entry::NOTHING:
                      assert( false );
-                  case entry::INDIRECT:
-                     json::events::produce< traits >( c, v.get_indirect() );
+                  case entry::REFERENCE:
+                     json::events::produce< traits >( c, v.get_reference() );
                      return;
                }
                assert( false );

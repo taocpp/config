@@ -67,8 +67,8 @@ namespace tao
                      return process_object< Traits >( e.get_object() );
                   case entry::NOTHING:
                      throw std::runtime_error( "TODO - how could this happen?" );
-                  case entry::INDIRECT:
-                     return process_indirect< Traits >( e.get_indirect() );
+                  case entry::REFERENCE:
+                     return process_reference< Traits >( e.get_reference() );
                }
                assert( false );
             }
@@ -114,7 +114,7 @@ namespace tao
                return t;
             }
 
-            const concat& process_reference_impl( const indirect_t& r ) const
+            const concat& process_reference_impl( const reference_t& r ) const
             {
                pointer p;
 
@@ -130,7 +130,7 @@ namespace tao
             }
 
             template< template< typename... > class Traits >
-            json::basic_value< Traits > process_indirect( const indirect_t& r ) const
+            json::basic_value< Traits > process_reference( const reference_t& r ) const
             {
                return process_list< Traits >( process_reference_impl( r ) );
             }

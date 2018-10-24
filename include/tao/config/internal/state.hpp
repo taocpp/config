@@ -54,11 +54,11 @@ namespace tao
                lstack.back()->v.emplace_back( entry::atom( pos, std::move( v ) ) );
             }
 
-            void indirect( const position& pos, json::value&& v )
+            void reference( const position& pos, json::value&& v )
             {
                assert( !lstack.empty() );
 
-               lstack.back()->v.emplace_back( entry::indirect( pos, std::move( v ) ) );
+               lstack.back()->v.emplace_back( entry::reference( pos, std::move( v ) ) );
             }
          };
 
