@@ -19,10 +19,23 @@ namespace tao
    void unit_test( const std::string& name )
    {
       const auto c = config::parse_file( name + ".config" );
+      const auto d = config::parse_file( name + "_only_data.jaxn" );
       const auto j = json::jaxn::basic_parse_file< config::traits >( name + "_only_data.jaxn" );
       if( c != j ) {
          ++failed;
-         std::cerr << "Testcase '" << name << "' failed!" << std::endl;
+         std::cerr << "Testcase '" << name << "' failed config test!" << std::endl;
+         std::cerr << "<<< Parsed config <<<" << std::endl;
+         json::jaxn::to_stream( std::cerr, c );
+         std::cerr << std::endl;
+         std::cerr << ">>> Parsed config >>>" << std::endl;
+         std::cerr << "<<< Reference data <<<" << std::endl;
+         json::jaxn::to_stream( std::cerr, j );
+         std::cerr << std::endl;
+         std::cerr << ">>> Reference data >>>" << std::endl;
+      }
+      if( d != j ) {
+         ++failed;
+         std::cerr << "Testcase '" << name << "' failed identity test!" << std::endl;
          std::cerr << "<<< Parsed config <<<" << std::endl;
          json::jaxn::to_stream( std::cerr, c );
          std::cerr << std::endl;

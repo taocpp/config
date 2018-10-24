@@ -117,7 +117,7 @@ namespace tao
 
             struct number_value : pegtl::plus< pegtl::digit > {};
 
-            struct value_part : pegtl::sor< null_s, true_s, false_s, array, object, special_value, string_value, number_value, binary_value > {};  // TODO: All strings, all numbers.
+            struct value_part : pegtl::sor< null_s, true_s, false_s, array, object, special_value, string_value, number_value, binary_value > {};  // TODO: All numbers.
 
             struct value_list : pegtl::list< value_part, plus, ws1 > {};
             struct assign_member : pegtl::if_must< equals, wss, value_list > {};
@@ -136,12 +136,15 @@ namespace tao
 
             struct element_list : pegtl::until< square_z, element, wss, opt_comma > {};
             struct member_list : member_list_impl< curly_z > {};
+            struct compat_list : member_list_impl< curly_z > {};
             struct grammar_list : member_list_impl< pegtl::eof > {};
 
             struct array : pegtl::if_must< square_a, wss, element_list > {};
             struct object : pegtl::if_must< curly_a, wss, member_list > {};
 
-            struct grammar : pegtl::must< wss, grammar_list > {};
+            struct compat_file : pegtl::must< wss, compat_list, wss, pegtl::eof > {};
+
+            struct grammar : pegtl::must< wss, pegtl::if_must_else< curly_a, compat_file, grammar_list > > {};
 
             struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};
 
