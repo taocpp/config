@@ -14,7 +14,6 @@ namespace tao
    namespace config
    {
       using pointer = json::pointer;
-      using position = json::position;
 
    }  // namespace config
 

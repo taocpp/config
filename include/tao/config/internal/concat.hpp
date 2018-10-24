@@ -6,7 +6,9 @@
 
 #include <vector>
 
+#include "json.hpp"
 #include "pegtl.hpp"
+#include "traits.hpp"
 
 namespace tao
 {
@@ -18,14 +20,20 @@ namespace tao
 
          struct concat
          {
-            template< typename Input >
-            explicit concat( const Input& in )
-               : p( in.position() )
+            explicit concat( const position& p )
+               : p( p )
             {
             }
 
-            pegtl::position p;
+            position p;
             std::vector< entry > v;
+         };
+
+         template<>
+         struct traits< concat >
+            : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
+                                            TAO_JSON_BIND_REQUIRED( "concat", &concat::v ) >
+         {
          };
 
       }  // namespace internal

@@ -35,12 +35,7 @@ namespace tao
             template< typename Input, typename Consumer >
             void success( const Input&, Consumer& consumer )
             {
-               consumer.binary( *this, std::move( value ) );
-            }
-
-            const pegtl::position& position() const noexcept
-            {
-               return m_position;
+               consumer.binary( m_position, std::move( value ) );
             }
 
             std::vector< std::byte > value;

@@ -13,7 +13,7 @@ namespace tao
       struct annotation
       {
          config::pointer pointer;
-         config::position position;
+         json::position position;  // TODO: json::position, pegtl::position or config::position?
 
          // TODO: Can we use binding::object without these functions?
 

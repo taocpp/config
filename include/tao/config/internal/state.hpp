@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "json.hpp"
+#include "pegtl.hpp"
 #include "pointer.hpp"
 #include "entry.hpp"
 
@@ -39,28 +40,25 @@ namespace tao
 
             // Switching-Style Support
 
-            template< typename Input >
-            void binary( const Input& in, std::vector< std::byte >&& v )
+            void binary( const position& pos, std::vector< std::byte >&& v )
             {
                assert( !lstack.empty() );
 
-               lstack.back()->v.emplace_back( entry::atom( in, std::move( v ) ) );
+               lstack.back()->v.emplace_back( entry::atom( pos, std::move( v ) ) );
             }
 
-            template< typename Input >
-            void string( const Input& in, std::string&& v )
+            void string( const position& pos, std::string&& v )
             {
                assert( !lstack.empty() );
 
-               lstack.back()->v.emplace_back( entry::atom( in, std::move( v ) ) );
+               lstack.back()->v.emplace_back( entry::atom( pos, std::move( v ) ) );
             }
 
-            template< typename Input >
-            void indirect( const Input& in, json::value&& v )
+            void indirect( const position& pos, json::value&& v )
             {
                assert( !lstack.empty() );
 
-               lstack.back()->v.emplace_back( entry::indirect( in, std::move( v ) ) );
+               lstack.back()->v.emplace_back( entry::indirect( pos, std::move( v ) ) );
             }
          };
 

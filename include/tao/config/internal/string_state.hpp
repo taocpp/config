@@ -35,12 +35,7 @@ namespace tao
             template< typename Input, typename Consumer >
             void success( const Input&, Consumer& consumer )
             {
-               consumer.string( *this, std::move( unescaped ) );
-            }
-
-            const pegtl::position& position() const noexcept
-            {
-               return m_position;
+               consumer.string( m_position, std::move( unescaped ) );
             }
 
             std::string unescaped;

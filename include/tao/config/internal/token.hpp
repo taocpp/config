@@ -7,6 +7,8 @@
 #include <cassert>
 #include <string>
 
+#include "traits.hpp"
+
 namespace tao
 {
    namespace config
@@ -72,6 +74,30 @@ namespace tao
             // only in the internal representation, not exposed to the user.
             std::size_t m_index;
             std::string m_name;
+         };
+
+         template<>
+         struct traits< token >
+         {
+            template< template< typename... > class, typename Consumer >
+            static void produce( Consumer& c, const token& t )
+            {
+               switch( t.type() ) {
+                  case token::NAME:
+                     c.string( t.name() );
+                     return;
+                  case token::INDEX:
+                     c.number( t.index() );
+                     return;
+                  case token::STAR:
+                     c.string( "*" );
+                     return;
+                  case token::MINUS:
+                     c.string( "-" );
+                     return;
+               }
+               assert( false );
+            }
          };
 
       }  // namespace internal

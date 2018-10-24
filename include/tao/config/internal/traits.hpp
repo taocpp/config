@@ -4,11 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_TRAITS_HPP
 #define TAO_CONFIG_INTERNAL_TRAITS_HPP
 
-#include <cassert>
-
 #include "json.hpp"
-#include "token.hpp"
-#include "entry.hpp"
+#include "pegtl.hpp"
 
 namespace tao
 {
@@ -23,68 +20,29 @@ namespace tao
          };
 
          template<>
-         struct traits< token >
+         struct traits< position >
+            : public json::binding::object< TAO_JSON_BIND_REQUIRED( "source", &position::source ),
+                                            TAO_JSON_BIND_REQUIRED( "line", &position::line ),
+                                            TAO_JSON_BIND_REQUIRED( "byte_in_line", &position::byte_in_line ),
+                                            TAO_JSON_BIND_REQUIRED( "byte", &position::byte ) >
          {
-            template< template< typename... > class, typename Consumer >
-            static void produce( Consumer& c, const token& t )
+         };
+
+         template<>
+         struct traits< const pegtl::position* >
+         {
+            TAO_JSON_DEFAULT_KEY( "position" );
+
+            template< template< typename... > class Traits >
+            static void assign( json::basic_value< Traits >& v, const position* p )
             {
-               switch( t.type() ) {
-                  case token::NAME:
-                     c.string( t.name() );
-                     return;
-                  case token::INDEX:
-                     c.number( t.index() );
-                     return;
-                  case token::STAR:
-                     c.string( "*" );
-                     return;
-                  case token::MINUS:
-                     c.string( "-" );
-                     return;
-               }
-               assert( false );
+               v.unsafe_assign_opaque_ptr( p );
             }
          };
 
          template<>
-         struct traits< entry >
-         {
-            template< template< typename... > class, typename Consumer >
-            static void produce( Consumer& c, const entry& v )
-            {
-               switch( v.type() ) {
-                  case entry::ATOM:
-                     json::events::produce< traits >( c, v.get_atom() );
-                     return;
-                  case entry::ARRAY:
-                     json::events::produce< traits >( c, v.get_array() );
-                     return;
-                  case entry::OBJECT:
-                     json::events::produce< traits >( c, v.get_object() );
-                     return;
-                  case entry::NOTHING:
-                     assert( false );
-                  case entry::INDIRECT:
-                     json::events::produce< traits >( c, v.get_indirect() );
-                     return;
-               }
-               assert( false );
-            }
-         };
-
-         template<>
-         struct traits< pegtl::position >
-            : public json::binding::object< TAO_JSON_BIND_REQUIRED( "source", &pegtl::position::source ),
-                                            TAO_JSON_BIND_REQUIRED( "line", &pegtl::position::line ),
-                                            TAO_JSON_BIND_REQUIRED( "byte_in_line", &pegtl::position::byte_in_line ),
-                                            TAO_JSON_BIND_REQUIRED( "byte", &pegtl::position::byte ) >
-         {
-         };
-
-         template<>
-         struct traits< concat >
-            : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
-                                            TAO_JSON_BIND_REQUIRED( "concat", &concat::v ) >
+         struct traits< pegtl::position* >
+            : public traits< const position* >
          {
          };
 

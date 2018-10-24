@@ -37,7 +37,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, json::null ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in.position(), json::null ) );
             }
          };
 
@@ -49,7 +49,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, true ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in.position(), true ) );
             }
          };
 
@@ -61,7 +61,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, false ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in.position(), false ) );
             }
          };
 
@@ -73,7 +73,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, std::stoul( in.string() ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in.position(), std::stoul( in.string() ) ) );
             }
          };
 
@@ -85,7 +85,8 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, get_env( st.str ) ) );
+               const auto pos = in.position();
+               st.lstack.back()->v.emplace_back( entry::atom( pos, get_env( pos, st.str ) ) );
             }
          };
 
@@ -97,7 +98,8 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, read_file( st.str ) ) );
+               const auto pos = in.position();
+               st.lstack.back()->v.emplace_back( entry::atom( pos, read_file( pos, st.str ) ) );
             }
          };
 
@@ -109,7 +111,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, json::parse_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in.position(), json::parse_file( st.str ) ) );
             }
          };
 
@@ -121,7 +123,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, json::jaxn::parse_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in.position(), json::jaxn::parse_file( st.str ) ) );
             }
          };
 
@@ -133,7 +135,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, json::cbor::parse_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in.position(), json::cbor::parse_file( st.str ) ) );
             }
          };
 
@@ -145,7 +147,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, json::msgpack::parse_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in.position(), json::msgpack::parse_file( st.str ) ) );
             }
          };
 
@@ -157,7 +159,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( in, json::ubjson::parse_file( st.str ) ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in.position(), json::ubjson::parse_file( st.str ) ) );
             }
          };
 
@@ -172,7 +174,7 @@ namespace tao
 
                std::ostringstream oss;
                to_stream( oss, access( *st.ostack.back(), st.key ) );
-               st.lstack.back()->v.emplace_back( entry::atom( in, oss.str() ) );
+               st.lstack.back()->v.emplace_back( entry::atom( in.position(), oss.str() ) );
 
                st.key.clear();
             }
@@ -195,7 +197,7 @@ namespace tao
             template< typename Input >
             static void apply( const Input& in, state& st )
             {
-               pegtl::string_input i2( shell_popen( st.str ), st.str );
+               pegtl::string_input i2( shell_popen( in.position(), st.str ), st.str );
                pegtl::parse_nested< rules::value, action, control >( in, i2, st );
             }
          };
@@ -274,7 +276,7 @@ namespace tao
             {
                assert( !st.ostack.empty() );
 
-               st.lstack.emplace_back( &assign( in, *st.ostack.back(), st.key ) );
+               st.lstack.emplace_back( &assign( in.position(), *st.ostack.back(), st.key ) );
                st.lstack.back()->v.clear();
 
                st.key.clear();
@@ -289,7 +291,7 @@ namespace tao
             {
                assert( !st.ostack.empty() );
 
-               st.lstack.emplace_back( &assign( in, *st.ostack.back(), st.key ) );
+               st.lstack.emplace_back( &assign( in.position(), *st.ostack.back(), st.key ) );
 
                st.key.clear();
             }

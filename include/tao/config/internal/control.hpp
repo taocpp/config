@@ -54,7 +54,7 @@ namespace tao
             {
                assert( !st.astack.empty() );
 
-               st.lstack.emplace_back( &st.astack.back()->emplace_back( in ) );
+               st.lstack.emplace_back( &st.astack.back()->emplace_back( in.position() ) );
             }
 
             template< typename Input >
@@ -76,7 +76,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.astack.emplace_back( &st.lstack.back()->v.emplace_back( entry::array( in ) ).get_array() );
+               st.astack.emplace_back( &st.lstack.back()->v.emplace_back( entry::array( in.position() ) ).get_array() );
             }
 
             template< typename Input >
@@ -97,7 +97,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.ostack.emplace_back( &st.lstack.back()->v.emplace_back( entry::object( in ) ).get_object() );
+               st.ostack.emplace_back( &st.lstack.back()->v.emplace_back( entry::object( in.position() ) ).get_object() );
             }
 
             template< typename Input >

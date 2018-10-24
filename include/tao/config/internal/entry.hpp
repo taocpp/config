@@ -10,7 +10,9 @@
 #include <vector>
 
 #include "concat.hpp"
+#include "format.hpp"
 #include "pegtl.hpp"
+#include "traits.hpp"
 #include "json.hpp"
 
 namespace tao
@@ -157,34 +159,31 @@ namespace tao
                m_type = INDIRECT;
             }
 
-            template< typename Input, typename T >
-            static entry atom( const Input& in, T&& t )
+            template< typename T >
+            static entry atom( const position& p, T&& t )
             {
-               entry r( in );
+               entry r( p );
                r.set_atom( std::forward< T >( t ) );
                return r;
             }
 
-            template< typename Input >
-            static entry array( const Input& in )
+            static entry array( const position& p )
             {
-               entry r( in );
+               entry r( p );
                r.set_array();
                return r;
             }
 
-            template< typename Input >
-            static entry object( const Input& in )
+            static entry object( const position& p )
             {
-               entry r( in );
+               entry r( p );
                r.set_object();
                return r;
             }
 
-            template< typename Input >
-            static entry indirect( const Input& in, json::value&& v )
+            static entry indirect( const position& p, json::value&& v )
             {
-               entry r( in );
+               entry r( p );
                r.set_indirect( std::move( v ) );
                return r;
             }
@@ -240,7 +239,7 @@ namespace tao
             void set_recursion_marker() const
             {
                if( m_phase2_recursion_marker ) {
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );  // TODO: Proper exception messages everywhere.
+                  throw std::runtime_error( format( "reference cycle detected", { &m_position } ) );
                }
                m_phase2_recursion_marker = true;
             }
@@ -256,11 +255,10 @@ namespace tao
             }
 
          private:
-            template< typename Input >
             explicit
-            entry( const Input& in )
+            entry( const pegtl::position& p )
                : m_type( NOTHING ),
-                 m_position( in.position() )
+                 m_position( p )
             {
             }
 
@@ -332,9 +330,35 @@ namespace tao
             pegtl::position m_position;
          };
 
+         template<>
+         struct traits< entry >
+         {
+            template< template< typename... > class, typename Consumer >
+            static void produce( Consumer& c, const entry& v )
+            {
+               switch( v.type() ) {
+                  case entry::ATOM:
+                     json::events::produce< traits >( c, v.get_atom() );
+                     return;
+                  case entry::ARRAY:
+                     json::events::produce< traits >( c, v.get_array() );
+                     return;
+                  case entry::OBJECT:
+                     json::events::produce< traits >( c, v.get_object() );
+                     return;
+                  case entry::NOTHING:
+                     assert( false );
+                  case entry::INDIRECT:
+                     json::events::produce< traits >( c, v.get_indirect() );
+                     return;
+               }
+               assert( false );
+            }
+         };
+
       }  // namespace internal
 
-   }  // namespace confi
+   }  // namespace config
 
 }  // namespace tao
 

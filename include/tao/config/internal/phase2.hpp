@@ -114,13 +114,13 @@ namespace tao
                return t;
             }
 
-            const concat& process_reference( const indirect_t& r ) const
+            const concat& process_reference_impl( const indirect_t& r ) const
             {
                pointer p;
 
                for( auto& i : r.get_array() ) {
                   if( i.is_array() ) {
-                     p.emplace_back( token_from_value( process_list< json::traits >( process_reference( i ) ) ) );
+                     p.emplace_back( token_from_value( process_list< json::traits >( process_reference_impl( i ) ) ) );
                   }
                   else {
                      p.emplace_back( token_from_value( i ) );
@@ -132,7 +132,7 @@ namespace tao
             template< template< typename... > class Traits >
             json::basic_value< Traits > process_indirect( const indirect_t& r ) const
             {
-               return process_list< Traits >( process_reference( r ) );
+               return process_list< Traits >( process_reference_impl( r ) );
             }
 
          private:

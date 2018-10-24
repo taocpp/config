@@ -80,6 +80,8 @@ namespace tao
          inline token token_from_value( const json::value& v )
          {
             switch( v.type() ) {
+               case json::type::BOOLEAN:
+                  return token( v.unsafe_get_boolean() ? token::STAR : token::MINUS );
                case json::type::STRING:
                case json::type::STRING_VIEW:
                   return token( v.as< std::string >() );
@@ -87,7 +89,7 @@ namespace tao
                case json::type::UNSIGNED:
                   return token( v.as< std::size_t >() );
                default:
-                  throw std::runtime_error( "invalid json type for token" );
+                  assert( false );
             }
          }
 
