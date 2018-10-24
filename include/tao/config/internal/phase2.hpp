@@ -66,7 +66,7 @@ namespace tao
                   case entry::OBJECT:
                      return process_object< Traits >( e.get_object() );
                   case entry::NOTHING:
-                     throw std::runtime_error( "TODO - how could this happen?" );
+                     assert( false );
                   case entry::REFERENCE:
                      return process_reference< Traits >( e.get_reference() );
                }
@@ -76,12 +76,12 @@ namespace tao
             template< template< typename... > class Traits >
             json::basic_value< Traits > process_list( const concat& l ) const
             {
-               std::vector< json::basic_value< Traits > > t;
+               std::vector< json::basic_value< Traits > > t;  // TODO: Eliminate this as explicit stage?
 
                for( const auto& i : l.v ) {
                   t.emplace_back( process_entry< Traits >( i ) );
                }
-               return value_addition( t );
+               return value_addition( l, t );
             }
 
             template< template< typename... > class Traits >

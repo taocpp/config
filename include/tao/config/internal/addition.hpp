@@ -4,7 +4,9 @@
 #ifndef TAO_CONFIG_INTERNAL_ADDITION_HH
 #define TAO_CONFIG_INTERNAL_ADDITION_HH
 
+#include "concat.hpp"
 #include "entry.hpp"
+#include "format.hpp"
 
 namespace tao
 {
@@ -12,15 +14,21 @@ namespace tao
    {
       namespace internal
       {
+         struct addition_error
+         {
+            json::type type;
+            std::size_t index;
+         };
+
          template< template< typename... > class Traits >
          json::null_t null_addition( const std::vector< json::basic_value< Traits > >& a )
          {
-            for( const auto& e : a ) {
-               switch( e.type() ) {
+            for( std::size_t i = 0; i < a.size(); ++i ) {
+               switch( a[ i ].type() ) {
                   case json::type::NULL_:
                      break;
                   default:
-                     throw std::runtime_error( "inconsistent json types for null addition" );
+                     throw addition_error{ json::type::NULL_, i };
                }
             }
             return json::null;
@@ -31,13 +39,13 @@ namespace tao
          {
             bool result = false;
 
-            for( const auto& e : a ) {
-               switch( e.type() ) {
+            for( std::size_t i = 0; i < a.size(); ++i ) {
+               switch( a[ i ].type() ) {
                   case json::type::BOOLEAN:
-                     result |= e.unsafe_get_boolean();
+                     result |= a[ i ].unsafe_get_boolean();
                      break;
                   default:
-                     throw std::runtime_error( "inconsistent json types for boolean addition" );
+                     throw addition_error{ json::type::BOOLEAN, i };
                }
             }
             return result;
@@ -48,13 +56,13 @@ namespace tao
          {
             double result = 0.0;
 
-            for( const auto& e : a ) {
-               switch( e.type() ) {
+            for( std::size_t i = 0; i < a.size(); ++i ) {
+               switch( a[ i ].type() ) {
                   case json::type::DOUBLE:
-                     result += e.unsafe_get_double();
+                     result += a[ i ].unsafe_get_double();
                      break;
                   default:
-                     throw std::runtime_error( "inconsistent json types for double addition" );
+                     throw addition_error{ json::type::DOUBLE, i };
                }
             }
             return result;
@@ -65,16 +73,16 @@ namespace tao
          {
             __int128_t result = 0;
 
-            for( const auto& e : a ) {
-               switch( e.type() ) {
+            for( std::size_t i = 0; i < a.size(); ++i ) {
+               switch( a[ i ].type() ) {
                   case json::type::SIGNED:
-                     result += e.unsafe_get_signed();
+                     result += a[ i ].unsafe_get_signed();
                      break;
                   case json::type::UNSIGNED:
-                     result += e.unsafe_get_unsigned();
+                     result += a[ i ].unsafe_get_unsigned();
                      break;
                   default:
-                     throw std::runtime_error( "inconsistent json types for integer addition" );
+                     throw addition_error{ json::type::SIGNED, i };  // TODO: Signed?
                }
             }
             return result;
@@ -85,16 +93,16 @@ namespace tao
          {
             std::ostringstream oss;
 
-            for( const auto& e : a ) {
-               switch( e.type() ) {
+            for( std::size_t i = 0; i < a.size(); ++i ) {
+               switch( a[ i ].type() ) {
                   case json::type::STRING:
-                     oss << e.unsafe_get_string();
+                     oss << a[ i ].unsafe_get_string();
                      continue;
                   case json::type::STRING_VIEW:
-                     oss << e.unsafe_get_string_view();
+                     oss << a[ i ].unsafe_get_string_view();
                      continue;
                   default:
-                     throw std::runtime_error( "inconsistent json types for string addition" );
+                     throw addition_error{ json::type::STRING, i };
                }
             }
             return oss.str();
@@ -105,16 +113,16 @@ namespace tao
          {
             std::vector< std::byte > result;
 
-            for( const auto& e : a ) {
-               switch( e.type() ) {
+            for( std::size_t i = 0; i < a.size(); ++i ) {
+               switch( a[ i ].type() ) {
                   case json::type::BINARY:
-                     result.insert( result.end(), e.unsafe_get_binary().begin(), e.unsafe_get_binary().end() );
+                     result.insert( result.end(), a[ i ].unsafe_get_binary().begin(), a[ i ].unsafe_get_binary().end() );
                      continue;
                   case json::type::BINARY_VIEW:
-                     result.insert( result.end(), e.unsafe_get_binary_view().begin(), e.unsafe_get_binary_view().end() );
+                     result.insert( result.end(), a[ i ].unsafe_get_binary_view().begin(), a[ i ].unsafe_get_binary_view().end() );
                      continue;
                   default:
-                     throw std::runtime_error( "inconsistent json types for binary addition" );
+                     throw addition_error{ json::type::BINARY, i };
                }
             }
             return result;
@@ -125,13 +133,13 @@ namespace tao
          {
             std::vector< json::basic_value< Traits > > result;
 
-            for( const auto& e : a ) {
-               switch( e.type() ) {
+            for( std::size_t i = 0; i < a.size(); ++i ) {
+               switch( a[ i ].type() ) {
                   case json::type::ARRAY:
-                     result.insert( result.end(), e.unsafe_get_array().begin(), e.unsafe_get_array().end() );
+                     result.insert( result.end(), a[ i ].unsafe_get_array().begin(), a[ i ].unsafe_get_array().end() );
                      continue;
                   default:
-                     throw std::runtime_error( "inconsistent json types for array addition" );
+                     throw addition_error{ json::type::ARRAY, i };
                }
             }
             return result;
@@ -142,15 +150,15 @@ namespace tao
          {
             std::map< std::string, json::basic_value< Traits > > result;
 
-            for( const auto& e : a ) {
-               switch( e.type() ) {
+            for( std::size_t i = 0; i < a.size(); ++i ) {
+               switch( a[ i ].type() ) {
                   case json::type::OBJECT:
-                     for( const auto& i : e.unsafe_get_object() ) {
-                        result.insert_or_assign( i.first, i.second );  // TODO: We can do better than this for performance, but not with the same simplicity?
+                     for( const auto& j : a[ i ].unsafe_get_object() ) {
+                        result.insert_or_assign( j.first, j.second );
                      }
                      break;
                   default:
-                     throw std::runtime_error( "inconsistent json types for object addition" );
+                     throw addition_error{ json::type::OBJECT, i };
                }
             }
             return result;
@@ -164,39 +172,38 @@ namespace tao
          }
 
          template< template< typename... > class Traits >
-         json::basic_value< Traits > value_addition( const std::vector< json::basic_value< Traits > >& a )
+         json::basic_value< Traits > value_addition( const concat& c, const std::vector< json::basic_value< Traits > >& a )
          {
             assert( !a.empty() );
+            assert( a.size() == c.v.size() );
 
-            switch( a[ 0 ].type() ) {
-               case json::type::NULL_:
-                  return json::basic_value< Traits >( null_addition( a ) );
-               case json::type::ARRAY:
-                  return json::basic_value< Traits >( array_addition( a ) );
-               case json::type::OBJECT:
-                  return json::basic_value< Traits >( object_addition( a ) );
-               case json::type::BOOLEAN:
-                  return json::basic_value< Traits >( boolean_addition( a ) );
-               case json::type::SIGNED:
-               case json::type::UNSIGNED:
-                  return integer_addition_value( a );
-               case json::type::STRING:
-               case json::type::STRING_VIEW:
-                  return json::basic_value< Traits >( string_addition( a ) );
-               case json::type::BINARY:
-               case json::type::BINARY_VIEW:
-                  return json::basic_value< Traits >( binary_addition( a ) );
-               default:
-                  std::cerr << json::to_string( a[ 0 ].type() ) << std::endl;
-                  throw std::runtime_error( "invalid json type for addition" );
+            try {
+               switch( a[ 0 ].type() ) {
+                  case json::type::NULL_:
+                     return json::basic_value< Traits >( null_addition( a ) );
+                  case json::type::ARRAY:
+                     return json::basic_value< Traits >( array_addition( a ) );
+                  case json::type::OBJECT:
+                     return json::basic_value< Traits >( object_addition( a ) );
+                  case json::type::BOOLEAN:
+                     return json::basic_value< Traits >( boolean_addition( a ) );
+                  case json::type::SIGNED:
+                  case json::type::UNSIGNED:
+                     return integer_addition_value( a );
+                  case json::type::STRING:
+                  case json::type::STRING_VIEW:
+                     return json::basic_value< Traits >( string_addition( a ) );
+                  case json::type::BINARY:
+                  case json::type::BINARY_VIEW:
+                     return json::basic_value< Traits >( binary_addition( a ) );
+                  default:
+                     throw std::runtime_error( format( "invalid addition type", { &c.v[ 0 ].position(), a[ 0 ].type() } ) );
+               }
+            }
+            catch( const addition_error& e ) {
+               throw std::runtime_error( format( "inconsistent addition types", { { "first", { &c.v[ 0 ].position(), a[ 0 ].type() } }, { "later", { &c.v[ e.index ].position(), a[ e.index ].type() } } } ) );
             }
          }
-
-         // template< template< typename... > class Traits >
-         // json::basic_value< Traits > value_addition( const json::basic_value< Traits >& v )
-         // {
-         //    return value_addition< Traits >( v.unsafe_get_array() );
-         // }
 
       }  // namespace internal
 

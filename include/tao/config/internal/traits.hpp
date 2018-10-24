@@ -23,13 +23,12 @@ namespace tao
          struct traits< position >
             : public json::binding::object< TAO_JSON_BIND_REQUIRED( "source", &position::source ),
                                             TAO_JSON_BIND_REQUIRED( "line", &position::line ),
-                                            TAO_JSON_BIND_REQUIRED( "byte_in_line", &position::byte_in_line ),
-                                            TAO_JSON_BIND_REQUIRED( "byte", &position::byte ) >
+                                            TAO_JSON_BIND_REQUIRED( "byte_in_line", &position::byte_in_line ) >
          {
          };
 
          template<>
-         struct traits< const pegtl::position* >
+         struct traits< const position* >
          {
             TAO_JSON_DEFAULT_KEY( "position" );
 
@@ -41,9 +40,21 @@ namespace tao
          };
 
          template<>
-         struct traits< pegtl::position* >
+         struct traits< position* >
             : public traits< const position* >
          {
+         };
+
+         template<>
+         struct traits< json::type >
+         {
+            TAO_JSON_DEFAULT_KEY( "type" );
+
+            template< template< typename... > class Traits >
+            static void assign( json::basic_value< Traits >& v, const json::type t )
+            {
+               v.unsafe_assign_string( std::string( json::to_string( t ) ) );
+            }
          };
 
          template<>
