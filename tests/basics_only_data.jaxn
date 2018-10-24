@@ -1,0 +1,40 @@
+{
+    foo : 2,
+    bar : 3,
+
+    atoms : {
+        null : null,
+        true : true,
+        false : false,
+    },
+
+    comma : {
+        array : [
+            [ 1, 2, 3 ],
+            [ 1, 2, 3 ],
+            [ 1, 2, 3 ],
+        ],
+        object : [
+            { a : 1, b : 2, c : 3 },
+            { a : 1, b : 2, c : 3 },
+            { a : 1, b : 2, c : 3 },
+        ]
+    },
+
+    a : { b : { c : 1 } },
+
+    d : [ [ 2 ] ],
+
+    c : {
+        d : { e : 1 },
+        f : { g : { h : { i : 2 } } }
+    },
+
+    e : [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ],
+
+    f : "hallo",
+
+    binary : $deadbeef,
+
+    multi : "multi\nline\nstring\n"
+}
