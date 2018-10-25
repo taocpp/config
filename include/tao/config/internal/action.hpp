@@ -269,43 +269,20 @@ namespace tao
          };
 
          template<>
-         struct action< rules::equals >
-         {
-            template< typename Input >
-            static void apply( const Input& in, state& st )
-            {
-               assert( !st.ostack.empty() );
-
-               st.lstack.emplace_back( &assign( in.position(), *st.ostack.back(), st.key ) );
-               st.lstack.back()->v.clear();
-
-               st.key.clear();
-            }
-         };
-
-         template<>
          struct action< rules::plus_equals >
-         {
-            template< typename Input >
-            static void apply( const Input& in, state& st )
-            {
-               assert( !st.ostack.empty() );
-
-               st.lstack.emplace_back( &assign( in.position(), *st.ostack.back(), st.key ) );
-
-               st.key.clear();
-            }
-         };
-
-         template<>
-         struct action< rules::key_member >
          {
             static void apply0( state& st )
             {
-               assert( !st.ostack.empty() );
-               assert( !st.lstack.empty() );
+               st.clear = false;
+            }
+         };
 
-               st.lstack.pop_back();
+         template<>
+         struct action< rules::equals >
+         {
+            static void apply0( state& st )
+            {
+               st.clear = true;
             }
          };
 

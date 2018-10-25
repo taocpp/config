@@ -129,7 +129,7 @@ namespace tao
             struct include_member : pegtl::if_must< include_s, wsp, phase1_string > {};
             struct ext_member : pegtl::if_must< round_a, pegtl::sor< erase_member, stderr_member, include_member >, round_z > {};
 
-            struct element : value_list {};
+            struct element : pegtl::list< value_part, plus, ws1 > {};
             struct member : pegtl::sor< ext_member, key_member > {};
 
             template< typename U > struct member_list_impl : pegtl::until< U, member, wss, opt_comma > {};
