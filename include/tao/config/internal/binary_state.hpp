@@ -36,7 +36,9 @@ namespace tao
             template< typename Input >
             void success( const Input&, state& st )
             {
-               st.binary( m_position, std::move( value ) );
+               assert( !st.lstack.empty() );
+
+               st.lstack.back()->v.emplace_back( entry::atom( m_position, std::move( value ) ) );
             }
 
             std::vector< std::byte > value;

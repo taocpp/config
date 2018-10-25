@@ -36,7 +36,9 @@ namespace tao
             template< typename Input >
             void success( const Input&, state& st )
             {
-               st.string( m_position, std::move( unescaped ) );
+               assert( !st.lstack.empty() );
+
+               st.lstack.back()->v.emplace_back( entry::atom( m_position, std::move( unescaped ) ) );
             }
 
             std::string unescaped;

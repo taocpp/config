@@ -9,6 +9,8 @@
 #include "grammar.hpp"
 #include "json.hpp"
 #include "key_string_state.hpp"
+#include "number_action.hpp"
+#include "number_state.hpp"
 #include "pegtl.hpp"
 #include "ref_string_state.hpp"
 #include "reference_action.hpp"
@@ -26,6 +28,18 @@ namespace tao
          template< typename Rule >
          struct control
             : public pegtl::normal< Rule >
+         {
+         };
+
+         template<>
+         struct control< json::jaxn::internal::rules::sor_value >
+            : public change_state_and_action< json::jaxn::internal::rules::sor_value, number_state, number_action >
+         {
+         };
+
+         template< bool Neg >
+         struct control< json::jaxn::internal::rules::number< Neg > >
+            : public pegtl::change_state< json::jaxn::internal::rules::number< Neg >, json::internal::number_state< Neg > >
          {
          };
 

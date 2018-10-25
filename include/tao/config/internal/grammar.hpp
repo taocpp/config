@@ -119,7 +119,8 @@ namespace tao
             struct string_choice : jaxn::string_fragment {};
             struct string_value : pegtl::if_must< at_quote, string_choice > {};
 
-            struct number_value : pegtl::plus< pegtl::digit > {};  // TODO!
+            struct at_number : pegtl::at< pegtl::one< '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+', '.', 'I', 'N' > > {};
+            struct number_value : pegtl::if_must< at_number, jaxn::sor_value > {};
 
             struct value_part : pegtl::sor< null_s, true_s, false_s, array, object, special_value, string_value, number_value, binary_value > {};
 

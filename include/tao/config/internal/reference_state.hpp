@@ -42,7 +42,9 @@ namespace tao
             template< typename Input >
             void success( const Input&, state& st )
             {
-               st.reference( m_position, std::move( value ) );
+               assert( !st.lstack.empty() );
+
+               st.lstack.back()->v.emplace_back( entry::reference( m_position, std::move( value ) ) );
             }
 
             json::value value;

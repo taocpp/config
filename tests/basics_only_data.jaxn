@@ -47,5 +47,17 @@
         b6 : 2,
         "" : 2,
         "123" : 2
-    }
+    },
+
+    hex1 : 291,
+    hex2 : 291,
+    hex3 : -291,
+
+    float1 : .1,
+    float2 : 123e45,
+    float3 : -0.42,
+    float4 : -1.2e-1,
+    float5 : 0.0,
+    // float6 : NaN,
+    float7 : -Infinity
 }
