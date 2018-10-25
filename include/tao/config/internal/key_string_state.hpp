@@ -1,12 +1,12 @@
 // Copyright (c) 2018 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_BINARY_STATE_HPP
-#define TAO_CONFIG_INTERNAL_BINARY_STATE_HPP
+#ifndef TAO_CONFIG_INTERNAL_KEY_STRING_STATE_HPP
+#define TAO_CONFIG_INTERNAL_KEY_STRING_STATE_HPP
 
 #include <cstddef>
 #include <utility>
-#include <vector>
+#include <string>
 
 #include "pegtl.hpp"
 #include "state.hpp"
@@ -17,29 +17,29 @@ namespace tao
    {
       namespace internal
       {
-         struct binary_state
+         struct key_string_state
          {
             template< typename Input >
-            explicit binary_state( const Input& in )
+            explicit key_string_state( const Input& in )
                : m_position( in.position() )
             {
             }
 
-            binary_state( const binary_state& ) = delete;
-            binary_state( binary_state&& ) = delete;
+            key_string_state( const key_string_state& ) = delete;
+            key_string_state( key_string_state&& ) = delete;
 
-            ~binary_state() = default;
+            ~key_string_state() = default;
 
-            void operator=( const binary_state& ) = delete;
-            void operator=( binary_state&& ) = delete;
+            void operator=( const key_string_state& ) = delete;
+            void operator=( key_string_state&& ) = delete;
 
             template< typename Input >
             void success( const Input&, state& st )
             {
-               st.binary( m_position, std::move( value ) );
+               st.key.emplace_back( std::move( unescaped ) );
             }
 
-            std::vector< std::byte > value;
+            std::string unescaped;
 
             const pegtl::position m_position;
          };

@@ -9,6 +9,7 @@
 #include <string>
 
 #include "pegtl.hpp"
+#include "state.hpp"
 
 namespace tao
 {
@@ -32,10 +33,10 @@ namespace tao
             void operator=( const string_state& ) = delete;
             void operator=( string_state&& ) = delete;
 
-            template< typename Input, typename Consumer >
-            void success( const Input&, Consumer& consumer )
+            template< typename Input >
+            void success( const Input&, state& st )
             {
-               consumer.string( m_position, std::move( unescaped ) );
+               st.string( m_position, std::move( unescaped ) );
             }
 
             std::string unescaped;

@@ -221,7 +221,7 @@ namespace tao
          };
 
          template<>
-         struct action< rules::phase1_ident >
+         struct action< rules::identifier >
          {
             template< typename Input >
             static void apply( const Input& in, state& st )
@@ -231,7 +231,7 @@ namespace tao
          };
 
          template<>
-         struct action< rules::phase1_index >
+         struct action< rules::index >
          {
             template< typename Input >
             static void apply( const Input& in, state& st )
@@ -241,7 +241,7 @@ namespace tao
          };
 
          template<>
-         struct action< rules::phase1_star >
+         struct action< rules::star >
          {
             static void apply0( state& st )
             {
@@ -250,7 +250,7 @@ namespace tao
          };
 
          template<>
-         struct action< rules::phase1_minus >
+         struct action< rules::minus >
          {
             static void apply0( state& st )
             {

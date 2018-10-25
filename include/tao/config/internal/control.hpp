@@ -8,9 +8,10 @@
 #include "changes.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
+#include "key_string_state.hpp"
 #include "pegtl.hpp"
-#include "phase1_state.hpp"
-#include "phase2_action.hpp"
+#include "ref_string_state.hpp"
+#include "reference_action.hpp"
 #include "reference_state.hpp"
 #include "state.hpp"
 #include "string_state.hpp"
@@ -29,6 +30,12 @@ namespace tao
          };
 
          template<>
+         struct control< rules::reference >
+            : public change_state_and_action< rules::reference, reference_state, reference_action >
+         {
+         };
+
+         template<>
          struct control< rules::binary_choice >
             : public change_state_and_action< rules::binary_choice, binary_state, json::jaxn::internal::bunescape_action >
          {
@@ -41,14 +48,14 @@ namespace tao
          };
 
          template<>
-         struct control< rules::phase1_choice >
-            : public change_state_and_action< rules::phase1_choice, phase1_state, json::jaxn::internal::unescape_action >
+         struct control< rules::key_quoted_choice >
+            : public change_state_and_action< rules::key_quoted_choice, key_string_state, json::jaxn::internal::unescape_action >
          {
          };
 
          template<>
-         struct control< rules::phase2_top >
-            : public change_state_and_action< rules::phase2_top, reference_state, phase2_action >
+         struct control< rules::ref_quoted_choice >
+            : public change_state_and_action< rules::ref_quoted_choice, ref_string_state, json::jaxn::internal::unescape_action >
          {
          };
 

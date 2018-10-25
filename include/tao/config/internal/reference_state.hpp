@@ -10,6 +10,7 @@
 
 #include "json.hpp"
 #include "pegtl.hpp"
+#include "state.hpp"
 
 namespace tao
 {
@@ -38,10 +39,10 @@ namespace tao
             void operator=( const reference_state& ) = delete;
             void operator=( reference_state&& ) = delete;
 
-            template< typename Input, typename Consumer >
-            void success( const Input&, Consumer& consumer )
+            template< typename Input >
+            void success( const Input&, state& st )
             {
-               consumer.reference( m_position, std::move( value ) );
+               st.reference( m_position, std::move( value ) );
             }
 
             json::value value;

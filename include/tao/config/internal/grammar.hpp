@@ -63,40 +63,39 @@ namespace tao
             struct stderr_s : pegtl::string< 's', 't', 'd', 'e', 'r', 'r' > {};
             struct include_s : pegtl::string< 'i', 'n', 'c', 'l', 'u', 'd', 'e' > {};
 
+            struct index : pegtl::plus< pegtl::digit > {};
             struct identifier : pegtl::identifier {};  // TODO: More?
 
             struct array;
             struct object;
-            struct phase2_key;
+
+            struct ref_part;
 
             struct opt_comma : pegtl::opt< comma, wss > {};
 
-            struct phase1_ident : identifier {};
-            struct phase1_index : pegtl::plus< pegtl::digit > {};
-            struct phase1_star : star {};
-            struct phase1_minus : minus {};
-            struct phase1_choice : jaxn::string_fragment {};
-            struct phase1_at : pegtl::at< pegtl::one< '\'', '"' > > {};
-            struct phase1_quoted : pegtl::if_must< phase1_at, phase1_choice > {};
-            struct phase1_part : pegtl::sor< phase1_ident, phase1_index, phase1_minus, phase1_quoted > {};
-            struct phase1_head : pegtl::sor< phase1_ident, phase1_quoted > {};
-            struct phase1_key : pegtl::seq< phase1_head, pegtl::star_must< dot, phase1_part > > {};
+            struct string_choice : jaxn::string_fragment {};
+            struct string_at : pegtl::at< pegtl::one< '\'', '"' > > {};
 
-            struct erase_key : pegtl::seq< phase1_head, pegtl::star< dot, phase1_part >, pegtl::opt_must< dot, phase1_star > > {};
+            struct key_quoted_choice : jaxn::string_fragment {};
+            struct key_quoted : pegtl::if_must< string_at, key_quoted_choice > {};
+            struct key_part : pegtl::sor< identifier, key_quoted, index, minus > {};
+            struct key_head : pegtl::sor< identifier, key_quoted > {};
+            struct erase_key : pegtl::seq< key_head, pegtl::star< dot, key_part >, pegtl::opt_must< dot, star > > {};
+            struct other_key : pegtl::seq< key_head, pegtl::star_must< dot, key_part > > {};
 
-            struct phase2_sub : pegtl::if_must< round_a, phase2_key, round_z > {};
-            struct phase2_ident : identifier {};
-            struct phase2_index : pegtl::plus< pegtl::digit > {};
-            struct phase2_part : pegtl::sor< phase2_sub, phase2_ident, phase2_index > {};
-            struct phase2_key : pegtl::list_must< phase2_part, dot > {};
-            struct phase2_top : pegtl::list_must< phase2_part, dot > {};
+            struct ref_quoted_choice : jaxn::string_fragment {};
+            struct ref_quoted : pegtl::if_must< string_at, ref_quoted_choice > {};
+            struct ref_main : pegtl::if_must< round_a, pegtl::list_must< ref_part, dot >, round_z > {};
+            struct ref_part : pegtl::sor< identifier, ref_quoted, index, minus, ref_main > {};
+            struct ref_head : pegtl::sor< identifier, ref_quoted > {};
+            struct reference : pegtl::must< ref_head, pegtl::star_must< dot, ref_part > > {};
 
             struct phase1_content : pegtl::star< pegtl::not_one< '"' > > {};  // TODO!
             struct phase1_string : pegtl::if_must< quote_2, phase1_content, quote_2 > {};
 
             struct env_value : pegtl::if_must< env_s, wsp, phase1_string > {};
-            struct copy_value : pegtl::if_must< copy_s, wsp, phase1_key > {};
-            struct debug_value : pegtl::if_must< debug_s, wsp, phase1_key > {};
+            struct copy_value : pegtl::if_must< copy_s, wsp, other_key > {};
+            struct debug_value : pegtl::if_must< debug_s, wsp, other_key > {};
             struct parse_value : pegtl::if_must< parse_s, wsp, phase1_string > {};
             struct shell_value : pegtl::if_must< shell_s, wsp, phase1_string > {};
 
@@ -110,13 +109,11 @@ namespace tao
             struct ext_value : pegtl::sor< env_value, copy_value, shell_value, debug_value, read_value, json_value, jaxn_value, cbor_value, msgpack_value, ubjson_value > {};  // TODO: Keep this all here, or unify syntax and delegate to a run-time map?
 
             struct at_ext_value : pegtl::at< identifier, ws1 > {};
-            struct special_value : pegtl::if_must< round_a, pegtl::if_must_else< at_ext_value, ext_value, phase2_top >, round_z > {};
+            struct special_value : pegtl::if_must< round_a, pegtl::if_must_else< at_ext_value, ext_value, reference >, round_z > {};
 
             struct binary_choice : pegtl::sor< jaxn::bstring, jaxn::bdirect > {};
             struct binary_value : pegtl::if_must< dollar, binary_choice > {};
 
-            struct string_choice : jaxn::string_fragment {};
-            struct string_at : pegtl::at< pegtl::one< '\'', '"' > > {};
             struct string_value : pegtl::if_must< string_at, string_choice > {};
 
             struct number_value : pegtl::plus< pegtl::digit > {};
@@ -126,10 +123,10 @@ namespace tao
             struct value_list : pegtl::list< value_part, plus, ws1 > {};
             struct assign_member : pegtl::if_must< equals, wss, value_list > {};
             struct append_member : pegtl::if_must< plus_equals, wss, value_list > {};
-            struct key_member : pegtl::if_must< phase1_key, wss, pegtl::sor< assign_member, append_member > > {};
+            struct key_member : pegtl::if_must< other_key, wss, pegtl::sor< assign_member, append_member > > {};
 
             struct erase_member : pegtl::if_must< erase_s, wsp, erase_key > {};
-            struct stderr_member: pegtl::if_must< stderr_s, wsp, phase1_key > {};
+            struct stderr_member: pegtl::if_must< stderr_s, wsp, other_key > {};
             struct include_member : pegtl::if_must< include_s, wsp, phase1_string > {};
             struct ext_member : pegtl::if_must< round_a, pegtl::sor< erase_member, stderr_member, include_member >, round_z > {};
 
