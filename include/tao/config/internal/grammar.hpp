@@ -73,18 +73,17 @@ namespace tao
 
             struct opt_comma : pegtl::opt< comma, wss > {};
 
-            struct string_choice : jaxn::string_fragment {};
-            struct string_at : pegtl::at< pegtl::one< '\'', '"' > > {};
+            struct at_quote : pegtl::at< pegtl::one< '\'', '"' > > {};
 
             struct key_quoted_choice : jaxn::string_fragment {};
-            struct key_quoted : pegtl::if_must< string_at, key_quoted_choice > {};
+            struct key_quoted : pegtl::if_must< at_quote, key_quoted_choice > {};
             struct key_part : pegtl::sor< identifier, key_quoted, index, minus > {};
             struct key_head : pegtl::sor< identifier, key_quoted > {};
             struct erase_key : pegtl::seq< key_head, pegtl::star< dot, key_part >, pegtl::opt_must< dot, star > > {};
             struct other_key : pegtl::seq< key_head, pegtl::star_must< dot, key_part > > {};
 
             struct ref_quoted_choice : jaxn::string_fragment {};
-            struct ref_quoted : pegtl::if_must< string_at, ref_quoted_choice > {};
+            struct ref_quoted : pegtl::if_must< at_quote, ref_quoted_choice > {};
             struct ref_main : pegtl::if_must< round_a, pegtl::list_must< ref_part, dot >, round_z > {};
             struct ref_part : pegtl::sor< identifier, ref_quoted, index, minus, ref_main > {};
             struct ref_head : pegtl::sor< identifier, ref_quoted > {};
@@ -114,11 +113,12 @@ namespace tao
             struct binary_choice : pegtl::sor< jaxn::bstring, jaxn::bdirect > {};
             struct binary_value : pegtl::if_must< dollar, binary_choice > {};
 
-            struct string_value : pegtl::if_must< string_at, string_choice > {};
+            struct string_choice : jaxn::string_fragment {};
+            struct string_value : pegtl::if_must< at_quote, string_choice > {};
 
-            struct number_value : pegtl::plus< pegtl::digit > {};
+            struct number_value : pegtl::plus< pegtl::digit > {};  // TODO!
 
-            struct value_part : pegtl::sor< null_s, true_s, false_s, array, object, special_value, string_value, number_value, binary_value > {};  // TODO: All numbers.
+            struct value_part : pegtl::sor< null_s, true_s, false_s, array, object, special_value, string_value, number_value, binary_value > {};
 
             struct value_list : pegtl::list< value_part, plus, ws1 > {};
             struct assign_member : pegtl::if_must< equals, wss, value_list > {};
