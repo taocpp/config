@@ -103,7 +103,7 @@ namespace tao
             struct msgpack_value : pegtl::if_must< msgpack_s, wsp, phase1_string > {};
             struct ubjson_value : pegtl::if_must< ubjson_s, wsp, phase1_string > {};
 
-            struct ext_value : pegtl::sor< env_value, copy_value, shell_value, debug_value, read_value, json_value, jaxn_value, cbor_value, msgpack_value, ubjson_value > {};  // TODO: Keep this all here, or unify syntax and delegate to a run-time map later?
+            struct ext_value : pegtl::sor< env_value, copy_value, shell_value, debug_value, read_value, json_value, jaxn_value, cbor_value, msgpack_value, ubjson_value > {};  // TODO: Keep this all here, or unify syntax and delegate to a run-time map?
 
             struct if_at : pegtl::at< identifier, ws1 > {};  // TODO: Enough?
             struct special_value : pegtl::if_must< round_a, pegtl::if_must_else< if_at, ext_value, phase2_top >, round_z > {};

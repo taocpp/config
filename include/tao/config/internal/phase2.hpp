@@ -76,12 +76,14 @@ namespace tao
             template< template< typename... > class Traits >
             json::basic_value< Traits > process_list( const concat& l ) const
             {
-               std::vector< json::basic_value< Traits > > t;  // TODO: Eliminate this as explicit stage?
+               assert( !l.v.empty() );
 
-               for( const auto& i : l.v ) {
-                  t.emplace_back( process_entry< Traits >( i ) );
+               json::basic_value< Traits > r = process_entry< Traits >( l.v.front() );
+
+               for( std::size_t i = 1; i < l.v.size(); ++i ) {
+                  addition( r, process_entry< Traits >( l.v[ i ] ), l.v[ i ].position() );
                }
-               return value_addition( l, t );
+               return r;
             }
 
             template< template< typename... > class Traits >

@@ -16,192 +16,161 @@ namespace tao
       {
          struct addition_error
          {
-            json::type type;
-            std::size_t index;
+            json::type l;
+            json::type r;
          };
 
          template< template< typename... > class Traits >
-         json::null_t null_addition( const std::vector< json::basic_value< Traits > >& a )
+         void boolean_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
          {
-            for( std::size_t i = 0; i < a.size(); ++i ) {
-               switch( a[ i ].type() ) {
-                  case json::type::NULL_:
-                     break;
-                  default:
-                     throw addition_error{ json::type::NULL_, i };
-               }
+            switch( r.type() ) {
+               case json::type::BOOLEAN:
+                  l = l.unsafe_get_boolean() | r.unsafe_get_boolean();
+                  break;
+               default:
+                  throw addition_error{ l.type(), r.type() };
             }
-            return json::null;
          }
 
          template< template< typename... > class Traits >
-         bool boolean_addition( const std::vector< json::basic_value< Traits > >& a )
+         void signed_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
          {
-            bool result = false;
-
-            for( std::size_t i = 0; i < a.size(); ++i ) {
-               switch( a[ i ].type() ) {
-                  case json::type::BOOLEAN:
-                     result |= a[ i ].unsafe_get_boolean();
-                     break;
-                  default:
-                     throw addition_error{ json::type::BOOLEAN, i };
-               }
+            switch( r.type() ) {
+               case json::type::SIGNED:
+                  l = l.unsafe_get_signed() + r.unsafe_get_signed();  // TODO: Check for overflow - and adapt target type?
+                  break;
+               case json::type::UNSIGNED:
+                  l = l.unsafe_get_signed() + r.unsafe_get_unsigned();  // TODO: Check for overflow - and adapt target type?
+                  break;
+               default:
+                  throw addition_error{ l.type(), r.type() };
             }
-            return result;
          }
 
          template< template< typename... > class Traits >
-         double double_addition( const std::vector< json::basic_value< Traits > >& a )
+         void unsigned_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
          {
-            double result = 0.0;
-
-            for( std::size_t i = 0; i < a.size(); ++i ) {
-               switch( a[ i ].type() ) {
-                  case json::type::DOUBLE:
-                     result += a[ i ].unsafe_get_double();
-                     break;
-                  default:
-                     throw addition_error{ json::type::DOUBLE, i };
-               }
+            switch( r.type() ) {
+               case json::type::SIGNED:
+                  l = l.unsafe_get_unsigned() + r.unsafe_get_signed();  // TODO: Check for overflow - and adapt target type?
+                  break;
+               case json::type::UNSIGNED:
+                  l = l.unsafe_get_unsigned() + r.unsafe_get_unsigned();  // TODO: Check for overflow - and adapt target type?
+                  break;
+               default:
+                  throw addition_error{ l.type(), r.type() };
             }
-            return result;
          }
 
          template< template< typename... > class Traits >
-         __int128_t integer_addition( const std::vector< json::basic_value< Traits > >& a )
+         void double_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
          {
-            __int128_t result = 0;
-
-            for( std::size_t i = 0; i < a.size(); ++i ) {
-               switch( a[ i ].type() ) {
-                  case json::type::SIGNED:
-                     result += a[ i ].unsafe_get_signed();
-                     break;
-                  case json::type::UNSIGNED:
-                     result += a[ i ].unsafe_get_unsigned();
-                     break;
-                  default:
-                     throw addition_error{ json::type::SIGNED, i };  // TODO: Signed?
-               }
+            switch( r.type() ) {
+               case json::type::DOUBLE:
+                  l = l.unsafe_get_double() + r.unsafe_get_double();
+                  break;
+               default:
+                  throw addition_error{ l.type(), r.type() };
             }
-            return result;
          }
 
          template< template< typename... > class Traits >
-         std::string string_addition( const std::vector< json::basic_value< Traits > >& a )
+         void string_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
          {
-            std::ostringstream oss;
-
-            for( std::size_t i = 0; i < a.size(); ++i ) {
-               switch( a[ i ].type() ) {
-                  case json::type::STRING:
-                     oss << a[ i ].unsafe_get_string();
-                     continue;
-                  case json::type::STRING_VIEW:
-                     oss << a[ i ].unsafe_get_string_view();
-                     continue;
-                  default:
-                     throw addition_error{ json::type::STRING, i };
-               }
+            switch( r.type() ) {
+               case json::type::STRING:
+                  l.unsafe_get_string() += r.unsafe_get_string();
+                  break;
+               case json::type::STRING_VIEW:
+                  l.unsafe_get_string() += r.unsafe_get_string_view();
+                  break;
+               default:
+                  throw addition_error{ l.type(), r.type() };
             }
-            return oss.str();
          }
 
          template< template< typename... > class Traits >
-         std::vector< std::byte > binary_addition( const std::vector< json::basic_value< Traits > >& a )
+         void binary_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
          {
-            std::vector< std::byte > result;
-
-            for( std::size_t i = 0; i < a.size(); ++i ) {
-               switch( a[ i ].type() ) {
-                  case json::type::BINARY:
-                     result.insert( result.end(), a[ i ].unsafe_get_binary().begin(), a[ i ].unsafe_get_binary().end() );
-                     continue;
-                  case json::type::BINARY_VIEW:
-                     result.insert( result.end(), a[ i ].unsafe_get_binary_view().begin(), a[ i ].unsafe_get_binary_view().end() );
-                     continue;
-                  default:
-                     throw addition_error{ json::type::BINARY, i };
-               }
+            switch( r.type() ) {
+               case json::type::BINARY:
+                  l.unsafe_get_binary().insert( l.unsafe_get_binary().end(), r.unsafe_get_binary().begin(), r.unsafe_get_binary().end() );
+                  break;
+               case json::type::BINARY_VIEW:
+                  l.unsafe_get_binary().insert( l.unsafe_get_binary().end(), r.unsafe_get_binary_view().begin(), r.unsafe_get_binary_view().end() );
+                  break;
+               default:
+                  throw addition_error{ l.type(), r.type() };
             }
-            return result;
          }
 
          template< template< typename... > class Traits >
-         std::vector< json::basic_value< Traits > > array_addition( const std::vector< json::basic_value< Traits > >& a )
+         void array_addition( json::basic_value< Traits >& l, json::basic_value< Traits >&& r )
          {
-            std::vector< json::basic_value< Traits > > result;
-
-            for( std::size_t i = 0; i < a.size(); ++i ) {
-               switch( a[ i ].type() ) {
-                  case json::type::ARRAY:
-                     result.insert( result.end(), a[ i ].unsafe_get_array().begin(), a[ i ].unsafe_get_array().end() );
-                     continue;
-                  default:
-                     throw addition_error{ json::type::ARRAY, i };
-               }
+            switch( r.type() ) {
+               case json::type::ARRAY:
+                  l.unsafe_get_array().reserve( l.unsafe_get_array().size() + r.unsafe_get_array().size() );
+                  for( auto&& i : r.unsafe_get_array() ) {
+                     l.emplace_back( std::move( i ) );
+                  }
+                  break;
+               default:
+                  throw addition_error{ l.type(), r.type() };
             }
-            return result;
          }
 
          template< template< typename... > class Traits >
-         std::map< std::string, json::basic_value< Traits > > object_addition( const std::vector< json::basic_value< Traits > >& a )
+         void object_addition( json::basic_value< Traits >& l, json::basic_value< Traits >&& r )
          {
-            std::map< std::string, json::basic_value< Traits > > result;
-
-            for( std::size_t i = 0; i < a.size(); ++i ) {
-               switch( a[ i ].type() ) {
-                  case json::type::OBJECT:
-                     for( const auto& j : a[ i ].unsafe_get_object() ) {
-                        result.insert_or_assign( j.first, j.second );
-                     }
-                     break;
-                  default:
-                     throw addition_error{ json::type::OBJECT, i };
-               }
+            switch( r.type() ) {
+               case json::type::OBJECT:
+                  for( auto&& i : r.unsafe_get_object() ) {
+                     l.emplace( i.first, std::move( i.second ) );
+                  }
+                  break;
+               default:
+                  throw addition_error{ l.type(), r.type() };
             }
-            return result;
          }
 
          template< template< typename... > class Traits >
-         json::basic_value< Traits > integer_addition_value( const std::vector< json::basic_value< Traits > >& a )
+         void addition( json::basic_value< Traits >& l, json::basic_value< Traits >&& r, const position& pos )
          {
-            const auto t = integer_addition( a );
-            return ( t < 0 ) ? json::basic_value< Traits >( std::int64_t( t ) ) : json::basic_value< Traits >( std::uint64_t( t ) );  // TODO: Check for overflow etc.
-         }
-
-         template< template< typename... > class Traits >
-         json::basic_value< Traits > value_addition( const concat& c, const std::vector< json::basic_value< Traits > >& a )
-         {
-            assert( !a.empty() );
-            assert( a.size() == c.v.size() );
-
+            if( r.is_null() ) {
+               return;
+            }
+            if( l.is_null() ) {
+               l = std::move( r );
+               return;
+            }
             try {
-               switch( a[ 0 ].type() ) {
+               switch( l.type() ) {
                   case json::type::NULL_:
-                     return json::basic_value< Traits >( null_addition( a ) );
-                  case json::type::ARRAY:
-                     return json::basic_value< Traits >( array_addition( a ) );
-                  case json::type::OBJECT:
-                     return json::basic_value< Traits >( object_addition( a ) );
+                     assert( false );
                   case json::type::BOOLEAN:
-                     return json::basic_value< Traits >( boolean_addition( a ) );
+                     return boolean_addition( l, r );
                   case json::type::SIGNED:
+                     return signed_addition( l, r );
                   case json::type::UNSIGNED:
-                     return integer_addition_value( a );
+                     return unsigned_addition( l, r );
+                  case json::type::DOUBLE:
+                     return double_addition( l, r );
                   case json::type::STRING:
                   case json::type::STRING_VIEW:
-                     return json::basic_value< Traits >( string_addition( a ) );
+                     return string_addition( l, r );
                   case json::type::BINARY:
                   case json::type::BINARY_VIEW:
-                     return json::basic_value< Traits >( binary_addition( a ) );
+                     return binary_addition( l, r );
+                  case json::type::ARRAY:
+                     return array_addition( l, std::move( r ) );
+                  case json::type::OBJECT:
+                     return object_addition( l, std::move( r ) );
                   default:
-                     throw std::runtime_error( format( "invalid addition type", { &c.v[ 0 ].position(), a[ 0 ].type() } ) );
+                     assert( false );
                }
             }
             catch( const addition_error& e ) {
-               throw std::runtime_error( format( "inconsistent addition types", { { "first", { &c.v[ 0 ].position(), a[ 0 ].type() } }, { "later", { &c.v[ e.index ].position(), a[ e.index ].type() } } } ) );
+               throw std::runtime_error( format( "inconsistent types", { &pos, { "old_type", e.l }, { "new_type", e.r } } ) );
             }
          }
 
