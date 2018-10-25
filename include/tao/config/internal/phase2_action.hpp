@@ -42,7 +42,7 @@ namespace tao
          };
 
          template<>
-         struct phase2_action< rules::phase2_name >
+         struct phase2_action< rules::phase2_ident >
          {
             template< typename Input >
             static void apply( const Input& in, reference_state& st )

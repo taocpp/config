@@ -71,19 +71,23 @@ namespace tao
 
             struct opt_comma : pegtl::opt< comma, wss > {};
 
-            struct phase1_name : identifier {};
+            struct phase1_ident : identifier {};
             struct phase1_index : pegtl::plus< pegtl::digit > {};
             struct phase1_multi : star {};
             struct phase1_append : minus {};
-            struct phase1_part : pegtl::sor< phase1_name, phase1_index, phase1_multi, phase1_append > {};
+            struct phase1_choice : jaxn::string_fragment {};
+            struct phase1_at : pegtl::at< pegtl::one< '\'', '"' > > {};
+            struct phase1_quoted : pegtl::if_must< phase1_at, phase1_choice > {};
+            struct phase1_part : pegtl::sor< phase1_ident, phase1_index, phase1_multi, phase1_append, phase1_quoted > {};
+            struct member_part : pegtl::sor< phase1_ident, phase1_quoted > {};
 
             struct phase2_sub : pegtl::if_must< round_a, phase2_key, round_z > {};
-            struct phase2_name : identifier {};
+            struct phase2_ident : identifier {};
             struct phase2_index : pegtl::plus< pegtl::digit > {};
-            struct phase2_part : pegtl::sor< phase2_sub, phase2_name, phase2_index > {};
+            struct phase2_part : pegtl::sor< phase2_sub, phase2_ident, phase2_index > {};
 
             struct phase1_key : pegtl::list_must< phase1_part, dot > {};
-            struct member_key : pegtl::seq< phase1_name, pegtl::star_must< dot, phase1_part > > {};
+            struct member_key : pegtl::seq< member_part, pegtl::star_must< dot, phase1_part > > {};
             struct phase2_key : pegtl::list_must< phase2_part, dot > {};
             struct phase2_top : pegtl::list_must< phase2_part, dot > {};
 
@@ -105,8 +109,8 @@ namespace tao
 
             struct ext_value : pegtl::sor< env_value, copy_value, shell_value, debug_value, read_value, json_value, jaxn_value, cbor_value, msgpack_value, ubjson_value > {};  // TODO: Keep this all here, or unify syntax and delegate to a run-time map?
 
-            struct if_at : pegtl::at< identifier, ws1 > {};  // TODO: Enough?
-            struct special_value : pegtl::if_must< round_a, pegtl::if_must_else< if_at, ext_value, phase2_top >, round_z > {};
+            struct at_ext_value : pegtl::at< identifier, ws1 > {};
+            struct special_value : pegtl::if_must< round_a, pegtl::if_must_else< at_ext_value, ext_value, phase2_top >, round_z > {};
 
             struct binary_choice : pegtl::sor< jaxn::bstring, jaxn::bdirect > {};
             struct binary_value : pegtl::if_must< dollar, binary_choice > {};

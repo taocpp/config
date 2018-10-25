@@ -9,6 +9,7 @@
 #include "grammar.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"
+#include "phase1_state.hpp"
 #include "phase2_action.hpp"
 #include "reference_state.hpp"
 #include "state.hpp"
@@ -36,6 +37,12 @@ namespace tao
          template<>
          struct control< rules::string_choice >
             : public change_state_and_action< rules::string_choice, string_state, json::jaxn::internal::unescape_action >
+         {
+         };
+
+         template<>
+         struct control< rules::phase1_choice >
+            : public change_state_and_action< rules::phase1_choice, phase1_state, json::jaxn::internal::unescape_action >
          {
          };
 
