@@ -29,7 +29,7 @@ namespace tao
 
             // General Structure
 
-            bool clear = false;  // To distinguish plus_equals from equals (only the latter clears the obtained concat).
+            bool alternative = false;  // TODO: Make less hackish?
 
             std::vector< concat* > lstack;  // Current rules::value_list
             std::vector< array_t* > astack;  // Array contexts via '['

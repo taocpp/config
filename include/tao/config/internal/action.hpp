@@ -5,11 +5,13 @@
 #define TAO_CONFIG_INTERNAL_ACTION_HPP
 
 #include <sstream>
+#include <stdexcept>
 
 #include "access.hpp"
 #include "assign.hpp"
 #include "control.hpp"
 #include "erase.hpp"
+#include "format.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"
@@ -273,7 +275,7 @@ namespace tao
          {
             static void apply0( state& st )
             {
-               st.clear = false;
+               st.alternative = true;
             }
          };
 
@@ -282,20 +284,23 @@ namespace tao
          {
             static void apply0( state& st )
             {
-               st.clear = true;
+               st.alternative = false;
             }
          };
 
          template<>
          struct action< rules::erase_member >
          {
-            static void apply0( state& st )
+            template< typename Input >
+            static void apply( const Input& in, state& st )
             {
                assert( !st.key.empty() );
                assert( !st.ostack.empty() );
 
-               erase( *st.ostack.back(), st.key );
-
+               if( ( erase( *st.ostack.back(), st.key ) == 0 ) && ( !st.alternative ) ) {
+                  const auto pos = in.position();
+                  throw std::runtime_error( format( "delete failed", { &pos, { "key", &st.key } } ) );
+               }
                st.key.clear();
             }
          };
@@ -321,8 +326,16 @@ namespace tao
             template< typename Input >
             static void apply( const Input& in, state& st )
             {
-               pegtl::file_input i2( st.str );
-               pegtl::parse_nested< grammar, action, control >( in, i2, st );
+               try {
+                  pegtl::file_input i2( st.str );
+                  pegtl::parse_nested< grammar, action, control >( in, i2, st );
+               }
+               catch( const pegtl::input_error& e ) {
+                  if( !st.alternative ) {
+                     const auto pos = in.position();
+                     throw std::runtime_error( format( "include failed", { &pos, { "filename", st.str }, { "error", e.what() }, { "errno", e.errorno } } ) );  // TODO: std::throw_nested()?
+                  }
+               }
             }
          };
 
@@ -337,6 +350,24 @@ namespace tao
                access( *st.ostack.back(), st.key ).transient = true;
 
                st.key.clear();
+            }
+         };
+
+         template<>
+         struct action< rules::round_a >
+         {
+            static void apply0( state& st )
+            {
+               st.alternative = false;
+            }
+         };
+
+         template<>
+         struct action< rules::question >
+         {
+            static void apply0( state& st )
+            {
+               st.alternative = true;
             }
          };
 

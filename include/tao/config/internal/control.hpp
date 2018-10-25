@@ -113,7 +113,7 @@ namespace tao
 
                st.lstack.emplace_back( &assign( in.position(), *st.ostack.back(), st.key ) );
 
-               if( st.clear ) {
+               if( !st.alternative ) {
                   st.lstack.back()->v.clear();
                }
                st.key.clear();

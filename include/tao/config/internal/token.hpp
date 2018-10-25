@@ -87,7 +87,7 @@ namespace tao
                      c.string( t.name() );
                      return;
                   case token::INDEX:
-                     c.number( t.index() );
+                     c.number( std::uint64_t( t.index() ) );
                      return;
                   case token::STAR:
                      c.string( "*" );

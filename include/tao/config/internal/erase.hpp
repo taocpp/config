@@ -16,19 +16,22 @@ namespace tao
    {
       namespace internal
       {
-         inline void erase( concat& l, const pointer& p, const token& f );
+         inline std::size_t erase( concat& l, const pointer& p, const token& f );
 
-         inline void erase_name( concat& l, const std::string& k )
+         inline std::size_t erase_name( concat& l, const std::string& k )
          {
+            std::size_t r = 0;
+
             for( auto& i : l.v ) {
                if( !i.is_object() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
-               i.get_object().erase( k );
+               r += i.get_object().erase( k );
             }
+            return r;
          }
 
-         inline void erase_index( concat& l, std::size_t n )
+         inline std::size_t erase_index( concat& l, std::size_t n )
          {
             for( auto& i : l.v ) {
                if( !i.is_array() ) {
@@ -39,29 +42,34 @@ namespace tao
 
                if( n < s ) {
                   a.erase( a.begin() + n );
-                  return;
+                  return 1;
                }
                n -= s;
             }
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline void erase_star( concat& l )
+         inline std::size_t erase_star( concat& l )
          {
             for( auto& i : l.v ) {
                if( i.is_array() ) {
+                  const std::size_t r = i.get_array().size();
                   i.get_array().clear();
+                  return r;
                }
                else if( i.is_object() ) {
+                  const std::size_t r = i.get_object().size();
                   i.get_object().clear();
+                  return r;
                }
                else {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
                }
             }
+            return 0;
          }
 
-         inline void erase_minus( concat& l )
+         inline std::size_t erase_minus( concat& l )
          {
             for( auto& i : reverse( l.v ) ) {
                if( !i.is_array() ) {
@@ -71,13 +79,13 @@ namespace tao
 
                if( !a.empty() ) {
                   a.pop_back();
-                  return;
+                  return 1;
                }
             }
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline void erase( concat& l, const token& f )
+         inline std::size_t erase( concat& l, const token& f )
          {
             switch( f.type() ) {
                case token::NAME:
@@ -92,8 +100,10 @@ namespace tao
             assert( false );
          }
 
-         inline void erase_name( concat& l, const std::string& k, const pointer& p, const token& f )
+         inline std::size_t erase_name( concat& l, const std::string& k, const pointer& p, const token& f )
          {
+            std::size_t r = 0;
+
             for( auto& i : reverse( l.v ) ) {
                if( !i.is_object() ) {
                   throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
@@ -101,12 +111,13 @@ namespace tao
                const auto j = i.get_object().find( k );
 
                if( j != i.get_object().end() ) {
-                  erase( j->second, p, f );
+                  r += erase( j->second, p, f );
                }
             }
+            return r;
          }
 
-         inline void erase_index( concat& l, std::size_t n, const pointer& p, const token& f )
+         inline std::size_t erase_index( concat& l, std::size_t n, const pointer& p, const token& f )
          {
             for( auto& i : l.v ) {
                if( !i.is_array() ) {
@@ -122,7 +133,7 @@ namespace tao
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline void erase_minus( concat& l, const pointer& p, const token& f )
+         inline std::size_t erase_minus( concat& l, const pointer& p, const token& f )
          {
             for( auto& i : reverse( l.v ) ) {
                if( !i.is_array() ) {
@@ -135,7 +146,7 @@ namespace tao
             throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
          }
 
-         inline void erase( concat& l, const token& t, const pointer& p, const token& f )
+         inline std::size_t erase( concat& l, const token& t, const pointer& p, const token& f )
          {
             switch( t.type() ) {
                case token::NAME:
@@ -150,27 +161,34 @@ namespace tao
             assert( false );
          }
 
-         inline void erase( concat& l, const pointer& p, const token& f )
+         inline std::size_t erase( concat& l, const pointer& p, const token& f )
          {
             if( p.empty() ) {
-               erase( l, f );
+               return erase( l, f );
             }
             else {
-               erase( l, p.front(), pop_front( p ), f );
+               return erase( l, p.front(), pop_front( p ), f );
             }
          }
 
-         inline void erase( object_t& o, const token& t, const pointer& p )
+         inline std::size_t erase( object_t& o, const std::string& k, const pointer& p )
+         {
+            if( p.empty() ) {
+               return o.erase( k );
+            }
+            const auto i = o.find( k );
+
+            if( i != o.end() ) {
+               return erase( i->second, pop_back( p ), p.back() );
+            }
+            return 0;
+         }
+
+         inline std::size_t erase( object_t& o, const token& t, const pointer& p )
          {
             switch( t.type() ) {
                case token::NAME:
-                  if( p.empty() ) {
-                     o.erase( t.name() );
-                  }
-                  else {
-                     erase( o.at( t.name() ), pop_back( p ), p.back() );  // TODO: Proper exception message on key-not-found.
-                  }
-                  return;
+                  return erase( o, t.name(), p );
                case token::INDEX:
                   assert( false );
                case token::STAR:
@@ -181,7 +199,7 @@ namespace tao
             assert( false );
          }
 
-         inline void erase( object_t& o, const pointer& p )
+         inline std::size_t erase( object_t& o, const pointer& p )
          {
             assert( !p.empty() );
 

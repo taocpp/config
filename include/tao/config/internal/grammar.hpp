@@ -41,6 +41,7 @@ namespace tao
             struct round_z : pegtl::one< ')' > {};
             struct square_a : pegtl::one< '[' > {};
             struct square_z : pegtl::one< ']' > {};
+            struct question : pegtl::one< '?' > {};
 
             struct null_s : pegtl::string< 'n', 'u', 'l', 'l' > {};
             struct true_s : pegtl::string< 't', 'r', 'u', 'e' > {};
@@ -73,6 +74,7 @@ namespace tao
             struct ref_part;
 
             struct opt_comma : pegtl::opt< comma, wss > {};
+            struct opt_question : pegtl::opt< question > {};
 
             struct at_quote : pegtl::at< pegtl::one< '\'', '"' > > {};
 
@@ -108,7 +110,7 @@ namespace tao
 
             struct ext_value : pegtl::sor< env_value, copy_value, shell_value, debug_value, read_value, json_value, jaxn_value, cbor_value, msgpack_value, ubjson_value > {};  // TODO: Keep this all here, or unify syntax and delegate to a run-time map?
 
-            struct at_ext_value : pegtl::at< identifier, ws1 > {};
+            struct at_ext_value : pegtl::at< identifier, opt_question, ws1 > {};
             struct special_value : pegtl::if_must< round_a, pegtl::if_must_else< at_ext_value, ext_value, reference >, round_z > {};
 
             struct binary_choice : pegtl::sor< jaxn::bstring, jaxn::bdirect > {};
@@ -126,9 +128,9 @@ namespace tao
             struct append_member : pegtl::if_must< plus_equals, wss, value_list > {};
             struct key_member : pegtl::if_must< other_key, wss, pegtl::sor< assign_member, append_member > > {};
 
-            struct erase_member : pegtl::if_must< erase_s, wsp, erase_key > {};
+            struct erase_member : pegtl::if_must< erase_s, opt_question, wsp, erase_key > {};
             struct stderr_member: pegtl::if_must< stderr_s, wsp, other_key > {};
-            struct include_member : pegtl::if_must< include_s, wsp, phase1_string > {};
+            struct include_member : pegtl::if_must< include_s, opt_question, wsp, phase1_string > {};
             struct transient_member : pegtl::if_must< transient_s, wsp, other_key > {};
             struct ext_member : pegtl::if_must< round_a, pegtl::sor< erase_member, stderr_member, include_member, transient_member >, round_z > {};
 
