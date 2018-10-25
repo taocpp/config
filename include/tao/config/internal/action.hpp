@@ -173,7 +173,7 @@ namespace tao
                assert( !st.lstack.empty() );
 
                std::ostringstream oss;
-               to_stream( oss, access( *st.ostack.back(), st.key ) );
+               to_stream( oss, access( *st.ostack.front(), st.key ) );
                st.lstack.back()->v.emplace_back( entry::atom( in.position(), oss.str() ) );
 
                st.key.clear();
@@ -241,7 +241,7 @@ namespace tao
          };
 
          template<>
-         struct action< rules::phase1_multi >
+         struct action< rules::phase1_star >
          {
             static void apply0( state& st )
             {
@@ -250,7 +250,7 @@ namespace tao
          };
 
          template<>
-         struct action< rules::phase1_append >
+         struct action< rules::phase1_minus >
          {
             static void apply0( state& st )
             {

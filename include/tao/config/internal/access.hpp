@@ -70,7 +70,7 @@ namespace tao
                case token::INDEX:
                   return access_index( l, t.index(), p );
                case token::STAR:
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );  // TODO: Proper exception messages everywhere.
+                  assert( false );
                case token::MINUS:
                   return access_minus( l, p );
             }
@@ -91,11 +91,11 @@ namespace tao
                case token::NAME:
                   return access( o.at( t.name() ), p );  // TODO: Proper exception message on key-not-found.
                case token::INDEX:
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  assert( false );
                case token::STAR:
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  assert( false );
                case token::MINUS:
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  assert( false );
             }
             assert( false );
          }

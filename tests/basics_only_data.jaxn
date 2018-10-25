@@ -36,5 +36,16 @@
 
     binary : $deadbeef,
 
-    multi : "multi\nline\nstring\n"
+    multi : "multi\nline\nstring\n",
+
+    quoted_keys : {
+        b1 : 2,
+        b2 : 2,
+        b3 : 2,
+        b4 : 2,
+        b5 : 2,
+        b6 : 2,
+        "" : 2,
+        "123" : 2
+    }
 }

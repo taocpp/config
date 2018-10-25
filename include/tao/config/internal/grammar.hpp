@@ -73,21 +73,21 @@ namespace tao
 
             struct phase1_ident : identifier {};
             struct phase1_index : pegtl::plus< pegtl::digit > {};
-            struct phase1_multi : star {};
-            struct phase1_append : minus {};
+            struct phase1_star : star {};
+            struct phase1_minus : minus {};
             struct phase1_choice : jaxn::string_fragment {};
             struct phase1_at : pegtl::at< pegtl::one< '\'', '"' > > {};
             struct phase1_quoted : pegtl::if_must< phase1_at, phase1_choice > {};
-            struct phase1_part : pegtl::sor< phase1_ident, phase1_index, phase1_multi, phase1_append, phase1_quoted > {};
-            struct member_part : pegtl::sor< phase1_ident, phase1_quoted > {};
+            struct phase1_part : pegtl::sor< phase1_ident, phase1_index, phase1_minus, phase1_quoted > {};
+            struct phase1_head : pegtl::sor< phase1_ident, phase1_quoted > {};
+            struct phase1_key : pegtl::seq< phase1_head, pegtl::star_must< dot, phase1_part > > {};
+
+            struct erase_key : pegtl::seq< phase1_head, pegtl::star< dot, phase1_part >, pegtl::opt_must< dot, phase1_star > > {};
 
             struct phase2_sub : pegtl::if_must< round_a, phase2_key, round_z > {};
             struct phase2_ident : identifier {};
             struct phase2_index : pegtl::plus< pegtl::digit > {};
             struct phase2_part : pegtl::sor< phase2_sub, phase2_ident, phase2_index > {};
-
-            struct phase1_key : pegtl::list_must< phase1_part, dot > {};
-            struct member_key : pegtl::seq< member_part, pegtl::star_must< dot, phase1_part > > {};
             struct phase2_key : pegtl::list_must< phase2_part, dot > {};
             struct phase2_top : pegtl::list_must< phase2_part, dot > {};
 
@@ -126,9 +126,9 @@ namespace tao
             struct value_list : pegtl::list< value_part, plus, ws1 > {};
             struct assign_member : pegtl::if_must< equals, wss, value_list > {};
             struct append_member : pegtl::if_must< plus_equals, wss, value_list > {};
-            struct key_member : pegtl::if_must< member_key, wss, pegtl::sor< assign_member, append_member > > {};
+            struct key_member : pegtl::if_must< phase1_key, wss, pegtl::sor< assign_member, append_member > > {};
 
-            struct erase_member : pegtl::if_must< erase_s, wsp, phase1_key > {};
+            struct erase_member : pegtl::if_must< erase_s, wsp, erase_key > {};
             struct stderr_member: pegtl::if_must< stderr_s, wsp, phase1_key > {};
             struct include_member : pegtl::if_must< include_s, wsp, phase1_string > {};
             struct ext_member : pegtl::if_must< round_a, pegtl::sor< erase_member, stderr_member, include_member >, round_z > {};

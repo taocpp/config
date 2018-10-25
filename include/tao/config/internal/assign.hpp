@@ -70,7 +70,7 @@ namespace tao
                case token::INDEX:
                   return assign_index( pos, l, t.index(), p );
                case token::STAR:
-                  assert( false );  // TODO: Check whether the grammar prevents this.
+                  assert( false );
                case token::MINUS:
                   return assign_minus( pos, l, p );
             }

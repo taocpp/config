@@ -143,7 +143,7 @@ namespace tao
                case token::INDEX:
                   return erase_index( l, t.index(), p, f );
                case token::STAR:
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );  // TODO: Or implement this again?
+                  assert( false );
                case token::MINUS:
                   return erase_minus( l, p, f );
             }
@@ -172,11 +172,11 @@ namespace tao
                   }
                   return;
                case token::INDEX:
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  assert( false );
                case token::STAR:
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  assert( false );
                case token::MINUS:
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  assert( false );
             }
             assert( false );
          }
