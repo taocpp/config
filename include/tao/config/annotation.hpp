@@ -13,7 +13,7 @@ namespace tao
       struct annotation
       {
          config::pointer pointer;
-         json::position position;  // TODO: json::position, pegtl::position or config::position?
+         json::position position;  // TODO: json::position, pegtl::position or TBD config::position?
 
          // TODO: Can we use binding::object without these functions?
 
@@ -30,6 +30,16 @@ namespace tao
          const std::string& source() const noexcept
          {
             return position.source();
+         }
+
+         void set_pointer( const config::pointer& ptr )  // TODO: Use internal::pointer here?
+         {
+            pointer = ptr;
+         }
+
+         void set_position( const json_pegtl::position& pos )
+         {
+            position.set_position( pos );
          }
       };
 

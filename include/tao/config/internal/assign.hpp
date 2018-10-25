@@ -80,6 +80,7 @@ namespace tao
          inline concat& assign( const position& pos, concat& l, const pointer& p )
          {
             if( p.empty() ) {
+               l.p = pos;
                return l;
             }
             return assign( pos, l, p.front(), pop_front( p ) );

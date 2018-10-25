@@ -7,6 +7,7 @@
 #include "access.hpp"
 #include "addition.hpp"
 #include "json.hpp"
+#include "type_traits.hpp"
 #include "utility.hpp"
 
 namespace tao
@@ -32,7 +33,7 @@ namespace tao
                default:
                   break;
             }
-            r.pointer = p;
+            r.set_pointer( p );
          }
 
          class phase2_impl
@@ -48,7 +49,9 @@ namespace tao
             json::basic_value< Traits > phase2() const
             {
                json::basic_value< Traits > r = process_object< Traits >( m_root );
-               phase2_pointers( r, config::pointer() );
+               if constexpr( has_set_pointer< json::basic_value< Traits > >::value ) {
+                  phase2_pointers( r, config::pointer() );
+               }
                return r;
             }
 
@@ -82,6 +85,9 @@ namespace tao
 
                for( std::size_t i = 1; i < l.v.size(); ++i ) {
                   addition( r, process_entry< Traits >( l.v[ i ] ), l.v[ i ].position() );
+               }
+               if constexpr( has_set_position< json::basic_value< Traits > >::value ) {
+                  r.set_position( l.p );
                }
                return r;
             }
