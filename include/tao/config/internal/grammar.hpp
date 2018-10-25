@@ -62,6 +62,7 @@ namespace tao
             struct erase_s : pegtl::string< 'd', 'e', 'l', 'e', 't', 'e' > {};
             struct stderr_s : pegtl::string< 's', 't', 'd', 'e', 'r', 'r' > {};
             struct include_s : pegtl::string< 'i', 'n', 'c', 'l', 'u', 'd', 'e' > {};
+            struct transient_s : pegtl::string< 't', 'r', 'a', 'n', 's', 'i', 'e', 'n', 't' > {};
 
             struct index : pegtl::plus< pegtl::digit > {};
             struct identifier : pegtl::identifier {};  // TODO: More?
@@ -128,7 +129,8 @@ namespace tao
             struct erase_member : pegtl::if_must< erase_s, wsp, erase_key > {};
             struct stderr_member: pegtl::if_must< stderr_s, wsp, other_key > {};
             struct include_member : pegtl::if_must< include_s, wsp, phase1_string > {};
-            struct ext_member : pegtl::if_must< round_a, pegtl::sor< erase_member, stderr_member, include_member >, round_z > {};
+            struct transient_member : pegtl::if_must< transient_s, wsp, other_key > {};
+            struct ext_member : pegtl::if_must< round_a, pegtl::sor< erase_member, stderr_member, include_member, transient_member >, round_z > {};
 
             struct element : pegtl::list< value_part, plus, ws1 > {};
             struct member : pegtl::sor< ext_member, key_member > {};

@@ -326,6 +326,20 @@ namespace tao
             }
          };
 
+         template<>
+         struct action< rules::transient_member >
+         {
+            static void apply0( state& st )
+            {
+               assert( !st.key.empty() );
+               assert( !st.ostack.empty() );
+
+               access( *st.ostack.back(), st.key ).transient = true;
+
+               st.key.clear();
+            }
+         };
+
       }  // namespace internal
 
    }  // namespace config

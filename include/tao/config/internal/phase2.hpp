@@ -106,7 +106,9 @@ namespace tao
                json::basic_value< Traits > t = json::empty_array;
 
                for( const auto& i : a ) {
-                  t.emplace_back( process_list< Traits >( i ) );
+                  if( !i.transient ) {
+                     t.emplace_back( process_list< Traits >( i ) );
+                  }
                }
                return t;
             }
@@ -117,7 +119,9 @@ namespace tao
                json::basic_value< Traits > t = json::empty_object;
 
                for( const auto& i : o ) {
-                  t.emplace( i.first, process_list< Traits >( i.second ) );
+                  if( !i.second.transient ) {
+                     t.emplace( i.first, process_list< Traits >( i.second ) );
+                  }
                }
                return t;
             }
