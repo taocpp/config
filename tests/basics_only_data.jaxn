@@ -58,6 +58,6 @@
     float3 : -0.42,
     float4 : -1.2e-1,
     float5 : 0.0,
-    // float6 : NaN,
+    float6 : NaN,
     float7 : -Infinity
 }

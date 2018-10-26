@@ -6,6 +6,7 @@
 
 #include <sstream>
 
+#include "json.hpp"
 #include "traits.hpp"
 
 namespace tao
@@ -17,7 +18,7 @@ namespace tao
          inline std::string format( const std::string& message, const json::basic_value< traits >& value )
          {
             std::ostringstream os;
-            os << message << " " << value;
+            os << "'" << message << "' -- " << value;
             return os.str();
          }
 

@@ -18,32 +18,33 @@ namespace tao
 
    void unit_test( const std::string& name )
    {
-      const auto c = config::parse_file( name + ".config" );
-      const auto d = config::parse_file( name + "_only_data.jaxn" );
-      const auto j = json::jaxn::basic_parse_file< config::traits >( name + "_only_data.jaxn" );
-      if( c != j ) {
+      const auto cc = config::parse_file( name + ".config" );
+      const auto cj = config::parse_file( name + "_only_data.jaxn" );
+      const auto jj = json::jaxn::basic_parse_file< config::traits >( name + "_only_data.jaxn" );
+
+      const auto ccs = json::jaxn::to_string( cc );
+      const auto cjs = json::jaxn::to_string( cj );
+      const auto jjs = json::jaxn::to_string( jj );
+
+      if( ccs != jjs ) {
          ++failed;
          std::cerr << "Testcase '" << name << "' failed config test!" << std::endl;
-         std::cerr << "<<< Parsed config <<<" << std::endl;
-         json::jaxn::to_stream( std::cerr, c );
-         std::cerr << std::endl;
-         std::cerr << ">>> Parsed config >>>" << std::endl;
-         std::cerr << "<<< Reference data <<<" << std::endl;
-         json::jaxn::to_stream( std::cerr, j );
-         std::cerr << std::endl;
-         std::cerr << ">>> Reference data >>>" << std::endl;
+         std::cerr << "<<< Config parsed as config <<<" << std::endl;
+         std::cerr << ccs << std::endl;
+         std::cerr << ">>> Config parsed as config >>>" << std::endl;
+         std::cerr << "<<< Reference data parsed as jaxn <<<" << std::endl;
+         std::cerr << jjs << std::endl;
+         std::cerr << ">>> Reference data parsed as jaxn >>>" << std::endl;
       }
-      if( d != j ) {
+      if( ccs != cjs ) {
          ++failed;
          std::cerr << "Testcase '" << name << "' failed identity test!" << std::endl;
-         std::cerr << "<<< Parsed config <<<" << std::endl;
-         json::jaxn::to_stream( std::cerr, c );
-         std::cerr << std::endl;
-         std::cerr << ">>> Parsed config >>>" << std::endl;
-         std::cerr << "<<< Reference data <<<" << std::endl;
-         json::jaxn::to_stream( std::cerr, j );
-         std::cerr << std::endl;
-         std::cerr << ">>> Reference data >>>" << std::endl;
+         std::cerr << "<<< Config parsed as config <<<" << std::endl;
+         std::cerr << ccs << std::endl;
+         std::cerr << ">>> Config parsed as config >>>" << std::endl;
+         std::cerr << "<<< Reference data parsed as config <<<" << std::endl;
+         std::cerr << cjs << std::endl;
+         std::cerr << ">>> Reference data parsed as config >>>" << std::endl;
       }
    }
 
