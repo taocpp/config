@@ -24,7 +24,7 @@ namespace tao
          {
             for( auto& i : reverse( l.v ) ) {
                if( !i.is_object() ) {
-                  throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "indexed", &l.p } } ) );
+                  throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
                }
                const auto j = i.get_object().find( k );
 
@@ -42,7 +42,7 @@ namespace tao
          {
             for( auto& i : l.v ) {
                if( !i.is_array() ) {
-                  throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "indexed", &l.p } } ) );
+                  throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-object", { &i.position(), i.type() } } } ) );
                }
                const auto s = i.get_array().size();
 

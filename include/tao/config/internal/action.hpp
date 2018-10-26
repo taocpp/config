@@ -162,8 +162,9 @@ namespace tao
                assert( !st.lstack.empty() );
 
                std::ostringstream oss;
-               to_stream( oss, access( *st.ostack.front(), st.key ) );
-               st.lstack.back()->v.emplace_back( entry::atom( in.position(), oss.str() ) );
+               const auto pos = in.position();
+               to_stream( oss, access( pos, *st.ostack.front(), st.key ) );
+               st.lstack.back()->v.emplace_back( entry::atom( pos, oss.str() ) );
 
                st.key.clear();
             }
@@ -194,15 +195,16 @@ namespace tao
          template<>
          struct action< rules::copy_value >
          {
-            static void apply0( state& st )
+            template< typename Input >
+            static void apply( const Input& in, state& st )
             {
                assert( !st.key.empty() );
                assert( !st.ostack.empty() );
                assert( !st.lstack.empty() );
 
+               const auto pos = in.position();
                concat& d = *st.lstack.back();
-               const concat& s = access( *st.ostack.front(), st.key );
-
+               const concat& s = access( pos, *st.ostack.front(), st.key );
                d.v.insert( d.v.end(), s.v.begin(), s.v.end() );
 
                st.key.clear();
@@ -284,8 +286,9 @@ namespace tao
                assert( !st.key.empty() );
                assert( !st.ostack.empty() );
 
-               if( ( erase( *st.ostack.back(), st.key ) == 0 ) && ( !st.with_question_mark ) ) {
-                  const auto pos = in.position();
+               const auto pos = in.position();
+
+               if( ( erase( pos, *st.ostack.back(), st.key ) == 0 ) && ( !st.with_question_mark ) ) {
                   throw std::runtime_error( format( "delete failed", { &pos, { "key", &st.key } } ) );
                }
                st.with_question_mark = false;
@@ -296,12 +299,14 @@ namespace tao
          template<>
          struct action< rules::stderr_member >
          {
-            static void apply0( state& st )
+            template< typename Input >
+            static void apply( const Input& in, state& st )
             {
                assert( !st.key.empty() );
                assert( !st.ostack.empty() );
 
-               to_stream( std::cerr, access( *st.ostack.back(), st.key ), 3 );
+               const auto pos = in.position();
+               to_stream( std::cerr, access( pos, *st.ostack.back(), st.key ), 3 );
                std::cerr << std::endl;
 
                st.key.clear();
@@ -331,12 +336,14 @@ namespace tao
          template<>
          struct action< rules::transient_member >
          {
-            static void apply0( state& st )
+            template< typename Input >
+            static void apply( const Input& in, state& st )
             {
                assert( !st.key.empty() );
                assert( !st.ostack.empty() );
 
-               access( *st.ostack.back(), st.key ).transient = true;
+               const auto pos = in.position();
+               access( pos, *st.ostack.back(), st.key ).transient = true;
 
                st.key.clear();
             }

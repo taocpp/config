@@ -71,7 +71,7 @@ namespace tao
                   case entry::NOTHING:
                      assert( false );
                   case entry::REFERENCE:
-                     return process_reference< Traits >( e.get_reference() );
+                     return process_reference< Traits >( e.position(), e.get_reference() );
                }
                assert( false );
             }
@@ -126,25 +126,25 @@ namespace tao
                return t;
             }
 
-            const concat& process_reference_impl( const reference_t& r ) const
+            const concat& process_reference_impl( const position& pos, const reference_t& r ) const
             {
                pointer p;
 
                for( auto& i : r.get_array() ) {
                   if( i.is_array() ) {
-                     p.emplace_back( token_from_value( process_list< json::traits >( process_reference_impl( i ) ) ) );
+                     p.emplace_back( token_from_value( process_list< json::traits >( process_reference_impl( pos, i ) ) ) );
                   }
                   else {
                      p.emplace_back( token_from_value( i ) );
                   }
                }
-               return access( m_root, p );
+               return access( pos, m_root, p );
             }
 
             template< template< typename... > class Traits >
-            json::basic_value< Traits > process_reference( const reference_t& r ) const
+            json::basic_value< Traits > process_reference( const position& pos, const reference_t& r ) const
             {
-               return process_list< Traits >( process_reference_impl( r ) );
+               return process_list< Traits >( process_reference_impl( pos, r ) );
             }
 
          private:

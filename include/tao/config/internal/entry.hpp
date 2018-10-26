@@ -331,25 +331,54 @@ namespace tao
          };
 
          template<>
+         struct traits< entry::kind >
+         {
+            TAO_JSON_DEFAULT_KEY( "type" );
+
+            template< template< typename... > class Traits >
+            static void assign( json::basic_value< Traits >& v, const entry::kind k )
+            {
+               switch( k ) {
+                  case entry::ATOM:
+                     v = "ATOM";
+                     return;
+                  case entry::ARRAY:
+                     v = "ARRAY";
+                     return;
+                  case entry::OBJECT:
+                     v = "OBJECT";
+                     return;
+                  case entry::NOTHING:
+                     v = "NOTHING";
+                     return;
+                  case entry::REFERENCE:
+                     v = "REFERENCE";
+                     return;
+               }
+               assert( false );
+            }
+         };
+
+         template<>
          struct traits< entry >
          {
-            template< template< typename... > class, typename Consumer >
+            template< template< typename... > class Traits, typename Consumer >
             static void produce( Consumer& c, const entry& v )
             {
                switch( v.type() ) {
                   case entry::ATOM:
-                     json::events::produce< traits >( c, v.get_atom() );
+                     json::events::produce< Traits >( c, v.get_atom() );
                      return;
                   case entry::ARRAY:
-                     json::events::produce< traits >( c, v.get_array() );
+                     json::events::produce< Traits >( c, v.get_array() );
                      return;
                   case entry::OBJECT:
-                     json::events::produce< traits >( c, v.get_object() );
+                     json::events::produce< Traits >( c, v.get_object() );
                      return;
                   case entry::NOTHING:
                      assert( false );
                   case entry::REFERENCE:
-                     json::events::produce< traits >( c, v.get_reference() );
+                     json::events::produce< Traits >( c, v.get_reference() );
                      return;
                }
                assert( false );

@@ -6,6 +6,7 @@
 
 #include <stdexcept>
 
+#include "format.hpp"
 #include "pointer.hpp"
 #include "utility.hpp"
 #include "entry.hpp"
@@ -16,26 +17,26 @@ namespace tao
    {
       namespace internal
       {
-         inline std::size_t erase( concat& l, const pointer& p, const token& f );
+         inline std::size_t erase( const position& pos, concat& l, const pointer& p, const token& f );
 
-         inline std::size_t erase_name( concat& l, const std::string& k )
+         inline std::size_t erase_name( const position& pos, concat& l, const std::string& k )
          {
             std::size_t r = 0;
 
             for( auto& i : l.v ) {
                if( !i.is_object() ) {
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
                }
                r += i.get_object().erase( k );
             }
             return r;
          }
 
-         inline std::size_t erase_index( concat& l, std::size_t n )
+         inline std::size_t erase_index( const position& pos, concat& l, std::size_t n )
          {
             for( auto& i : l.v ) {
                if( !i.is_array() ) {
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-object", { &i.position(), i.type() } } } ) );
                }
                auto& a = i.get_array();
                const auto s = a.size();
@@ -46,34 +47,34 @@ namespace tao
                }
                n -= s;
             }
-            throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+            throw std::runtime_error( format( "array has no last element to delete", { &pos, { "array", { &l.p } } } ) );
          }
 
-         inline std::size_t erase_star( concat& l )
+         inline std::size_t erase_star( const position& pos, concat& l )
          {
+            std::size_t r = 0;
+
             for( auto& i : l.v ) {
                if( i.is_array() ) {
-                  const std::size_t r = i.get_array().size();
+                  r += i.get_array().size();
                   i.get_array().clear();
-                  return r;
+                  continue;
                }
-               else if( i.is_object() ) {
-                  const std::size_t r = i.get_object().size();
+               if( i.is_object() ) {
+                  r += i.get_object().size();
                   i.get_object().clear();
-                  return r;
+                  continue;
                }
-               else {
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
-               }
+               throw std::runtime_error( format( "attempt to delete everything from non-container", { &pos, { "non-container", { &i.position(), i.type() } } } ) );
             }
-            return 0;
+            return r;
          }
 
-         inline std::size_t erase_minus( concat& l )
+         inline std::size_t erase_minus( const position& pos, concat& l )
          {
             for( auto& i : reverse( l.v ) ) {
                if( !i.is_array() ) {
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  throw std::runtime_error( format( "attempt to delete last element from non-array", { &pos, { "non-array", { &i.position(), i.type() } } } ) );
                }
                auto& a = i.get_array();
 
@@ -82,96 +83,96 @@ namespace tao
                   return 1;
                }
             }
-            throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+            throw std::runtime_error( format( "array has no last element to delete in", { &pos, { "array", { &l.p } } } ) );
          }
 
-         inline std::size_t erase( concat& l, const token& f )
+         inline std::size_t erase( const position& pos, concat& l, const token& f )
          {
             switch( f.type() ) {
                case token::NAME:
-                  return erase_name( l, f.name() );
+                  return erase_name( pos, l, f.name() );
                case token::INDEX:
-                  return erase_index( l, f.index() );
+                  return erase_index( pos, l, f.index() );
                case token::STAR:
-                  return erase_star( l );
+                  return erase_star( pos, l );
                case token::MINUS:
-                  return erase_minus( l );
+                  return erase_minus( pos, l );
             }
             assert( false );
          }
 
-         inline std::size_t erase_name( concat& l, const std::string& k, const pointer& p, const token& f )
+         inline std::size_t erase_name( const position& pos, concat& l, const std::string& k, const pointer& p, const token& f )
          {
             std::size_t r = 0;
 
             for( auto& i : reverse( l.v ) ) {
                if( !i.is_object() ) {
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
                }
                const auto j = i.get_object().find( k );
 
                if( j != i.get_object().end() ) {
-                  r += erase( j->second, p, f );
+                  r += erase( pos, j->second, p, f );
                }
             }
             return r;
          }
 
-         inline std::size_t erase_index( concat& l, std::size_t n, const pointer& p, const token& f )
+         inline std::size_t erase_index( const position& pos, concat& l, std::size_t n, const pointer& p, const token& f )
          {
             for( auto& i : l.v ) {
                if( !i.is_array() ) {
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-array", { &i.position(), i.type() } } } ) );
                }
                const auto s = i.get_array().size();
 
                if( n < s ) {
-                  return erase( i.get_array()[ n ], p, f );
+                  return erase( pos, i.get_array()[ n ], p, f );
                }
                n -= s;
             }
-            throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+            throw std::runtime_error( format( "array index out of range", { &pos, { "integer", n }, { "array", { &l.p } } } ) );
          }
 
-         inline std::size_t erase_minus( concat& l, const pointer& p, const token& f )
+         inline std::size_t erase_minus( const position& pos, concat& l, const pointer& p, const token& f )
          {
             for( auto& i : reverse( l.v ) ) {
                if( !i.is_array() ) {
-                  throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+                  throw std::runtime_error( format( "attempt to delete last element from non-array", { &pos, { "non-array", { &i.position(), i.type() } } } ) );
                }
                if( !i.get_array().empty() ) {
-                  return erase( i.get_array().back(), p, f );
+                  return erase( pos, i.get_array().back(), p, f );
                }
             }
-            throw std::runtime_error( std::string( __FILE__ ) + ":" + std::to_string( __LINE__ ) );
+            throw std::runtime_error( format( "array has no last element to delete", { &pos, { "array", { &l.p } } } ) );
          }
 
-         inline std::size_t erase( concat& l, const token& t, const pointer& p, const token& f )
+         inline std::size_t erase( const position& pos, concat& l, const token& t, const pointer& p, const token& f )
          {
             switch( t.type() ) {
                case token::NAME:
-                  return erase_name( l, t.name(), p, f );
+                  return erase_name( pos, l, t.name(), p, f );
                case token::INDEX:
-                  return erase_index( l, t.index(), p, f );
+                  return erase_index( pos, l, t.index(), p, f );
                case token::STAR:
                   assert( false );
                case token::MINUS:
-                  return erase_minus( l, p, f );
+                  return erase_minus( pos, l, p, f );
             }
             assert( false );
          }
 
-         inline std::size_t erase( concat& l, const pointer& p, const token& f )
+         inline std::size_t erase( const position& pos, concat& l, const pointer& p, const token& f )
          {
             if( p.empty() ) {
-               return erase( l, f );
+               return erase( pos, l, f );
             }
             else {
-               return erase( l, p.front(), pop_front( p ), f );
+               return erase( pos, l, p.front(), pop_front( p ), f );
             }
          }
 
-         inline std::size_t erase( object_t& o, const std::string& k, const pointer& p )
+         inline std::size_t erase( const position& pos, object_t& o, const std::string& k, const pointer& p )
          {
             if( p.empty() ) {
                return o.erase( k );
@@ -179,16 +180,16 @@ namespace tao
             const auto i = o.find( k );
 
             if( i != o.end() ) {
-               return erase( i->second, pop_back( p ), p.back() );
+               return erase( pos, i->second, pop_back( p ), p.back() );
             }
             return 0;
          }
 
-         inline std::size_t erase( object_t& o, const token& t, const pointer& p )
+         inline std::size_t erase( const position& pos, object_t& o, const token& t, const pointer& p )
          {
             switch( t.type() ) {
                case token::NAME:
-                  return erase( o, t.name(), p );
+                  return erase( pos, o, t.name(), p );
                case token::INDEX:
                   assert( false );
                case token::STAR:
@@ -199,11 +200,11 @@ namespace tao
             assert( false );
          }
 
-         inline std::size_t erase( object_t& o, const pointer& p )
+         inline std::size_t erase( const position& pos, object_t& o, const pointer& p )
          {
             assert( !p.empty() );
 
-            return erase( o, p.front(), pop_front( p ) );
+            return erase( pos, o, p.front(), pop_front( p ) );
          }
 
       }  // namespace internal
