@@ -35,7 +35,8 @@ namespace tao
 
             // Phase 1 Extensions
 
-            bool alternative = false;  // TODO: Make less hackish?
+            bool clear_for_assign = true;
+            bool with_question_mark = false;
 
             pointer key;  // TODO: PEGTL switching-style?
             std::string str;  // TODO: PEGTL switching-style?

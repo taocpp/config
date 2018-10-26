@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_CONTROL_HPP
 #define TAO_CONFIG_INTERNAL_CONTROL_HPP
 
+#include "assign.hpp"
 #include "binary_state.hpp"
 #include "changes.hpp"
 #include "grammar.hpp"
@@ -127,7 +128,7 @@ namespace tao
 
                st.lstack.emplace_back( &assign( in.position(), *st.ostack.back(), st.key ) );
 
-               if( !st.alternative ) {
+               if( st.clear_for_assign ) {
                   st.lstack.back()->v.clear();
                }
                st.key.clear();

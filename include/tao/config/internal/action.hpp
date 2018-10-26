@@ -8,7 +8,6 @@
 #include <stdexcept>
 
 #include "access.hpp"
-#include "assign.hpp"
 #include "control.hpp"
 #include "erase.hpp"
 #include "format.hpp"
@@ -263,7 +262,7 @@ namespace tao
          {
             static void apply0( state& st )
             {
-               st.alternative = true;
+               st.clear_for_assign = false;
             }
          };
 
@@ -272,7 +271,7 @@ namespace tao
          {
             static void apply0( state& st )
             {
-               st.alternative = false;
+               st.clear_for_assign = true;
             }
          };
 
@@ -285,10 +284,11 @@ namespace tao
                assert( !st.key.empty() );
                assert( !st.ostack.empty() );
 
-               if( ( erase( *st.ostack.back(), st.key ) == 0 ) && ( !st.alternative ) ) {
+               if( ( erase( *st.ostack.back(), st.key ) == 0 ) && ( !st.with_question_mark ) ) {
                   const auto pos = in.position();
                   throw std::runtime_error( format( "delete failed", { &pos, { "key", &st.key } } ) );
                }
+               st.with_question_mark = false;
                st.key.clear();
             }
          };
@@ -319,11 +319,12 @@ namespace tao
                   pegtl::parse_nested< grammar, action, control >( in, i2, st );
                }
                catch( const pegtl::input_error& e ) {
-                  if( !st.alternative ) {
+                  if( !st.with_question_mark ) {
                      const auto pos = in.position();
                      throw std::runtime_error( format( "include failed", { &pos, { "filename", st.str }, { "error", e.what() }, { "errno", e.errorno } } ) );  // TODO: std::throw_nested()?
                   }
                }
+               st.with_question_mark = false;
             }
          };
 
@@ -346,7 +347,7 @@ namespace tao
          {
             static void apply0( state& st )
             {
-               st.alternative = false;
+               st.with_question_mark = false;
             }
          };
 
@@ -355,7 +356,7 @@ namespace tao
          {
             static void apply0( state& st )
             {
-               st.alternative = true;
+               st.with_question_mark = true;
             }
          };
 
