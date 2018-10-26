@@ -53,11 +53,11 @@ namespace tao
          public:
             enum kind : char
             {
-               ATOM,
-               ARRAY,
-               OBJECT,
-               NOTHING,
-               REFERENCE
+               atom,
+               array,
+               object,
+               nothing,
+               reference
             };
 
             entry( entry&& r ) noexcept
@@ -68,7 +68,7 @@ namespace tao
             }
 
             entry( const entry& r )
-               : m_type( NOTHING ),
+               : m_type( nothing ),
                  m_position( r.m_position )
             {
                embed( r );
@@ -102,27 +102,27 @@ namespace tao
 
             bool is_atom() const noexcept
             {
-               return m_type == ATOM;
+               return m_type == atom;
             }
 
             bool is_array() const noexcept
             {
-               return m_type == ARRAY;
+               return m_type == array;
             }
 
             bool is_object() const noexcept
             {
-               return m_type == OBJECT;
+               return m_type == object;
             }
 
             bool is_nothing() const noexcept
             {
-               return m_type == NOTHING;
+               return m_type == nothing;
             }
 
             bool is_reference() const noexcept
             {
-               return m_type == REFERENCE;
+               return m_type == reference;
             }
 
             void reset()
@@ -135,53 +135,53 @@ namespace tao
             {
                discard();
                new( &m_union.v ) atom_t( std::forward< T >( t ) );
-               m_type = ATOM;
+               m_type = atom;
             }
 
             void set_array()
             {
                discard();
                new( &m_union.a ) array_t();
-               m_type = ARRAY;
+               m_type = array;
             }
 
             void set_object()
             {
                discard();
                new( &m_union.o ) object_t();
-               m_type = OBJECT;
+               m_type = object;
             }
 
             void set_reference( json::value&& v )
             {
                discard();
                new( &m_union.i ) reference_t( std::move( v ) );
-               m_type = REFERENCE;
+               m_type = reference;
             }
 
             template< typename T >
-            static entry atom( const position& p, T&& t )
+            static entry make_atom( const position& p, T&& t )
             {
                entry r( p );
                r.set_atom( std::forward< T >( t ) );
                return r;
             }
 
-            static entry array( const position& p )
+            static entry make_array( const position& p )
             {
                entry r( p );
                r.set_array();
                return r;
             }
 
-            static entry object( const position& p )
+            static entry make_object( const position& p )
             {
                entry r( p );
                r.set_object();
                return r;
             }
 
-            static entry reference( const position& p, json::value&& v )
+            static entry make_reference( const position& p, json::value&& v )
             {
                entry r( p );
                r.set_reference( std::move( v ) );
@@ -257,7 +257,7 @@ namespace tao
          private:
             explicit
             entry( const pegtl::position& p )
-               : m_type( NOTHING ),
+               : m_type( nothing ),
                  m_position( p )
             {
             }
@@ -265,39 +265,39 @@ namespace tao
             void discard() noexcept
             {
                switch( m_type ) {
-                  case ATOM:
+                  case atom:
                      m_union.v.~basic_value();
                      break;
-                  case ARRAY:
+                  case array:
                      m_union.a.~vector();
                      break;
-                  case OBJECT:
+                  case object:
                      m_union.o.~map();
                      break;
-                  case NOTHING:
+                  case nothing:
                      break;
-                  case REFERENCE:
+                  case reference:
                      m_union.i.~basic_value();
                      break;
                }
-               m_type = NOTHING;
+               m_type = nothing;
             }
 
             void seize( entry&& r ) noexcept
             {
                switch( r.m_type ) {
-                  case ATOM:
+                  case atom:
                      new( &m_union.v ) atom_t( std::move( r.m_union.v ) );
                      break;
-                  case ARRAY:
+                  case array:
                      new( &m_union.a ) array_t( std::move( r.m_union.a ) );
                      break;
-                  case OBJECT:
+                  case object:
                      new( &m_union.o ) object_t( std::move( r.m_union.o ) );
                      break;
-                  case NOTHING:
+                  case nothing:
                      break;
-                  case REFERENCE:
+                  case reference:
                      new( &m_union.i ) reference_t( std::move( r.m_union.i ) );
                      break;
                }
@@ -307,18 +307,18 @@ namespace tao
             void embed( const entry& r )
             {
                switch( r.m_type ) {
-                  case ATOM:
+                  case atom:
                      new( &m_union.v ) atom_t( r.m_union.v );
                      break;
-                  case ARRAY:
+                  case array:
                      new( &m_union.a ) array_t( r.m_union.a );
                      break;
-                  case OBJECT:
+                  case object:
                      new( &m_union.o ) object_t( r.m_union.o );
                      break;
-                  case NOTHING:
+                  case nothing:
                      break;
-                  case REFERENCE:
+                  case reference:
                      new( &m_union.i ) reference_t( r.m_union.i );
                      break;
                }
@@ -339,20 +339,20 @@ namespace tao
             static void assign( json::basic_value< Traits >& v, const entry::kind k )
             {
                switch( k ) {
-                  case entry::ATOM:
-                     v = "ATOM";
+                  case entry::atom:
+                     v = "atom";
                      return;
-                  case entry::ARRAY:
-                     v = "ARRAY";
+                  case entry::array:
+                     v = "array";
                      return;
-                  case entry::OBJECT:
-                     v = "OBJECT";
+                  case entry::object:
+                     v = "object";
                      return;
-                  case entry::NOTHING:
-                     v = "NOTHING";
+                  case entry::nothing:
+                     v = "nothing";
                      return;
-                  case entry::REFERENCE:
-                     v = "REFERENCE";
+                  case entry::reference:
+                     v = "reference";
                      return;
                }
                assert( false );
@@ -366,18 +366,18 @@ namespace tao
             static void produce( Consumer& c, const entry& v )
             {
                switch( v.type() ) {
-                  case entry::ATOM:
+                  case entry::atom:
                      json::events::produce< Traits >( c, v.get_atom() );
                      return;
-                  case entry::ARRAY:
+                  case entry::array:
                      json::events::produce< Traits >( c, v.get_array() );
                      return;
-                  case entry::OBJECT:
+                  case entry::object:
                      json::events::produce< Traits >( c, v.get_object() );
                      return;
-                  case entry::NOTHING:
+                  case entry::nothing:
                      assert( false );
-                  case entry::REFERENCE:
+                  case entry::reference:
                      json::events::produce< Traits >( c, v.get_reference() );
                      return;
                }

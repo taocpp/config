@@ -81,7 +81,7 @@ namespace tao
          {
             switch( v.type() ) {
                case json::type::BOOLEAN:
-                  return token( v.unsafe_get_boolean() ? token::STAR : token::MINUS );
+                  return token( v.unsafe_get_boolean() ? token::star : token::minus );
                case json::type::STRING:
                case json::type::STRING_VIEW:
                   return token( v.as< std::string >() );
@@ -89,8 +89,22 @@ namespace tao
                case json::type::UNSIGNED:
                   return token( v.as< std::size_t >() );
                default:
-                  assert( false );
+                  throw std::string( "TODO: invalid json type for token" );
             }
+         }
+
+         inline pointer pointer_from_value( const json::value& v )
+         {
+            pointer p;
+
+            if( v.is_string() ) {
+               p.emplace_back( token( v.unsafe_get_string() ) );
+               return p;
+            }
+            for( const auto& t : v.get_array() ) {  // TODO: Better error message (when not array).
+               p.emplace_back( token_from_value( t ) );
+            }
+            return p;
          }
 
       }  // namespace internal

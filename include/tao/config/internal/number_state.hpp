@@ -19,8 +19,8 @@ namespace tao
       {
          struct number_state
          {
-            template< typename Input >
-            explicit number_state( const Input& in )
+            template< typename Input, typename T >
+            explicit number_state( const Input& in, const T& )
                : m_position( in.position() )
             {
             }
@@ -39,11 +39,11 @@ namespace tao
                assert( m_value );
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( m_position, m_value ) );
+               st.lstack.back()->v.emplace_back( entry::make_atom( m_position, m_value ) );
             }
 
-            template< typename Input >
-            void success( const Input&, number_state& )
+            template< typename Input, typename T >
+            void success( const Input&, const T& )
             {
                assert( false );  // This function is required because json::jaxn::internal::rules::sor_value is recursive which is more than we need but difficult to prevent.
             }

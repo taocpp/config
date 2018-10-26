@@ -7,8 +7,13 @@
 #include <string>
 #include <vector>
 
-#include "internal/parse_file.hpp"
+#include "internal/action.hpp"
+#include "internal/control.hpp"
+#include "internal/extensions.hpp"
+#include "internal/grammar.hpp"
+#include "internal/pegtl.hpp"
 #include "internal/phase2.hpp"
+#include "internal/state.hpp"
 
 #include "value.hpp"
 
@@ -19,11 +24,12 @@ namespace tao
       template< template< typename... > class Traits >
       json::basic_value< Traits > basic_parse_files( const std::vector< std::string >& filenames )
       {
-         internal::state st;
+         internal::state st( internal::value_extension_map(), internal::member_extension_map() );
          for( const auto& filename : filenames ) {
-            internal::parse_file_impl( st, filename );
+            json_pegtl::file_input in( filename );
+            json_pegtl::parse< internal::grammar, internal::action, internal::control >( in, st );
          }
-         return internal::phase2< Traits >( st.result );
+         return internal::phase2< Traits >( st );
       }
 
       inline value parse_files( const std::vector< std::string >& filenames )

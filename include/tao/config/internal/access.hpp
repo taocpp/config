@@ -66,13 +66,13 @@ namespace tao
          inline const concat& access( const position& pos, const concat& l, const token& t, const pointer& p )
          {
             switch( t.type() ) {
-               case token::NAME:
-                  return access_name( pos, l, t.name(), p );
-               case token::INDEX:
-                  return access_index( pos, l, t.index(), p );
-               case token::STAR:
-                  assert( false );
-               case token::MINUS:
+               case token::name:
+                  return access_name( pos, l, t.get_name(), p );
+               case token::index:
+                  return access_index( pos, l, t.get_index(), p );
+               case token::star:
+                  throw std::runtime_error( format( "attempt to access star", { &pos } ) );
+               case token::minus:
                   return access_minus( pos, l, p );
             }
             assert( false );
@@ -99,13 +99,13 @@ namespace tao
          inline const concat& access( const position& pos, const object_t& o, const token& t, const pointer& p )
          {
             switch( t.type() ) {
-               case token::NAME:
-                  return access( pos, o, t.name(), p );
-               case token::INDEX:
+               case token::name:
+                  return access( pos, o, t.get_name(), p );
+               case token::index:
                   assert( false );
-               case token::STAR:
+               case token::star:
                   assert( false );
-               case token::MINUS:
+               case token::minus:
                   assert( false );
             }
             assert( false );

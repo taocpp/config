@@ -3,14 +3,14 @@
 
 #include <iostream>
 
-#include <tao/config/internal/parse_file.hpp>
-#include <tao/config/internal/to_stream.hpp>
+#include <tao/config.hpp>
 
 int main( int argc, char** argv )
 {
    for( int i = 1; i < argc; ++i ) {
-      tao::config::internal::state st;
-      tao::config::internal::parse_file_impl( st, argv[ i ] );
+      tao::config::internal::state st( tao::config::internal::value_extension_map(), tao::config::internal::member_extension_map() );
+      tao::json_pegtl::file_input in( argv[ i ] );
+      tao::json_pegtl::parse< tao::config::internal::grammar, tao::config::internal::action, tao::config::internal::control >( in, st );
       tao::config::internal::to_stream( std::cout, st.result, 3 );
       std::cout << std::endl;
    }

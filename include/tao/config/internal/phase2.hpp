@@ -7,6 +7,7 @@
 #include "access.hpp"
 #include "addition.hpp"
 #include "json.hpp"
+#include "state.hpp"
 #include "type_traits.hpp"
 #include "utility.hpp"
 
@@ -62,15 +63,15 @@ namespace tao
                const phase2_guard p2g( e );
 
                switch( e.type() ) {
-                  case entry::ATOM:
+                  case entry::atom:
                      return process_atom< Traits >( e.get_atom() );
-                  case entry::ARRAY:
+                  case entry::array:
                      return process_array< Traits >( e.get_array() );
-                  case entry::OBJECT:
+                  case entry::object:
                      return process_object< Traits >( e.get_object() );
-                  case entry::NOTHING:
+                  case entry::nothing:
                      assert( false );
-                  case entry::REFERENCE:
+                  case entry::reference:
                      return process_reference< Traits >( e.position(), e.get_reference() );
                }
                assert( false );
@@ -152,9 +153,14 @@ namespace tao
          };
 
          template< template< typename... > class Traits >
-         json::basic_value< Traits > phase2( const object_t& v )
+         json::basic_value< Traits > phase2( const state& st )
          {
-            return phase2_impl( v ).phase2< Traits >();
+            assert( st.astack.empty() );
+            assert( st.lstack.empty() );
+            assert( st.rstack.empty() );
+            assert( st.ostack.size() == 1 );
+
+            return phase2_impl( st.result ).phase2< Traits >();
          }
 
       }  // namespace internal

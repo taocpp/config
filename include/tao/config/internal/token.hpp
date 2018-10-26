@@ -20,30 +20,30 @@ namespace tao
          public:
             enum kind : char
             {
-               NAME,
-               INDEX,
-               STAR,
-               MINUS
+               name,
+               index,
+               star,
+               minus
             };
 
             explicit
             token( const kind t )
                : m_type( t )
             {
-               assert( ( t == STAR ) || ( t == MINUS ) );
+               assert( ( t == star ) || ( t == minus ) );
             }
 
             explicit
-            token( const std::size_t index )
-               : m_type( kind::INDEX ),
-                 m_index( index )
+            token( const std::size_t i )
+               : m_type( kind::index ),
+                 m_index( i )
             {
             }
 
             explicit
-            token( const std::string& name )
-               : m_type( NAME ),
-                 m_name( name )
+            token( const std::string& n )
+               : m_type( name ),
+                 m_name( n )
             {
             }
 
@@ -52,16 +52,16 @@ namespace tao
                return m_type;
             }
 
-            std::size_t index() const noexcept
+            std::size_t get_index() const noexcept
             {
-               assert( m_type == INDEX );
+               assert( m_type == index );
 
                return m_index;
             }
 
-            const std::string& name() const noexcept
+            const std::string& get_name() const noexcept
             {
-               assert( m_type == NAME );
+               assert( m_type == name );
 
                return m_name;
             }
@@ -83,16 +83,16 @@ namespace tao
             static void produce( Consumer& c, const token& t )
             {
                switch( t.type() ) {
-                  case token::NAME:
-                     c.string( t.name() );
+                  case token::name:
+                     c.string( t.get_name() );
                      return;
-                  case token::INDEX:
-                     c.number( std::uint64_t( t.index() ) );
+                  case token::index:
+                     c.number( std::uint64_t( t.get_index() ) );
                      return;
-                  case token::STAR:
+                  case token::star:
                      c.string( "*" );
                      return;
-                  case token::MINUS:
+                  case token::minus:
                      c.string( "-" );
                      return;
                }

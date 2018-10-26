@@ -6,16 +6,12 @@
 
 #include "assign.hpp"
 #include "binary_state.hpp"
-#include "changes.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
-#include "key_string_state.hpp"
 #include "number_action.hpp"
 #include "number_state.hpp"
 #include "pegtl.hpp"
-#include "ref_string_state.hpp"
-#include "reference_action.hpp"
-#include "reference_state.hpp"
+#include "quoted_state.hpp"
 #include "state.hpp"
 #include "string_state.hpp"
 #include "entry.hpp"
@@ -34,7 +30,7 @@ namespace tao
 
          template<>
          struct control< json::jaxn::internal::rules::sor_value >
-            : public change_state_and_action< json::jaxn::internal::rules::sor_value, number_state, number_action >
+            : public pegtl::change_state_and_action< json::jaxn::internal::rules::sor_value, number_state, number_action >
          {
          };
 
@@ -45,38 +41,81 @@ namespace tao
          };
 
          template<>
-         struct control< rules::reference >
-            : public change_state_and_action< rules::reference, reference_state, reference_action >
-         {
-         };
-
-         template<>
          struct control< rules::binary_choice >
-            : public change_state_and_action< rules::binary_choice, binary_state, json::jaxn::internal::bunescape_action >
+            : public pegtl::change_state_and_action< rules::binary_choice, binary_state, json::jaxn::internal::bunescape_action >
          {
          };
 
          template<>
          struct control< rules::string_choice >
-            : public change_state_and_action< rules::string_choice, string_state, json::jaxn::internal::unescape_action >
+            : public pegtl::change_state_and_action< rules::string_choice, string_state, json::jaxn::internal::unescape_action >
          {
          };
 
          template<>
-         struct control< rules::key_quoted_choice >
-            : public change_state_and_action< rules::key_quoted_choice, key_string_state, json::jaxn::internal::unescape_action >
+         struct control< rules::quoted_choice >
+            : public pegtl::change_state_and_action< rules::quoted_choice, quoted_state, json::jaxn::internal::unescape_action >
          {
          };
 
          template<>
-         struct control< rules::ref_quoted_choice >
-            : public change_state_and_action< rules::ref_quoted_choice, ref_string_state, json::jaxn::internal::unescape_action >
+         struct control< rules::pointer >
+            : public pegtl::normal< rules::pointer >
          {
+            template< typename Input >
+            static void start( const Input&, state& st )
+            {
+               assert( st.rstack.empty() );
+
+               st.pointer = json::empty_array;
+               st.rstack.emplace_back( &st.pointer );
+            }
+
+            template< typename Input >
+            static void success( const Input&, state& st )
+            {
+               assert( !st.rstack.empty() );
+
+               st.rstack.pop_back();
+            }
+
+            template< typename Input >
+            static void failure( const Input&, state& st )
+            {
+               assert( !st.rstack.empty() );
+
+               st.pointer.discard();
+               st.rstack.pop_back();
+            }
          };
 
          template<>
-         struct control< rules::element >
-            : public pegtl::normal< rules::element >
+         struct control< rules::ref_body >
+            : public pegtl::normal< rules::ref_body >
+         {
+            template< typename Input >
+            static void start( const Input& in, state& st )
+            {
+               if( st.rstack.empty() ) {
+                  st.rstack.emplace_back( &st.lstack.back()->v.emplace_back( entry::make_reference( in.position(), json::empty_array ) ).get_reference() );
+               }
+               else {
+                  st.rstack.emplace_back( &st.rstack.back()->emplace_back( json::empty_array ) );
+               }
+            }
+
+            template< typename Input >
+            static void success( const Input&, state& st )
+            {
+               assert( !st.rstack.empty() );
+
+               st.rstack.pop_back();
+            }
+         };
+
+         template<>
+         struct control< rules::element_value_list >
+            : public pegtl::normal< rules::element_value_list >
          {
             template< typename Input >
             static void start( const Input& in, state& st )
@@ -105,7 +144,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.astack.emplace_back( &st.lstack.back()->v.emplace_back( entry::array( in.position() ) ).get_array() );
+               st.astack.emplace_back( &st.lstack.back()->v.emplace_back( entry::make_array( in.position() ) ).get_array() );
             }
 
             template< typename Input >
@@ -118,20 +157,20 @@ namespace tao
          };
 
          template<>
-         struct control< rules::value_list >
-            : public pegtl::normal< rules::value_list >
+         struct control< rules::member_value_list >
+            : public pegtl::normal< rules::member_value_list >
          {
             template< typename Input >
             static void start( const Input& in, state& st )
             {
                assert( !st.ostack.empty() );
 
-               st.lstack.emplace_back( &assign( in.position(), *st.ostack.back(), st.key ) );
+               st.lstack.emplace_back( &assign( in.position(), *st.ostack.back(), pointer_from_value( st.pointer ) ) );
 
                if( st.clear_for_assign ) {
                   st.lstack.back()->v.clear();
                }
-               st.key.clear();
+               st.pointer.discard();
             }
 
             template< typename Input >
@@ -153,7 +192,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.ostack.emplace_back( &st.lstack.back()->v.emplace_back( entry::object( in.position() ) ).get_object() );
+               st.ostack.emplace_back( &st.lstack.back()->v.emplace_back( entry::make_object( in.position() ) ).get_object() );
             }
 
             template< typename Input >

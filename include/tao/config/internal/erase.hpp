@@ -89,13 +89,13 @@ namespace tao
          inline std::size_t erase( const position& pos, concat& l, const token& f )
          {
             switch( f.type() ) {
-               case token::NAME:
-                  return erase_name( pos, l, f.name() );
-               case token::INDEX:
-                  return erase_index( pos, l, f.index() );
-               case token::STAR:
+               case token::name:
+                  return erase_name( pos, l, f.get_name() );
+               case token::index:
+                  return erase_index( pos, l, f.get_index() );
+               case token::star:
                   return erase_star( pos, l );
-               case token::MINUS:
+               case token::minus:
                   return erase_minus( pos, l );
             }
             assert( false );
@@ -150,13 +150,13 @@ namespace tao
          inline std::size_t erase( const position& pos, concat& l, const token& t, const pointer& p, const token& f )
          {
             switch( t.type() ) {
-               case token::NAME:
-                  return erase_name( pos, l, t.name(), p, f );
-               case token::INDEX:
-                  return erase_index( pos, l, t.index(), p, f );
-               case token::STAR:
-                  assert( false );
-               case token::MINUS:
+               case token::name:
+                  return erase_name( pos, l, t.get_name(), p, f );
+               case token::index:
+                  return erase_index( pos, l, t.get_index(), p, f );
+               case token::star:
+                  throw std::runtime_error( format( "attempt to delete everything across multiple values", { &pos } ) );
+               case token::minus:
                   return erase_minus( pos, l, p, f );
             }
             assert( false );
@@ -188,13 +188,13 @@ namespace tao
          inline std::size_t erase( const position& pos, object_t& o, const token& t, const pointer& p )
          {
             switch( t.type() ) {
-               case token::NAME:
-                  return erase( pos, o, t.name(), p );
-               case token::INDEX:
+               case token::name:
+                  return erase( pos, o, t.get_name(), p );
+               case token::index:
                   assert( false );
-               case token::STAR:
+               case token::star:
                   assert( false );
-               case token::MINUS:
+               case token::minus:
                   assert( false );
             }
             assert( false );

@@ -20,7 +20,7 @@ namespace tao
          struct binary_state
          {
             template< typename Input >
-            explicit binary_state( const Input& in )
+            explicit binary_state( const Input& in, state& )
                : m_position( in.position() )
             {
             }
@@ -38,7 +38,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( m_position, std::move( value ) ) );
+               st.lstack.back()->v.emplace_back( entry::make_atom( m_position, std::move( value ) ) );
             }
 
             std::vector< std::byte > value;

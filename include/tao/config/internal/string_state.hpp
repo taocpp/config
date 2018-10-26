@@ -20,7 +20,7 @@ namespace tao
          struct string_state
          {
             template< typename Input >
-            explicit string_state( const Input& in )
+            explicit string_state( const Input& in, state& )
                : m_position( in.position() )
             {
             }
@@ -38,7 +38,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::atom( m_position, std::move( unescaped ) ) );
+               st.lstack.back()->v.emplace_back( entry::make_atom( m_position, std::move( unescaped ) ) );
             }
 
             std::string unescaped;

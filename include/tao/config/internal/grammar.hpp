@@ -5,6 +5,7 @@
 #define TAO_CONFIG_INTERNAL_GRAMMAR_HPP
 
 #include "pegtl.hpp"
+#include "state.hpp"
 
 namespace tao
 {
@@ -14,11 +15,11 @@ namespace tao
       {
          namespace rules
          {
+            namespace jaxn = ::tao::json::jaxn::internal::rules;
+
             // NOTE: Some rules are defined multiple times with different names in
             // order to provide anchor points for different PEGTL actions without
             // using what we call "switching style" in the PEGTL documentation.
-
-            namespace jaxn = ::tao::json::jaxn::internal::rules;
 
             using ws1 = jaxn::ws;  // Also handles comments.
 
@@ -47,24 +48,6 @@ namespace tao
             struct true_s : pegtl::string< 't', 'r', 'u', 'e' > {};
             struct false_s : pegtl::string< 'f', 'a', 'l', 's', 'e' > {};
 
-            struct env_s : pegtl::string< 'e', 'n', 'v' > {};
-            struct copy_s : pegtl::string< 'c', 'o', 'p', 'y' > {};
-            struct debug_s : pegtl::string< 'd', 'e', 'b', 'u', 'g' > {};
-            struct parse_s : pegtl::string< 'p', 'a', 'r', 's', 'e' > {};
-            struct shell_s : pegtl::string< 's', 'h', 'e', 'l', 'l' > {};
-
-            struct read_s : pegtl::string< 'r', 'e', 'a', 'd' > {};
-            struct json_s : pegtl::string< 'j', 's', 'o', 'n' > {};
-            struct jaxn_s : pegtl::string< 'j', 'a', 'x', 'n' > {};
-            struct cbor_s : pegtl::string< 'c', 'b', 'o', 'r' > {};
-            struct msgpack_s : pegtl::string< 'm', 's', 'g', 'p', 'a', 'c', 'k' > {};
-            struct ubjson_s : pegtl::string< 'u', 'b', 'j', 's', 'o', 'n' > {};
-
-            struct erase_s : pegtl::string< 'd', 'e', 'l', 'e', 't', 'e' > {};
-            struct stderr_s : pegtl::string< 's', 't', 'd', 'e', 'r', 'r' > {};
-            struct include_s : pegtl::string< 'i', 'n', 'c', 'l', 'u', 'd', 'e' > {};
-            struct transient_s : pegtl::string< 't', 'r', 'a', 'n', 's', 'i', 'e', 'n', 't' > {};
-
             struct index : pegtl::plus< pegtl::digit > {};
 
             struct identifier_first : pegtl::ranges< 'a', 'z', 'A', 'Z', '_' > {};
@@ -75,46 +58,57 @@ namespace tao
             struct object;
 
             struct ref_part;
+            struct ext_value;
+            struct reference;
+
+            struct at_quote : pegtl::at< pegtl::one< '\'', '"' > > {};
 
             struct opt_comma : pegtl::opt< comma, wss > {};
             struct opt_question : pegtl::opt< question > {};
 
-            struct at_quote : pegtl::at< pegtl::one< '\'', '"' > > {};
+            struct quoted_choice : jaxn::string_fragment {};
+            struct quoted : pegtl::if_must< at_quote, quoted_choice > {};
 
-            struct key_quoted_choice : jaxn::string_fragment {};
-            struct key_quoted : pegtl::if_must< at_quote, key_quoted_choice > {};
-            struct key_part : pegtl::sor< identifier, key_quoted, index, minus > {};
-            struct key_head : pegtl::sor< identifier, key_quoted > {};
-            struct erase_key : pegtl::seq< key_head, pegtl::star< dot, key_part >, pegtl::opt_must< dot, star > > {};
-            struct other_key : pegtl::seq< key_head, pegtl::star_must< dot, key_part > > {};
+            struct ref_part : pegtl::sor< identifier, quoted, reference, index, minus > {};
+            struct ref_head : pegtl::sor< identifier, quoted, reference > {};
+            struct ref_body : pegtl::seq< ref_head, pegtl::star_must< dot, ref_part > > {};
+            struct reference : pegtl::if_must< round_a, ref_body, round_z > {};
 
-            struct ref_quoted_choice : jaxn::string_fragment {};
-            struct ref_quoted : pegtl::if_must< at_quote, ref_quoted_choice > {};
-            struct ref_main : pegtl::if_must< round_a, pegtl::list_must< ref_part, dot >, round_z > {};
-            struct ref_part : pegtl::sor< identifier, ref_quoted, index, minus, ref_main > {};
-            struct ref_head : pegtl::sor< identifier, ref_quoted > {};
-            struct reference : pegtl::must< ref_head, pegtl::star_must< dot, ref_part > > {};
+            struct ptr_part : pegtl::sor< identifier, quoted, index, minus, star > {};
+            struct ptr_head : pegtl::sor< identifier, quoted > {};
+            struct pointer : pegtl::seq< ptr_head, pegtl::star_must< dot, ptr_part > > {};
 
-            struct phase1_content : pegtl::star< pegtl::not_one< '"' > > {};  // TODO!
-            struct phase1_string : pegtl::if_must< quote_2, phase1_content, quote_2 > {};
+            struct ext_name : pegtl::seq< identifier_first, pegtl::star< identifier_other >, opt_question > {};
 
-            struct env_value : pegtl::if_must< env_s, wsp, phase1_string > {};
-            struct copy_value : pegtl::if_must< copy_s, wsp, other_key > {};
-            struct debug_value : pegtl::if_must< debug_s, wsp, other_key > {};
-            struct parse_value : pegtl::if_must< parse_s, wsp, phase1_string > {};
-            struct shell_value : pegtl::if_must< shell_s, wsp, phase1_string > {};
+            struct ext_value_impl
+            {
+                using analyze_t = pegtl::any::analyze_t;
 
-            struct read_value : pegtl::if_must< read_s, wsp, phase1_string > {};
-            struct json_value : pegtl::if_must< json_s, wsp, phase1_string > {};
-            struct jaxn_value : pegtl::if_must< jaxn_s, wsp, phase1_string > {};
-            struct cbor_value : pegtl::if_must< cbor_s, wsp, phase1_string > {};
-            struct msgpack_value : pegtl::if_must< msgpack_s, wsp, phase1_string > {};
-            struct ubjson_value : pegtl::if_must< ubjson_s, wsp, phase1_string > {};
+                template< pegtl::apply_mode A,
+                          pegtl::rewind_mode M,
+                          template< typename... > class Action,
+                          template< typename... > class Control,
+                          typename Input >
+                static bool match( Input& in, state& st )
+                {
+                   const auto i = st.value_extension_map.find( st.extension );
 
-            struct ext_value : pegtl::sor< env_value, copy_value, shell_value, debug_value, read_value, json_value, jaxn_value, cbor_value, msgpack_value, ubjson_value > {};  // TODO: Keep this all here, or unify syntax and delegate to a run-time map?
+                   if( i != st.value_extension_map.end() ) {
+                      i->second( in, st );
+                      return true;
+                   }
+                   return false;
+                }
+            };
 
-            struct at_ext_value : pegtl::at< identifier, opt_question, ws1 > {};
-            struct special_value : pegtl::if_must< round_a, pegtl::if_must_else< at_ext_value, ext_value, reference >, round_z > {};
+            struct ext_value : pegtl::if_must< round_a, ext_name, wsp, ext_value_impl, round_z > {};
+
+            struct top_ext_value : pegtl::seq< ext_value > {};  // TODO: Nicer way?
+
+            struct at_round_a : pegtl::at< round_a > {};
+            struct at_ext_value : pegtl::at< round_a, ext_name, ws1 > {};
+            struct special_choice : pegtl::if_must_else< at_ext_value, top_ext_value, reference > {};
+            struct special_value : pegtl::if_must< at_round_a, special_choice > {};
 
             struct binary_choice : pegtl::sor< jaxn::bstring, jaxn::bdirect > {};
             struct binary_value : pegtl::if_must< dollar, binary_choice > {};
@@ -122,28 +116,45 @@ namespace tao
             struct string_choice : jaxn::string_fragment {};
             struct string_value : pegtl::if_must< at_quote, string_choice > {};
 
-            struct at_number : pegtl::at< pegtl::one< '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+', '.', 'I', 'N' > > {};
+            struct at_number : pegtl::at< pegtl::one< '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+', '.', 'I', 'N' > > {};  // TODO: Remove?
             struct number_value : pegtl::if_must< at_number, jaxn::sor_value > {};
 
-            struct value_part : pegtl::sor< null_s, true_s, false_s, array, object, special_value, string_value, number_value, binary_value > {};
+            struct value_part : pegtl::sor< null_s, true_s, false_s, array, object, special_value, string_value, binary_value, number_value > {};
 
-            struct value_list : pegtl::list< value_part, plus, ws1 > {};
-            struct assign_member : pegtl::if_must< equals, wss, value_list > {};
-            struct append_member : pegtl::if_must< plus_equals, wss, value_list > {};
-            struct key_member : pegtl::if_must< other_key, wss, pegtl::sor< assign_member, append_member > > {};
+            struct element_value_list : pegtl::list< value_part, plus, ws1 > {};
+            struct member_value_list : pegtl::list< value_part, plus, ws1 > {};
+            struct assign_member : pegtl::if_must< equals, wss, member_value_list > {};
+            struct append_member : pegtl::if_must< plus_equals, wss, member_value_list > {};
+            struct key_member : pegtl::must< pointer, wss, pegtl::sor< assign_member, append_member > > {};
 
-            struct erase_member : pegtl::if_must< erase_s, opt_question, wsp, erase_key > {};
-            struct stderr_member: pegtl::if_must< stderr_s, wsp, other_key > {};
-            struct include_member : pegtl::if_must< include_s, opt_question, wsp, phase1_string > {};
-            struct transient_member : pegtl::if_must< transient_s, wsp, other_key > {};
-            struct ext_member : pegtl::if_must< round_a, pegtl::sor< erase_member, stderr_member, include_member, transient_member >, round_z > {};
+            struct ext_member_impl
+            {
+                using analyze_t = pegtl::any::analyze_t;
 
-            struct element : pegtl::list< value_part, plus, ws1 > {};
+                template< pegtl::apply_mode A,
+                          pegtl::rewind_mode M,
+                          template< typename... > class Action,
+                          template< typename... > class Control,
+                          typename Input >
+                static bool match( Input& in, state& st )
+                {
+                   const auto i = st.member_extension_map.find( st.extension );
+
+                   if( i != st.member_extension_map.end() ) {
+                      i->second( in, st );
+                      return true;
+                   }
+                   return false;
+                }
+            };
+
+            struct ext_member : pegtl::if_must< round_a, ext_name, wsp, ext_member_impl, round_z > {};
+
             struct member : pegtl::sor< ext_member, key_member > {};
 
             template< typename U > struct member_list_impl : pegtl::until< U, member, wss, opt_comma > {};
 
-            struct element_list : pegtl::until< square_z, element, wss, opt_comma > {};
+            struct element_list : pegtl::until< square_z, element_value_list, wss, opt_comma > {};
             struct member_list : member_list_impl< curly_z > {};
             struct compat_list : member_list_impl< curly_z > {};
             struct grammar_list : member_list_impl< pegtl::eof > {};

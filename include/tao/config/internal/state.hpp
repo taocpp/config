@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_STATE_HPP
 #define TAO_CONFIG_INTERNAL_STATE_HPP
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -18,9 +19,17 @@ namespace tao
    {
       namespace internal
       {
+         struct state;
+
+         using input_t = pegtl::file_input<>;
+         using extension_t = std::function< void( input_t&, state& ) >;
+         using extension_map_t = std::map< std::string, extension_t >;
+
          struct state
          {
-            state()
+            state( const extension_map_t& vem, const extension_map_t& mem )
+               : value_extension_map( vem ),
+                 member_extension_map( mem )
             {
                ostack.emplace_back( &result );
             }
@@ -29,17 +38,23 @@ namespace tao
 
             // General Structure
 
+            bool clear_for_assign = true;
+
             std::vector< concat* > lstack;  // Current rules::value_list
             std::vector< array_t* > astack;  // Array contexts via '['
             std::vector< object_t* > ostack;  // Object contexts via '{'
 
             // Phase 1 Extensions
 
-            bool clear_for_assign = true;
-            bool with_question_mark = false;
+            json::value pointer;
+            std::string extension;
 
-            pointer key;  // TODO: PEGTL switching-style?
-            std::string str;  // TODO: PEGTL switching-style?
+            extension_map_t value_extension_map;
+            extension_map_t member_extension_map;
+
+            // Phase 2 Extensions
+
+            std::vector< json::value* > rstack;  // Nested phase 2 references (and also phase 1 pointers).
          };
 
       }  // namespace internal

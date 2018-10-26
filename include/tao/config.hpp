@@ -6,7 +6,6 @@
 
 #include "config/value.hpp"
 
-#include "config/check_file.hpp"
 #include "config/parse_file.hpp"
 #include "config/parse_files.hpp"
 #include "config/to_stream.hpp"

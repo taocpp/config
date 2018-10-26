@@ -33,7 +33,7 @@ namespace tao
                }
             }
             if( l.v.empty() ) {
-               l.v.emplace_back( entry::object( pos ) );
+               l.v.emplace_back( entry::make_object( pos ) );
             }
             return assign( pos, l.v.back().get_object().try_emplace( k, pos ).first->second, p );
          }
@@ -57,7 +57,7 @@ namespace tao
          inline concat& assign_minus( const position& pos, concat& l, const pointer& p )
          {
             if( l.v.empty() ) {
-               l.v.emplace_back( entry::array( pos ) );
+               l.v.emplace_back( entry::make_array( pos ) );
             }
             return assign( pos, l.v.back().get_array().emplace_back( pos ), p );
          }
@@ -65,13 +65,13 @@ namespace tao
          inline concat& assign( const position& pos, concat& l, const token& t, const pointer& p )
          {
             switch( t.type() ) {
-               case token::NAME:
-                  return assign_name( pos, l, t.name(), p );
-               case token::INDEX:
-                  return assign_index( pos, l, t.index(), p );
-               case token::STAR:
-                  assert( false );
-               case token::MINUS:
+               case token::name:
+                  return assign_name( pos, l, t.get_name(), p );
+               case token::index:
+                  return assign_index( pos, l, t.get_index(), p );
+               case token::star:
+                  throw std::runtime_error( format( "attempt to assign to star", { &pos } ) );
+               case token::minus:
                   return assign_minus( pos, l, p );
             }
             assert( false );
@@ -89,13 +89,13 @@ namespace tao
          inline concat& assign( const position& pos, object_t& o, const token& t, const pointer& p )
          {
             switch( t.type() ) {
-               case token::NAME:
-                  return assign( pos, o.try_emplace( t.name(), pos ).first->second, p );
-               case token::INDEX:
+               case token::name:
+                  return assign( pos, o.try_emplace( t.get_name(), pos ).first->second, p );
+               case token::index:
                   assert( false );
-               case token::STAR:
+               case token::star:
                   assert( false );
-               case token::MINUS:
+               case token::minus:
                   assert( false );
             }
             assert( false );
