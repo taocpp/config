@@ -14,6 +14,10 @@ namespace tao
    {
       namespace internal
       {
+         struct overflow_error
+         {
+         };
+
          struct addition_error
          {
             json::type l;
@@ -21,7 +25,7 @@ namespace tao
          };
 
          template< template< typename... > class Traits >
-         void boolean_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
+         void boolean_addition( json::basic_value< Traits >& l, const json::basic_value< Traits >& r )
          {
             switch( r.type() ) {
                case json::type::BOOLEAN:
@@ -33,49 +37,58 @@ namespace tao
          }
 
          template< template< typename... > class Traits >
-         void signed_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
+         void number_addition( json::basic_value< Traits >& l, const json::basic_value< Traits >& r )
          {
-            switch( r.type() ) {
-               case json::type::SIGNED:
-                  l = l.unsafe_get_signed() + r.unsafe_get_signed();  // TODO: Check for overflow - and adapt target type?
-                  break;
-               case json::type::UNSIGNED:
-                  l = l.unsafe_get_signed() + r.unsafe_get_unsigned();  // TODO: Check for overflow - and adapt target type?
-                  break;
-               default:
+            if( l.type() == json::type::DOUBLE ) {
+               if( !r.is_number() ) {
                   throw addition_error{ l.type(), r.type() };
+               }
+               l = l.unsafe_get_double() + r.template as< double >();
+               return;
+            }
+            if( r.type() == json::type::DOUBLE ) {
+               if( !l.is_number() ) {
+                  assert( false );
+               }
+               l = l.template as< double >() + r.unsafe_get_double();
+               return;
+            }
+            __int128_t t = 0;
+
+            if( l.is_signed() ) {
+               t += l.unsafe_get_signed();
+            }
+            else if( l.is_unsigned() ) {
+               t += l.unsafe_get_unsigned();
+            }
+            else {
+               assert( false );
+            }
+            if( r.is_signed() ) {
+               t += r.unsafe_get_signed();
+            }
+            else if( r.is_unsigned() ) {
+               t += r.unsafe_get_unsigned();
+            }
+            else {
+               throw addition_error{ l.type(), r.type() };
+            }
+            if( t >= 0 ) {
+               if( t != __int128_t( std::uint64_t( t ) ) ) {
+                  throw overflow_error();
+               }
+               l = std::uint64_t( t );
+            }
+            else {
+               if( t != __int128_t( std::int64_t( t ) ) ) {
+                  throw overflow_error();
+               }
+               l = std::int64_t( t );
             }
          }
 
          template< template< typename... > class Traits >
-         void unsigned_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
-         {
-            switch( r.type() ) {
-               case json::type::SIGNED:
-                  l = l.unsafe_get_unsigned() + r.unsafe_get_signed();  // TODO: Check for overflow - and adapt target type?
-                  break;
-               case json::type::UNSIGNED:
-                  l = l.unsafe_get_unsigned() + r.unsafe_get_unsigned();  // TODO: Check for overflow - and adapt target type?
-                  break;
-               default:
-                  throw addition_error{ l.type(), r.type() };
-            }
-         }
-
-         template< template< typename... > class Traits >
-         void double_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
-         {
-            switch( r.type() ) {
-               case json::type::DOUBLE:
-                  l = l.unsafe_get_double() + r.unsafe_get_double();
-                  break;
-               default:
-                  throw addition_error{ l.type(), r.type() };
-            }
-         }
-
-         template< template< typename... > class Traits >
-         void string_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
+         void string_addition( json::basic_value< Traits >& l, const json::basic_value< Traits >& r )
          {
             switch( r.type() ) {
                case json::type::STRING:
@@ -90,7 +103,7 @@ namespace tao
          }
 
          template< template< typename... > class Traits >
-         void binary_addition( json::basic_value< Traits >& l, json::basic_value< Traits >& r )
+         void binary_addition( json::basic_value< Traits >& l, const json::basic_value< Traits >& r )
          {
             switch( r.type() ) {
                case json::type::BINARY:
@@ -150,11 +163,9 @@ namespace tao
                   case json::type::BOOLEAN:
                      return boolean_addition( l, r );
                   case json::type::SIGNED:
-                     return signed_addition( l, r );
                   case json::type::UNSIGNED:
-                     return unsigned_addition( l, r );
                   case json::type::DOUBLE:
-                     return double_addition( l, r );
+                     return number_addition( l, r );
                   case json::type::STRING:
                   case json::type::STRING_VIEW:
                      return string_addition( l, r );
@@ -170,7 +181,10 @@ namespace tao
                }
             }
             catch( const addition_error& e ) {
-               throw std::runtime_error( format( "inconsistent types", { &pos, { "old_type", e.l }, { "new_type", e.r } } ) );
+               throw std::runtime_error( format( "inconsistent types in addition", { &pos, { "old_type", e.l }, { "new_type", e.r } } ) );
+            }
+            catch( const overflow_error& ) {
+               throw std::runtime_error( format( "numeric overflow in addition", { &pos } ) );
             }
          }
 
