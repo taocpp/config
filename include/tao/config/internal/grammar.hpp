@@ -66,7 +66,10 @@ namespace tao
             struct transient_s : pegtl::string< 't', 'r', 'a', 'n', 's', 'i', 'e', 'n', 't' > {};
 
             struct index : pegtl::plus< pegtl::digit > {};
-            struct identifier : pegtl::identifier {};  // TODO: More?
+
+            struct identifier_first : pegtl::ranges< 'a', 'z', 'A', 'Z', '_' > {};
+            struct identifier_other : pegtl::ranges< 'a', 'z', 'A', 'Z', '0', '9', '-', '-', '_' > {};
+            struct identifier : pegtl::seq< identifier_first, pegtl::star< identifier_other > > {};
 
             struct array;
             struct object;
