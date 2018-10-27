@@ -248,6 +248,20 @@ inc.nested.test = {
 (include? "/___this_does_not_exist.txt___")  // No error when the file can't be read.
 
 # Normally it is an error when an included file can't be read.
+
+// Different styles for the same data.
+
+server = {
+   local = {
+      ip : "127.0.0.1"
+      ports : [ 80, 443, 8080 ]
+   }
+}
+
+server.local.ip = "127.0.0.1"
+server.local.ports.- = 80
+server.local.ports.- = 443
+server.local.ports.- = 8080
 ```
 
 See `tests/showcase_only_data.jaxn` for JSON structure that results from parsing this example config.
