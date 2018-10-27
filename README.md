@@ -164,11 +164,13 @@ del2.a.b.c = 1
 
 del3 = [ 1 2 3 4 5 ]
 
-(delete del3.2)  // Deletes the second element of the array.
+/* Array indices start at 0 -- TODO: Change to 1? */
+
+(delete del3.2)  // Deletes the third element of the array.
 
 del4 = [ 0 1 2 ] + [ 3 4 5 ]
 
-(delete del4.4)  // Deletes the fourth element which is the 4.
+(delete del4.4)  // Deletes the fifth element which is the 4.
 
 del5.a.b = {
    c = 1
