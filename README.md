@@ -24,8 +24,12 @@ Currently only compiles with our [JSON library](https://github.com/taocpp/json) 
 ```
 #! Shell-style and C/C++-style comments are supported.
 
-// We are implicitly in a JSON object, the top-level
-// enclosing { and } are optional, let's go:
+// The syntax is backwards compatible with both JSON
+// and JAXN, so every JSON file is a valid config file
+// (as long as its top-level value is an object), but
+// the top-level '{' and '}' are optional.
+
+// JSON object members.
 
 "foo" : 42  // Like in JSON.
 
@@ -48,7 +52,7 @@ bar = '''
 first
 second'''  // Newline directly after any triple quotes is ignored.
 
-// Commas are optional, not just on top-level.
+# Commas are optional, not just on top-level.
 
 commas = {
     arrays = [
@@ -69,9 +73,11 @@ addition1 = 1 + 2 + 3
 addition2 = true + false
 
 concatenation1 = "Hello, " + "World"
-concatenation1 = "Hello, " + (env "USER")  // Let's greet $USER!
+concatenation2 = [ 1 2 3 ] + [ 4 5 6 ]  // Yields [ 1 2 3 4 5 6 ]
 
-concatenation2 = [ 1 2 3 ] + [ 4 5 6 ]
+// Extending existing values.
+
+concatenation2 += [ 7 8 9 ]  // Yields [ 1 2 3 4 5 6 7 8 9 ]
 
 // Nulls are ignored in an addition or concatenation with other values.
 
@@ -89,7 +95,7 @@ a.b.c.d = true  // Creates intermediate objects as required.
 
 d.e.-.- = false  // Also creates the arrays as required.
 
-// Accessing array elements by index requires them to exist.
+# Accessing array elements by index requires them to exist.
 
 d.e.0 = true  // Changes d.e from [ [ false ] ] to [ true ].
 
@@ -104,7 +110,7 @@ orig2 = 2
 (temporary orig1)  // The origs are just for referencing, tag
 (temporary orig2)  // them for removal from the final result.
 
-// References can also be nested (without creating cycles).
+// References can also be nested arbitrarily.
 
 orig3.a.b.c = 3
 i = "b"
@@ -131,38 +137,111 @@ orig6 = { a : [ { b : [ [ 0 ] [ 1 2 3 ] [ 2 ] ] } ] }
 
 ref6 = (orig6.a.-.b.1) + [ 4 5 6 ] // Yields [ 1 2 3 4 5 6 ]
 
-/*
-   Key Extensions
-   - delete       TODO
-   - delete?      TODO
-   - include      TODO
-   - include?     TODO
-   - stderr       TODO
-   - temporary
-*/
+// Deleting values.
+
+del1 = 1
+
+(delete del1)  // Deletes the corresponding top-level member.
+
+del2.a.b.c = 1
+
+(delete del2)  // Same thing, removes del2 and everything it contains.
+
+del3 = [ 1 2 3 4 5 ]
+
+(delete del3.2)  // Deletes the second element of the array.
+
+del4 = [ 0 1 2 ] + [ 3 4 5 ]
+
+(delete del4.4)  // Deletes the fourth element which is the 4.
+
+del5.a.b = {
+   c = 1
+   d = 2
+}
+
+(delete del5.a.b.*)  // Deletes all members from the object del5.a.b.
+
+del6.a.b = [ 1 2 3 ]
+
+(delete del6.a.b.*)  // Deletes all members from the array del6.a.b.
+
+del7 = [
+   { a = 1, b = 2 }
+   { a = 2, c = 3 }
+]
+
+(delete del7.-.a)  // Delete a from the last element of the array del7.
+
+del8 = {}
+
+(delete? del8.a)  // No error if it there is nothing to delete.
+
+// Value extensions.
+
+value1 = (debug orig6.a)  // The intermediate data structure as string.
+
+value2 = (env "VARIABLE")  // Contents of environment variable $VARIABLE as string.
+
+value3 = (shell "echo hallo")  // The output of the shell command as string.
+
+value4 = (read "tests/showcase.t")  // The contents of the file as string.
+
+value5 = (read env "TEXTFILE")  // Like above but uses $VARIABLE as filename.
+
+value6 = (json "tests/showcase.j")  // The contents of the file as JSON value.
+
+value7 = (json env "JSONFILE")  // Like above but uses $VARIABLE as filename.
+
+value8 = (json shell '''echo "[]"''')  // Parses the output of the shell as JSON.
+
+// Note that the previous example uses triple-single-quotes for a multi-line string.
+
+// Note that (json ...) also works for cbor, jaxn, msgpack and ubjson.
+
+value9 = (parse "tests/showcase.c")  // Parses a single value with config syntax.
+
+value10 = (parse env "CONFIGFILE")  // Like above but uses $VARIABLE as filename.
+
+value11 = (parse shell "echo true")  // Parses the outpuf of the shell as config value.
+
+// Note that value extensions can not be part of references or vice versa, however
+// value extensions and references can both be part of an addition or concatenation.
+
+v.w.- = "something"
+
+value12 = (env "VARIABLE") + (v.w.0)  // This kind of mixing is ok.
 
 /*
+   Key Extensions
+   - delete
+   - delete?
+   - include
+   - include?
+   - stderr
+   - temporary
+
    Value Extensions
-   - copy         TODO
-   - debug        TODO
+   - copy
+   - debug
    - env
-   - shell        TODO
-   - read         TODO
-   - read env     TODO
-   - json         TODO
-   - json env     TODO
-   - json shell   TODO
-   - parse        TODO
-   - parse env    TODO
-   - parse shell  TODO
-   - cbor, jaxn, msgpack, ubjson  TODO
+   - shell
+   - read
+   - read env
+   - json
+   - json env
+   - json shell
+   - parse
+   - parse env
+   - parse shell
+   - cbor, jaxn, msgpack, ubjson
    - reference
 */
 
 // TODO: Be continued...
 ```
 
-See `tests/showcase_only_data.jaxn` for the exact result of parsing this config file example!
+See `tests/showcase_only_data.jaxn` for JSON structure that results from parsing this example config.
 
 ## License
 

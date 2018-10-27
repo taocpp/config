@@ -48,20 +48,56 @@
          }
       ]
    },
-   concatenation1: "Hello, colin",
+   concatenation1: "Hello, World",
    concatenation2: [
       1,
       2,
       3,
       4,
       5,
-      6
+      6,
+      7,
+      8,
+      9
    ],
    d: {
       e: [
          true
       ]
    },
+   del3: [
+      1,
+      2,
+      4,
+      5
+   ],
+   del4: [
+      0,
+      1,
+      2,
+      3,
+      5
+   ],
+   del5: {
+      a: {
+         b: {}
+      }
+   },
+   del6: {
+      a: {
+         b: []
+      }
+   },
+   del7: [
+      {
+         a: 1,
+         b: 2
+      },
+      {
+         c: 3
+      }
+   ],
+   del8: {},
    foo: 42,
    i: "b",
    j: "i",
@@ -124,5 +160,22 @@
       4,
       5,
       6
-   ]
+   ],
+   v: {
+      w: [
+         "something"
+      ]
+   },
+   value1: "{position:{source:\"tests/showcase.config\",line:112,byte_in_line:14},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:16},concat:[{b:{position:{source:\"tests/showcase.config\",line:112,byte_in_line:22},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:24},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:26},concat:[0],temporary:false}]],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:30},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:32},concat:[1],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:34},concat:[2],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:36},concat:[3],temporary:false}]],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:40},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:42},concat:[2],temporary:false}]],temporary:false}]],temporary:false}}],temporary:false}]],temporary:false}",
+   value10: {},
+   value11: true,
+   value12: "variablesomething",
+   value2: "variable",
+   value3: "hallo\n",
+   value4: "contents of tests/showcase.t\n",
+   value5: "contents of tests/showcase.t\n",
+   value6: [],
+   value7: [],
+   value8: [],
+   value9: {}
 }
