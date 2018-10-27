@@ -134,6 +134,28 @@ namespace tao
             throw std::runtime_error( format( "array index out of range", { &pos, { "integer", n }, { "array", { &l.p } } } ) );
          }
 
+         inline std::size_t erase_star( const position& pos, concat& l, const pointer& p, const token& f )
+         {
+            std::size_t r = 0;
+
+            for( auto& i : l.v ) {
+               if( i.is_array() ) {
+                  for( auto& j : i.get_array() ) {
+                     r += erase( pos, j, p, f );
+                  }
+                  continue;
+               }
+               if( i.is_object() ) {
+                  for( auto& j : i.get_object() ) {
+                     r += erase( pos, j.second, p, f );
+                  }
+                  continue;
+               }
+               throw std::runtime_error( format( "attempt to delete in non-container", { &pos, { "non-container", { &i.position(), i.type() } } } ) );
+            }
+            return r;
+         }
+
          inline std::size_t erase_minus( const position& pos, concat& l, const pointer& p, const token& f )
          {
             for( auto& i : reverse( l.v ) ) {
@@ -155,7 +177,7 @@ namespace tao
                case token::index:
                   return erase_index( pos, l, t.get_index(), p, f );
                case token::star:
-                  throw std::runtime_error( format( "attempt to delete everything across multiple values", { &pos } ) );
+                  return erase_star( pos, l, p, f );
                case token::minus:
                   return erase_minus( pos, l, p, f );
             }

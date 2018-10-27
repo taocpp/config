@@ -1,63 +1,111 @@
 {
-    foo : 2,
-    bar : 3,
-
-    atoms : {
-        null : null,
-        true : true,
-        false : false,
-    },
-
-    comma : {
-        array : [
-            [ 1, 2, 3 ],
-            [ 1, 2, 3 ],
-            [ 1, 2, 3 ],
-        ],
-        object : [
-            { a : 1, b : 2, c : 3 },
-            { a : 1, b : 2, c : 3 },
-            { a : 1, b : 2, c : 3 },
-        ]
-    },
-
-    a : { b : { c : 1 } },
-
-    d : [ [ 2 ] ],
-
-    c : {
-        d : { e : 1 },
-        f : { g : { h : { i : 2 } } }
-    },
-
-    e : [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ],
-
-    f : "hallo",
-
-    binary : $deadbeef,
-
-    multi : "multi\nline\nstring\n",
-
-    quoted_keys : {
-        b1 : 2,
-        b2 : 2,
-        b3 : 2,
-        b4 : 2,
-        b5 : 2,
-        b6 : 2,
-        "" : 2,
-        "123" : 2
-    },
-
-    hex1 : 291,
-    hex2 : 291,
-    hex3 : -291,
-
-    float1 : .1,
-    float2 : 123e45,
-    float3 : -0.42,
-    float4 : -1.2e-1,
-    float5 : 0.0,
-    float6 : NaN,
-    float7 : -Infinity
+   a: {
+      b: {
+         c: 1
+      }
+   },
+   atoms: {
+      false: false,
+      null: null,
+      true: true
+   },
+   bar: 3,
+   binary: $DEADBEEF,
+   c: {
+      d: {
+         e: 1
+      },
+      f: {
+         g: {
+            h: {
+               i: 2
+            }
+         }
+      }
+   },
+   comma: {
+      array: [
+         [
+            1,
+            2,
+            3
+         ],
+         [
+            1,
+            2,
+            3
+         ],
+         [
+            1,
+            2,
+            3
+         ]
+      ],
+      object: [
+         {
+            a: 1,
+            b: 2,
+            c: 3
+         },
+         {
+            a: 1,
+            b: 2,
+            c: 3
+         },
+         {
+            a: 1,
+            b: 2,
+            c: 3
+         }
+      ]
+   },
+   d: [
+      [
+         2
+      ]
+   ],
+   e: [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+   ],
+   f: "hallo",
+   float1: 0.1,
+   float2: 1.23e47,
+   float3: -0.42,
+   float4: -0.12,
+   float5: 0.0,
+   float6: NaN,
+   float7: -Infinity,
+   foo: 2,
+   hex1: 291,
+   hex2: 291,
+   hex3: -291,
+   multi: "multi\nline\nstring\n",
+   quoted_keys: {
+      "": 2,
+      "123": 2,
+      b1: 2,
+      b2: 2,
+      b3: 2,
+      b4: 2,
+      b5: 2,
+      b6: 2
+   },
+   x: {
+      a: {
+         x: 1,
+         z: 3
+      },
+      b: {
+         x: 1,
+         z: 3
+      }
+   }
 }
