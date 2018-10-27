@@ -65,6 +65,15 @@
    foo: 42,
    i: "b",
    j: "i",
+   null0: null,
+   null1: null,
+   null2: true,
+   null3: "ciao",
+   null4: [
+      1,
+      2,
+      3
+   ],
    o: "orig3",
    orig3: {
       a: {

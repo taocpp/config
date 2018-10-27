@@ -80,6 +80,14 @@ concatenation1 = "Hello, " + (env "USER")  // Let's greet $USER!
 
 concatenation2 = [ 1 2 3 ] + [ 4 5 6 ]
 
+// Nulls are ignored in an addition or concatenation with other values.
+
+null0 = null  // Yields null.
+null1 = null + null  // Yields null.
+null2 = null + true  // Yields true.
+null3 = "ciao" + null  // Yields "ciao".
+null4 = [ 1, 2 + null ] + null + [ 3 ]  // Yields [ 1 2 3 ].
+
 // Assignments to nested keys.
 
 a.b.c.d = true  // Creates intermediate objects as required.
