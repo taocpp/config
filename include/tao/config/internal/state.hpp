@@ -21,7 +21,8 @@ namespace tao
       {
          struct state;
 
-         using input_t = pegtl::file_input<>;
+         using input_t = pegtl::memory_input< pegtl::tracking_mode::eager, pegtl::eol::lf_crlf, const char* >;
+
          using extension_t = std::function< void( input_t&, state& ) >;
          using extension_map_t = std::map< std::string, extension_t >;
 

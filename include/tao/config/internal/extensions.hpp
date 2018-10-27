@@ -163,7 +163,8 @@ namespace tao
          template< typename Input >
          inline void parse_extension( Input& in, state& st )
          {
-            pegtl::file_input i2( obtain_filename( in, st ) );
+            const auto f = obtain_contents( in, st );
+            input_t i2( f, __PRETTY_FUNCTION__ );
             pegtl::parse_nested< rules::value, action, control >( in, i2, st );
          }
 
@@ -200,21 +201,20 @@ namespace tao
             st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::ubjson::from_string( f ) ) );
          }
 
-         template< typename Input = pegtl::file_input<> >
          inline extension_map_t value_extension_map()
          {
             return {
-               { "cbor", cbor_extension< Input > },
-               { "copy", copy_extension< Input > },
-               { "debug", debug_extension< Input > },
-               { "env", env_extension< Input > },
-               { "jaxn", jaxn_extension< Input > },
-               { "json", json_extension< Input > },
-               { "msgpack", msgpack_extension< Input > },
-               { "parse", parse_extension< Input > },
-               { "read", read_extension< Input > },
-               { "shell", shell_extension< Input > },
-               { "ubjson", ubjson_extension< Input > }
+               { "cbor", cbor_extension< input_t > },
+               { "copy", copy_extension< input_t > },
+               { "debug", debug_extension< input_t > },
+               { "env", env_extension< input_t > },
+               { "jaxn", jaxn_extension< input_t > },
+               { "json", json_extension< input_t > },
+               { "msgpack", msgpack_extension< input_t > },
+               { "parse", parse_extension< input_t > },
+               { "read", read_extension< input_t > },
+               { "shell", shell_extension< input_t > },
+               { "ubjson", ubjson_extension< input_t > }
             };
          }
 
@@ -302,16 +302,15 @@ namespace tao
             access( pos, *st.ostack.back(), p ).transient = true;
          }
 
-         template< typename Input = pegtl::file_input<> >
          inline extension_map_t member_extension_map()
          {
             return {
-               { "delete", erase_extension< Input > },
-               { "delete?", erase_if_extension< Input > },
-               { "include", include_extension< Input > },
-               { "include?", include_if_extension< Input > },
-               { "stderr", stderr_extension< Input > },
-               { "transient", transient_extension< Input > }
+               { "delete", erase_extension< input_t > },
+               { "delete?", erase_if_extension< input_t > },
+               { "include", include_extension< input_t > },
+               { "include?", include_if_extension< input_t > },
+               { "stderr", stderr_extension< input_t > },
+               { "transient", transient_extension< input_t > }
             };
          }
 
