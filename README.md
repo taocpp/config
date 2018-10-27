@@ -285,3 +285,6 @@ It is distributed under the terms of the [MIT license] reproduced here.
 The Art of C++ / Config is part of [The Art of C++](https://taocpp.github.io/).
 
 For questions and suggestions about The Art of C++ / Config please contact the authors at `taocpp(at)icemx.net`.
+
+[MIT license]: http://www.opensource.org/licenses/mit-license.html
+[Open Source]: http://www.opensource.org/docs/definition.html
