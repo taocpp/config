@@ -4,27 +4,20 @@
 
 ## Features
 
- * JAXN data model
-   * JSON data model
-   * Binary data
-   * All double values
- * Based on JAXN syntax
-   * Based on JSON syntax
-   * Commas are optional
-   * JAXN comments
-   * Other small extensions
- * Phase 1 features
-   * Copy sub-sections
-   * Include other config files
-   * Read other files as value
-   * Invoke shell commands
-   * Access environment variables
-   * Tag sections as temporary
- * Phase 2 features
-   * Reference sub-values
-   * Value addition or concatenation
- * File position information
- * ...
+ * JAXN syntax with extensions (compatible with JSON)
+ * JAXN data model (JSON + binary data + non-finites)
+ * Meta data (filename and position information everywhere)
+ * Copy/reference/overwrite values and entire sections
+ * Multiple ways to read and parse other files, and use
+ * environment variables and output of shell commands.
+
+## Status
+
+This library is still very much under development and not ready for general use.
+
+That said, the features that are implemented are generally functional and tested...
+
+Currently only compiles with our [JSON library](https://github.com/taocpp/json) checked out next to it.
 
 ## Example
 
@@ -140,43 +133,36 @@ ref6 = (orig6.a.-.b.1) + [ 4 5 6 ] // Yields [ 1 2 3 4 5 6 ]
 
 /*
    Key Extensions
-   - delete
-   - delete?
-   - include
-   - include?
-   - stderr
+   - delete       TODO
+   - delete?      TODO
+   - include      TODO
+   - include?     TODO
+   - stderr       TODO
    - temporary
 */
 
 /*
    Value Extensions
-   - copy
-   - debug
+   - copy         TODO
+   - debug        TODO
    - env
-   - shell
-   - read
-   - read env
-   - json
-   - json env
-   - json shell
-   - parse
-   - parse env
-   - parse shell
-   - cbor, jaxn, msgpack, ubjson
+   - shell        TODO
+   - read         TODO
+   - read env     TODO
+   - json         TODO
+   - json env     TODO
+   - json shell   TODO
+   - parse        TODO
+   - parse env    TODO
+   - parse shell  TODO
+   - cbor, jaxn, msgpack, ubjson  TODO
+   - reference
 */
 
-// To be continued...
+// TODO: Be continued...
 ```
 
 See `tests/showcase_only_data.jaxn` for the exact result of parsing this config file example!
-
-## Status
-
-This library is still very much under development and not ready for general use.
-
-That said, the features that are implemented are generally functional and stable...
-
-Currently only compiles with our [JSON library](https://github.com/taocpp/json) checked out next to it.
 
 ## License
 
