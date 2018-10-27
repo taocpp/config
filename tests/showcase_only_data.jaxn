@@ -60,6 +60,25 @@
       8,
       9
    ],
+   copy1d: {
+      b: 100,
+      c: 200
+   },
+   copy1s: {
+      a: {
+         b: 300,
+         c: 200
+      }
+   },
+   copy2d1: "foo",
+   copy2d2: "baz",
+   copy2s: [
+      [
+         "foo",
+         "bar",
+         "baz"
+      ]
+   ],
    d: {
       e: [
          true

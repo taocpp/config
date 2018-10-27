@@ -137,7 +137,22 @@ orig6 = { a : [ { b : [ [ 0 ] [ 1 2 3 ] [ 2 ] ] } ] }
 
 ref6 = (orig6.a.-.b.1) + [ 4 5 6 ] // Yields [ 1 2 3 4 5 6 ]
 
-// Deleting values.
+// Copying values and sections.
+
+copy1s = { a : { b : 100, c : 200 } }  // Same as copy1.a.b = 100 when copy1 wasn't previously set.
+
+copy1d = (copy copy1s.a)  // copy2d is now a DEEP COPY of copy1s.a
+
+copy1s.a.b = 300  // Does NOT change the value of copy2d.b from 100 to 300!
+
+copy2s = [ [ "foo" "bar" "baz" ] ]
+
+// Copying can also use - to access the last array element.
+
+copy2d1 = (copy copy2s.-.0)  // "foo"
+copy2d2 = (copy copy2s.-.-)  // "baz"
+
+// Deleting values and sections.
 
 del1 = 1
 
