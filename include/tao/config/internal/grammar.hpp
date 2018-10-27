@@ -103,11 +103,9 @@ namespace tao
 
             struct ext_value : pegtl::if_must< round_a, ext_name, wsp, ext_value_impl, round_z > {};
 
-            struct top_ext_value : pegtl::seq< ext_value > {};  // TODO: Nicer way?
-
             struct at_round_a : pegtl::at< round_a > {};
             struct at_ext_value : pegtl::at< round_a, ext_name, ws1 > {};
-            struct special_choice : pegtl::if_must_else< at_ext_value, top_ext_value, reference > {};
+            struct special_choice : pegtl::if_must_else< at_ext_value, ext_value, reference > {};
             struct special_value : pegtl::if_must< at_round_a, special_choice > {};
 
             struct binary_choice : pegtl::sor< jaxn::bstring, jaxn::bdirect > {};
@@ -164,13 +162,13 @@ namespace tao
 
             struct compat_file : pegtl::must< wss, compat_list, wss, pegtl::eof > {};
 
-            struct grammar : pegtl::must< wss, pegtl::if_must_else< curly_a, compat_file, grammar_list > > {};
+            struct grammar : pegtl::must< wss, pegtl::if_must_else< curly_a, compat_file, grammar_list > > {};  // Top-level rule for a config file.
 
-            struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};
+            struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};  // Rule for a single self-contained value without concatenation.
+
+            struct chain : pegtl::seq< ext_name, wss > {};  // Rule for pseudo-extension-chaining.
 
          }  // namespace rules
-
-         using grammar = rules::grammar;
 
       }  // namespace internal
 

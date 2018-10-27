@@ -7,7 +7,7 @@ namespace tao
 {
    int analyse()
    {
-      if( const auto p = tao::json_pegtl::analyze< tao::config::internal::grammar >( true ) ) {
+      if( const auto p = tao::json_pegtl::analyze< tao::config::internal::rules::grammar >( true ) ) {
          std::cerr << "PEGTL grammar analysis found " << p << " problems!" << std::endl;
          return p;
       }

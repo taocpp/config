@@ -21,7 +21,7 @@ namespace tao
       namespace internal
       {
          template< typename Input >
-         inline json::value parse_jaxn( Input& in )
+         inline json::value obtain_jaxn( Input& in )
          {
             json::events::to_value consumer;
 
@@ -32,7 +32,7 @@ namespace tao
          }
 
          template< typename Input >
-         inline std::string parse_string( Input& in )
+         inline std::string obtain_string( Input& in )
          {
             json::internal::string_state s2;
 
@@ -43,10 +43,41 @@ namespace tao
          }
 
          template< typename Input >
-         inline pointer parse_pointer( Input& in, state& st )
+         inline pointer obtain_pointer( Input& in, state& st )
          {
             if( pegtl::parse< rules::pointer, action, control >( in, st ) ) {
                return pointer_from_value( st.pointer );
+            }
+            throw std::string( __PRETTY_FUNCTION__ );
+         }
+
+         template< typename Input >
+         inline std::string obtain_filename( Input& in, state& st )
+         {
+            if( !pegtl::parse< rules::chain, action, control >( in, st ) ) {
+               return obtain_string( in );
+            }
+            if( st.extension == "env" ) {
+               const auto pos = in.position();
+               return get_env( pos, obtain_string( in ) );
+            }
+            throw std::string( __PRETTY_FUNCTION__ );
+         }
+
+         template< typename Input >
+         inline std::string obtain_contents( Input& in, state& st )
+         {
+            if( !pegtl::parse< rules::chain, action, control >( in, st ) ) {
+               const auto pos = in.position();
+               return read_file( pos, obtain_string( in ) );
+            }
+            if( st.extension == "env" ) {
+               const auto pos = in.position();
+               return read_file( pos, get_env( pos, obtain_string( in ) ) );
+            }
+            if( st.extension == "shell" ) {
+               const auto pos = in.position();
+               return shell_popen( pos, obtain_string( in ) );
             }
             throw std::string( __PRETTY_FUNCTION__ );
          }
@@ -57,9 +88,9 @@ namespace tao
             assert( !st.lstack.empty() );
 
             const auto pos = in.position();
-            const auto f = parse_string( in );
+            const auto f = obtain_contents( in, st );
 
-            st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::cbor::parse_file( f ) ) );
+            st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::cbor::from_string( f ) ) );
          }
 
          template< typename Input >
@@ -71,7 +102,7 @@ namespace tao
             const auto pos = in.position();
 
             concat& d = *st.lstack.back();
-            const concat& s = access( pos, *st.ostack.front(), parse_pointer( in, st ) );
+            const concat& s = access( pos, *st.ostack.front(), obtain_pointer( in, st ) );
             d.v.insert( d.v.end(), s.v.begin(), s.v.end() );
          }
 
@@ -83,7 +114,7 @@ namespace tao
             const auto pos = in.position();
 
             std::ostringstream oss;
-            to_stream( oss, access( pos, *st.ostack.front(), parse_pointer( in, st ) ) );
+            to_stream( oss, access( pos, *st.ostack.front(), obtain_pointer( in, st ) ) );
             st.lstack.back()->v.emplace_back( entry::make_atom( pos, oss.str() ) );
          }
 
@@ -93,7 +124,7 @@ namespace tao
             assert( !st.lstack.empty() );
 
             const auto pos = in.position();
-            st.lstack.back()->v.emplace_back( entry::make_atom( pos, get_env( pos, parse_string( in ) ) ) );
+            st.lstack.back()->v.emplace_back( entry::make_atom( pos, get_env( pos, obtain_string( in ) ) ) );
          }
 
          template< typename Input >
@@ -102,9 +133,9 @@ namespace tao
             assert( !st.lstack.empty() );
 
             const auto pos = in.position();
-            const auto f = parse_string( in );
+            const auto f = obtain_contents( in, st );
 
-            st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::jaxn::parse_file( f ) ) );
+            st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::jaxn::from_string( f ) ) );
          }
 
          template< typename Input >
@@ -113,9 +144,9 @@ namespace tao
             assert( !st.lstack.empty() );
 
             const auto pos = in.position();
-            const auto f = parse_string( in );
+            const auto f = obtain_contents( in, st );
 
-            st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::parse_file( f ) ) );
+            st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::from_string( f ) ) );
          }
 
          template< typename Input >
@@ -124,15 +155,15 @@ namespace tao
             assert( !st.lstack.empty() );
 
             const auto pos = in.position();
-            const auto f = parse_string( in );
+            const auto f = obtain_contents( in, st );
 
-            st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::msgpack::parse_file( f ) ) );
+            st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::msgpack::from_string( f ) ) );
          }
 
          template< typename Input >
          inline void parse_extension( Input& in, state& st )
          {
-            pegtl::file_input i2( parse_string( in ) );
+            pegtl::file_input i2( obtain_filename( in, st ) );
             pegtl::parse_nested< rules::value, action, control >( in, i2, st );
          }
 
@@ -142,7 +173,7 @@ namespace tao
             assert( !st.lstack.empty() );
 
             const auto pos = in.position();
-            const auto f = parse_string( in );
+            const auto f = obtain_filename( in, st );
 
             st.lstack.back()->v.emplace_back( entry::make_atom( pos, read_file( pos, f ) ) );
          }
@@ -153,7 +184,7 @@ namespace tao
             assert( !st.lstack.empty() );
 
             const auto pos = in.position();
-            const auto c = parse_string( in );
+            const auto c = obtain_string( in );
 
             st.lstack.back()->v.emplace_back( entry::make_atom( pos, shell_popen( pos, c ) ) );
          }
@@ -164,9 +195,9 @@ namespace tao
             assert( !st.lstack.empty() );
 
             const auto pos = in.position();
-            const auto f = parse_string( in );
+            const auto f = obtain_contents( in, st );
 
-            st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::ubjson::parse_file( f ) ) );
+            st.lstack.back()->v.emplace_back( entry::make_atom( pos, json::ubjson::from_string( f ) ) );
          }
 
          template< typename Input = pegtl::file_input<> >
@@ -193,7 +224,7 @@ namespace tao
             assert( !st.ostack.empty() );
 
             const auto pos = in.position();
-            const auto p = parse_pointer( in, st );
+            const auto p = obtain_pointer( in, st );
 
             if( erase( pos, *st.ostack.back(), p ) == 0 ) {
                throw std::runtime_error( format( "nothing to delete", { &pos, { "key", &p } } ) );
@@ -206,7 +237,7 @@ namespace tao
             assert( !st.ostack.empty() );
 
             const auto pos = in.position();
-            const auto p = parse_pointer( in, st );
+            const auto p = obtain_pointer( in, st );
 
             erase( pos, *st.ostack.back(), p );
          }
@@ -215,11 +246,11 @@ namespace tao
          inline void include_extension( Input& in, state& st )
          {
             const auto pos = in.position();
-            const auto f = parse_string( in );
+            const auto f = obtain_filename( in, st );
 
             try {
                pegtl::file_input i2( f );
-               pegtl::parse_nested< grammar, action, control >( in, i2, st );
+               pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
             }
             catch( const pegtl::input_error& e ) {
                throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() }, { "errno", e.errorno } } ) );
@@ -233,11 +264,11 @@ namespace tao
          inline void include_if_extension( Input& in, state& st )
          {
             const auto pos = in.position();
-            const auto f = parse_string( in );
+            const auto f = obtain_filename( in, st );
 
             try {
                pegtl::file_input i2( f );
-               pegtl::parse_nested< grammar, action, control >( in, i2, st );
+               pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
             }
             catch( const pegtl::input_error& )
             {
@@ -254,7 +285,7 @@ namespace tao
             assert( !st.ostack.empty() );
 
             const auto pos = in.position();
-            const auto p = parse_pointer( in, st );
+            const auto p = obtain_pointer( in, st );
 
             to_stream( std::cerr, access( pos, *st.ostack.back(), p ), 3 );
             std::cerr << std::endl;
@@ -266,7 +297,7 @@ namespace tao
             assert( !st.ostack.empty() );
 
             const auto pos = in.position();
-            const auto p = parse_pointer( in, st );
+            const auto p = obtain_pointer( in, st );
 
             access( pos, *st.ostack.back(), p ).transient = true;
          }
