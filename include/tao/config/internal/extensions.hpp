@@ -21,6 +21,12 @@ namespace tao
       namespace internal
       {
          template< typename Input >
+         inline void skip_whitespace( Input& in )
+         {
+            pegtl::parse< rules::wss >( in );  // TODO: Or must< wsp >, or wsp and check result?
+         }
+
+         template< typename Input >
          inline json::value obtain_jaxn( Input& in )
          {
             json::events::to_value consumer;
@@ -128,6 +134,18 @@ namespace tao
          }
 
          template< typename Input >
+         inline void env_if_extension( Input& in, state& st )
+         {
+            assert( !st.lstack.empty() );
+
+            const auto pos = in.position();
+            const auto v = obtain_string( in );
+            skip_whitespace( in );
+            const auto d = obtain_string( in );
+            st.lstack.back()->v.emplace_back( entry::make_atom( pos, get_env( pos, v, d ) ) );
+         }
+
+         template< typename Input >
          inline void jaxn_extension( Input& in, state& st )
          {
             assert( !st.lstack.empty() );
@@ -208,6 +226,7 @@ namespace tao
                { "copy", copy_extension< input_t > },
                { "debug", debug_extension< input_t > },
                { "env", env_extension< input_t > },
+               { "env?", env_if_extension< input_t > },
                { "jaxn", jaxn_extension< input_t > },
                { "json", json_extension< input_t > },
                { "msgpack", msgpack_extension< input_t > },

@@ -34,6 +34,14 @@ namespace tao
             throw std::runtime_error( format( "environment variable not found", { &pos, { "variable", e } } ) );
          }
 
+         inline std::string get_env( const position&, const std::string& e, const std::string& d )
+         {
+            if( const char* r = std::getenv( e.c_str() ) ) {
+               return std::string( r );
+            }
+            return d;
+         }
+
          inline std::string shell_popen( const position& pos, const std::string& c )
          {
             errno = 0;

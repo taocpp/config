@@ -100,6 +100,13 @@
    del8: {},
    foo: 42,
    i: "b",
+   inc: {
+      nested: {
+         test: {
+            simple: 42
+         }
+      }
+   },
    j: "i",
    null0: null,
    null1: null,
@@ -161,6 +168,7 @@
       5,
       6
    ],
+   simple: 42,
    v: {
       w: [
          "something"
@@ -168,14 +176,15 @@
    },
    value1: "{position:{source:\"tests/showcase.config\",line:112,byte_in_line:14},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:16},concat:[{b:{position:{source:\"tests/showcase.config\",line:112,byte_in_line:22},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:24},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:26},concat:[0],temporary:false}]],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:30},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:32},concat:[1],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:34},concat:[2],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:36},concat:[3],temporary:false}]],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:40},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:42},concat:[2],temporary:false}]],temporary:false}]],temporary:false}}],temporary:false}]],temporary:false}",
    value10: {},
-   value11: true,
-   value12: "variablesomething",
+   value11: {},
+   value12: true,
+   value13: "variablesomething",
    value2: "variable",
-   value3: "hallo\n",
-   value4: "contents of tests/showcase.t\n",
+   value3: "default",
+   value4: "hallo\n",
    value5: "contents of tests/showcase.t\n",
-   value6: [],
+   value6: "contents of tests/showcase.t\n",
    value7: [],
    value8: [],
-   value9: {}
+   value9: []
 }
