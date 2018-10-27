@@ -292,14 +292,14 @@ namespace tao
          }
 
          template< typename Input >
-         inline void transient_extension( Input& in, state& st )
+         inline void temporary_extension( Input& in, state& st )
          {
             assert( !st.ostack.empty() );
 
             const auto pos = in.position();
             const auto p = obtain_pointer( in, st );
 
-            access( pos, *st.ostack.back(), p ).transient = true;
+            access( pos, *st.ostack.back(), p ).temporary = true;
          }
 
          inline extension_map_t member_extension_map()
@@ -310,7 +310,7 @@ namespace tao
                { "include", include_extension< input_t > },
                { "include?", include_if_extension< input_t > },
                { "stderr", stderr_extension< input_t > },
-               { "transient", transient_extension< input_t > }
+               { "temporary", temporary_extension< input_t > }
             };
          }
 

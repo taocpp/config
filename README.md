@@ -1,6 +1,6 @@
 # The Art of C++ / Config
 
-[The Art of C++](https://taocpp.github.io/) / Config is a C++17 header-only library that reads config files in [JSON](https://tools.ietf.org/html/rfc8259) and [JAXN](https://github.com/stand-art/jaxn) syntax with extensions and produces a single [JSON Value](https://github.com/taocpp/json) as result.
+[The Art of C++](https://taocpp.github.io/) / Config is a C++17 header-only library that reads config files based on [JSON](https://tools.ietf.org/html/rfc8259) and [JAXN](https://github.com/stand-art/jaxn) and produces a single [JSON Value](https://github.com/taocpp/json) as result.
 
 ## Features
 
@@ -19,100 +19,148 @@
    * Read other files as value
    * Invoke shell commands
    * Access environment variables
+   * Tag sections as temporary
  * Phase 2 features
    * Reference sub-values
    * Value addition or concatenation
- * File position information (TODO)
+ * File position information
  * ...
 
 ## Example
 
 ```
-# JAXN comments...
+#! Shell-style and C/C++-style comments are supported.
 
-/*
-  ...Shell and C and C++-style comments.
-*/
+// We are implicitly in a JSON object, the top-level
+// enclosing { and } are optional, let's go:
 
-// Regular object member
-foo : 41
+"foo" : 42  // Like in JSON.
 
-// Alternative syntax
-bar = 43
+"foo" = 42  // '=' is an alternative for ':'.
 
-// Overwrite earlier values
-foo : 42
+'foo' = 42  // Keys can be single-quoted, or
 
-// Nested object member
-a.b.c.d = 44
+foo = 42    // 'simple' keys can be written without quotes.
 
-// Include other config file
-(include "other.config")
+// As seen above, overwriting existing values is fine!
 
-// Include into sub-object
-a.b.c = {
-   (include "other.config")
-}
+bar = "first\nsecond"  // A JSON string.
 
-// Add or overwrite a value
-a.b.c.d = "hallo"
+bar = 'first\nsecond'  // Single-quoted alternative.
 
-// Copy sub-section
-d.e = (copy a.b.c)
+bar = """first
+second"""  // Multi-line string, no escape sequences.
 
-// Value addition
-sum = 1 + 2 + 3
+bar = '''
+first
+second'''  // Newline directly after any triple quotes is ignored.
 
-// Commas are optional
-comma : {
-    array : [
+// Commas are optional, not just on top-level.
+
+commas = {
+    arrays = [
 	[ 1 2 3 ],
 	[ 1, 2, 3 ],
 	[ 1, 2, 3, ]
     ]
-    object : [
+    objects = [
 	{ a : 1 b : 2 c : 3 },
 	{ a : 1, b : 2, c : 3 },
 	{ a : 1, b : 2, c : 3, }
     ]
 }
 
-// Array concatenation
-array = [ 1 2 3 ] + [ 4 5 6 ]
+// Concatenation or addition of values.
 
-// Concatenate later
-array += [ 7 8 9 ]
+addition1 = 1 + 2 + 3
+addition2 = true + false
 
-// Add new last element to array
-array.- = 10
+concatenation1 = "Hello, " + "World"
+concatenation1 = "Hello, " + (env "USER")  // Let's greet $USER!
 
-// Shell commands
-user = (shell "echo '[ 1 2 3 ]'")
+concatenation2 = [ 1 2 3 ] + [ 4 5 6 ]
 
-// Environment variables
-user = (env "USER")
+// Assignments to nested keys.
 
-// Multi-line strings
-greeting = """
-Hello,
-World!
-"""
+a.b.c.d = true  // Creates intermediate objects as required.
 
-// Nested references
+// The '-' in an assignment appends a new array element.
 
-j = 1
-a.b.c = 40
+d.e.-.- = false  // Also creates the arrays as required.
+
+// Accessing array elements by index requires them to exist.
+
+d.e.0 = true  // Changes d.e from [ [ false ] ] to [ true ].
+
+// References that work both forwards and backwards.
+
+orig1 = 1
+ref1 = (orig1)
+
+ref2 = (orig2)
+orig2 = 2
+
+(temporary orig1)  // The origs are just for referencing, tag
+(temporary orig2)  // them for removal from the final result.
+
+// References can also be nested (without creating cycles).
+
+orig3.a.b.c = 3
 i = "b"
-j += (a.(i).c) + 1  // now j is 42
+j = "i"
+o = "orig3"
+ref3 = ((o).a.((j)).c)  // Yields the 3 from orig3.a.b.c.
 
-// Delete some values
+// When a key is 'complex' it can also be quoted in references.
 
-(delete bar)
+"1 2 3".yes = true
 
-(delete comma.object.1.*)
+ref4 = ("1 2 3".yes)
 
-// ...more...
+// References can also index array positions, or the last element.
+
+orig5 = [ 0 1 2 3 4 5 ]
+
+ref5.a = (orig5.3)  // Zero-based indexing yields a 3.
+ref5.b = (orig5.-)  // Yields the last element, here a 5.
+
+// Mixing some of these features together.
+
+orig6 = { a : [ { b : [ [ 0 ] [ 1 2 3 ] [ 2 ] ] } ] }
+
+ref6 = (orig6.a.-.b.1) + [ 4 5 6 ] // Yields [ 1 2 3 4 5 6 ]
+
+/*
+   Key Extensions
+   - delete
+   - delete?
+   - include
+   - include?
+   - stderr
+   - temporary
+*/
+
+/*
+   Value Extensions
+   - copy
+   - debug
+   - env
+   - shell
+   - read
+   - read env
+   - json
+   - json env
+   - json shell
+   - parse
+   - parse env
+   - parse shell
+   - cbor, jaxn, msgpack, ubjson
+*/
+
+// To be continued...
 ```
+
+See `tests/showcase_only_data.jaxn` for the exact result of parsing this config file example!
 
 ## Status
 

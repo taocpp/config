@@ -27,14 +27,14 @@ namespace tao
 
             position p;
             std::vector< entry > v;
-            mutable bool transient = false;
+            mutable bool temporary = false;
          };
 
          template<>
          struct traits< concat >
             : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
                                             TAO_JSON_BIND_REQUIRED( "concat", &concat::v ),
-                                            TAO_JSON_BIND_REQUIRED( "transient", &concat::transient ) >
+                                            TAO_JSON_BIND_REQUIRED( "temporary", &concat::temporary ) >
          {
          };
 

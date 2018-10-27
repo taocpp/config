@@ -1,0 +1,119 @@
+{
+   "1 2 3": {
+      yes: true
+   },
+   a: {
+      b: {
+         c: {
+            d: true
+         }
+      }
+   },
+   addition1: 6,
+   addition2: 1,
+   bar: "first\nsecond",
+   commas: {
+      arrays: [
+         [
+            1,
+            2,
+            3
+         ],
+         [
+            1,
+            2,
+            3
+         ],
+         [
+            1,
+            2,
+            3
+         ]
+      ],
+      objects: [
+         {
+            a: 1,
+            b: 2,
+            c: 3
+         },
+         {
+            a: 1,
+            b: 2,
+            c: 3
+         },
+         {
+            a: 1,
+            b: 2,
+            c: 3
+         }
+      ]
+   },
+   concatenation1: "Hello, colin",
+   concatenation2: [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+   ],
+   d: {
+      e: [
+         true
+      ]
+   },
+   foo: 42,
+   i: "b",
+   j: "i",
+   o: "orig3",
+   orig3: {
+      a: {
+         b: {
+            c: 3
+         }
+      }
+   },
+   orig5: [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+   ],
+   orig6: {
+      a: [
+         {
+            b: [
+               [
+                  0
+               ],
+               [
+                  1,
+                  2,
+                  3
+               ],
+               [
+                  2
+               ]
+            ]
+         }
+      ]
+   },
+   ref1: 1,
+   ref2: 2,
+   ref3: 3,
+   ref4: true,
+   ref5: {
+      a: 3,
+      b: 5
+   },
+   ref6: [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+   ]
+}
