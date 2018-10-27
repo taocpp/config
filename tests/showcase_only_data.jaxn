@@ -140,17 +140,17 @@
    orig3: {
       a: {
          b: {
-            c: 3
+            c: "x"
          }
       }
    },
    orig5: [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
    ],
    orig6: {
       a: [
@@ -173,11 +173,11 @@
    },
    ref1: 1,
    ref2: 2,
-   ref3: 3,
+   ref3: "x",
    ref4: true,
    ref5: {
-      a: 3,
-      b: 5
+      a: 13,
+      b: 15
    },
    ref6: [
       1,
@@ -206,7 +206,7 @@
          "something"
       ]
    },
-   value1: "{position:{source:\"tests/showcase.config\",line:112,byte_in_line:14},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:16},concat:[{b:{position:{source:\"tests/showcase.config\",line:112,byte_in_line:22},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:24},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:26},concat:[0],temporary:false}]],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:30},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:32},concat:[1],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:34},concat:[2],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:36},concat:[3],temporary:false}]],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:40},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:42},concat:[2],temporary:false}]],temporary:false}]],temporary:false}}],temporary:false}]],temporary:false}",
+   value1: "{position:{source:\"tests/showcase.config\",line:112,byte_in_line:13},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:15},concat:[{b:{position:{source:\"tests/showcase.config\",line:112,byte_in_line:20},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:22},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:24},concat:[0],temporary:false}]],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:28},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:30},concat:[1],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:32},concat:[2],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:34},concat:[3],temporary:false}]],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:38},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:40},concat:[2],temporary:false}]],temporary:false}]],temporary:false}}],temporary:false}]],temporary:false}",
    value10: {},
    value11: {},
    value12: true,

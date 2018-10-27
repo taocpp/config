@@ -90,13 +90,10 @@ null4 = [ 1, 2 + null ] + null + [ 3 ]  // Yields [ 1 2 3 ].
 // Assignments to nested keys.
 
 a.b.c.d = true  // Creates intermediate objects as required.
-// Identical to a: { b: { c: { d: true } } }
 
 // The '-' in an assignment appends a new array element.
 
 d.e.-.- = false  // Also creates the arrays as required.
-// Identical to d.e = [ [ false ] ]
-// Identical to d: { e: [ [ false ] ] }
 
 # Accessing array elements by index requires them to exist.
 
