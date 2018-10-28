@@ -91,13 +91,7 @@ namespace tao
                           typename Input >
                 static bool match( Input& in, state& st )
                 {
-                   const auto i = st.value_extension_map.find( st.extension );
-
-                   if( i != st.value_extension_map.end() ) {
-                      i->second( in, st );
-                      return true;
-                   }
-                   return false;
+                   return do_value_extension( in, st );
                 }
             };
 
@@ -136,13 +130,7 @@ namespace tao
                           typename Input >
                 static bool match( Input& in, state& st )
                 {
-                   const auto i = st.member_extension_map.find( st.extension );
-
-                   if( i != st.member_extension_map.end() ) {
-                      i->second( in, st );
-                      return true;
-                   }
-                   return false;
+                   return do_member_extension( in, st );
                 }
             };
 
@@ -164,9 +152,8 @@ namespace tao
 
             struct grammar : pegtl::must< wss, pegtl::if_must_else< curly_a, compat_file, grammar_list > > {};  // Top-level rule for a config file.
 
-            struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};  // Rule for a single self-contained value without concatenation.
-
-            struct chain : pegtl::seq< ext_name, wss > {};  // Rule for pseudo-extension-chaining.
+            struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};  // Rule for a single self-contained value without concatenation for extensions.
+            struct inner : pegtl::if_must< round_a, ext_name, wsp > {};  // Rule for extension-chaining.
 
          }  // namespace rules
 

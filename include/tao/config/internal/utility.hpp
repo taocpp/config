@@ -93,7 +93,7 @@ namespace tao
             }
          }
 
-         inline pointer pointer_from_value( const json::value& v )
+         inline pointer pointer_from_value( json::value& v )
          {
             pointer p;
 
@@ -104,6 +104,7 @@ namespace tao
             for( const auto& t : v.get_array() ) {  // TODO: Better error message (when not array).
                p.emplace_back( token_from_value( t ) );
             }
+            v.discard();
             return p;
          }
 

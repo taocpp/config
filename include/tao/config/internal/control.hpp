@@ -170,7 +170,6 @@ namespace tao
                if( st.clear_for_assign ) {
                   st.lstack.back()->v.clear();
                }
-               st.pointer.discard();
             }
 
             template< typename Input >

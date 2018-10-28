@@ -19,18 +19,9 @@ namespace tao
    {
       namespace internal
       {
-         struct state;
-
-         using input_t = pegtl::memory_input< pegtl::tracking_mode::eager, pegtl::eol::lf_crlf, const char* >;
-
-         using extension_t = std::function< void( input_t&, state& ) >;
-         using extension_map_t = std::map< std::string, extension_t >;
-
          struct state
          {
-            state( const extension_map_t& vem, const extension_map_t& mem )
-               : value_extension_map( vem ),
-                 member_extension_map( mem )
+            state()
             {
                ostack.emplace_back( &result );
             }
@@ -47,11 +38,8 @@ namespace tao
 
             // Phase 1 Extensions
 
-            json::value pointer;
+            json::value pointer;  // TODO: Rename to temporary?
             std::string extension;
-
-            extension_map_t value_extension_map;
-            extension_map_t member_extension_map;
 
             // Phase 2 Extensions
 

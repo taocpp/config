@@ -24,7 +24,7 @@ namespace tao
       template< template< typename... > class Traits >
       json::basic_value< Traits > basic_parse_files( const std::vector< std::string >& filenames )
       {
-         internal::state st( internal::value_extension_map(), internal::member_extension_map() );
+         internal::state st;
          for( const auto& filename : filenames ) {
             json_pegtl::file_input in( filename );
             json_pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );

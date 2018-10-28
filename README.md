@@ -206,23 +206,23 @@ value4 = (shell "echo hallo")  // The output of the shell command as string.
 
 value5 = (read "tests/showcase.t")  // The contents of the file as string.
 
-value6 = (read env "TEXTFILE")  // Like above but uses $TEXTFILE as filename.
+value6 = (read (env "TEXTFILE"))  // Like above but uses $TEXTFILE as filename.
 
-value7 = (json "tests/showcase.j")  // The contents of the file as JSON value.
+value7 = (json (read "tests/showcase.j"))  // The contents of the file as JSON value.
 
-value8 = (json env "JSONFILE")  // Like above but uses $JSONFILE as filename.
+value8 = (json (read (env "JSONFILE")))  // Like above but uses $JSONFILE as filename.
 
-value9 = (json shell '''echo "[]"''')  // Parses the output of the shell as JSON.
+value9 = (json (shell '''echo "[]"'''))  // Parses the output of the shell as JSON.
 
 // Note that the previous example uses triple-single-quotes for a multi-line string.
 
 // Note that (json ...) also works for cbor, jaxn, msgpack and ubjson.
 
-value10 = (parse "tests/showcase.c")  // Parses a single value with config syntax.
+value10 = (parse (read "tests/showcase.c"))  // Parses a single value with config syntax.
 
-value11 = (parse env "CONFIGFILE")  // Like above but uses $CONFIGFILE as filename.
+value11 = (parse (read (env "CONFIGFILE")))  // Like above but uses $CONFIGFILE as filename.
 
-value12 = (parse shell "echo true")  // Parses the outpuf of the shell as config value.
+value12 = (parse (shell "echo true"))  // Parses the outpuf of the shell as config value.
 
 // Note that value extensions can not be part of references or vice versa, however
 // value extensions and references can both be part of an addition or concatenation.

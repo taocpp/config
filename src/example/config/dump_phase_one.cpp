@@ -8,7 +8,7 @@
 int main( int argc, char** argv )
 {
    for( int i = 1; i < argc; ++i ) {
-      tao::config::internal::state st( tao::config::internal::value_extension_map(), tao::config::internal::member_extension_map() );
+      tao::config::internal::state st;
       tao::json_pegtl::file_input in( argv[ i ] );
       tao::json_pegtl::parse< tao::config::internal::rules::grammar, tao::config::internal::action, tao::config::internal::control >( in, st );
       tao::config::internal::to_stream( std::cout, st.result, 3 );
