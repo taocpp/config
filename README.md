@@ -4,10 +4,10 @@
 
 ## Features
 
- * JAXN syntax with extensions (compatible with JSON)
- * JAXN data model (JSON + binary data + non-finites)
- * Meta data (filename and position information everywhere)
- * Copy/reference/overwrite values and entire sections
+ * JAXN syntax with extensions (compatible with JSON).
+ * JAXN data model (JSON + binary data + non-finites).
+ * Meta data (filename and position information everywhere).
+ * Copy/reference/overwrite values and entire sections.
  * Multiple ways to read and parse other files, and use
  * environment variables and output of shell commands.
 
@@ -247,7 +247,11 @@ inc.nested.test = {
 
 (include? "/___this_does_not_exist.txt___")  // No error when the file can't be read.
 
-# Normally it is an error when an included file can't be read.
+# The include without the question mark throws an exception when the file can't be read.
+
+(include? (env? "FROBNICATE"))  // No error when the env lookup fails or the file can't be read.
+
+# Both forms of include normally report syntax errors etc. while parsing the files.
 
 // Different styles for the same data.
 
