@@ -22,7 +22,7 @@ namespace tao
          };
 
          template< typename V >
-         struct has_set_pointer< V, decltype( std::declval< V >().set_pointer( std::declval< const config::pointer& >() ), void() ) >
+         struct has_set_pointer< V, decltype( std::declval< V >().public_base().set_pointer( std::declval< const config::pointer& >() ), void() ) >
             : public std::true_type
          {
          };
@@ -34,7 +34,7 @@ namespace tao
          };
 
          template< typename V >
-         struct has_set_position< V, decltype( std::declval< V >().set_position( std::declval< const pegtl::position& >() ), void() ) >
+         struct has_set_position< V, decltype( std::declval< V >().public_base().set_position( std::declval< const pegtl::position& >() ), void() ) >
             : public std::true_type
          {
          };

@@ -4,19 +4,9 @@
 
 ## Documentation
 
-Sorry, it's still too early in this project's lifecycle to have documentation.
+*Warning: The documentation is still work-in-progress and very incomplete.*
 
-If you manage to compile the tests and examples by tweaking the `Makefile`, and want to try this out in your application, simply include `tao/config/config.hpp` and use one of the functions
-
-```c++
-tao::config:value tao::config::parse_file( const std::string& file );
-tao::config:value tao::config::parse_files( const std::vector< std::string >& files );
-```
-
-to obtain a `tao::config::value`, which is a `tao::json::basic_value< tao::config::traits >`.
-Then the usual [JSON Value](https://github.com/taocpp/json) API can be used to inspect the obtained config.
-
-For further details please Use The Source, or contact us if you have any questions.
+ * [Version 1.x Documentation](doc/README.md) (C++17)
 
 ## Features
 
@@ -29,11 +19,11 @@ For further details please Use The Source, or contact us if you have any questio
 
 ## Status
 
-This library is still very much under development and not ready for general use.
+This library is still under development and not fully tested or documented.
 
-That said, the features that are implemented are generally functional and tested...
+That said, the features that are implemented are mostly functional and seem to work...
 
-Currently only compiles with our [JSON library](https://github.com/taocpp/json) checked out next to it.
+Currently requires our [JSON library](https://github.com/taocpp/json) checked out next to it.
 
 ## Example
 
