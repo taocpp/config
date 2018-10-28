@@ -29,7 +29,7 @@ namespace tao
          {
             switch( r.type() ) {
                case json::type::BOOLEAN:
-                  l = l.unsafe_get_boolean() | r.unsafe_get_boolean();
+                  l = l.unsafe_get_boolean() || r.unsafe_get_boolean();
                   break;
                default:
                   throw addition_error{ l.type(), r.type() };
