@@ -167,7 +167,7 @@ namespace tao
             do_inner_extension( in, st );
 
             if( st.pointer.is_string_type() ) {
-               pegtl::string_input< pegtl::tracking_mode::eager, typename Input::eol_t, const char* > i2( st.pointer.as< std::string >(), __PRETTY_FUNCTION__ );
+               pegtl::string_input< pegtl::tracking_mode::eager, typename Input::eol_t, const char* > i2( st.pointer.as< std::string >(), __FUNCTION__ );
                pegtl::parse_nested< rules::value, action, control >( in, i2, st );
                return;
             }
@@ -239,6 +239,8 @@ namespace tao
          template< typename Input >
          inline void do_inner_extension( Input& in, state& st )
          {
+            const auto pos = in.position();
+
             if( pegtl::parse< rules::inner, action, control >( in, st ) ) {
                const auto ext = std::move( st.extension );
                const auto& map = value_extension_map< Input >();
@@ -249,7 +251,6 @@ namespace tao
                   pegtl::parse< pegtl::must< rules::round_z > >( in );
                   return;
                }
-               const auto pos = in.position();
                throw std::runtime_error( format( "unknown value extension", { &pos, { "name", ext } } ) );
             }
             st.pointer = obtain_string( in );
@@ -259,6 +260,9 @@ namespace tao
          inline bool do_value_extension( Input& in, state& st )
          {
             assert( !st.lstack.empty() );
+
+            const auto pos = in.position();
+            pegtl::parse< rules::outer, action, control >( in, st );
 
             if( st.extension == "copy" ) {
                copy_extension( in, st );
@@ -279,7 +283,6 @@ namespace tao
                st.pointer.discard();
                return true;
             }
-            const auto pos = in.position();
             throw std::runtime_error( format( "unknown value extension", { &pos, { "name", ext } } ) );
          }
 

@@ -130,6 +130,9 @@ namespace tao
          template< typename Input >
          inline bool do_member_extension( Input& in, state& st )
          {
+            const auto pos = in.position();
+            pegtl::parse< rules::outer, action, control >( in, st );
+
             const auto ext = std::move( st.extension );
             const auto& map = member_extension_map< Input >();
             const auto i = map.find( ext );
@@ -138,7 +141,6 @@ namespace tao
                i->second( in, st );
                return true;
             }
-            const auto pos = in.position();
             throw std::runtime_error( format( "unknown member extension", { &pos, { "name", ext } } ) );
          }
 

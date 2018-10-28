@@ -95,7 +95,7 @@ namespace tao
                 }
             };
 
-            struct ext_value : pegtl::if_must< round_a, ext_name, wsp, ext_value_impl, round_z > {};
+            struct ext_value : pegtl::if_must< round_a, ext_value_impl, round_z > {};
 
             struct at_round_a : pegtl::at< round_a > {};
             struct at_ext_value : pegtl::at< round_a, ext_name, ws1 > {};
@@ -134,7 +134,7 @@ namespace tao
                 }
             };
 
-            struct ext_member : pegtl::if_must< round_a, ext_name, wsp, ext_member_impl, round_z > {};
+            struct ext_member : pegtl::if_must< round_a, ext_member_impl, round_z > {};
 
             struct member : pegtl::sor< ext_member, key_member > {};
 
@@ -152,8 +152,9 @@ namespace tao
 
             struct grammar : pegtl::must< wss, pegtl::if_must_else< curly_a, compat_file, grammar_list > > {};  // Top-level rule for a config file.
 
-            struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};  // Rule for a single self-contained value without concatenation for extensions.
-            struct inner : pegtl::if_must< round_a, ext_name, wsp > {};  // Rule for extension-chaining.
+            struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};
+            struct inner : pegtl::if_must< round_a, ext_name, wsp > {};
+            struct outer : pegtl::must< ext_name, wsp > {};
 
          }  // namespace rules
 
