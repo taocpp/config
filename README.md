@@ -16,7 +16,7 @@ tao::config:value tao::config::parse_files( const std::vector< std::string >& fi
 to obtain a `tao::config::value`, which is a `tao::json::basic_value< tao::config::traits >`.
 Then the usual [JSON Value](https://github.com/taocpp/json) API can be used to inspect the obtained config.
 
-For everything else, please use the source or ask if you have any questions.
+For further details please Use The Source, or contact us if you have any questions.
 
 ## Features
 
