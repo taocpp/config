@@ -262,20 +262,26 @@ inc.nested.test = {
 
 // Different styles for the same data.
 
+server.local.ip = "127.0.0.1"
+server.local.ports.- = 80
+server.local.ports.- = 443
+server.local.ports.- = 8080
+
 server = {
    local = {
       ip: "127.0.0.1"
       ports: [ 80, 443, 8080 ]
    }
 }
-
-server.local.ip = "127.0.0.1"
-server.local.ports.- = 80
-server.local.ports.- = 443
-server.local.ports.- = 8080
 ```
 
-See `tests/showcase_only_data.jaxn` for JSON structure that results from parsing this example config.
+See `tests/showcase_only_data.jaxn` for the [JSON] (actually [JAXN]) data that results from parsing this example config.
+
+## Contact
+
+The Art of C++ / Config is part of [The Art of C++].
+
+For questions and suggestions about The Art of C++ / JSON please contact the authors at `taocpp(at)icemx.net`.
 
 ## License
 
@@ -290,10 +296,6 @@ It is distributed under the terms of the [MIT license] reproduced here.
 > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 >
 > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-## Contact
-
-The Art of C++ / Config is part of [The Art of C++].
 
 [JAXN]: https://github.com/stand-art/jaxn/
 [JSON]: https://tools.ietf.org/html/rfc8259
