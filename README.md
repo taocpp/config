@@ -19,11 +19,11 @@
 
 ## Status
 
-This library is still under development and not fully tested or documented.
+This library is still under heavy development and not well documented...
 
-That said, the features that are implemented are mostly functional and seem to work...
+...however it is functional and usable as shown by the growing test suite.
 
-Currently requires our [JSON library](https://github.com/taocpp/json) checked out next to it.
+To compile the tests and examples it requires our [JSON library](https://github.com/taocpp/json) checked out next to it.
 
 ## Example
 
