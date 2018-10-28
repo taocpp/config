@@ -138,7 +138,7 @@ namespace tao
             switch( r.type() ) {
                case json::type::OBJECT:
                   for( auto&& i : r.unsafe_get_object() ) {
-                     l.emplace( i.first, std::move( i.second ) );
+                     l.unsafe_get_object().insert_or_assign( i.first, std::move( i.second ) );
                   }
                   break;
                default:
