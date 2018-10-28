@@ -1,6 +1,6 @@
 # The Art of C++ / Config
 
-[The Art of C++](https://taocpp.github.io/) / Config is a C++17 header-only library that reads config files based on [JSON](https://tools.ietf.org/html/rfc8259) and [JAXN](https://github.com/stand-art/jaxn) and produces a single [JSON Value](https://github.com/taocpp/json) as result.
+[The Art of C++](https://taocpp.github.io/) / Config is a C++ header-only library that reads config files based on [JSON](https://tools.ietf.org/html/rfc8259) and [JAXN](https://github.com/stand-art/jaxn) and produces a single [JSON Value](https://github.com/taocpp/json) as result.
 
 ## Documentation
 
