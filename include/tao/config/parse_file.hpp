@@ -6,15 +6,17 @@
 
 #include <string>
 
+#include "value.hpp"
+
 #include "internal/action.hpp"
 #include "internal/control.hpp"
-#include "internal/extensions.hpp"
 #include "internal/grammar.hpp"
 #include "internal/pegtl.hpp"
 #include "internal/phase2.hpp"
 #include "internal/state.hpp"
 
-#include "value.hpp"
+#include "internal/member_extensions.hpp"
+#include "internal/value_extensions.hpp"
 
 namespace tao
 {
