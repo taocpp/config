@@ -1,6 +1,6 @@
 # The Art of C++ / Config
 
-[The Art of C++](https://taocpp.github.io/) / Config is a C++ header-only library that reads config files based on [JSON](https://tools.ietf.org/html/rfc8259) and [JAXN](https://github.com/stand-art/jaxn) and produces a single [JSON Value](https://github.com/taocpp/json) as result.
+[The Art of C++] / Config is a C++ header-only library that reads config files based on [JSON] and [JAXN] and produces a single [JSON Value] as result.
 
 ## Documentation
 
@@ -10,18 +10,19 @@
 
 ## Features
 
- * JAXN syntax with extensions (compatible with JSON).
- * JAXN data model (JSON + binary data + non-finites).
- * Meta data (filename and position information everywhere).
- * Copy/reference/overwrite values and entire sections.
- * Multiple ways to read and parse other files, and use
- * environment variables and output of shell commands.
+ * [JAXN] syntax with extensions (backward compatible with [JSON]).
+ * [JAXN] data model ([JSON] extended with binary data and non-finites).
+ * Meta data, all sub-values are annotated with filename and position.
+ * Copy, reference, replace and delete anything in the [JSON] structure.
+ * Multiple ways to read and parse other config and data files, and use
+ * environment variables and the output of arbitrary shell commands.
+ * The function [`tao::config::parse_file()`](doc/Parsing-Config-Files.md) is all you need to get going.
 
 ## Status
 
 This library is still under heavy development and not well documented...
 
-...however it is functional and usable as shown by the growing test suite.
+...however it works, test coverage is good, and the error messages ... informative.
 
 To compile the tests and examples it requires our [JSON library](https://github.com/taocpp/json) checked out next to it.
 
@@ -292,9 +293,12 @@ It is distributed under the terms of the [MIT license] reproduced here.
 
 ## Contact
 
-The Art of C++ / Config is part of [The Art of C++](https://taocpp.github.io/).
+The Art of C++ / Config is part of [The Art of C++].
 
-For questions and suggestions about The Art of C++ / Config please contact the authors at `taocpp(at)icemx.net`.
-
+[JAXN]: https://github.com/stand-art/jaxn
+[JSON]: https://tools.ietf.org/html/rfc8259
+[JSON Value]: https://github.com/taocpp/json
+[JSON library]: https://github.com/taocpp/json
 [MIT license]: http://www.opensource.org/licenses/mit-license.html
 [Open Source]: http://www.opensource.org/docs/definition.html
+[The Art of C++]: https://taocpp.github.io/
