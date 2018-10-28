@@ -1,17 +1,32 @@
 {
-   a: {
-      b: {
-         c: 1
+   binary: $DEADBEEF,
+   bool: {
+      a: null,
+      b: true,
+      c: true,
+      d: false,
+      e: false,
+      f: true,
+      g: true,
+      h: true,
+      i: false,
+      j: true,
+      k: true,
+      l: true,
+      m: false
+   },
+   e: {
+      f: {
+         g: 1
       }
    },
-   atoms: {
-      false: false,
-      null: null,
-      true: true
-   },
-   bar: 3,
-   binary: $DEADBEEF,
-   c: {
+   f: [
+      [
+         2
+      ]
+   ],
+   false: false,
+   g: {
       d: {
          e: 1
       },
@@ -23,48 +38,7 @@
          }
       }
    },
-   comma: {
-      array: [
-         [
-            1,
-            2,
-            3
-         ],
-         [
-            1,
-            2,
-            3
-         ],
-         [
-            1,
-            2,
-            3
-         ]
-      ],
-      object: [
-         {
-            a: 1,
-            b: 2,
-            c: 3
-         },
-         {
-            a: 1,
-            b: 2,
-            c: 3
-         },
-         {
-            a: 1,
-            b: 2,
-            c: 3
-         }
-      ]
-   },
-   d: [
-      [
-         2
-      ]
-   ],
-   e: [
+   h: [
       1,
       2,
       3,
@@ -75,19 +49,9 @@
       8,
       9
    ],
-   f: "hallo",
-   float1: 0.1,
-   float2: 1.23e47,
-   float3: -0.42,
-   float4: -0.12,
-   float5: 0.0,
-   float6: NaN,
-   float7: -Infinity,
-   foo: 2,
-   hex1: 291,
-   hex2: 291,
-   hex3: -291,
+   i: "hallo",
    multi: "multi\nline\nstring\n",
+   null: null,
    quoted_keys: {
       "": 2,
       "123": 2,
@@ -98,14 +62,5 @@
       b5: 2,
       b6: 2
    },
-   x: {
-      a: {
-         x: 1,
-         z: 3
-      },
-      b: {
-         x: 1,
-         z: 3
-      }
-   }
+   true: true
 }

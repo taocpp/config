@@ -10,7 +10,7 @@
       }
    },
    addition1: 6,
-   addition2: 1,
+   addition2: true,
    bar: "first\nsecond",
    commas: {
       arrays: [
