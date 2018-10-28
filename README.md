@@ -9,8 +9,8 @@ Sorry, it's still too early in this project's lifecycle to have documentation.
 If you manage to compile the tests and examples by tweaking the `Makefile`, and want to try this out in your application, simply include `tao/config/config.hpp` and use one of the functions
 
 ```c++
-tao::config:value tao::config::parse_file( const std::string& );
-tao::config:value tao::config::parse_files( const std::vector< std::string >& );
+tao::config:value tao::config::parse_file( const std::string& file );
+tao::config:value tao::config::parse_files( const std::vector< std::string >& files );
 ```
 
 to obtain a `tao::config::value`, which is a `tao::json::basic_value< tao::config::traits >`.
