@@ -49,7 +49,7 @@ namespace tao
          inline pointer obtain_pointer( Input& in, state& st )
          {
             pegtl::parse< pegtl::must< rules::pointer >, action, control >( in, st );
-            return pointer_from_value( st.pointer );
+            return pointer_from_value( in.position(), st.temporary );
          }
 
          template< typename Input >
@@ -59,11 +59,11 @@ namespace tao
 
             do_inner_extension( in, st );
 
-            if( st.pointer.is_string_type() ) {
-               st.pointer = json::cbor::from_string( st.pointer.as< std::string >() );
+            if( st.temporary.is_string_type() ) {
+               st.temporary = json::cbor::from_string( st.temporary.as< std::string >() );
                return;
             }
-            throw std::runtime_error( format( "require string to parse cbor", { &pos, st.pointer.type() } ) );
+            throw std::runtime_error( format( "require string to parse cbor", { &pos, st.temporary.type() } ) );
          }
 
          template< typename Input >
@@ -89,7 +89,7 @@ namespace tao
 
             std::ostringstream oss;
             to_stream( oss, access( pos, *st.ostack.front(), p ) );
-            st.pointer = oss.str();
+            st.temporary = oss.str();
          }
 
          template< typename Input >
@@ -98,7 +98,7 @@ namespace tao
             const auto pos = in.position();
             const auto v = obtain_string( in );
 
-            st.pointer = get_env_throws( pos, v );
+            st.temporary = get_env_throws( pos, v );
          }
 
          template< typename Input >
@@ -111,10 +111,10 @@ namespace tao
 
             if( pegtl::parse< rules::wsp >( in ) ) {
                const auto d = obtain_string( in );
-               st.pointer = e.value_or( d );
+               st.temporary = e.value_or( d );
                return;
             }
-            st.pointer = e;
+            st.temporary = e;
          }
 
          template< typename Input >
@@ -124,11 +124,11 @@ namespace tao
 
             do_inner_extension( in, st );
 
-            if( st.pointer.is_string_type() ) {
-               st.pointer = json::jaxn::from_string( st.pointer.as< std::string >() );
+            if( st.temporary.is_string_type() ) {
+               st.temporary = json::jaxn::from_string( st.temporary.as< std::string >() );
                return;
             }
-            throw std::runtime_error( format( "require string to parse jaxn", { &pos, st.pointer.type() } ) );
+            throw std::runtime_error( format( "require string to parse jaxn", { &pos, st.temporary.type() } ) );
          }
 
          template< typename Input >
@@ -138,11 +138,11 @@ namespace tao
 
             do_inner_extension( in, st );
 
-            if( st.pointer.is_string_type() ) {
-               st.pointer = json::from_string( st.pointer.as< std::string >() );
+            if( st.temporary.is_string_type() ) {
+               st.temporary = json::from_string( st.temporary.as< std::string >() );
                return;
             }
-            throw std::runtime_error( format( "require string to parse json", { &pos, st.pointer.type() } ) );
+            throw std::runtime_error( format( "require string to parse json", { &pos, st.temporary.type() } ) );
          }
 
          template< typename Input >
@@ -152,11 +152,11 @@ namespace tao
 
             do_inner_extension( in, st );
 
-            if( st.pointer.is_string_type() ) {
-               st.pointer = json::msgpack::from_string( st.pointer.as< std::string >() );
+            if( st.temporary.is_string_type() ) {
+               st.temporary = json::msgpack::from_string( st.temporary.as< std::string >() );
                return;
             }
-            throw std::runtime_error( format( "require string to parse msgpack", { &pos, st.pointer.type() } ) );
+            throw std::runtime_error( format( "require string to parse msgpack", { &pos, st.temporary.type() } ) );
          }
 
          template< typename Input >
@@ -166,12 +166,12 @@ namespace tao
 
             do_inner_extension( in, st );
 
-            if( st.pointer.is_string_type() ) {
-               pegtl::string_input< pegtl::tracking_mode::eager, typename Input::eol_t, const char* > i2( st.pointer.as< std::string >(), __FUNCTION__ );
+            if( st.temporary.is_string_type() ) {
+               pegtl::string_input< pegtl::tracking_mode::eager, typename Input::eol_t, const char* > i2( st.temporary.as< std::string >(), __FUNCTION__ );
                pegtl::parse_nested< rules::value, action, control >( in, i2, st );
                return;
             }
-            throw std::runtime_error( format( "require string to parse value", { &pos, st.pointer.type() } ) );
+            throw std::runtime_error( format( "require string to parse value", { &pos, st.temporary.type() } ) );
          }
 
          template< typename Input >
@@ -181,11 +181,11 @@ namespace tao
 
             do_inner_extension( in, st );
 
-            if( st.pointer.is_string_type() ) {
-               st.pointer = read_file_throws( st.pointer.as< std::string >() );
+            if( st.temporary.is_string_type() ) {
+               st.temporary = read_file_throws( st.temporary.as< std::string >() );
                return;
             }
-            throw std::runtime_error( format( "require string as filename", { &pos, st.pointer.type() } ) );
+            throw std::runtime_error( format( "require string as filename", { &pos, st.temporary.type() } ) );
          }
 
          template< typename Input >
@@ -195,11 +195,11 @@ namespace tao
 
             do_inner_extension( in, st );
 
-            if( st.pointer.is_string_type() ) {
-               st.pointer = shell_popen_throws( pos, st.pointer.as< std::string >() );
+            if( st.temporary.is_string_type() ) {
+               st.temporary = shell_popen_throws( pos, st.temporary.as< std::string >() );
                return;
             }
-            throw std::runtime_error( format( "require string for shell command", { &pos, st.pointer.type() } ) );
+            throw std::runtime_error( format( "require string for shell command", { &pos, st.temporary.type() } ) );
          }
 
          template< typename Input >
@@ -209,11 +209,11 @@ namespace tao
 
             do_inner_extension( in, st );
 
-            if( st.pointer.is_string_type() ) {
-               st.pointer = json::ubjson::from_string( st.pointer.as< std::string >() );
+            if( st.temporary.is_string_type() ) {
+               st.temporary = json::ubjson::from_string( st.temporary.as< std::string >() );
                return;
             }
-            throw std::runtime_error( format( "require string to parse ubjson", { &pos, st.pointer.type() } ) );
+            throw std::runtime_error( format( "require string to parse ubjson", { &pos, st.temporary.type() } ) );
          }
 
          template< typename Input >
@@ -253,7 +253,7 @@ namespace tao
                }
                throw std::runtime_error( format( "unknown value extension", { &pos, { "name", ext } } ) );
             }
-            st.pointer = obtain_string( in );
+            st.temporary = obtain_string( in );
          }
 
          template< typename Input >
@@ -278,9 +278,9 @@ namespace tao
 
             if( i != map.end() ) {
                i->second( in, st );
-               assert( !st.pointer.is_discarded() );
-               st.lstack.back()->v.emplace_back( entry::make_atom( in.position(), std::move( st.pointer ) ) );
-               st.pointer.discard();
+               assert( !st.temporary.is_discarded() );
+               st.lstack.back()->v.emplace_back( entry::make_atom( in.position(), std::move( st.temporary ) ) );
+               st.temporary.discard();
                return true;
             }
             throw std::runtime_error( format( "unknown value extension", { &pos, { "name", ext } } ) );

@@ -133,10 +133,10 @@ namespace tao
 
                for( auto& i : r.get_array() ) {
                   if( i.is_array() ) {
-                     p.emplace_back( token_from_value( process_list< json::traits >( process_reference_impl( pos, i ) ) ) );
+                     p.emplace_back( token_from_value( pos, process_list< json::traits >( process_reference_impl( pos, i ) ) ) );
                   }
                   else {
-                     p.emplace_back( token_from_value( i ) );
+                     p.emplace_back( token_from_value( pos, i ) );
                   }
                }
                return access( pos, m_root, p );

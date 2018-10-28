@@ -15,8 +15,6 @@ namespace tao
          config::pointer pointer;
          json::position position;  // TODO: json::position, pegtl::position or TBD config::position?
 
-         // TODO: Can we use binding::object without these functions?
-
          std::size_t line() const noexcept
          {
             return position.line();

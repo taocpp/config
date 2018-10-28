@@ -8,7 +8,10 @@
 #include <stdexcept>
 
 #include "json.hpp"
+#include "format.hpp"
+#include "pointer.hpp"
 #include "token.hpp"
+#include "traits.hpp"
 
 namespace tao
 {
@@ -77,7 +80,7 @@ namespace tao
          template< typename T >
          phase2_guard( const T& )->phase2_guard< T >;
 
-         inline token token_from_value( const json::value& v )
+         inline token token_from_value( const position& pos, const json::value& v )
          {
             switch( v.type() ) {
                case json::type::BOOLEAN:
@@ -89,11 +92,11 @@ namespace tao
                case json::type::UNSIGNED:
                   return token( v.as< std::size_t >() );
                default:
-                  throw std::string( "TODO: invalid json type for token" );
+                  throw std::runtime_error( format( "invalid json for token -- expected string or integer (or bool)", { &pos, v.type() } ) );
             }
          }
 
-         inline pointer pointer_from_value( json::value& v )
+         inline pointer pointer_from_value( const position& pos, json::value& v )
          {
             pointer p;
 
@@ -101,8 +104,11 @@ namespace tao
                p.emplace_back( token( v.unsafe_get_string() ) );
                return p;
             }
-            for( const auto& t : v.get_array() ) {  // TODO: Better error message (when not array).
-               p.emplace_back( token_from_value( t ) );
+            if( !v.is_array() ) {
+               throw std::runtime_error( format( "invalid json for pointer -- expected array", { &pos, v.type() } ) );
+            }
+            for( const auto& t : v.unsafe_get_array() ) {
+               p.emplace_back( token_from_value( pos, t ) );
             }
             v.discard();
             return p;

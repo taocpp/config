@@ -43,21 +43,21 @@ namespace tao
 
             do_inner_extension( in, st );
 
-            if( !st.pointer.is_string_type() ) {
-               throw std::runtime_error( format( "include requires string", { &pos, st.pointer.type() } ) );
+            if( !st.temporary.is_string_type() ) {
+               throw std::runtime_error( format( "include requires string", { &pos, st.temporary.type() } ) );
             }
-            const auto f = st.pointer.as< std::string >();
+            const auto f = st.temporary.as< std::string >();
 
             try {
                pegtl::file_input i2( f );
                pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
-               st.pointer.discard();
+               st.temporary.discard();
             }
             catch( const pegtl::input_error& e ) {
                throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() }, { "errno", e.errorno } } ) );
             }
             catch( const pegtl::parse_error& e ) {
-               throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() } } ) );
+               throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() } } ) );  // TODO: Or rely on parse_nested()'s parse_error?
             }
          }
 
@@ -68,25 +68,25 @@ namespace tao
 
             do_inner_extension( in, st );
 
-            if( st.pointer.is_null() ) {
+            if( st.temporary.is_null() ) {
                return;
             }
-            if( !st.pointer.is_string_type() ) {
-               throw std::runtime_error( format( "include requires string", { &pos, st.pointer.type() } ) );
+            if( !st.temporary.is_string_type() ) {
+               throw std::runtime_error( format( "include requires string", { &pos, st.temporary.type() } ) );
             }
-            const auto f = st.pointer.as< std::string >();
+            const auto f = st.temporary.as< std::string >();
 
             try {
                pegtl::file_input i2( f );
                pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
-               st.pointer.discard();
+               st.temporary.discard();
             }
             catch( const pegtl::input_error& )
             {
                // TODO: Are we ignoring too many errors here?
             }
             catch( const pegtl::parse_error& e ) {
-               throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() } } ) );
+               throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() } } ) );  // TODO: Or rely on parse_nested()'s parse_error?
             }
          }
 

@@ -38,7 +38,7 @@ namespace tao
 
             // Phase 1 Extensions
 
-            json::value pointer;  // TODO: Rename to temporary?
+            json::value temporary;
             std::string extension;
 
             // Phase 2 Extensions

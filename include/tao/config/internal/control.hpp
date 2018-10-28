@@ -67,8 +67,8 @@ namespace tao
             {
                assert( st.rstack.empty() );
 
-               st.pointer = json::empty_array;
-               st.rstack.emplace_back( &st.pointer );
+               st.temporary = json::empty_array;
+               st.rstack.emplace_back( &st.temporary );
             }
 
             template< typename Input >
@@ -84,7 +84,7 @@ namespace tao
             {
                assert( !st.rstack.empty() );
 
-               st.pointer.discard();
+               st.temporary.discard();
                st.rstack.pop_back();
             }
          };
@@ -165,7 +165,9 @@ namespace tao
             {
                assert( !st.ostack.empty() );
 
-               st.lstack.emplace_back( &assign( in.position(), *st.ostack.back(), pointer_from_value( st.pointer ) ) );
+               const auto pos = in.position();
+
+               st.lstack.emplace_back( &assign( pos, *st.ostack.back(), pointer_from_value( pos, st.temporary ) ) );
 
                if( st.clear_for_assign ) {
                   st.lstack.back()->v.clear();
