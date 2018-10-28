@@ -207,8 +207,12 @@
       ]
    },
    value1: "{position:{source:\"tests/showcase.config\",line:112,byte_in_line:13},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:15},concat:[{b:{position:{source:\"tests/showcase.config\",line:112,byte_in_line:20},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:22},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:24},concat:[0],temporary:false}]],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:28},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:30},concat:[1],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:32},concat:[2],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:34},concat:[3],temporary:false}]],temporary:false},{position:{source:\"tests/showcase.config\",line:112,byte_in_line:38},concat:[[{position:{source:\"tests/showcase.config\",line:112,byte_in_line:40},concat:[2],temporary:false}]],temporary:false}]],temporary:false}}],temporary:false}]],temporary:false}",
-   value10: {},
-   value11: {},
+   value10: {
+      show: true
+   },
+   value11: {
+      show: true
+   },
    value12: true,
    value13: "variablesomething",
    value2: "variable",
