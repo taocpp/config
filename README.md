@@ -24,7 +24,7 @@ This library is still under heavy development and not well documented...
 
 ...however it works, test coverage is good, and the error messages ... informative.
 
-To compile the tests and examples it requires our [JSON library](https://github.com/taocpp/json) checked out next to it.
+To compile the tests and examples it requires [taocpp/json] checked out next to it.
 
 ## Example
 
@@ -295,10 +295,10 @@ It is distributed under the terms of the [MIT license] reproduced here.
 
 The Art of C++ / Config is part of [The Art of C++].
 
-[JAXN]: https://github.com/stand-art/jaxn
+[JAXN]: https://github.com/stand-art/jaxn/
 [JSON]: https://tools.ietf.org/html/rfc8259
-[JSON Value]: https://github.com/taocpp/json
-[JSON library]: https://github.com/taocpp/json
+[JSON Value]: https://github.com/taocpp/json/
 [MIT license]: http://www.opensource.org/licenses/mit-license.html
 [Open Source]: http://www.opensource.org/docs/definition.html
+[taocpp/json]: https://github.com/taocpp/json/
 [The Art of C++]: https://taocpp.github.io/
