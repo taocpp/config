@@ -6,7 +6,7 @@
 
 *Warning: The documentation is still work-in-progress and very incomplete.*
 
- * [Version 1.x Documentation](doc/README.md) (C++17)
+ * [Version 1.x](doc/README.md) (requires C++17)
 
 ## Features
 
