@@ -15,21 +15,6 @@ namespace tao
          config::pointer pointer;
          json::position position;  // TODO: json::position, pegtl::position or TBD config::position?
 
-         std::size_t line() const noexcept
-         {
-            return position.line();
-         }
-
-         std::size_t byte_in_line() const noexcept
-         {
-            return position.byte_in_line();
-         }
-
-         const std::string& source() const noexcept
-         {
-            return position.source();
-         }
-
          void set_pointer( const config::pointer& ptr )  // TODO: Use internal::pointer here?
          {
             pointer = ptr;

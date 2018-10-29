@@ -39,11 +39,19 @@ namespace tao
       };
 
       template<>
+      struct traits< json::position >
+      {
+         template< template< typename... > class Traits, typename Consumer >
+         static void produce( Consumer& c, const json::position& p )
+         {
+            c.string( p.source() + ':' + std::to_string( p.line() ) + ':' + std::to_string( p.byte_in_line() ) );
+         }
+      };
+
+      template<>
       struct traits< annotation >
-         : public json::binding::object< TAO_JSON_BIND_REQUIRED( "source", &annotation::source ),
-                                         TAO_JSON_BIND_REQUIRED( "pointer", &annotation::pointer ),
-                                         TAO_JSON_BIND_REQUIRED( "line", &annotation::line ),
-                                         TAO_JSON_BIND_REQUIRED( "byte_in_line", &annotation::byte_in_line ) >
+         : public json::binding::object< TAO_JSON_BIND_REQUIRED( "pointer", &annotation::pointer ),
+                                         TAO_JSON_BIND_REQUIRED( "position", &annotation::position ) >
       {
          TAO_JSON_DEFAULT_KEY( "meta" );
       };

@@ -21,10 +21,12 @@ namespace tao
 
          template<>
          struct traits< position >
-            : public json::binding::object< TAO_JSON_BIND_REQUIRED( "source", &position::source ),
-                                            TAO_JSON_BIND_REQUIRED( "line", &position::line ),
-                                            TAO_JSON_BIND_REQUIRED( "byte_in_line", &position::byte_in_line ) >
          {
+            template< template< typename... > class Traits, typename Consumer >
+            static void produce( Consumer& c, const position& p )
+            {
+               c.string( p.source + ':' + std::to_string( p.line ) + ':' + std::to_string( p.byte_in_line ) );
+            }
          };
 
          template<>
