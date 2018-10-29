@@ -281,7 +281,7 @@ See `tests/showcase_only_data.jaxn` for the [JSON] (actually [JAXN]) data that r
 
 The Art of C++ / Config is part of [The Art of C++].
 
-For questions and suggestions about The Art of C++ / JSON please contact the authors at `taocpp(at)icemx.net`.
+For questions and suggestions about The Art of C++ / Config please contact the authors at `taocpp(at)icemx.net`.
 
 ## License
 
