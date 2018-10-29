@@ -104,7 +104,7 @@ namespace tao
             template< template< typename... > class Traits >
             json::basic_value< Traits > process_array( const array_t& a ) const
             {
-               json::basic_value< Traits > t = json::empty_array;
+               json::basic_value< Traits > t( json::empty_array );
 
                for( const auto& i : a ) {
                   if( !i.temporary ) {
@@ -117,7 +117,7 @@ namespace tao
             template< template< typename... > class Traits >
             json::basic_value< Traits > process_object( const object_t& o ) const
             {
-               json::basic_value< Traits > t = json::empty_object;
+               json::basic_value< Traits > t( json::empty_object );
 
                for( const auto& i : o ) {
                   if( !i.second.temporary ) {

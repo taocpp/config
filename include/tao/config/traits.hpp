@@ -22,6 +22,8 @@ namespace tao
       struct traits< void >
          : public json::traits< void >
       {
+         static constexpr const bool enable_implicit_constructor = false;
+
          template< typename Value >
          using public_base = annotation;
       };

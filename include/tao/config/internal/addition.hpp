@@ -29,7 +29,7 @@ namespace tao
          {
             switch( r.type() ) {
                case json::type::BOOLEAN:
-                  l = l.unsafe_get_boolean() || r.unsafe_get_boolean();
+                  l = json::basic_value< Traits >( l.unsafe_get_boolean() || r.unsafe_get_boolean() );
                   break;
                default:
                   throw addition_error{ l.type(), r.type() };
@@ -43,14 +43,14 @@ namespace tao
                if( !r.is_number() ) {
                   throw addition_error{ l.type(), r.type() };
                }
-               l = l.unsafe_get_double() + r.template as< double >();
+               l = json::basic_value< Traits >( l.unsafe_get_double() + r.template as< double >() );
                return;
             }
             if( r.type() == json::type::DOUBLE ) {
                if( !l.is_number() ) {
                   assert( false );
                }
-               l = l.template as< double >() + r.unsafe_get_double();
+               l = json::basic_value< Traits>( l.template as< double >() + r.unsafe_get_double() );
                return;
             }
             __int128_t t = 0;
@@ -77,13 +77,13 @@ namespace tao
                if( t != __int128_t( std::uint64_t( t ) ) ) {
                   throw overflow_error();
                }
-               l = std::uint64_t( t );
+               l = json::basic_value< Traits >( std::uint64_t( t ) );
             }
             else {
                if( t != __int128_t( std::int64_t( t ) ) ) {
                   throw overflow_error();
                }
-               l = std::int64_t( t );
+               l = json::basic_value< Traits >( std::int64_t( t ) );
             }
          }
 
@@ -92,10 +92,10 @@ namespace tao
          {
             switch( r.type() ) {
                case json::type::STRING:
-                  l.unsafe_get_string() += r.unsafe_get_string();
+                  l.get_string() += r.unsafe_get_string();
                   break;
                case json::type::STRING_VIEW:
-                  l.unsafe_get_string() += r.unsafe_get_string_view();
+                  l.get_string() += r.unsafe_get_string_view();
                   break;
                default:
                   throw addition_error{ l.type(), r.type() };
@@ -107,10 +107,10 @@ namespace tao
          {
             switch( r.type() ) {
                case json::type::BINARY:
-                  l.unsafe_get_binary().insert( l.unsafe_get_binary().end(), r.unsafe_get_binary().begin(), r.unsafe_get_binary().end() );
+                  l.get_binary().insert( l.unsafe_get_binary().end(), r.unsafe_get_binary().begin(), r.unsafe_get_binary().end() );
                   break;
                case json::type::BINARY_VIEW:
-                  l.unsafe_get_binary().insert( l.unsafe_get_binary().end(), r.unsafe_get_binary_view().begin(), r.unsafe_get_binary_view().end() );
+                  l.get_binary().insert( l.unsafe_get_binary().end(), r.unsafe_get_binary_view().begin(), r.unsafe_get_binary_view().end() );
                   break;
                default:
                   throw addition_error{ l.type(), r.type() };
