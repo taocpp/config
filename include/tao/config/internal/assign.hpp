@@ -38,22 +38,6 @@ namespace tao
             return assign( pos, l.v.back().get_object().try_emplace( k, pos ).first->second, p );
          }
 
-         inline concat& assign_index( const position& pos, concat& l, std::size_t n, const pointer& p )
-         {
-            for( auto& i : l.v ) {
-               if( !i.is_array() ) {
-                  throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-object", { &i.position(), i.type() } } } ) );
-               }
-               const auto s = i.get_array().size();
-
-               if( n < s ) {
-                  return assign( pos, i.get_array()[ n ], p );
-               }
-               n -= s;
-            }
-            throw std::runtime_error( format( "array index out of range", { &pos, { "integer", n } } ) );
-         }
-
          inline concat& assign_minus( const position& pos, concat& l, const pointer& p )
          {
             if( l.v.empty() ) {
@@ -63,6 +47,27 @@ namespace tao
                throw std::runtime_error( format( "attempt to append to non-array", { &pos, { "non-array", { &l.v.back().position(), l.v.back().type() } } } ) );
             }
             return assign( pos, l.v.back().get_array().emplace_back( pos ), p );
+         }
+
+         inline concat& assign_index( const position& pos, concat& l, const std::size_t m, const pointer& p )
+         {
+            std::size_t n = m;
+
+            for( auto& i : l.v ) {
+               if( !i.is_array() ) {
+                  throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", m }, { "partial", n }, { "non-array", { &i.position(), i.type() } } } ) );
+               }
+               const auto s = i.get_array().size();
+
+               if( n < s ) {
+                  return assign( pos, i.get_array()[ n ], p );
+               }
+               n -= s;
+            }
+            if( n == 0 ) {
+               return assign_minus( pos, l, p );
+            }
+            throw std::runtime_error( format( "array index out of range", { &pos, { "integer", m }, { "partial", n } } ) );
          }
 
          inline concat& assign( const position& pos, concat& l, const token& t, const pointer& p )
