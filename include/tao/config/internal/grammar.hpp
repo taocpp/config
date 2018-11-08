@@ -155,6 +155,7 @@ namespace tao
             struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};
             struct inner : pegtl::if_must< round_a, ext_name, wsp > {};
             struct outer : pegtl::must< ext_name, wsp > {};
+            struct ident : pegtl::seq< identifier, pegtl::eol > {};
 
          }  // namespace rules
 
