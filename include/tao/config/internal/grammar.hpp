@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_GRAMMAR_HPP
 #define TAO_CONFIG_INTERNAL_GRAMMAR_HPP
 
+#include "json.hpp"
 #include "pegtl.hpp"
 
 namespace tao

@@ -185,22 +185,22 @@ namespace tao
          return r;
       }
 
-      inline void key_to_stream( std::ostream& o, const key& p )
+      inline void to_stream( std::ostream& o, const key& p )
       {
          if( !p.empty() ) {
-            part_to_stream( o, p[ 0 ] );
+            to_stream( o, p[ 0 ] );
 
             for( std::size_t i = 1; i < p.size(); ++i ) {
                o << '.';
-               part_to_stream( o, p[ i ] );
+               to_stream( o, p[ i ] );
             }
          }
       }
 
-      inline std::string key_to_string( const key& p )
+      inline std::string to_string( const key& p )
       {
          std::ostringstream o;
-         key_to_stream( o, p );
+         to_stream( o, p );
          return o.str();
       }
 

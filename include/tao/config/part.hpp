@@ -98,7 +98,7 @@ namespace tao
          return '"' + json::internal::escape( n ) + '"';
       }
 
-      inline std::string part_to_string( const part& t )
+      inline std::string to_string( const part& t )
       {
          switch( t.type() ) {
             case part::name:
@@ -123,7 +123,7 @@ namespace tao
          }
       }
 
-      inline void part_to_stream( std::ostream& o, const part& t )
+      inline void to_stream( std::ostream& o, const part& t )
       {
          switch( t.type() ) {
             case part::name:

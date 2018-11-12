@@ -58,7 +58,7 @@ namespace tao
          void append_message_extension( std::ostream& o ) const
          {
             o << ' ';
-            key_to_stream( o, key );
+            to_stream( o, key );
             o << " (" << source() << ':' << line() << ':' << byte_in_line() << ')';
          }
       };

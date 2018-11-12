@@ -58,7 +58,7 @@ namespace tao
          template< template< typename... > class Traits, typename Consumer >
          static void produce( Consumer& c, const key& p )
          {
-            c.string( key_to_string( p ) );
+            c.string( to_string( p ) );
          }
       };
 
