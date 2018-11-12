@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_MEMBER_EXTENSIONS_HPP
 #define TAO_CONFIG_INTERNAL_MEMBER_EXTENSIONS_HPP
 
+#include "format.hpp"
 #include "value_extensions.hpp"
 
 namespace tao
@@ -18,10 +19,10 @@ namespace tao
             assert( !st.ostack.empty() );
 
             const auto pos = in.position();
-            const auto p = obtain_pointer( in, st );
+            const auto k = obtain_key( in, st );
 
-            if( erase( pos, *st.ostack.back(), p ) == 0 ) {
-               throw std::runtime_error( format( "nothing to delete", { &pos, { "key", &p } } ) );
+            if( erase( pos, *st.ostack.back(), k ) == 0 ) {
+               throw std::runtime_error( format( "nothing to delete", { &pos, &k } ) );
             }
          }
 
@@ -31,7 +32,7 @@ namespace tao
             assert( !st.ostack.empty() );
 
             const auto pos = in.position();
-            const auto p = obtain_pointer( in, st );
+            const auto p = obtain_key( in, st );
 
             erase( pos, *st.ostack.back(), p );
          }
@@ -96,7 +97,7 @@ namespace tao
             assert( !st.ostack.empty() );
 
             const auto pos = in.position();
-            const auto p = obtain_pointer( in, st );
+            const auto p = obtain_key( in, st );
 
             to_stream( std::cerr, access( pos, *st.ostack.back(), p ), 3 );
             std::cerr << std::endl;
@@ -108,7 +109,7 @@ namespace tao
             assert( !st.ostack.empty() );
 
             const auto pos = in.position();
-            const auto p = obtain_pointer( in, st );
+            const auto p = obtain_key( in, st );
 
             access( pos, *st.ostack.back(), p ).temporary = true;
          }

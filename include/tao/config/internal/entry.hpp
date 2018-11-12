@@ -10,9 +10,7 @@
 #include <vector>
 
 #include "concat.hpp"
-#include "format.hpp"
 #include "pegtl.hpp"
-#include "traits.hpp"
 #include "json.hpp"
 
 namespace tao
@@ -239,7 +237,7 @@ namespace tao
             void set_recursion_marker() const
             {
                if( m_phase2_recursion_marker ) {
-                  throw std::runtime_error( format( "reference cycle detected", { &m_position } ) );
+                  throw std::runtime_error( "reference cycle detected -- " + to_string( m_position ) );
                }
                m_phase2_recursion_marker = true;
             }
@@ -249,14 +247,14 @@ namespace tao
                m_phase2_recursion_marker = false;
             }
 
-            const pegtl::position& position() const noexcept
+            const internal::position& position() const noexcept
             {
                return m_position;
             }
 
          private:
             explicit
-            entry( const pegtl::position& p )
+            entry( const internal::position& p )
                : m_type( nothing ),
                  m_position( p )
             {
@@ -327,62 +325,7 @@ namespace tao
             mutable bool m_phase2_recursion_marker = false;
             kind m_type;
             entry_union m_union;
-            pegtl::position m_position;
-         };
-
-         template<>
-         struct traits< entry::kind >
-         {
-            TAO_JSON_DEFAULT_KEY( "type" );
-
-            template< template< typename... > class Traits >
-            static void assign( json::basic_value< Traits >& v, const entry::kind k )
-            {
-               switch( k ) {
-                  case entry::atom:
-                     v = "atom";
-                     return;
-                  case entry::array:
-                     v = "array";
-                     return;
-                  case entry::object:
-                     v = "object";
-                     return;
-                  case entry::nothing:
-                     v = "nothing";
-                     return;
-                  case entry::reference:
-                     v = "reference";
-                     return;
-               }
-               assert( false );
-            }
-         };
-
-         template<>
-         struct traits< entry >
-         {
-            template< template< typename... > class Traits, typename Consumer >
-            static void produce( Consumer& c, const entry& v )
-            {
-               switch( v.type() ) {
-                  case entry::atom:
-                     json::events::produce< Traits >( c, v.get_atom() );
-                     return;
-                  case entry::array:
-                     json::events::produce< Traits >( c, v.get_array() );
-                     return;
-                  case entry::object:
-                     json::events::produce< Traits >( c, v.get_object() );
-                     return;
-                  case entry::nothing:
-                     assert( false );
-                  case entry::reference:
-                     json::events::produce< Traits >( c, v.get_reference() );
-                     return;
-               }
-               assert( false );
-            }
+            internal::position m_position;
          };
 
       }  // namespace internal

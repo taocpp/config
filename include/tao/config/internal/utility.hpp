@@ -7,11 +7,11 @@
 #include <cassert>
 #include <stdexcept>
 
+#include "../key.hpp"
+
 #include "json.hpp"
 #include "format.hpp"
-#include "pointer.hpp"
-#include "token.hpp"
-#include "traits.hpp"
+#include "format.hpp"
 
 namespace tao
 {
@@ -80,35 +80,35 @@ namespace tao
          template< typename T >
          phase2_guard( const T& )->phase2_guard< T >;
 
-         inline token token_from_value( const position& pos, const json::value& v )
+         inline part part_from_value( const position& pos, const json::value& v )
          {
             switch( v.type() ) {
                case json::type::BOOLEAN:
-                  return token( v.unsafe_get_boolean() ? token::star : token::minus );
+                  return part( v.unsafe_get_boolean() ? part::star : part::minus );
                case json::type::STRING:
                case json::type::STRING_VIEW:
-                  return token( v.as< std::string >() );
+                  return part( v.as< std::string >() );
                case json::type::SIGNED:
                case json::type::UNSIGNED:
-                  return token( v.as< std::size_t >() );
+                  return part( v.as< std::size_t >() );
                default:
-                  throw std::runtime_error( format( "invalid json for token -- expected string or integer (or bool)", { &pos, v.type() } ) );
+                  throw std::runtime_error( format( "invalid json for part -- expected string or integer (or bool)", { &pos, v.type() } ) );
             }
          }
 
-         inline pointer pointer_from_value( const position& pos, json::value& v )
+         inline key key_from_value( const position& pos, json::value& v )
          {
-            pointer p;
+            key p;
 
             if( v.is_string() ) {
-               p.emplace_back( token( v.unsafe_get_string() ) );
+               p.emplace_back( part( v.unsafe_get_string() ) );
                return p;
             }
             if( !v.is_array() ) {
-               throw std::runtime_error( format( "invalid json for pointer -- expected array", { &pos, v.type() } ) );
+               throw std::runtime_error( format( "invalid json for key -- expected array", { &pos, v.type() } ) );
             }
             for( const auto& t : v.unsafe_get_array() ) {
-               p.emplace_back( token_from_value( pos, t ) );
+               p.emplace_back( part_from_value( pos, t ) );
             }
             v.discard();
             return p;

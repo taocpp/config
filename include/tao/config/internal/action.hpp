@@ -8,7 +8,6 @@
 #include <stdexcept>
 
 #include "access.hpp"
-#include "format.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"

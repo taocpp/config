@@ -6,23 +6,60 @@
 
 #include "external/json.hpp"
 
+#include "key.hpp"
+
 namespace tao
 {
    namespace config
    {
       struct annotation
       {
-         config::pointer pointer;
+         config::key key;
          json::position position;  // TODO: json::position, pegtl::position or TBD config::position?
 
-         void set_pointer( const config::pointer& ptr )  // TODO: Use internal::pointer here?
+         annotation() noexcept = default;
+
+         annotation( annotation&& ) noexcept = default;
+         annotation& operator=( annotation&& ) noexcept = default;
+
+         annotation( const annotation& ) = default;
+         annotation& operator=( const annotation& ) = default;
+
+         std::size_t line() const noexcept
          {
-            pointer = ptr;
+            return position.line();
+         }
+
+         std::size_t byte_in_line() const noexcept
+         {
+            return position.byte_in_line();
+         }
+
+         const std::string& source() const noexcept
+         {
+            return position.source();
+         }
+
+         void set_key( config::key&& k ) noexcept
+         {
+            key = std::move( k );
+         }
+
+         void set_key( const config::key& k )
+         {
+            key = k;
          }
 
          void set_position( const json_pegtl::position& pos )
          {
             position.set_position( pos );
+         }
+
+         void append_message_extension( std::ostream& o ) const
+         {
+            o << ' ';
+            key_to_stream( o, key );
+            o << " (" << source() << ':' << line() << ':' << byte_in_line() << ')';
          }
       };
 

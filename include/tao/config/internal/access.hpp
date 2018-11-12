@@ -6,8 +6,9 @@
 
 #include <stdexcept>
 
+#include "../key.hpp"
+
 #include "format.hpp"
-#include "pointer.hpp"
 #include "utility.hpp"
 #include "entry.hpp"
 
@@ -17,9 +18,9 @@ namespace tao
    {
       namespace internal
       {
-         inline const concat& access( const position& pos, const concat& l, const pointer& p );
+         inline const concat& access( const position& pos, const concat& l, const key& p );
 
-         inline const concat& access_name( const position& pos, const concat& l, const std::string& k, const pointer& p )
+         inline const concat& access_name( const position& pos, const concat& l, const std::string& k, const key& p )
          {
             for( const auto& i : reverse( l.v ) ) {
                if( !i.is_object() ) {
@@ -34,7 +35,7 @@ namespace tao
             throw std::runtime_error( format( "object index not found", { &pos, { "string", k }, { "object", { &l.p } } } ) );
          }
 
-         inline const concat& access_index( const position& pos, const concat& l, std::size_t n, const pointer& p )
+         inline const concat& access_index( const position& pos, const concat& l, std::size_t n, const key& p )
          {
             for( const auto& i : l.v ) {
                if( !i.is_array() ) {
@@ -50,7 +51,7 @@ namespace tao
             throw std::runtime_error( format( "array index out of range", { &pos, { "integer", n }, { "array", { &l.p } } } ) );
          }
 
-         inline const concat& access_minus( const position& pos, const concat& l, const pointer& p )
+         inline const concat& access_minus( const position& pos, const concat& l, const key& p )
          {
             for( const auto& i : reverse( l.v ) ) {
                if( !i.is_array() ) {
@@ -63,22 +64,22 @@ namespace tao
             throw std::runtime_error( format( "array has no last element to access", { &pos, { "array", { &l.p } } } ) );
          }
 
-         inline const concat& access( const position& pos, const concat& l, const token& t, const pointer& p )
+         inline const concat& access( const position& pos, const concat& l, const part& t, const key& p )
          {
             switch( t.type() ) {
-               case token::name:
+               case part::name:
                   return access_name( pos, l, t.get_name(), p );
-               case token::index:
+               case part::index:
                   return access_index( pos, l, t.get_index(), p );
-               case token::star:
+               case part::star:
                   throw std::runtime_error( format( "attempt to access star", { &pos } ) );
-               case token::minus:
+               case part::minus:
                   return access_minus( pos, l, p );
             }
             assert( false );
          }
 
-         inline const concat& access( const position& pos, const concat& l, const pointer& p )
+         inline const concat& access( const position& pos, const concat& l, const key& p )
          {
             if( p.empty() ) {
                return l;
@@ -86,7 +87,7 @@ namespace tao
             return access( pos, l, p.front(), pop_front( p ) );
          }
 
-         inline const concat& access( const position& pos, const object_t& o, const std::string& k, const pointer& p )
+         inline const concat& access( const position& pos, const object_t& o, const std::string& k, const key& p )
          {
             const auto i = o.find( k );
 
@@ -96,22 +97,22 @@ namespace tao
             throw std::runtime_error( format( "object index not found at top-level", { &pos, { "string", k } } ) );
          }
 
-         inline const concat& access( const position& pos, const object_t& o, const token& t, const pointer& p )
+         inline const concat& access( const position& pos, const object_t& o, const part& t, const key& p )
          {
             switch( t.type() ) {
-               case token::name:
+               case part::name:
                   return access( pos, o, t.get_name(), p );
-               case token::index:
+               case part::index:
                   assert( false );
-               case token::star:
+               case part::star:
                   assert( false );
-               case token::minus:
+               case part::minus:
                   assert( false );
             }
             assert( false );
          }
 
-         inline const concat& access( const position& pos, const object_t& o, const pointer& p )
+         inline const concat& access( const position& pos, const object_t& o, const key& p )
          {
             assert( !p.empty() );
 

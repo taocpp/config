@@ -7,16 +7,6 @@
 #include <tao/json.hpp>
 
 #include <tao/json/contrib/position.hpp>
-#include <tao/json/contrib/traits.hpp>
-
-namespace tao
-{
-   namespace config
-   {
-      using pointer = json::pointer;
-
-   }  // namespace config
-
-}  // namespace tao
+#include <tao/json/contrib/traits.hpp>  // TODO: This might be a problem...
 
 #endif

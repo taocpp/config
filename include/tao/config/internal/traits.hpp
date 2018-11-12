@@ -4,8 +4,9 @@
 #ifndef TAO_CONFIG_INTERNAL_TRAITS_HPP
 #define TAO_CONFIG_INTERNAL_TRAITS_HPP
 
+#include "concat.hpp"
+#include "entry.hpp"
 #include "json.hpp"
-#include "pegtl.hpp"
 
 namespace tao
 {
@@ -15,35 +16,41 @@ namespace tao
       {
          template< typename T >
          struct traits
-            : public json::traits< T >
+            : public config::traits< T >
          {
          };
 
          template<>
-         struct traits< position >
+         struct traits< void >
+            : public json::traits< void >
+         {
+         };
+
+         template<>
+         struct traits< pegtl::position >
          {
             template< template< typename... > class Traits, typename Consumer >
-            static void produce( Consumer& c, const position& p )
+            static void produce( Consumer& c, const pegtl::position& p )
             {
                c.string( p.source + ':' + std::to_string( p.line ) + ':' + std::to_string( p.byte_in_line ) );
             }
          };
 
          template<>
-         struct traits< const position* >
+         struct traits< const pegtl::position* >
          {
             TAO_JSON_DEFAULT_KEY( "position" );
 
             template< template< typename... > class Traits >
-            static void assign( json::basic_value< Traits >& v, const position* p )
+            static void assign( json::basic_value< Traits >& v, const pegtl::position* p )
             {
                v.unsafe_assign_opaque_ptr( p );
             }
          };
 
          template<>
-         struct traits< position* >
-            : public traits< const position* >
+         struct traits< pegtl::position* >
+            : public traits< const pegtl::position* >
          {
          };
 
@@ -67,6 +74,69 @@ namespace tao
             {
                json::events::from_value( c, v );
             }
+         };
+
+         template<>
+         struct traits< entry::kind >
+         {
+            TAO_JSON_DEFAULT_KEY( "type" );
+
+            template< template< typename... > class Traits >
+            static void assign( json::basic_value< Traits >& v, const entry::kind k )
+            {
+               switch( k ) {
+                  case entry::atom:
+                     v.unsafe_assign_string( "atom" );
+                     return;
+                  case entry::array:
+                     v.unsafe_assign_string( "array" );
+                     return;
+                  case entry::object:
+                     v.unsafe_assign_string( "object" );
+                     return;
+                  case entry::nothing:
+                     v.unsafe_assign_string( "nothing" );
+                     return;
+                  case entry::reference:
+                     v.unsafe_assign_string( "reference" );
+                     return;
+               }
+               assert( false );
+            }
+         };
+
+         template<>
+         struct traits< entry >
+         {
+            template< template< typename... > class Traits, typename Consumer >
+            static void produce( Consumer& c, const entry& v )
+            {
+               switch( v.type() ) {
+                  case entry::atom:
+                     json::events::produce< Traits >( c, v.get_atom() );
+                     return;
+                  case entry::array:
+                     json::events::produce< Traits >( c, v.get_array() );
+                     return;
+                  case entry::object:
+                     json::events::produce< Traits >( c, v.get_object() );
+                     return;
+                  case entry::nothing:
+                     assert( false );
+                  case entry::reference:
+                     json::events::produce< Traits >( c, v.get_reference() );
+                     return;
+               }
+               assert( false );
+            }
+         };
+
+         template<>
+         struct traits< concat >
+            : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
+                                            TAO_JSON_BIND_REQUIRED( "concat", &concat::v ),
+                                            TAO_JSON_BIND_REQUIRED( "temporary", &concat::temporary ) >
+         {
          };
 
       }  // namespace internal

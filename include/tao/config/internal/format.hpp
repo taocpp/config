@@ -15,10 +15,10 @@ namespace tao
    {
       namespace internal
       {
-         inline std::string format( const std::string& message, const json::basic_value< traits >& value )
+         inline std::string format( const std::string& message, std::initializer_list< json::internal::pair< traits > >&& l )
          {
             std::ostringstream os;
-            os << "'" << message << "' -- " << value;
+            os << "'" << message << "' -- " << json::basic_value< traits >( std::move( l ) );
             return os.str();
          }
 

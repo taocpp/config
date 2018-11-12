@@ -29,13 +29,55 @@ namespace tao
       };
 
       template<>
-      struct traits< pointer >
+      struct traits< part >
+      {
+         template< template< typename... > class, typename Consumer >
+         static void produce( Consumer& c, const part& t )
+         {
+            switch( t.type() ) {
+               case part::name:
+                  c.string( t.get_name() );
+                  return;
+               case part::index:
+                  c.number( std::uint64_t( t.get_index() ) );
+                  return;
+               case part::star:
+                  c.string( "*" );
+                  return;
+               case part::minus:
+                  c.string( "-" );
+                  return;
+            }
+            assert( false );
+         }
+      };
+
+      template<>
+      struct traits< key >
       {
          template< template< typename... > class Traits, typename Consumer >
-         static void produce( Consumer& c, const pointer& p )
+         static void produce( Consumer& c, const key& p )
          {
-            c.string( json::to_string( p ) );
+            c.string( key_to_string( p ) );
          }
+      };
+
+      template<>
+      struct traits< const key* >
+      {
+         TAO_JSON_DEFAULT_KEY( "key" );
+
+         template< template< typename... > class Traits >
+         static void assign( json::basic_value< Traits >& v, const key* p )
+         {
+            v.unsafe_assign_opaque_ptr( p );
+         }
+      };
+
+      template<>
+      struct traits< key* >
+         : public traits< const key* >
+      {
       };
 
       template<>
@@ -49,8 +91,26 @@ namespace tao
       };
 
       template<>
+      struct traits< const json::position* >
+      {
+         TAO_JSON_DEFAULT_KEY( "position" );
+
+         template< template< typename... > class Traits >
+         static void assign( json::basic_value< Traits >& v, const json::position* p )
+         {
+            v.unsafe_assign_opaque_ptr( p );
+         }
+      };
+
+      template<>
+      struct traits< json::position* >
+         : public traits< const json::position* >
+      {
+      };
+
+      template<>
       struct traits< annotation >
-         : public json::binding::object< TAO_JSON_BIND_REQUIRED( "pointer", &annotation::pointer ),
+         : public json::binding::object< TAO_JSON_BIND_REQUIRED( "key", &annotation::key ),
                                          TAO_JSON_BIND_REQUIRED( "position", &annotation::position ) >
       {
          TAO_JSON_DEFAULT_KEY( "meta" );

@@ -6,6 +6,8 @@
 
 #include <type_traits>
 
+#include "../key.hpp"
+
 #include "json.hpp"
 #include "pegtl.hpp"
 
@@ -16,13 +18,13 @@ namespace tao
       namespace internal
       {
          template< typename V, typename = void >
-         struct has_set_pointer
+         struct has_set_key
             : public std::false_type
          {
          };
 
          template< typename V >
-         struct has_set_pointer< V, decltype( std::declval< V >().public_base().set_pointer( std::declval< const config::pointer& >() ), void() ) >
+         struct has_set_key< V, decltype( std::declval< V >().public_base().set_key( std::declval< const config::key& >() ), void() ) >
             : public std::true_type
          {
          };

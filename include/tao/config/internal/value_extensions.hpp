@@ -46,10 +46,10 @@ namespace tao
          }
 
          template< typename Input >
-         inline pointer obtain_pointer( Input& in, state& st )
+         inline key obtain_key( Input& in, state& st )
          {
             pegtl::parse< pegtl::must< rules::pointer >, action, control >( in, st );
-            return pointer_from_value( in.position(), st.temporary );
+            return key_from_value( in.position(), st.temporary );
          }
 
          template< typename Input >
@@ -73,7 +73,7 @@ namespace tao
             assert( !st.lstack.empty() );
 
             const auto pos = in.position();
-            const auto p = obtain_pointer( in, st );
+            const auto p = obtain_key( in, st );
 
             concat& d = *st.lstack.back();
             const concat& s = access( pos, *st.ostack.front(), p );
@@ -85,7 +85,7 @@ namespace tao
          inline void debug_extension( Input& in, state& st )
          {
             const auto pos = in.position();
-            const auto p = obtain_pointer( in, st );
+            const auto p = obtain_key( in, st );
 
             std::ostringstream oss;
             to_stream( oss, access( pos, *st.ostack.front(), p ) );

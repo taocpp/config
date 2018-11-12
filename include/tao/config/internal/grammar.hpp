@@ -5,7 +5,6 @@
 #define TAO_CONFIG_INTERNAL_GRAMMAR_HPP
 
 #include "pegtl.hpp"
-#include "state.hpp"
 
 namespace tao
 {
@@ -74,9 +73,9 @@ namespace tao
             struct ref_body : pegtl::seq< ref_head, pegtl::star_must< dot, ref_part > > {};
             struct reference : pegtl::if_must< round_a, ref_body, round_z > {};
 
-            struct ptr_part : pegtl::sor< identifier, quoted, index, minus, star > {};
-            struct ptr_head : pegtl::sor< identifier, quoted > {};
-            struct pointer : pegtl::seq< ptr_head, pegtl::star_must< dot, ptr_part > > {};
+            struct key_part : pegtl::sor< identifier, quoted, index, minus, star > {};
+            struct key_head : pegtl::sor< identifier, quoted > {};
+            struct pointer : pegtl::seq< key_head, pegtl::star_must< dot, key_part > > {};
 
             struct ext_name : pegtl::seq< identifier_first, pegtl::star< identifier_other >, opt_question > {};
 
@@ -88,8 +87,9 @@ namespace tao
                           pegtl::rewind_mode M,
                           template< typename... > class Action,
                           template< typename... > class Control,
-                          typename Input >
-                static bool match( Input& in, state& st )
+                          typename Input,
+                          typename State >
+                static bool match( Input& in, State& st )
                 {
                    return do_value_extension( in, st );
                 }
@@ -127,8 +127,9 @@ namespace tao
                           pegtl::rewind_mode M,
                           template< typename... > class Action,
                           template< typename... > class Control,
-                          typename Input >
-                static bool match( Input& in, state& st )
+                          typename Input,
+                          typename State >
+                static bool match( Input& in, State& st )
                 {
                    return do_member_extension( in, st );
                 }
@@ -155,7 +156,6 @@ namespace tao
             struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};
             struct inner : pegtl::if_must< round_a, ext_name, wsp > {};
             struct outer : pegtl::must< ext_name, wsp > {};
-            struct ident : pegtl::seq< identifier, pegtl::eol > {};
 
          }  // namespace rules
 

@@ -43,7 +43,7 @@ namespace tao
 
             std::vector< std::byte > value;
 
-            const pegtl::position m_position;
+            const position m_position;
          };
 
       }  // namespace internal

@@ -167,7 +167,7 @@ namespace tao
 
                const auto pos = in.position();
 
-               st.lstack.emplace_back( &assign( pos, *st.ostack.back(), pointer_from_value( pos, st.temporary ) ) );
+               st.lstack.emplace_back( &assign( pos, *st.ostack.back(), key_from_value( pos, st.temporary ) ) );
 
                if( st.clear_for_assign ) {
                   st.lstack.back()->v.clear();

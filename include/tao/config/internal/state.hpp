@@ -10,7 +10,6 @@
 
 #include "json.hpp"
 #include "pegtl.hpp"
-#include "pointer.hpp"
 #include "entry.hpp"
 
 namespace tao
@@ -43,7 +42,7 @@ namespace tao
 
             // Phase 2 Extensions
 
-            std::vector< json::value* > rstack;  // Nested phase 2 references (and also phase 1 pointers).
+            std::vector< json::value* > rstack;  // Nested phase 2 references (and also phase 1 keys).
          };
 
       }  // namespace internal

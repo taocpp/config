@@ -6,8 +6,9 @@
 
 #include <stdexcept>
 
+#include "../key.hpp"
+
 #include "format.hpp"
-#include "pointer.hpp"
 #include "utility.hpp"
 #include "entry.hpp"
 
@@ -17,7 +18,7 @@ namespace tao
    {
       namespace internal
       {
-         inline std::size_t erase( const position& pos, concat& l, const pointer& p, const token& f );
+         inline std::size_t erase( const position& pos, concat& l, const key& p, const part& f );
 
          inline std::size_t erase_name( const position& pos, concat& l, const std::string& k )
          {
@@ -86,22 +87,22 @@ namespace tao
             throw std::runtime_error( format( "array has no last element to delete in", { &pos, { "array", { &l.p } } } ) );
          }
 
-         inline std::size_t erase( const position& pos, concat& l, const token& f )
+         inline std::size_t erase( const position& pos, concat& l, const part& f )
          {
             switch( f.type() ) {
-               case token::name:
+               case part::name:
                   return erase_name( pos, l, f.get_name() );
-               case token::index:
+               case part::index:
                   return erase_index( pos, l, f.get_index() );
-               case token::star:
+               case part::star:
                   return erase_star( pos, l );
-               case token::minus:
+               case part::minus:
                   return erase_minus( pos, l );
             }
             assert( false );
          }
 
-         inline std::size_t erase_name( const position& pos, concat& l, const std::string& k, const pointer& p, const token& f )
+         inline std::size_t erase_name( const position& pos, concat& l, const std::string& k, const key& p, const part& f )
          {
             std::size_t r = 0;
 
@@ -118,7 +119,7 @@ namespace tao
             return r;
          }
 
-         inline std::size_t erase_index( const position& pos, concat& l, std::size_t n, const pointer& p, const token& f )
+         inline std::size_t erase_index( const position& pos, concat& l, std::size_t n, const key& p, const part& f )
          {
             for( auto& i : l.v ) {
                if( !i.is_array() ) {
@@ -134,7 +135,7 @@ namespace tao
             throw std::runtime_error( format( "array index out of range", { &pos, { "integer", n }, { "array", { &l.p } } } ) );
          }
 
-         inline std::size_t erase_star( const position& pos, concat& l, const pointer& p, const token& f )
+         inline std::size_t erase_star( const position& pos, concat& l, const key& p, const part& f )
          {
             std::size_t r = 0;
 
@@ -156,7 +157,7 @@ namespace tao
             return r;
          }
 
-         inline std::size_t erase_minus( const position& pos, concat& l, const pointer& p, const token& f )
+         inline std::size_t erase_minus( const position& pos, concat& l, const key& p, const part& f )
          {
             for( auto& i : reverse( l.v ) ) {
                if( !i.is_array() ) {
@@ -169,22 +170,22 @@ namespace tao
             throw std::runtime_error( format( "array has no last element to delete", { &pos, { "array", { &l.p } } } ) );
          }
 
-         inline std::size_t erase( const position& pos, concat& l, const token& t, const pointer& p, const token& f )
+         inline std::size_t erase( const position& pos, concat& l, const part& t, const key& p, const part& f )
          {
             switch( t.type() ) {
-               case token::name:
+               case part::name:
                   return erase_name( pos, l, t.get_name(), p, f );
-               case token::index:
+               case part::index:
                   return erase_index( pos, l, t.get_index(), p, f );
-               case token::star:
+               case part::star:
                   return erase_star( pos, l, p, f );
-               case token::minus:
+               case part::minus:
                   return erase_minus( pos, l, p, f );
             }
             assert( false );
          }
 
-         inline std::size_t erase( const position& pos, concat& l, const pointer& p, const token& f )
+         inline std::size_t erase( const position& pos, concat& l, const key& p, const part& f )
          {
             if( p.empty() ) {
                return erase( pos, l, f );
@@ -194,7 +195,7 @@ namespace tao
             }
          }
 
-         inline std::size_t erase( const position& pos, object_t& o, const std::string& k, const pointer& p )
+         inline std::size_t erase( const position& pos, object_t& o, const std::string& k, const key& p )
          {
             if( p.empty() ) {
                return o.erase( k );
@@ -207,22 +208,22 @@ namespace tao
             return 0;
          }
 
-         inline std::size_t erase( const position& pos, object_t& o, const token& t, const pointer& p )
+         inline std::size_t erase( const position& pos, object_t& o, const part& t, const key& p )
          {
             switch( t.type() ) {
-               case token::name:
+               case part::name:
                   return erase( pos, o, t.get_name(), p );
-               case token::index:
+               case part::index:
                   assert( false );
-               case token::star:
+               case part::star:
                   assert( false );
-               case token::minus:
+               case part::minus:
                   assert( false );
             }
             assert( false );
          }
 
-         inline std::size_t erase( const position& pos, object_t& o, const pointer& p )
+         inline std::size_t erase( const position& pos, object_t& o, const key& p )
          {
             assert( !p.empty() );
 

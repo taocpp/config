@@ -6,9 +6,10 @@
 
 #include <stdexcept>
 
+#include "../key.hpp"
+
 #include "format.hpp"
 #include "pegtl.hpp"
-#include "pointer.hpp"
 #include "utility.hpp"
 #include "entry.hpp"
 
@@ -18,9 +19,9 @@ namespace tao
    {
       namespace internal
       {
-         inline concat& assign( const position& pos, concat& l, const pointer& p );
+         inline concat& assign( const position& pos, concat& l, const key& p );
 
-         inline concat& assign_name( const position& pos, concat& l, const std::string& k, const pointer& p )
+         inline concat& assign_name( const position& pos, concat& l, const std::string& k, const key& p )
          {
             for( auto& i : reverse( l.v ) ) {
                if( !i.is_object() ) {
@@ -38,7 +39,7 @@ namespace tao
             return assign( pos, l.v.back().get_object().try_emplace( k, pos ).first->second, p );
          }
 
-         inline concat& assign_minus( const position& pos, concat& l, const pointer& p )
+         inline concat& assign_minus( const position& pos, concat& l, const key& p )
          {
             if( l.v.empty() ) {
                l.v.emplace_back( entry::make_array( pos ) );
@@ -49,7 +50,7 @@ namespace tao
             return assign( pos, l.v.back().get_array().emplace_back( pos ), p );
          }
 
-         inline concat& assign_index( const position& pos, concat& l, const std::size_t m, const pointer& p )
+         inline concat& assign_index( const position& pos, concat& l, const std::size_t m, const key& p )
          {
             std::size_t n = m;
 
@@ -70,22 +71,22 @@ namespace tao
             throw std::runtime_error( format( "array index out of range", { &pos, { "integer", m }, { "partial", n } } ) );
          }
 
-         inline concat& assign( const position& pos, concat& l, const token& t, const pointer& p )
+         inline concat& assign( const position& pos, concat& l, const part& t, const key& p )
          {
             switch( t.type() ) {
-               case token::name:
+               case part::name:
                   return assign_name( pos, l, t.get_name(), p );
-               case token::index:
+               case part::index:
                   return assign_index( pos, l, t.get_index(), p );
-               case token::star:
+               case part::star:
                   throw std::runtime_error( format( "attempt to assign to star", { &pos } ) );
-               case token::minus:
+               case part::minus:
                   return assign_minus( pos, l, p );
             }
             assert( false );
          }
 
-         inline concat& assign( const position& pos, concat& l, const pointer& p )
+         inline concat& assign( const position& pos, concat& l, const key& p )
          {
             if( p.empty() ) {
                l.p = pos;
@@ -94,22 +95,22 @@ namespace tao
             return assign( pos, l, p.front(), pop_front( p ) );
          }
 
-         inline concat& assign( const position& pos, object_t& o, const token& t, const pointer& p )
+         inline concat& assign( const position& pos, object_t& o, const part& t, const key& p )
          {
             switch( t.type() ) {
-               case token::name:
+               case part::name:
                   return assign( pos, o.try_emplace( t.get_name(), pos ).first->second, p );
-               case token::index:
+               case part::index:
                   assert( false );
-               case token::star:
+               case part::star:
                   assert( false );
-               case token::minus:
+               case part::minus:
                   assert( false );
             }
             assert( false );
          }
 
-         inline concat& assign( const position& pos, object_t& o, const pointer& p )
+         inline concat& assign( const position& pos, object_t& o, const key& p )
          {
             assert( !p.empty() );
 

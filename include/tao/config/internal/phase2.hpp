@@ -18,23 +18,23 @@ namespace tao
       namespace internal
       {
          template< template< typename... > class Traits >
-         inline void phase2_pointers( json::basic_value< Traits >& r, const config::pointer& p )
+         inline void phase2_set_keys( json::basic_value< Traits >& r, const config::key& k )
          {
             switch( r.type() ) {
                case json::type::ARRAY:
                   for( std::size_t i = 0; i < r.unsafe_get_array().size(); ++i ) {
-                     phase2_pointers( r[ i ], p + i );
+                     phase2_set_keys( r[ i ], k + i );
                   }
                   break;
                case json::type::OBJECT:
                   for( auto& i : r.unsafe_get_object() ) {
-                     phase2_pointers( i.second, p + i.first );
+                     phase2_set_keys( i.second, k + i.first );
                   }
                   break;
                default:
                   break;
             }
-            r.set_pointer( p );
+            r.set_key( k );
          }
 
          class phase2_impl
@@ -50,8 +50,8 @@ namespace tao
             json::basic_value< Traits > phase2() const
             {
                json::basic_value< Traits > r = process_object< Traits >( m_root );
-               if constexpr( has_set_pointer< json::basic_value< Traits > >::value ) {
-                  phase2_pointers( r, config::pointer() );
+               if constexpr( has_set_key< json::basic_value< Traits > >::value ) {
+                  phase2_set_keys( r, config::key() );
                }
                return r;
             }
@@ -129,17 +129,17 @@ namespace tao
 
             const concat& process_reference_impl( const position& pos, const reference_t& r ) const
             {
-               pointer p;
+               config::key k;
 
                for( auto& i : r.get_array() ) {
                   if( i.is_array() ) {
-                     p.emplace_back( token_from_value( pos, process_list< json::traits >( process_reference_impl( pos, i ) ) ) );
+                     k.emplace_back( part_from_value( pos, process_list< json::traits >( process_reference_impl( pos, i ) ) ) );
                   }
                   else {
-                     p.emplace_back( token_from_value( pos, i ) );
+                     k.emplace_back( part_from_value( pos, i ) );
                   }
                }
-               return access( pos, m_root, p );
+               return access( pos, m_root, k );
             }
 
             template< template< typename... > class Traits >

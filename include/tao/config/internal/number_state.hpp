@@ -56,7 +56,7 @@ namespace tao
 
             json::value m_value;
 
-            const pegtl::position m_position;
+            const position m_position;
          };
 
       }  // namespace internal
