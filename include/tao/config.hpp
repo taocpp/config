@@ -4,8 +4,10 @@
 #ifndef TAO_CONFIG_HPP
 #define TAO_CONFIG_HPP
 
-#include "config/assign.hpp"
 #include "config/value.hpp"
+
+#include "config/access.hpp"
+#include "config/assign.hpp"
 
 #include "config/parse_file.hpp"
 #include "config/parse_files.hpp"
