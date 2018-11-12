@@ -26,13 +26,8 @@ namespace tao
          if( !v.is_object() ) {
             throw std::runtime_error( internal::format( "attempt to index non-object with string", { &v.key, &v.position, { "string", k } } ) );
          }
-         const auto j = v.unsafe_get_object().find( k );
-
-         if( j == v.unsafe_get_object().end() ) {
-            const auto t = v.emplace( k, json::basic_value< Traits >() );
-            return assign( t.first->second, p );
-         }
-         return assign( j->second, p );
+         const auto t = v.unsafe_get_object().try_emplace( k, json::empty_object );
+         return assign( t.first->second, p );
       }
 
       template< template< typename... > class Traits >
