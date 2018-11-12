@@ -24,7 +24,7 @@ namespace tao
       json::basic_value< Traits >& assign( json::basic_value< Traits >& v, const std::string& k, const key& p )
       {
          if( !v.is_object() ) {
-            throw std::runtime_error( format( "attempt to index non-object with string", { &v.key, &v.position, { "string", k } } ) );
+            throw std::runtime_error( internal::format( "attempt to index non-object with string", { &v.key, &v.position, { "string", k } } ) );
          }
          const auto j = v.unsafe_get_object().find( k );
 
@@ -39,10 +39,10 @@ namespace tao
       json::basic_value< Traits >& assign( json::basic_value< Traits >& v, const std::uint64_t n, const key& p )
       {
          if( !v.is_array() ) {
-            throw std::runtime_error( format( "attempt to index non-array with integer", { &v.key, &v.position, { "integer", n } } ) );
+            throw std::runtime_error( internal::format( "attempt to index non-array with integer", { &v.key, &v.position, { "integer", n } } ) );
          }
          if( v.unsafe_get_array().size() <= n ) {
-            throw std::runtime_error( format( "array index out of bounds", { &v.key, &v.position, { "integer", n } } ) );
+            throw std::runtime_error( internal::format( "array index out of bounds", { &v.key, &v.position, { "integer", n } } ) );
          }
          return assign( v.unsafe_get_array()[ n ], p );
       }
@@ -59,9 +59,9 @@ namespace tao
             case part::index:
                return assign( v, k[ 0 ].get_index(), pop_front( k ) );
             case part::star:
-               throw std::runtime_error( format( "attempt to assign to star", { &v.key, &v.position } ) );
+               throw std::runtime_error( internal::format( "attempt to assign to star", { &v.key, &v.position } ) );
             case part::minus:
-               throw std::runtime_error( format( "attempt to assign to minus", { &v.key, &v.position } ) );
+               throw std::runtime_error( internal::format( "attempt to assign to minus", { &v.key, &v.position } ) );
          }
          assert( false );
       }
