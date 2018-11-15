@@ -172,6 +172,7 @@ namespace tao
                if( st.clear_for_assign ) {
                   st.lstack.back()->v.clear();
                }
+               st.clear_for_assign = true;
             }
 
             template< typename Input >
@@ -203,6 +204,18 @@ namespace tao
 
                st.ostack.pop_back();
             }
+         };
+
+         template<>
+         struct control< rules::member_array_list >
+            : public control< rules::member_value_list >
+         {
+         };
+
+         template<>
+         struct control< rules::member_object_list >
+            : public control< rules::member_value_list >
+         {
          };
 
       }  // namespace internal
