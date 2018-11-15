@@ -111,7 +111,7 @@ namespace tao
             const auto pos = in.position();
             const auto p = obtain_key( in, st );
 
-            access( pos, *st.ostack.back(), p ).temporary = true;
+            assign( pos, *st.ostack.back(), p ).temporary = true;
          }
 
          template< typename Input >
