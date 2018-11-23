@@ -29,7 +29,7 @@ namespace tao
 
             // General Structure
 
-            bool clear_for_assign = true;
+            bool clear_for_assign = false;
 
             std::vector< concat* > lstack;  // Current rules::value_list
             std::vector< array_t* > astack;  // Array contexts via '['

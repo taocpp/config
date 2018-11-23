@@ -146,6 +146,12 @@ namespace tao
          return key( p.begin(), p.end() - 1 );
       }
 
+      inline key& operator+=( key& l, const part& p )
+      {
+         l.emplace_back( p );
+         return l;
+      }
+
       inline key& operator+=( key& l, const part::kind k )
       {
          l.emplace_back( k );
@@ -162,6 +168,13 @@ namespace tao
       {
          l.emplace_back( n );
          return l;
+      }
+
+      inline key operator+( const key& l, const part& p )
+      {
+         key r = l;
+         r += p;
+         return r;
       }
 
       inline key operator+( const key& l, const part::kind k )

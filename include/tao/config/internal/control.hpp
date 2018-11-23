@@ -171,8 +171,8 @@ namespace tao
 
                if( st.clear_for_assign ) {
                   st.lstack.back()->v.clear();
+                  st.clear_for_assign = false;
                }
-               st.clear_for_assign = true;
             }
 
             template< typename Input >

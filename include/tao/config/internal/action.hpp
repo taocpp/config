@@ -112,15 +112,6 @@ namespace tao
          };
 
          template<>
-         struct action< rules::plus_equals >
-         {
-            static void apply0( state& st )
-            {
-               st.clear_for_assign = false;
-            }
-         };
-
-         template<>
          struct action< rules::equals >
          {
             static void apply0( state& st )
