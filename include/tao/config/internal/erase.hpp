@@ -37,7 +37,7 @@ namespace tao
          {
             for( auto& i : l.v ) {
                if( !i.is_array() ) {
-                  throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-object", { &i.position(), i.type() } } } ) );
+                  throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-array", { &i.position(), i.type() } } } ) );
                }
                auto& a = i.get_array();
                const auto s = a.size();
@@ -48,7 +48,7 @@ namespace tao
                }
                n -= s;
             }
-            throw std::runtime_error( format( "array has no last element to delete", { &pos, { "array", { &l.p } } } ) );
+            throw std::runtime_error( format( "array index out of range", { &pos, { "integer", n }, { "array", { &l.p } } } ) );
          }
 
          inline std::size_t erase_star( const position& pos, concat& l )
