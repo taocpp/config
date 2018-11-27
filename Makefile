@@ -22,7 +22,7 @@ export CONFIGFILE := tests/showcase.c
 
 all: check $(BINARIES)
 
-test: build/src/test/config/tests
+check: build/src/test/config/tests
 	build/src/test/config/tests $(TESTCASES)
 
 clean:
