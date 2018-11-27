@@ -18,9 +18,9 @@ export TEXTFILE := tests/showcase.t
 export JSONFILE := tests/showcase.j
 export CONFIGFILE := tests/showcase.c
 
-.PHONY: all test clean
+.PHONY: all check clean
 
-all: test $(BINARIES)
+all: check $(BINARIES)
 
 test: build/src/test/config/tests
 	build/src/test/config/tests $(TESTCASES)
