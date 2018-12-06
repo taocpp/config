@@ -55,7 +55,7 @@ int main( int argc, char** argv )
    for( int i = 1; i < argc; ++i ) {
       tao::unit_test( argv[ i ] );
    }
-   if( ! tao::failed ) {
+   if( !tao::failed ) {
       std::cerr << "All testcases passed." << std::endl;
    }
    return tao::failed;

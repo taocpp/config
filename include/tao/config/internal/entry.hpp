@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "concat.hpp"
-#include "pegtl.hpp"
 #include "json.hpp"
+#include "pegtl.hpp"
 
 namespace tao
 {
@@ -253,8 +253,7 @@ namespace tao
             }
 
          private:
-            explicit
-            entry( const internal::position& p )
+            explicit entry( const internal::position& p )
                : m_type( nothing ),
                  m_position( p )
             {

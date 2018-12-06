@@ -8,9 +8,9 @@
 #include <string>
 #include <vector>
 
+#include "entry.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"
-#include "entry.hpp"
 
 namespace tao
 {
@@ -31,8 +31,8 @@ namespace tao
 
             bool clear_for_assign = false;
 
-            std::vector< concat* > lstack;  // Current rules::value_list
-            std::vector< array_t* > astack;  // Array contexts via '['
+            std::vector< concat* > lstack;    // Current rules::value_list
+            std::vector< array_t* > astack;   // Array contexts via '['
             std::vector< object_t* > ostack;  // Object contexts via '{'
 
             // Phase 1 Extensions

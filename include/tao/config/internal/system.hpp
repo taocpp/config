@@ -56,7 +56,7 @@ namespace tao
          {
             errno = 0;
 
-            const std::unique_ptr< FILE, void( * )( FILE* ) > f( ::popen( c.c_str(), "r" ), []( FILE* f ){ ::pclose( f ); } );
+            const std::unique_ptr< FILE, void ( * )( FILE* ) > f( ::popen( c.c_str(), "r" ), []( FILE* f ) { ::pclose( f ); } );
 
             if( !f ) {
                throw std::runtime_error( format( "popen failed", { &pos, { "command", c }, { "errno", errno } } ) );

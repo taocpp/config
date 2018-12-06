@@ -9,9 +9,8 @@
 
 #include "../key.hpp"
 
+#include "format.hpp"
 #include "json.hpp"
-#include "format.hpp"
-#include "format.hpp"
 
 namespace tao
 {
@@ -22,8 +21,7 @@ namespace tao
          template< typename Container >
          struct reverse
          {
-            explicit
-            reverse( Container& l )
+            explicit reverse( Container& l )
                : m_c( l )
             {
             }
@@ -55,8 +53,7 @@ namespace tao
          class phase2_guard
          {
          public:
-            explicit
-            phase2_guard( const T& v )
+            explicit phase2_guard( const T& v )
                : m_v( v )
             {
                m_v.set_recursion_marker();

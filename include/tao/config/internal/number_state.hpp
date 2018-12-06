@@ -5,8 +5,8 @@
 #define TAO_CONFIG_INTERNAL_NUMBER_STATE_HPP
 
 #include <cstddef>
-#include <utility>
 #include <string>
+#include <utility>
 
 #include "pegtl.hpp"
 #include "state.hpp"

@@ -15,7 +15,7 @@ namespace tao
       {
          namespace rules
          {
-            namespace jaxn = ::tao::json::jaxn::internal::rules;
+            namespace jaxn = tao::json::jaxn::internal::rules;
 
             // NOTE: Some rules are defined multiple times with different names in
             // order to provide anchor points for different PEGTL actions without
@@ -23,6 +23,7 @@ namespace tao
 
             using ws1 = jaxn::ws;  // Also handles comments.
 
+            // clang-format off
             struct wss : pegtl::star< ws1 > {};
             struct wsp : pegtl::plus< ws1 > {};
 
@@ -163,6 +164,7 @@ namespace tao
             struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};
             struct inner : pegtl::if_must< round_a, ext_name, wsp > {};
             struct outer : pegtl::must< ext_name, wsp > {};
+            // clang-format on
 
          }  // namespace rules
 

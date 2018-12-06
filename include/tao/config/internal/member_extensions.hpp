@@ -82,8 +82,7 @@ namespace tao
                pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
                st.temporary.discard();
             }
-            catch( const pegtl::input_error& )
-            {
+            catch( const pegtl::input_error& ) {
                // TODO: Are we ignoring too many errors here?
             }
             catch( const pegtl::parse_error& e ) {

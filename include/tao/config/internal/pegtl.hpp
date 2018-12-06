@@ -12,7 +12,7 @@ namespace tao
    {
       namespace internal
       {
-         namespace pegtl = ::tao::json_pegtl;
+         namespace pegtl = json_pegtl;
 
          using position = pegtl::position;
 

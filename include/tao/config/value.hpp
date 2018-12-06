@@ -12,7 +12,7 @@ namespace tao
 {
    namespace config
    {
-      using value = json::basic_value< ::tao::config::traits >;
+      using value = json::basic_value< traits >;
 
    }  // namespace config
 

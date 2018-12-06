@@ -8,9 +8,9 @@
 
 #include "../key.hpp"
 
+#include "entry.hpp"
 #include "format.hpp"
 #include "utility.hpp"
-#include "entry.hpp"
 
 namespace tao
 {

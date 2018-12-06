@@ -6,6 +6,7 @@
 
 #include "assign.hpp"
 #include "binary_state.hpp"
+#include "entry.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
 #include "number_action.hpp"
@@ -14,7 +15,6 @@
 #include "quoted_state.hpp"
 #include "state.hpp"
 #include "string_state.hpp"
-#include "entry.hpp"
 
 namespace tao
 {

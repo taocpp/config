@@ -25,22 +25,19 @@ namespace tao
             minus
          };
 
-         explicit
-         part( const kind t )
+         explicit part( const kind t )
             : m_type( t )
          {
             assert( ( t == star ) || ( t == minus ) );
          }
 
-         explicit
-         part( const std::uint64_t i )
+         explicit part( const std::uint64_t i )
             : m_type( kind::index ),
               m_index( i )
          {
          }
 
-         explicit
-         part( const std::string& n )
+         explicit part( const std::string& n )
             : m_type( name ),
               m_name( n )
          {

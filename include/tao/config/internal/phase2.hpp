@@ -40,8 +40,7 @@ namespace tao
          class phase2_impl
          {
          public:
-            explicit
-            phase2_impl( const object_t& root )
+            explicit phase2_impl( const object_t& root )
                : m_root( root )
             {
             }

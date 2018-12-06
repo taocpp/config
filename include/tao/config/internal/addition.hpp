@@ -50,7 +50,7 @@ namespace tao
                if( !l.is_number() ) {
                   assert( false );
                }
-               l = json::basic_value< Traits>( l.template as< double >() + r.unsafe_get_double() );
+               l = json::basic_value< Traits >( l.template as< double >() + r.unsafe_get_double() );
                return;
             }
             __int128_t t = 0;

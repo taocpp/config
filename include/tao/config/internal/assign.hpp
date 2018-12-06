@@ -8,10 +8,10 @@
 
 #include "../key.hpp"
 
+#include "entry.hpp"
 #include "format.hpp"
 #include "pegtl.hpp"
 #include "utility.hpp"
-#include "entry.hpp"
 
 namespace tao
 {
@@ -44,7 +44,7 @@ namespace tao
             if( l.v.empty() ) {
                l.v.emplace_back( entry::make_array( pos ) );
             }
-            else if ( !l.v.back().is_array() ) {
+            else if( !l.v.back().is_array() ) {
                throw std::runtime_error( format( "attempt to append to non-array", { &pos, { "non-array", { &l.v.back().position(), l.v.back().type() } } } ) );
             }
             return assign( pos, l.v.back().get_array().emplace_back( pos ), p );
