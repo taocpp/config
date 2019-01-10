@@ -16,16 +16,29 @@ namespace tao
       {
          class entry;
 
-         struct concat
+         class concat
          {
+         public:
             explicit concat( const position& p )
                : p( p )
             {
             }
 
+            bool is_temporary() const noexcept
+            {
+               return m_temporary;
+            }
+
+            void set_temporary( const bool t = true ) noexcept
+            {
+               m_temporary = t;
+            }
+
             position p;
             std::vector< entry > v;
-            mutable bool temporary = false;
+
+         private:
+            mutable bool m_temporary = false;
          };
 
       }  // namespace internal

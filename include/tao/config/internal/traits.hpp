@@ -135,7 +135,7 @@ namespace tao
          struct traits< concat >
             : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
                                             TAO_JSON_BIND_REQUIRED( "concat", &concat::v ),
-                                            TAO_JSON_BIND_REQUIRED( "temporary", &concat::temporary ) >
+                                            TAO_JSON_BIND_REQUIRED( "temporary", &concat::is_temporary ) >
          {
          };
 
