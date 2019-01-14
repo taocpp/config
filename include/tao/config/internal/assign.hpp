@@ -23,7 +23,7 @@ namespace tao
 
          inline concat& assign_name( const position& pos, concat& l, const std::string& k, const key& p )
          {
-            for( auto& i : reverse( l.v ) ) {
+            for( auto& i : reverse( l.private_entries() ) ) {
                if( !i.is_object() ) {
                   throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
                }
@@ -33,28 +33,28 @@ namespace tao
                   return assign( pos, j->second, p );
                }
             }
-            if( l.v.empty() ) {
-               l.v.emplace_back( entry::make_object( pos ) );
+            if( l.entries().empty() ) {
+               l.emplace_back_object( pos );
             }
-            return assign( pos, l.v.back().get_object().try_emplace( k, pos ).first->second, p );
+            return assign( pos, l.private_entries().back().get_object().try_emplace( k, pos ).first->second, p );
          }
 
          inline concat& assign_minus( const position& pos, concat& l, const key& p )
          {
-            if( l.v.empty() ) {
-               l.v.emplace_back( entry::make_array( pos ) );
+            if( l.entries().empty() ) {
+               l.emplace_back_array( pos );
             }
-            else if( !l.v.back().is_array() ) {
-               throw std::runtime_error( format( "attempt to append to non-array", { &pos, { "non-array", { &l.v.back().position(), l.v.back().type() } } } ) );
+            else if( !l.entries().back().is_array() ) {
+               throw std::runtime_error( format( "attempt to append to non-array", { &pos, { "non-array", { &l.entries().back().position(), l.entries().back().type() } } } ) );
             }
-            return assign( pos, l.v.back().get_array().emplace_back( pos ), p );
+            return assign( pos, l.private_entries().back().get_array().emplace_back( pos ), p );
          }
 
          inline concat& assign_index( const position& pos, concat& l, const std::size_t m, const key& p )
          {
             std::size_t n = m;
 
-            for( auto& i : l.v ) {
+            for( auto& i : l.private_entries() ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", m }, { "partial", n }, { "non-array", { &i.position(), i.type() } } } ) );
                }

@@ -33,7 +33,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::make_atom( in.position(), json::null ) );
+               st.lstack.back()->emplace_back_atom( in.position(), json::null );
             }
          };
 
@@ -45,7 +45,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::make_atom( in.position(), true ) );
+               st.lstack.back()->emplace_back_atom( in.position(), true );
             }
          };
 
@@ -57,7 +57,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::make_atom( in.position(), false ) );
+               st.lstack.back()->emplace_back_atom( in.position(), false );
             }
          };
 

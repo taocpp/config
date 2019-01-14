@@ -38,7 +38,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.lstack.back()->v.emplace_back( entry::make_atom( m_position, std::move( value ) ) );
+               st.lstack.back()->emplace_back_atom( m_position, std::move( value ) );
             }
 
             std::vector< std::byte > value;

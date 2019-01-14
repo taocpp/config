@@ -97,7 +97,7 @@ namespace tao
             static void start( const Input& in, state& st )
             {
                if( st.rstack.empty() ) {
-                  st.rstack.emplace_back( &st.lstack.back()->v.emplace_back( entry::make_reference( in.position(), json::empty_array ) ).get_reference() );
+                  st.rstack.emplace_back( &st.lstack.back()->emplace_back_reference( in.position(), json::empty_array ) );
                }
                else {
                   st.rstack.emplace_back( &st.rstack.back()->emplace_back( json::empty_array ) );
@@ -144,7 +144,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.astack.emplace_back( &st.lstack.back()->v.emplace_back( entry::make_array( in.position() ) ).get_array() );
+               st.astack.emplace_back( &st.lstack.back()->emplace_back_array( in.position() ) );
             }
 
             template< typename Input >
@@ -170,7 +170,7 @@ namespace tao
                st.lstack.emplace_back( &assign( pos, *st.ostack.back(), key_from_value( pos, st.temporary ) ) );
 
                if( st.clear_for_assign ) {
-                  st.lstack.back()->v.clear();
+                  st.lstack.back()->clear();
                   st.clear_for_assign = false;
                }
             }
@@ -194,7 +194,7 @@ namespace tao
             {
                assert( !st.lstack.empty() );
 
-               st.ostack.emplace_back( &st.lstack.back()->v.emplace_back( entry::make_object( in.position() ) ).get_object() );
+               st.ostack.emplace_back( &st.lstack.back()->emplace_back_object( in.position() ) );
             }
 
             template< typename Input >

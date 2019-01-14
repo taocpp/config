@@ -60,6 +60,7 @@ namespace tao
 
             entry( entry&& r ) noexcept
                : m_type( r.m_type ),
+                 m_parent( r.m_parent ),
                  m_position( std::move( r.m_position ) )
             {
                seize( std::move( r ) );
@@ -67,6 +68,7 @@ namespace tao
 
             entry( const entry& r )
                : m_type( nothing ),
+                 m_parent( r.m_parent ),
                  m_position( r.m_position )
             {
                embed( r );
@@ -78,6 +80,7 @@ namespace tao
                discard();
                seize( std::move( r ) );
                m_type = r.m_type;
+               m_parent = r.m_parent;
                m_position = std::move( r.m_position );
             }
 
@@ -96,6 +99,11 @@ namespace tao
             kind type() const noexcept
             {
                return m_type;
+            }
+
+            concat& parent() const noexcept
+            {
+               return *m_parent;
             }
 
             bool is_atom() const noexcept
@@ -158,30 +166,30 @@ namespace tao
             }
 
             template< typename T >
-            static entry make_atom( const position& p, T&& t )
+            static entry make_atom( concat* parent, const position& pos, T&& t )
             {
-               entry r( p );
+               entry r( parent, pos );
                r.set_atom( std::forward< T >( t ) );
                return r;
             }
 
-            static entry make_array( const position& p )
+            static entry make_array( concat* parent, const position& pos )
             {
-               entry r( p );
+               entry r( parent, pos );
                r.set_array();
                return r;
             }
 
-            static entry make_object( const position& p )
+            static entry make_object( concat* parent, const position& pos )
             {
-               entry r( p );
+               entry r( parent, pos );
                r.set_object();
                return r;
             }
 
-            static entry make_reference( const position& p, json::value&& v )
+            static entry make_reference( concat* parent, const position& pos, json::value&& v )
             {
-               entry r( p );
+               entry r( parent, pos );
                r.set_reference( std::move( v ) );
                return r;
             }
@@ -253,9 +261,10 @@ namespace tao
             }
 
          private:
-            explicit entry( const internal::position& p )
+            entry( concat* parent, const internal::position& pos )
                : m_type( nothing ),
-                 m_position( p )
+                 m_parent( parent ),
+                 m_position( pos )
             {
             }
 
@@ -321,10 +330,12 @@ namespace tao
                }
             }
 
-            mutable bool m_phase2_recursion_marker = false;
             kind m_type;
+            concat* m_parent;
             entry_union m_union;
             internal::position m_position;
+
+            mutable bool m_phase2_recursion_marker = false;
          };
 
       }  // namespace internal

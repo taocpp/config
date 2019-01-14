@@ -79,12 +79,12 @@ namespace tao
             template< template< typename... > class Traits >
             json::basic_value< Traits > process_list( const concat& l ) const
             {
-               assert( !l.v.empty() );
+               assert( !l.entries().empty() );
 
-               json::basic_value< Traits > r = process_entry< Traits >( l.v.front() );
+               json::basic_value< Traits > r = process_entry< Traits >( l.entries().front() );
 
-               for( std::size_t i = 1; i < l.v.size(); ++i ) {
-                  addition( r, process_entry< Traits >( l.v[ i ] ), l.v[ i ].position() );
+               for( std::size_t i = 1; i < l.entries().size(); ++i ) {
+                  addition( r, process_entry< Traits >( l.entries()[ i ] ), l.entries()[ i ].position() );
                }
                if constexpr( has_set_position< json::basic_value< Traits > >::value ) {
                   r.set_position( l.p );

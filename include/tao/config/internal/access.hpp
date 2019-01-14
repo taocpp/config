@@ -22,7 +22,7 @@ namespace tao
 
          inline const concat& access_name( const position& pos, const concat& l, const std::string& k, const key& p )
          {
-            for( const auto& i : reverse( l.v ) ) {
+            for( const auto& i : reverse( l.entries() ) ) {
                if( !i.is_object() ) {
                   throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
                }
@@ -37,7 +37,7 @@ namespace tao
 
          inline const concat& access_index( const position& pos, const concat& l, std::size_t n, const key& p )
          {
-            for( const auto& i : l.v ) {
+            for( const auto& i : l.entries() ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-array", { &i.position(), i.type() } } } ) );
                }
@@ -53,7 +53,7 @@ namespace tao
 
          inline const concat& access_minus( const position& pos, const concat& l, const key& p )
          {
-            for( const auto& i : reverse( l.v ) ) {
+            for( const auto& i : reverse( l.entries() ) ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( format( "attempt to access last element in non-array", { &pos, { "non-array", { &i.position(), i.type() } } } ) );
                }

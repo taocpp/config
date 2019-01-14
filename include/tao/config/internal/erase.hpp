@@ -24,7 +24,7 @@ namespace tao
          {
             std::size_t r = 0;
 
-            for( auto& i : l.v ) {
+            for( auto& i : l.private_entries() ) {
                if( !i.is_object() ) {
                   throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
                }
@@ -35,7 +35,7 @@ namespace tao
 
          inline std::size_t erase_index( const position& pos, concat& l, std::size_t n )
          {
-            for( auto& i : l.v ) {
+            for( auto& i : l.private_entries() ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-array", { &i.position(), i.type() } } } ) );
                }
@@ -55,7 +55,7 @@ namespace tao
          {
             std::size_t r = 0;
 
-            for( auto& i : l.v ) {
+            for( auto& i : l.private_entries() ) {
                if( i.is_array() ) {
                   r += i.get_array().size();
                   i.get_array().clear();
@@ -73,7 +73,7 @@ namespace tao
 
          inline std::size_t erase_minus( const position& pos, concat& l )
          {
-            for( auto& i : reverse( l.v ) ) {
+            for( auto& i : reverse( l.private_entries() ) ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( format( "attempt to delete last element from non-array", { &pos, { "non-array", { &i.position(), i.type() } } } ) );
                }
@@ -106,7 +106,7 @@ namespace tao
          {
             std::size_t r = 0;
 
-            for( auto& i : reverse( l.v ) ) {
+            for( auto& i : reverse( l.private_entries() ) ) {
                if( !i.is_object() ) {
                   throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
                }
@@ -121,7 +121,7 @@ namespace tao
 
          inline std::size_t erase_index( const position& pos, concat& l, std::size_t n, const key& p, const part& f )
          {
-            for( auto& i : l.v ) {
+            for( auto& i : l.private_entries() ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-array", { &i.position(), i.type() } } } ) );
                }
@@ -139,7 +139,7 @@ namespace tao
          {
             std::size_t r = 0;
 
-            for( auto& i : l.v ) {
+            for( auto& i : l.private_entries() ) {
                if( i.is_array() ) {
                   for( auto& j : i.get_array() ) {
                      r += erase( pos, j, p, f );
@@ -159,7 +159,7 @@ namespace tao
 
          inline std::size_t erase_minus( const position& pos, concat& l, const key& p, const part& f )
          {
-            for( auto& i : reverse( l.v ) ) {
+            for( auto& i : reverse( l.private_entries() ) ) {
                if( !i.is_array() ) {
                   throw std::runtime_error( format( "attempt to delete last element from non-array", { &pos, { "non-array", { &i.position(), i.type() } } } ) );
                }

@@ -77,8 +77,7 @@ namespace tao
 
             concat& d = *st.lstack.back();
             const concat& s = access( pos, *st.ostack.front(), p );
-            d.v.insert( d.v.end(), s.v.begin(), s.v.end() );
-            // TOOD: Modify/update d.p?
+            d.append( s );  // TOOD: Modify/update d.position?
          }
 
          template< typename Input >
@@ -279,7 +278,7 @@ namespace tao
             if( i != map.end() ) {
                i->second( in, st );
                assert( !st.temporary.is_discarded() );
-               st.lstack.back()->v.emplace_back( entry::make_atom( in.position(), std::move( st.temporary ) ) );
+               st.lstack.back()->emplace_back_atom( in.position(), std::move( st.temporary ) );
                st.temporary.discard();
                return true;
             }
