@@ -242,6 +242,16 @@ namespace tao
                return m_union.i;
             }
 
+            concat& emplace_back( const position& pos )
+            {
+               return get_array().emplace_back( this, pos );
+            }
+
+            concat& emplace( const std::string& k, const position& pos )
+            {
+               return get_object().try_emplace( k, this, pos ).first->second;
+            }
+
             void set_recursion_marker() const
             {
                if( m_phase2_recursion_marker ) {
@@ -331,7 +341,7 @@ namespace tao
             }
 
             kind m_type;
-            concat* m_parent;
+            concat* m_parent;  // TODO?
             entry_union m_union;
             internal::position m_position;
 

@@ -40,7 +40,7 @@ namespace tao
          class phase2_impl
          {
          public:
-            explicit phase2_impl( const object_t& root )
+            explicit phase2_impl( const entry& root )
                : m_root( root )
             {
             }
@@ -48,7 +48,7 @@ namespace tao
             template< template< typename... > class Traits >
             json::basic_value< Traits > phase2() const
             {
-               json::basic_value< Traits > r = process_object< Traits >( m_root );
+               json::basic_value< Traits > r = process_object< Traits >( m_root.get_object() );
                if constexpr( has_set_key< json::basic_value< Traits > >::value ) {
                   phase2_set_keys( r, config::key() );
                }
@@ -148,7 +148,7 @@ namespace tao
             }
 
          private:
-            const object_t& m_root;
+            const entry& m_root;
          };
 
          template< template< typename... > class Traits >
@@ -159,7 +159,7 @@ namespace tao
             assert( st.rstack.empty() );
             assert( st.ostack.size() == 1 );
 
-            return phase2_impl( st.result ).phase2< Traits >();
+            return phase2_impl( st.root ).phase2< Traits >();
          }
 
       }  // namespace internal

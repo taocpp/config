@@ -97,11 +97,11 @@ namespace tao
             throw std::runtime_error( format( "object index not found at top-level", { &pos, { "string", k } } ) );
          }
 
-         inline const concat& access( const position& pos, const object_t& o, const part& t, const key& p )
+         inline const concat& access( const position& pos, const entry& e, const part& t, const key& p )
          {
             switch( t.type() ) {
                case part::name:
-                  return access( pos, o, t.get_name(), p );
+                  return access( pos, e.get_object(), t.get_name(), p );
                case part::index:
                   assert( false );
                case part::star:
@@ -112,11 +112,11 @@ namespace tao
             assert( false );
          }
 
-         inline const concat& access( const position& pos, const object_t& o, const key& p )
+         inline const concat& access( const position& pos, const entry& e, const key& p )
          {
             assert( !p.empty() );
 
-            return access( pos, o, p.front(), pop_front( p ) );
+            return access( pos, e, p.front(), pop_front( p ) );
          }
 
       }  // namespace internal

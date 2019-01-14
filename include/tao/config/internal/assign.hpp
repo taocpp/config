@@ -36,7 +36,7 @@ namespace tao
             if( l.entries().empty() ) {
                l.emplace_back_object( pos );
             }
-            return assign( pos, l.private_entries().back().get_object().try_emplace( k, pos ).first->second, p );
+            return assign( pos, l.private_entries().back().emplace( k, pos ), p );
          }
 
          inline concat& assign_minus( const position& pos, concat& l, const key& p )
@@ -47,7 +47,7 @@ namespace tao
             else if( !l.entries().back().is_array() ) {
                throw std::runtime_error( format( "attempt to append to non-array", { &pos, { "non-array", { &l.entries().back().position(), l.entries().back().type() } } } ) );
             }
-            return assign( pos, l.private_entries().back().get_array().emplace_back( pos ), p );
+            return assign( pos, l.private_entries().back().emplace_back( pos ), p );
          }
 
          inline concat& assign_index( const position& pos, concat& l, const std::size_t m, const key& p )
@@ -95,11 +95,11 @@ namespace tao
             return assign( pos, l, p.front(), pop_front( p ) );
          }
 
-         inline concat& assign( const position& pos, object_t& o, const part& t, const key& p )
+         inline concat& assign( const position& pos, entry& e, const part& t, const key& p )
          {
             switch( t.type() ) {
                case part::name:
-                  return assign( pos, o.try_emplace( t.get_name(), pos ).first->second, p );
+                  return assign( pos, e.emplace( t.get_name(), pos ), p );
                case part::index:
                   assert( false );
                case part::star:
@@ -110,11 +110,11 @@ namespace tao
             assert( false );
          }
 
-         inline concat& assign( const position& pos, object_t& o, const key& p )
+         inline concat& assign( const position& pos, entry& e, const key& p )
          {
             assert( !p.empty() );
 
-            return assign( pos, o, p.front(), pop_front( p ) );
+            return assign( pos, e, p.front(), pop_front( p ) );
          }
 
       }  // namespace internal

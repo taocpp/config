@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_CONCAT_HPP
 #define TAO_CONFIG_INTERNAL_CONCAT_HPP
 
+#include <cassert>
 #include <vector>
 
 #include "json.hpp"
@@ -18,10 +19,11 @@ namespace tao
          class basic_concat
          {
          public:
-            explicit
-            basic_concat( const position& p )
-               : p( p )
+            basic_concat( E* parent, const position& pos )
+               : p( pos ),
+                 m_parent( parent )
             {
+               assert( parent );
             }
 
             basic_concat( basic_concat&& ) = default;
@@ -63,14 +65,14 @@ namespace tao
                m_entries.emplace_back( E::make_atom( this, pos, t ) );
             }
 
-            std::vector< basic_concat< E > >& emplace_back_array( const position& pos )
+            E& emplace_back_array( const position& pos )
             {
-               return m_entries.emplace_back( E::make_array( this, pos ) ).get_array();
+               return m_entries.emplace_back( E::make_array( this, pos ) );
             }
 
-            std::map< std::string, basic_concat< E > >& emplace_back_object( const position& pos )
+            E& emplace_back_object( const position& pos )
             {
-               return m_entries.emplace_back( E::make_object( this, pos ) ).get_object();
+               return m_entries.emplace_back( E::make_object( this, pos ) );
             }
 
             json::value& emplace_back_reference( const position& pos, json::value&& v )
@@ -86,6 +88,7 @@ namespace tao
             }
 
          private:
+            E* m_parent;  // TODO?
             std::vector< E > m_entries;
 
             mutable bool m_temporary = false;

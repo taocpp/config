@@ -21,19 +21,20 @@ namespace tao
          struct state
          {
             state()
+               : root( entry::make_object( nullptr, internal::position( pegtl::internal::iterator(), "(implicit)" ) ) )
             {
-               ostack.emplace_back( &result );
+               ostack.emplace_back( &root );
             }
 
-            object_t result;
+            entry root;
 
             // General Structure
 
             bool clear_for_assign = false;
 
-            std::vector< concat* > lstack;    // Current rules::value_list
-            std::vector< array_t* > astack;   // Array contexts via '['
-            std::vector< object_t* > ostack;  // Object contexts via '{'
+            std::vector< entry* > ostack;  // Object contexts via '{'
+            std::vector< concat* > lstack;  // Current rules::value_list
+            std::vector< entry* > astack;  // Array contexts via '['
 
             // Phase 1 Extensions
 
