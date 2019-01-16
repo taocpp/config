@@ -101,9 +101,9 @@ namespace tao
                return m_type;
             }
 
-            concat& parent() const noexcept
+            concat* parent() const noexcept
             {
-               return *m_parent;
+               return m_parent;
             }
 
             bool is_atom() const noexcept

@@ -34,6 +34,11 @@ namespace tao
 
             ~basic_concat() = default;
 
+            E& parent() const noexcept
+            {
+               return *m_parent;
+            }
+
             bool is_temporary() const noexcept
             {
                return m_temporary;

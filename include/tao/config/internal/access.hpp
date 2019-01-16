@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2018-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_INTERNAL_ACCESS_HPP
@@ -10,6 +10,7 @@
 
 #include "entry.hpp"
 #include "format.hpp"
+#include "state.hpp"
 #include "utility.hpp"
 
 namespace tao
@@ -18,7 +19,7 @@ namespace tao
    {
       namespace internal
       {
-         inline const concat& access( const position& pos, const concat& l, const key& p );
+         inline const concat& access_impl( const position& pos, const concat& l, const key& p );
 
          inline const concat& access_name( const position& pos, const concat& l, const std::string& k, const key& p )
          {
@@ -29,7 +30,7 @@ namespace tao
                const auto j = i.get_object().find( k );
 
                if( j != i.get_object().end() ) {
-                  return access( pos, j->second, p );
+                  return access_impl( pos, j->second, p );
                }
             }
             throw std::runtime_error( format( "object index not found", { &pos, { "string", k }, { "object", { &l.p } } } ) );
@@ -44,7 +45,7 @@ namespace tao
                const auto s = i.get_array().size();
 
                if( n < s ) {
-                  return access( pos, i.get_array()[ n ], p );
+                  return access_impl( pos, i.get_array()[ n ], p );
                }
                n -= s;
             }
@@ -58,13 +59,13 @@ namespace tao
                   throw std::runtime_error( format( "attempt to access last element in non-array", { &pos, { "non-array", { &i.position(), i.type() } } } ) );
                }
                if( !i.get_array().empty() ) {
-                  return access( pos, i.get_array().back(), p );
+                  return access_impl( pos, i.get_array().back(), p );
                }
             }
             throw std::runtime_error( format( "array has no last element to access", { &pos, { "array", { &l.p } } } ) );
          }
 
-         inline const concat& access( const position& pos, const concat& l, const part& t, const key& p )
+         inline const concat& access_impl( const position& pos, const concat& l, const part& t, const key& p )
          {
             switch( t.type() ) {
                case part::name:
@@ -79,35 +80,71 @@ namespace tao
             assert( false );
          }
 
-         inline const concat& access( const position& pos, const concat& l, const key& p )
+         inline const concat& access_impl( const position& pos, const concat& l, const key& p )
          {
             if( p.empty() ) {
                return l;
             }
-            return access( pos, l, p.front(), pop_front( p ) );
+            return access_impl( pos, l, p.front(), pop_front( p ) );
          }
 
-         inline const concat& access( const position& pos, const object_t& o, const std::string& k, const key& p )
+         inline const concat* access( const position& pos, const object_t& o, const std::string& k, const key& p )
          {
             const auto i = o.find( k );
 
             if( i != o.end() ) {
-               return access( pos, i->second, p );
+               return &access_impl( pos, i->second, p );
             }
-            throw std::runtime_error( format( "object index not found at top-level", { &pos, { "string", k } } ) );
+            return nullptr;
+         }
+
+         inline const concat& access( const position& pos, const entry& e, const std::string& k, const key& p );
+
+
+         inline const concat& access( const position& pos, const entry& e, const std::string& k, const key& p )
+         {
+            switch( e.type() ) {
+               case entry::atom:
+                  assert( false );
+                  break;
+               case entry::array:
+                  if( e.parent() ) {
+                     return access( pos, e.parent()->parent(), k, p );
+                  }
+                  break;
+               case entry::object:
+                  if( const auto* c = access( pos, e.get_object(), k, p ) ) {
+                     return *c;
+                  }
+                  if( e.parent() ) {
+                     // TODO: Also search (some of) e.parent()->entries() ?!?
+                     return access( pos, e.parent()->parent(), k, p );
+                  }
+                  break;
+               case entry::reference:
+                  assert( false );
+                  break;
+               case entry::nothing:
+                  assert( false );
+                  break;
+            }
+            throw std::runtime_error( format( "object index not found", { &pos, { "string", k }, e.type() } ) );
          }
 
          inline const concat& access( const position& pos, const entry& e, const part& t, const key& p )
          {
             switch( t.type() ) {
                case part::name:
-                  return access( pos, e.get_object(), t.get_name(), p );
+                  return access( pos, e, t.get_name(), p );
                case part::index:
                   assert( false );
+                  break;
                case part::star:
                   assert( false );
+                  break;
                case part::minus:
                   assert( false );
+                  break;
             }
             assert( false );
          }
