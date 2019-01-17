@@ -76,7 +76,7 @@ namespace tao
             const auto p = obtain_key( in, st );
 
             concat& d = *st.lstack.back();
-            const concat& s = access( pos, *st.ostack.back(), p );
+            const concat& s = access( pos, d.parent(), p );
             d.append( s );  // TOOD: Modify/update d.position?
          }
 

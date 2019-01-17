@@ -40,15 +40,10 @@ namespace tao
          class phase2_impl
          {
          public:
-            explicit phase2_impl( const entry& root )
-               : m_root( root )
-            {
-            }
-
             template< template< typename... > class Traits >
-            json::basic_value< Traits > phase2() const
+            json::basic_value< Traits > phase2( const entry& root ) const
             {
-               json::basic_value< Traits > r = process_object< Traits >( m_root.get_object() );
+               json::basic_value< Traits > r = process_object< Traits >( root.get_object() );
                if constexpr( has_set_key< json::basic_value< Traits > >::value ) {
                   phase2_set_keys( r, config::key() );
                }
@@ -71,7 +66,7 @@ namespace tao
                   case entry::nothing:
                      assert( false );
                   case entry::reference:
-                     return process_reference< Traits >( e.position(), e.get_reference() );
+                     return process_reference< Traits >( e.position(), e.parent()->parent(), e.get_reference() );
                }
                assert( false );
             }
@@ -126,29 +121,26 @@ namespace tao
                return t;
             }
 
-            const concat& process_reference_impl( const position& pos, const reference_t& r ) const
+            const concat& process_reference_impl( const position& pos, const entry& e, const reference_t& r ) const
             {
                config::key k;
 
                for( auto& i : r.get_array() ) {
                   if( i.is_array() ) {
-                     k.emplace_back( part_from_value( pos, process_list< json::traits >( process_reference_impl( pos, i ) ) ) );
+                     k.emplace_back( part_from_value( pos, process_list< json::traits >( process_reference_impl( pos, e, i ) ) ) );
                   }
                   else {
                      k.emplace_back( part_from_value( pos, i ) );
                   }
                }
-               return access( pos, m_root, k );
+               return access( pos, e, k );
             }
 
             template< template< typename... > class Traits >
-            json::basic_value< Traits > process_reference( const position& pos, const reference_t& r ) const
+            json::basic_value< Traits > process_reference( const position& pos, const entry& e, const reference_t& r ) const
             {
-               return process_list< Traits >( process_reference_impl( pos, r ) );
+               return process_list< Traits >( process_reference_impl( pos, e, r ) );
             }
-
-         private:
-            const entry& m_root;
          };
 
          template< template< typename... > class Traits >
@@ -159,7 +151,7 @@ namespace tao
             assert( st.rstack.empty() );
             assert( st.ostack.size() == 1 );
 
-            return phase2_impl( st.root ).phase2< Traits >();
+            return phase2_impl().phase2< Traits >( st.root );  // TODO: Eliminate phase2_impl instance if it remains stateless.
          }
 
       }  // namespace internal

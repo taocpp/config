@@ -98,9 +98,6 @@ namespace tao
             return nullptr;
          }
 
-         inline const concat& access( const position& pos, const entry& e, const std::string& k, const key& p );
-
-
          inline const concat& access( const position& pos, const entry& e, const std::string& k, const key& p )
          {
             switch( e.type() ) {
@@ -108,10 +105,7 @@ namespace tao
                   assert( false );
                   break;
                case entry::array:
-                  if( e.parent() ) {
-                     return access( pos, e.parent()->parent(), k, p );
-                  }
-                  break;
+                  return access( pos, e.parent()->parent(), k, p );  // Top-level is an object, so e.parent() is always non-nullptr for arrays.
                case entry::object:
                   if( const auto* c = access( pos, e.get_object(), k, p ) ) {
                      return *c;

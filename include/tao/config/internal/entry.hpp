@@ -270,6 +270,29 @@ namespace tao
                return m_position;
             }
 
+            void fix_parents( concat* parent ) noexcept
+            {
+               switch( m_type ) {
+                  case atom:
+                     break;
+                  case array:
+                     for( auto& i : get_array() ) {
+                        i.fix_parents( this );
+                     }
+                     break;
+                  case object:
+                     for( auto& i : get_object() ) {
+                        i.second.fix_parents( this );
+                     }
+                     break;
+                  case reference:
+                     break;
+                  case nothing:
+                     break;
+               }
+               m_parent = parent;  // Used after copy-operations.
+            }
+
          private:
             entry( concat* parent, const internal::position& pos )
                : m_type( nothing ),

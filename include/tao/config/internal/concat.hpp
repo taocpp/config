@@ -56,7 +56,11 @@ namespace tao
 
             void append( const basic_concat& other )
             {
+               const std::size_t s = m_entries.size();
                m_entries.insert( m_entries.end(), other.m_entries.begin(), other.m_entries.end() );
+               for( std::size_t i = s; i < m_entries.size(); ++i ) {
+                  m_entries[ i ].fix_parents( this );
+               }
             }
 
             const std::vector< E >& entries() const noexcept
@@ -90,6 +94,14 @@ namespace tao
             std::vector< E >& private_entries() noexcept
             {
                return m_entries;
+            }
+
+            void fix_parents( E* parent ) noexcept
+            {
+               for( auto& i : m_entries ) {
+                  i.fix_parents( this );
+               }
+               m_parent = parent;
             }
 
          private:
