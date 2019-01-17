@@ -35,4 +35,4 @@ We believe that the combination of linear Phase One, and monotone Phase Two, com
 
 Please let us know if you have any further thoughts on this subject.
 
-Copyright (c) 2018 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2018-2019 Dr. Colin Hirsch and Daniel Frey

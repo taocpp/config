@@ -8,4 +8,4 @@
  * [Two Phase Evaluation](Two-Phase-Evaluation.md)
  * [Changelog](Changelog.md)
 
-Copyright (c) 2018 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2018-2019 Dr. Colin Hirsch and Daniel Frey
