@@ -87,7 +87,7 @@ namespace tao
             const auto p = obtain_key( in, st );
 
             std::ostringstream oss;
-            to_stream( oss, access( pos, *st.ostack.front(), p ) );
+            to_stream( oss, access( pos, st.lstack.back()->parent(), p ) );
             st.temporary = oss.str();
          }
 
