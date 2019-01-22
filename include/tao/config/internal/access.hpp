@@ -98,6 +98,31 @@ namespace tao
             return nullptr;
          }
 
+         inline const concat& access( const position& pos, const entry& e, const std::string& k, const key& p );
+
+         inline const concat& access( const position& pos, const concat& l, const std::string& k, const key& p )
+         {
+            for( const auto& i : reverse( l.entries() ) ) {
+               switch( i.type() ) {
+                  case entry::atom:
+                     throw std::runtime_error( format( "addition of atom and object detected", { &pos } ) );
+                  case entry::array:
+                     throw std::runtime_error( format( "addition of array and object detected", { &pos } ) );
+                  case entry::object:
+                     if( const auto* c = access( pos, i.get_object(), k, p ) ) {
+                        return *c;
+                     }
+                     break;
+                  case entry::reference:
+                     throw std::runtime_error( format( "object index access across reference", { &pos } ) );  // Alternatively print a warning and continue?
+                  case entry::nothing:
+                     assert( false );
+                     break;
+               }
+            }
+            return access( pos, l.parent(), k, p );
+         }
+
          inline const concat& access( const position& pos, const entry& e, const std::string& k, const key& p )
          {
             switch( e.type() ) {
@@ -105,14 +130,13 @@ namespace tao
                   assert( false );
                   break;
                case entry::array:
-                  return access( pos, e.parent()->parent(), k, p );  // Top-level is an object, so e.parent() is always non-nullptr for arrays.
+                  return access( pos, e.parent()->parent(), k, p );  // Top-level is an object, so e.parent() is always non-null for arrays.
                case entry::object:
-                  if( const auto* c = access( pos, e.get_object(), k, p ) ) {
-                     return *c;
-                  }
                   if( e.parent() ) {
-                     // TODO: Also search (some of) e.parent()->entries() ?!?
-                     return access( pos, e.parent()->parent(), k, p );
+                     return access( pos, *e.parent(), k, p );
+                  }
+                  else if( const auto* c = access( pos, e.get_object(), k, p ) ) {
+                     return *c;
                   }
                   break;
                case entry::reference:
