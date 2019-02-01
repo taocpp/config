@@ -144,13 +144,14 @@ namespace tao
          };
 
          template< template< typename... > class Traits >
-         json::basic_value< Traits > phase2( const state& st )
+         json::basic_value< Traits > phase2( state& st )
          {
             assert( st.astack.empty() );
             assert( st.lstack.empty() );
             assert( st.rstack.empty() );
             assert( st.ostack.size() == 1 );
 
+            st.root.fix_parents( nullptr );
             return phase2_impl().phase2< Traits >( st.root );  // TODO: Eliminate phase2_impl instance if it remains stateless.
          }
 
