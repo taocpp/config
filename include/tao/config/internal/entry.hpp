@@ -40,10 +40,9 @@ namespace tao
             {
             }
 
-            atom_t v;
             array_t a;
             object_t o;
-            reference_t i;
+            json::value j;
          };
 
          class entry
@@ -140,7 +139,7 @@ namespace tao
             void set_atom( T&& t )
             {
                discard();
-               new( &m_union.v ) atom_t( std::forward< T >( t ) );
+               new( &m_union.j ) atom_t( std::forward< T >( t ) );
                m_type = atom;
             }
 
@@ -161,7 +160,7 @@ namespace tao
             void set_reference( json::value&& v )
             {
                discard();
-               new( &m_union.i ) reference_t( std::move( v ) );
+               new( &m_union.j ) reference_t( std::move( v ) );
                m_type = reference;
             }
 
@@ -197,7 +196,7 @@ namespace tao
             atom_t& get_atom() noexcept
             {
                assert( is_atom() );
-               return m_union.v;
+               return m_union.j;
             }
 
             array_t& get_array() noexcept
@@ -215,13 +214,13 @@ namespace tao
             reference_t& get_reference() noexcept
             {
                assert( is_reference() );
-               return m_union.i;
+               return m_union.j;
             }
 
             const atom_t& get_atom() const noexcept
             {
                assert( is_atom() );
-               return m_union.v;
+               return m_union.j;
             }
 
             const array_t& get_array() const noexcept
@@ -239,7 +238,7 @@ namespace tao
             const reference_t& get_reference() const noexcept
             {
                assert( is_reference() );
-               return m_union.i;
+               return m_union.j;
             }
 
             concat& emplace_back( const position& pos )
@@ -274,6 +273,8 @@ namespace tao
             {
                switch( m_type ) {
                   case atom:
+                  case reference:
+                  case nothing:
                      break;
                   case array:
                      for( auto& i : get_array() ) {
@@ -284,10 +285,6 @@ namespace tao
                      for( auto& i : get_object() ) {
                         i.second.fix_parents( this );
                      }
-                     break;
-                  case reference:
-                     break;
-                  case nothing:
                      break;
                }
                m_parent = parent;  // Used after copy-operations.
@@ -305,7 +302,8 @@ namespace tao
             {
                switch( m_type ) {
                   case atom:
-                     m_union.v.~basic_value();
+                  case reference:
+                     m_union.j.~basic_value();
                      break;
                   case array:
                      m_union.a.~vector();
@@ -315,9 +313,6 @@ namespace tao
                      break;
                   case nothing:
                      break;
-                  case reference:
-                     m_union.i.~basic_value();
-                     break;
                }
                m_type = nothing;
             }
@@ -326,7 +321,8 @@ namespace tao
             {
                switch( r.m_type ) {
                   case atom:
-                     new( &m_union.v ) atom_t( std::move( r.m_union.v ) );
+                  case reference:
+                     new( &m_union.j ) atom_t( std::move( r.m_union.j ) );
                      break;
                   case array:
                      new( &m_union.a ) array_t( std::move( r.m_union.a ) );
@@ -336,9 +332,6 @@ namespace tao
                      break;
                   case nothing:
                      break;
-                  case reference:
-                     new( &m_union.i ) reference_t( std::move( r.m_union.i ) );
-                     break;
                }
                r.discard();
             }
@@ -347,7 +340,8 @@ namespace tao
             {
                switch( r.m_type ) {
                   case atom:
-                     new( &m_union.v ) atom_t( r.m_union.v );
+                  case reference:
+                     new( &m_union.j ) atom_t( r.m_union.j );
                      break;
                   case array:
                      new( &m_union.a ) array_t( r.m_union.a );
@@ -356,9 +350,6 @@ namespace tao
                      new( &m_union.o ) object_t( r.m_union.o );
                      break;
                   case nothing:
-                     break;
-                  case reference:
-                     new( &m_union.i ) reference_t( r.m_union.i );
                      break;
                }
             }
