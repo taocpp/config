@@ -71,22 +71,30 @@ namespace tao
             template< typename T >
             void emplace_back_atom( const position& pos, T&& t )
             {
-               m_entries.emplace_back( E::make_atom( this, pos, t ) );
+               auto& e = m_entries.emplace_back( this, pos );
+               e.set_atom( std::forward< T >( t ) );
             }
 
             E& emplace_back_array( const position& pos )
             {
-               return m_entries.emplace_back( E::make_array( this, pos ) );
+               auto& e = m_entries.emplace_back( this, pos );
+               e.set_array();
+               return e;
+
             }
 
             E& emplace_back_object( const position& pos )
             {
-               return m_entries.emplace_back( E::make_object( this, pos ) );
+               auto& e = m_entries.emplace_back( this, pos );
+               e.set_object();
+               return e;
             }
 
             json::value& emplace_back_reference( const position& pos, json::value&& v )
             {
-               return m_entries.emplace_back( E::make_reference( this, pos, std::move( v ) ) ).get_reference();
+               auto& e = m_entries.emplace_back( this, pos );
+               e.set_reference( std::move( v ) );
+               return e.get_reference();
             }
 
             position p;

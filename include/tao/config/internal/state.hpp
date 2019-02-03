@@ -21,8 +21,9 @@ namespace tao
          struct state
          {
             state()
-               : root( entry::make_object( nullptr, internal::position( pegtl::internal::iterator(), "(implicit)" ) ) )
+               : root( nullptr, internal::position( pegtl::internal::iterator(), "(implicit)" ) )
             {
+               root.set_object();
                ostack.emplace_back( &root );
             }
 

@@ -57,6 +57,13 @@ namespace tao
                reference
             };
 
+            entry( concat* parent, const internal::position& pos )
+               : m_type( nothing ),
+                 m_parent( parent ),
+                 m_position( pos )
+            {
+            }
+
             entry( entry&& r ) noexcept
                : m_type( r.m_type ),
                  m_parent( r.m_parent ),
@@ -164,35 +171,6 @@ namespace tao
                m_type = reference;
             }
 
-            template< typename T >
-            static entry make_atom( concat* parent, const position& pos, T&& t )
-            {
-               entry r( parent, pos );
-               r.set_atom( std::forward< T >( t ) );
-               return r;
-            }
-
-            static entry make_array( concat* parent, const position& pos )
-            {
-               entry r( parent, pos );
-               r.set_array();
-               return r;
-            }
-
-            static entry make_object( concat* parent, const position& pos )
-            {
-               entry r( parent, pos );
-               r.set_object();
-               return r;
-            }
-
-            static entry make_reference( concat* parent, const position& pos, json::value&& v )
-            {
-               entry r( parent, pos );
-               r.set_reference( std::move( v ) );
-               return r;
-            }
-
             atom_t& get_atom() noexcept
             {
                assert( is_atom() );
@@ -291,13 +269,6 @@ namespace tao
             }
 
          private:
-            entry( concat* parent, const internal::position& pos )
-               : m_type( nothing ),
-                 m_parent( parent ),
-                 m_position( pos )
-            {
-            }
-
             void discard() noexcept
             {
                switch( m_type ) {
