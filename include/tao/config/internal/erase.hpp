@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_ERASE_HPP
 #define TAO_CONFIG_INTERNAL_ERASE_HPP
 
+#include <iterator>
 #include <stdexcept>
 
 #include "../key.hpp"
@@ -43,7 +44,9 @@ namespace tao
                const auto s = a.size();
 
                if( n < s ) {
-                  a.erase( a.begin() + n );
+                  auto j = a.begin();
+                  std::advance( j, n );
+                  a.erase( j );
                   return 1;
                }
                n -= s;
@@ -128,7 +131,9 @@ namespace tao
                const auto s = i.get_array().size();
 
                if( n < s ) {
-                  return erase( pos, i.get_array()[ n ], p, f );
+                  auto j = i.get_array().begin();
+                  std::advance( j, n );
+                  return erase( pos, *j, p, f );
                }
                n -= s;
             }

@@ -26,11 +26,21 @@ namespace tao
                assert( parent );
             }
 
-            basic_concat( basic_concat&& ) = default;
-            basic_concat( const basic_concat& ) = default;
+            basic_concat( E* parent, const basic_concat& r )
+               : p( r.p ),
+                 m_parent( parent )
+            {
+               for( const auto& e : r.m_entries ) {
+                  m_entries.emplace_back( this, e );
+               }
+               assert( parent );
+            }
 
-            basic_concat& operator=( basic_concat&& ) = default;
-            basic_concat& operator=( const basic_concat& ) = default;
+            basic_concat( basic_concat&& ) = delete;
+            basic_concat( const basic_concat& ) = delete;
+
+            basic_concat& operator=( basic_concat&& ) = delete;
+            basic_concat& operator=( const basic_concat& ) = delete;
 
             ~basic_concat() = default;
 
@@ -56,10 +66,8 @@ namespace tao
 
             void append( const basic_concat& other )
             {
-               const std::size_t s = m_entries.size();
-               m_entries.insert( m_entries.end(), other.m_entries.begin(), other.m_entries.end() );
-               for( std::size_t i = s; i < m_entries.size(); ++i ) {
-                  m_entries[ i ].fix_parents( this );
+               for( const auto& i : other.m_entries ) {
+                  m_entries.emplace_back( this, i );
                }
             }
 
@@ -102,14 +110,6 @@ namespace tao
             std::deque< E >& private_entries() noexcept
             {
                return m_entries;
-            }
-
-            void fix_parents( E* parent ) noexcept
-            {
-               for( auto& i : m_entries ) {
-                  i.fix_parents( this );
-               }
-               m_parent = parent;
             }
 
          private:

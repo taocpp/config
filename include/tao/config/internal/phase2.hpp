@@ -151,7 +151,6 @@ namespace tao
             assert( st.rstack.empty() );
             assert( st.ostack.size() == 1 );
 
-            st.root.fix_parents( nullptr );
             return phase2_impl().phase2< Traits >( st.root );  // TODO: Eliminate phase2_impl instance if it remains stateless.
          }
 

@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_ASSIGN_HPP
 #define TAO_CONFIG_INTERNAL_ASSIGN_HPP
 
+#include <iterator>
 #include <stdexcept>
 
 #include "../key.hpp"
@@ -61,7 +62,9 @@ namespace tao
                const auto s = i.get_array().size();
 
                if( n < s ) {
-                  return assign( pos, i.get_array()[ n ], p );
+                  auto j = i.get_array().begin();
+                  std::advance( j, n );
+                  return assign( pos, *j, p );
                }
                n -= s;
             }

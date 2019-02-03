@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_ACCESS_HPP
 #define TAO_CONFIG_INTERNAL_ACCESS_HPP
 
+#include <iterator>
 #include <stdexcept>
 
 #include "../key.hpp"
@@ -45,7 +46,9 @@ namespace tao
                const auto s = i.get_array().size();
 
                if( n < s ) {
-                  return access_impl( pos, i.get_array()[ n ], p );
+                  auto j = i.get_array().begin();
+                  std::advance( j, n );
+                  return access_impl( pos, *j, p );
                }
                n -= s;
             }

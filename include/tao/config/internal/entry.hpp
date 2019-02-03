@@ -4,10 +4,10 @@
 #ifndef TAO_CONFIG_INTERNAL_ENTRY_HPP
 #define TAO_CONFIG_INTERNAL_ENTRY_HPP
 
+#include <list>
 #include <map>
 #include <stdexcept>
 #include <string>
-#include <vector>
 
 #include "concat.hpp"
 #include "json.hpp"
@@ -20,7 +20,7 @@ namespace tao
       namespace internal
       {
          using atom_t = json::value;
-         using array_t = std::vector< concat >;
+         using array_t = std::list< concat >;
          using object_t = std::map< std::string, concat >;
          using reference_t = json::value;
 
@@ -64,42 +64,24 @@ namespace tao
             {
             }
 
-            entry( entry&& r ) noexcept
-               : m_type( r.m_type ),
-                 m_parent( r.m_parent ),
-                 m_position( std::move( r.m_position ) )
-            {
-               seize( std::move( r ) );
-            }
-
-            entry( const entry& r )
+            entry( concat* parent, const entry& r )
                : m_type( nothing ),
-                 m_parent( r.m_parent ),
+                 m_parent( parent ),
                  m_position( r.m_position )
             {
                embed( r );
                m_type = r.m_type;
             }
 
-            void operator=( entry r ) noexcept
-            {
-               discard();
-               seize( std::move( r ) );
-               m_type = r.m_type;
-               m_parent = r.m_parent;
-               m_position = std::move( r.m_position );
-            }
+            entry( entry&& ) = delete;
+            entry( const entry& ) = delete;
+
+            entry& operator=( entry&& ) = delete;
+            entry& operator=( const entry& ) = delete;
 
             ~entry() noexcept
             {
                discard();
-            }
-
-            void swap( entry& r ) noexcept
-            {
-               entry t( std::move( r ) );
-               r = std::move( *this );
-               ( *this ) = ( std::move( t ) );
             }
 
             kind type() const noexcept
@@ -247,27 +229,6 @@ namespace tao
                return m_position;
             }
 
-            void fix_parents( concat* parent ) noexcept
-            {
-               switch( m_type ) {
-                  case atom:
-                  case reference:
-                  case nothing:
-                     break;
-                  case array:
-                     for( auto& i : get_array() ) {
-                        i.fix_parents( this );
-                     }
-                     break;
-                  case object:
-                     for( auto& i : get_object() ) {
-                        i.second.fix_parents( this );
-                     }
-                     break;
-               }
-               m_parent = parent;  // Used after copy-operations.
-            }
-
          private:
             void discard() noexcept
             {
@@ -277,7 +238,7 @@ namespace tao
                      m_union.j.~basic_value();
                      break;
                   case array:
-                     m_union.a.~vector();
+                     m_union.a.~list();
                      break;
                   case object:
                      m_union.o.~map();
@@ -288,25 +249,6 @@ namespace tao
                m_type = nothing;
             }
 
-            void seize( entry&& r ) noexcept
-            {
-               switch( r.m_type ) {
-                  case atom:
-                  case reference:
-                     new( &m_union.j ) atom_t( std::move( r.m_union.j ) );
-                     break;
-                  case array:
-                     new( &m_union.a ) array_t( std::move( r.m_union.a ) );
-                     break;
-                  case object:
-                     new( &m_union.o ) object_t( std::move( r.m_union.o ) );
-                     break;
-                  case nothing:
-                     break;
-               }
-               r.discard();
-            }
-
             void embed( const entry& r )
             {
                switch( r.m_type ) {
@@ -315,10 +257,16 @@ namespace tao
                      new( &m_union.j ) atom_t( r.m_union.j );
                      break;
                   case array:
-                     new( &m_union.a ) array_t( r.m_union.a );
+                     new( &m_union.a ) array_t();
+                     for( const auto& i : r.m_union.a ) {
+                        m_union.a.emplace_back( this, i );
+                     }
                      break;
                   case object:
-                     new( &m_union.o ) object_t( r.m_union.o );
+                     new( &m_union.o ) object_t();
+                     for( const auto& i : r.m_union.o ) {
+                        m_union.o.try_emplace( i.first, this, i.second );
+                     }
                      break;
                   case nothing:
                      break;
