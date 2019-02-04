@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE2_HPP
 #define TAO_CONFIG_INTERNAL_PHASE2_HPP
 
+#include <iterator>
+
 #include "access.hpp"
 #include "addition.hpp"
 #include "json.hpp"
@@ -78,8 +80,8 @@ namespace tao
 
                json::basic_value< Traits > r = process_entry< Traits >( l.entries().front() );
 
-               for( std::size_t i = 1; i < l.entries().size(); ++i ) {
-                  addition( r, process_entry< Traits >( l.entries()[ i ] ), l.entries()[ i ].position() );
+               for( auto i = std::next( l.entries().begin() ); i != l.entries().end(); ++i ) {
+                  addition( r, process_entry< Traits >( *i ), i->position() );
                }
                if constexpr( has_set_position< json::basic_value< Traits > >::value ) {
                   r.set_position( l.p );

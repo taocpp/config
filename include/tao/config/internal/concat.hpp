@@ -5,7 +5,7 @@
 #define TAO_CONFIG_INTERNAL_CONCAT_HPP
 
 #include <cassert>
-#include <deque>
+#include <list>
 
 #include "json.hpp"
 
@@ -71,7 +71,7 @@ namespace tao
                }
             }
 
-            const std::deque< E >& entries() const noexcept
+            const std::list< E >& entries() const noexcept
             {
                return m_entries;
             }
@@ -107,14 +107,14 @@ namespace tao
 
             position p;
 
-            std::deque< E >& private_entries() noexcept
+            std::list< E >& private_entries() noexcept
             {
                return m_entries;
             }
 
          private:
             E* m_parent;  // TODO?
-            std::deque< E > m_entries;
+            std::list< E > m_entries;
 
             mutable bool m_temporary = false;
          };
