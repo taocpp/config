@@ -6,6 +6,7 @@
 
 #include <tao/json/external/pegtl.hpp>
 #include <tao/json/external/pegtl/analyze.hpp>
-#include <tao/json/external/pegtl/contrib/changes.hpp>
+#include <tao/json/external/pegtl/contrib/change_action_and_state.hpp>
+#include <tao/json/external/pegtl/contrib/change_state.hpp>
 
 #endif

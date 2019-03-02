@@ -31,7 +31,7 @@ namespace tao
             try {
                return pegtl::internal::file_reader( f.c_str() ).read();
             }
-            catch( const pegtl::input_error& ) {
+            catch( const std::system_error& ) {
                return std::nullopt;
             }
          }

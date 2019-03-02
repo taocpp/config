@@ -5,16 +5,11 @@
 #define TAO_CONFIG_INTERNAL_CONTROL_HPP
 
 #include "assign.hpp"
-#include "binary_state.hpp"
 #include "entry.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
-#include "number_action.hpp"
-#include "number_state.hpp"
 #include "pegtl.hpp"
-#include "quoted_state.hpp"
 #include "state.hpp"
-#include "string_state.hpp"
 
 namespace tao
 {
@@ -25,36 +20,6 @@ namespace tao
          template< typename Rule >
          struct control
             : public pegtl::normal< Rule >
-         {
-         };
-
-         template<>
-         struct control< json::jaxn::internal::rules::sor_value >
-            : public pegtl::change_state_and_action< json::jaxn::internal::rules::sor_value, number_state, number_action >
-         {
-         };
-
-         template< bool Neg >
-         struct control< json::jaxn::internal::rules::number< Neg > >
-            : public pegtl::change_state< json::jaxn::internal::rules::number< Neg >, json::internal::number_state< Neg > >
-         {
-         };
-
-         template<>
-         struct control< rules::binary_choice >
-            : public pegtl::change_state_and_action< rules::binary_choice, binary_state, json::jaxn::internal::bunescape_action >
-         {
-         };
-
-         template<>
-         struct control< rules::string_choice >
-            : public pegtl::change_state_and_action< rules::string_choice, string_state, json::jaxn::internal::unescape_action >
-         {
-         };
-
-         template<>
-         struct control< rules::quoted_choice >
-            : public pegtl::change_state_and_action< rules::quoted_choice, quoted_state, json::jaxn::internal::unescape_action >
          {
          };
 

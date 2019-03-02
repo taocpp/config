@@ -33,7 +33,7 @@ namespace tao
          inline json::value obtain_jaxn( Input& in )
          {
             json::events::to_value consumer;
-            pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_value >, json::jaxn::internal::action, json::jaxn::internal::control >( in, consumer );
+            pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_value >, json::jaxn::internal::action, json::jaxn::internal::errors >( in, consumer );
             return std::move( consumer.value );
          }
 

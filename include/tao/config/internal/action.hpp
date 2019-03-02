@@ -8,10 +8,15 @@
 #include <stdexcept>
 
 #include "access.hpp"
+#include "binary_state.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
+#include "number_action.hpp"
+#include "number_state.hpp"
 #include "pegtl.hpp"
+#include "quoted_state.hpp"
 #include "state.hpp"
+#include "string_state.hpp"
 
 namespace tao
 {
@@ -128,6 +133,36 @@ namespace tao
             {
                st.extension = in.string();
             }
+         };
+
+         template<>
+         struct action< json::jaxn::internal::rules::sor_value >
+            : public pegtl::change_action_and_state< number_action, number_state >
+         {
+         };
+
+         template< bool Neg >
+         struct action< json::jaxn::internal::rules::number< Neg > >
+            : public pegtl::change_state< json::internal::number_state< Neg > >
+         {
+         };
+
+         template<>
+         struct action< rules::binary_choice >
+            : public pegtl::change_action_and_state< json::jaxn::internal::bunescape_action, binary_state >
+         {
+         };
+
+         template<>
+         struct action< rules::string_choice >
+            : public pegtl::change_action_and_state< json::jaxn::internal::unescape_action, string_state >
+         {
+         };
+
+         template<>
+         struct action< rules::quoted_choice >
+            : public pegtl::change_action_and_state< json::jaxn::internal::unescape_action, quoted_state >
+         {
          };
 
       }  // namespace internal
