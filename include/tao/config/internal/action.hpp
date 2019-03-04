@@ -141,12 +141,6 @@ namespace tao
          {
          };
 
-         template< bool Neg >
-         struct action< json::jaxn::internal::rules::number< Neg > >
-            : public pegtl::change_state< json::internal::number_state< Neg > >
-         {
-         };
-
          template<>
          struct action< rules::binary_choice >
             : public pegtl::change_action_and_state< json::jaxn::internal::bunescape_action, binary_state >
