@@ -19,7 +19,7 @@ namespace tao
       {
          template< typename Rule >
          struct key_action
-            : public json_pegtl::nothing< Rule >
+            : public pegtl::nothing< Rule >
          {
          };
 
@@ -128,9 +128,9 @@ namespace tao
 
          void parse( const std::string& s )
          {
-            using grammar = json_pegtl::must< internal::rules::pointer, json_pegtl::eof >;  // TODO: Relax restriction on first part here?
-            json_pegtl::memory_input< json_pegtl::tracking_mode::lazy, json_pegtl::eol::lf_crlf, const char* > in( s, __FUNCTION__ );
-            json_pegtl::parse< grammar, internal::key_action >( in, vector() );
+            using grammar = pegtl::must< internal::rules::pointer, pegtl::eof >;  // TODO: Relax restriction on first part here?
+            pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl::eol::lf_crlf, const char* > in( s, __FUNCTION__ );
+            pegtl::parse< grammar, internal::key_action >( in, vector() );
          }
       };
 

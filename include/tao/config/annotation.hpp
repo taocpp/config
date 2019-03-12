@@ -50,7 +50,7 @@ namespace tao
             key = k;
          }
 
-         void set_position( const json_pegtl::position& pos )
+         void set_position( const pegtl::position& pos )
          {
             position.set_position( pos );
          }

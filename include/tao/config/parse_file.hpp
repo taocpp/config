@@ -26,8 +26,8 @@ namespace tao
       json::basic_value< Traits > basic_parse_file( const std::string& filename )
       {
          internal::state st;
-         json_pegtl::file_input in( filename );
-         json_pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );
+         pegtl::file_input in( filename );
+         pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );
          return internal::phase2< Traits >( st );
       }
 

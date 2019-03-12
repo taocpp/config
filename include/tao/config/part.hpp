@@ -82,9 +82,9 @@ namespace tao
 
       inline bool is_identifier( const std::string& n )
       {
-         using grammar = json_pegtl::seq< internal::rules::identifier, json_pegtl::eof >;
-         json_pegtl::memory_input< json_pegtl::tracking_mode::lazy, json_pegtl::eol::lf_crlf, const char* > in( n, __FUNCTION__ );
-         return json_pegtl::parse< grammar >( in );
+         using grammar = pegtl::seq< internal::rules::identifier, pegtl::eof >;
+         pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl::eol::lf_crlf, const char* > in( n, __FUNCTION__ );
+         return pegtl::parse< grammar >( in );
       }
 
       inline std::string name_to_string( const std::string& n )

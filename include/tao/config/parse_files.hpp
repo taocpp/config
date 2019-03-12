@@ -28,8 +28,8 @@ namespace tao
       {
          internal::state st;
          for( const auto& filename : filenames ) {
-            json_pegtl::file_input in( filename );
-            json_pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );
+            pegtl::file_input in( filename );
+            pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );
          }
          return internal::phase2< Traits >( st );
       }
