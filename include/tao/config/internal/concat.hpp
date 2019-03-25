@@ -88,7 +88,6 @@ namespace tao
                auto& e = m_entries.emplace_back( this, pos );
                e.set_array();
                return e;
-
             }
 
             E& emplace_back_object( const position& pos )
