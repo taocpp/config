@@ -201,12 +201,14 @@ namespace tao
             throw std::runtime_error( format( "require string for shell command", { &pos, st.temporary.type() } ) );
          }
 
+         // clang-format off
          struct split_plus_ws : pegtl::plus< pegtl::space > {};
          struct split_star_ws : pegtl::star< pegtl::space > {};
-         struct split_string : pegtl::plus< pegtl::space::inverted > {};
+         struct split_string : pegtl::plus< pegtl::not_one< ' ', '\n', '\r', '\t', '\v', '\f' > > {};
          struct split_grammar : pegtl::must< split_star_ws, pegtl::list_tail< split_string, split_plus_ws >, pegtl::eof > {};
 
          template< typename > struct split_action {};
+         // clang-format on
 
          template<>
          struct split_action< split_string >
