@@ -201,15 +201,15 @@ namespace tao
             throw std::runtime_error( format( "require string for shell command", { &pos, st.temporary.type() } ) );
          }
 
-         struct split_plus_ws : pegtl::plus< pegtl::one< ' ', '\t' > > {};
-         struct split_star_ws : pegtl::star< pegtl::one< ' ', '\t' > > {};
-         struct split_plus_char : pegtl::plus< pegtl::not_one< ' ', '\t' > > {};
-         struct split_grammar : pegtl::must< split_star_ws, pegtl::list_tail< split_plus_char, split_plus_ws >, pegtl::eof > {};
+         struct split_plus_ws : pegtl::plus< pegtl::space > {};
+         struct split_star_ws : pegtl::star< pegtl::space > {};
+         struct split_string : pegtl::plus< pegtl::not_one< ' ', '\n', '\r', '\t', '\v', '\f' > > {};
+         struct split_grammar : pegtl::must< split_star_ws, pegtl::list_tail< split_string, split_plus_ws >, pegtl::eof > {};
 
          template< typename > struct split_action {};
 
          template<>
-         struct split_action< split_plus_char >
+         struct split_action< split_string >
          {
             template< typename Input >
             static void apply( const Input& in, json::value& temporary )
