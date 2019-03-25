@@ -201,6 +201,39 @@ namespace tao
             throw std::runtime_error( format( "require string for shell command", { &pos, st.temporary.type() } ) );
          }
 
+         struct split_plus_ws : pegtl::plus< pegtl::one< ' ', '\t' > > {};
+         struct split_star_ws : pegtl::star< pegtl::one< ' ', '\t' > > {};
+         struct split_plus_char : pegtl::plus< pegtl::not_one< ' ', '\t' > > {};
+         struct split_grammar : pegtl::must< split_star_ws, pegtl::list_tail< split_plus_char, split_plus_ws >, pegtl::eof > {};
+
+         template< typename > struct split_action {};
+
+         template<>
+         struct split_action< split_plus_char >
+         {
+            template< typename Input >
+            static void apply( const Input& in, json::value& temporary )
+            {
+               temporary.emplace_back( in.string() );
+            }
+         };
+
+         template< typename Input >
+         inline void split_extension( Input& in, state& st )
+         {
+            const auto pos = in.position();
+
+            do_inner_extension( in, st );
+
+            if( st.temporary.is_string_type() ) {
+               pegtl::string_input< pegtl::tracking_mode::eager, typename Input::eol_t, const char* > i2( st.temporary.as< std::string >(), __FUNCTION__ );
+               st.temporary = json::empty_array;
+               pegtl::parse_nested< split_grammar, split_action >( in, i2, st.temporary );
+               return;
+            }
+            throw std::runtime_error( format( "require string to split", { &pos, st.temporary.type() } ) );
+         }
+
          template< typename Input >
          inline void ubjson_extension( Input& in, state& st )
          {
@@ -230,6 +263,7 @@ namespace tao
                // "parse" does not return a single value.
                { "read", read_extension< Input > },
                { "shell", shell_extension< Input > },
+               { "split", split_extension< Input > },
                { "ubjson", ubjson_extension< Input > }
             };
             return map;
