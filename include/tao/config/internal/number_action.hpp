@@ -87,8 +87,13 @@ namespace tao
 
          template< bool Neg >
          struct number_action< json::jaxn::internal::rules::number< Neg > >
-            : public pegtl::change_state< json::internal::number_state< Neg > >
+            : public pegtl::change_states< json::internal::number_state< Neg > >
          {
+            template< typename Input, typename Consumer >
+            static void success( const Input& /*unused*/, json::internal::number_state< Neg >& state, Consumer& consumer )
+            {
+               state.success( consumer );
+            }
          };
 
       }  // namespace internal

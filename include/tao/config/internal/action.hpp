@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 #include "access.hpp"
 #include "binary_state.hpp"
@@ -14,7 +15,6 @@
 #include "number_action.hpp"
 #include "number_state.hpp"
 #include "pegtl.hpp"
-#include "quoted_state.hpp"
 #include "state.hpp"
 #include "string_state.hpp"
 
@@ -141,22 +141,84 @@ namespace tao
          {
          };
 
+         struct kludge_state
+         {
+            template< typename Input >
+            explicit kludge_state( const Input& in, state& st )
+               : pos( in.position() ),
+                 st( st )
+            {
+               assert( !st.lstack.empty() );
+            }
+
+            kludge_state( const kludge_state& ) = delete;
+            kludge_state( kludge_state&& ) = delete;
+
+            ~kludge_state() = default;
+
+            void operator=( const kludge_state& ) = delete;
+            void operator=( kludge_state&& ) = delete;
+
+            template< typename Input >
+            void success( const Input& /*unused*/, state& /*unused*/ )
+            {
+            }
+
+            const position pos;
+            state& st;
+         };
+
+         template< typename Rule >
+         struct kludge_action
+            : public pegtl::nothing< Rule >
+         {
+         };
+
+         template<>
+         struct kludge_action< rules::binary_choice >
+            : public pegtl::change_action_and_states< json::jaxn::internal::bunescape_action, std::vector< std::byte > >
+         {
+            template< typename Input >
+            static void success( const Input& /*unused*/, std::vector< std::byte >& value, kludge_state& state )
+            {
+               state.st.lstack.back()->emplace_back_atom( state.pos, std::move( value ) );
+            }
+         };
+
+         template<>
+         struct kludge_action< rules::string_choice >
+            : public pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
+         {
+            template< typename Input >
+            static void success( const Input& /*unused*/, std::string& value, kludge_state& state )
+            {
+               state.st.lstack.back()->emplace_back_atom( state.pos, std::move( value ) );
+            }
+         };
+
          template<>
          struct action< rules::binary_choice >
-            : public pegtl::change_action_and_state< json::jaxn::internal::bunescape_action, binary_state >
+            : public pegtl::change_action_and_state< kludge_action, kludge_state >
          {
          };
 
          template<>
          struct action< rules::string_choice >
-            : public pegtl::change_action_and_state< json::jaxn::internal::unescape_action, string_state >
+            : public pegtl::change_action_and_state< kludge_action, kludge_state >
          {
          };
 
          template<>
          struct action< rules::quoted_choice >
-            : public pegtl::change_action_and_state< json::jaxn::internal::unescape_action, quoted_state >
+            : public pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
          {
+            template< typename Input >
+            static void success( const Input&, std::string& unescaped, state& st )
+            {
+               assert( !st.rstack.empty() );
+
+               st.rstack.back()->emplace_back( std::move( unescaped ) );
+            }
          };
 
       }  // namespace internal

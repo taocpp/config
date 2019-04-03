@@ -40,9 +40,9 @@ namespace tao
          template< typename Input >
          inline std::string obtain_string( Input& in )
          {
-            json::internal::string_state s2;
+            std::string s2;
             pegtl::parse< pegtl::must< json::jaxn::internal::rules::string_fragment >, json::jaxn::internal::unescape_action >( in, s2 );
-            return std::move( s2.unescaped );
+            return s2;
          }
 
          template< typename Input >
