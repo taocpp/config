@@ -1,0 +1,8 @@
+{
+   a: "fobble",
+   b: "fibble",
+   c: "fibble",
+   d: "fobble",
+   fibble: "fobble",
+   fobble: 42
+}
