@@ -4,6 +4,9 @@
 #ifndef TAO_CONFIG_INTERNAL_MEMBER_EXTENSIONS_HPP
 #define TAO_CONFIG_INTERNAL_MEMBER_EXTENSIONS_HPP
 
+#include <cerrno>
+#include <system_error>
+
 #include "format.hpp"
 #include "value_extensions.hpp"
 
@@ -82,11 +85,13 @@ namespace tao
                pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
                st.temporary.discard();
             }
-            catch( const std::system_error& ) {
-               // TODO: Are we ignoring too many errors here?
+            catch( const std::system_error& e ) {
+               if( e.code().value() != ENOENT ) {
+                  throw std::runtime_error( format( "include? failed", { &pos, { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ) );
+               }
             }
             catch( const pegtl::parse_error& e ) {
-               throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() } } ) );  // TODO: Or rely on parse_nested()'s parse_error?
+               throw std::runtime_error( format( "include? failed", { &pos, { "filename", f }, { "error", e.what() } } ) );  // TODO: Or rely on parse_nested()'s parse_error?
             }
          }
 
