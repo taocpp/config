@@ -16,11 +16,12 @@ namespace tao
 
    int failed = analyse();
 
+   template< template< typename... > class Traits >
    void unit_test( const std::string& name )
    {
-      const auto cc = config::parse_file( name + ".config" );
-      const auto cj = config::parse_file( name + "_only_data.jaxn" );
-      const auto jj = json::jaxn::basic_parse_file< config::traits >( name + "_only_data.jaxn" );
+      const auto cc = config::basic_parse_file< Traits >( name + ".config" );
+      const auto cj = config::basic_parse_file< Traits >( name + "_only_data.jaxn" );
+      const auto jj = json::jaxn::basic_parse_file< Traits >( name + "_only_data.jaxn" );
 
       const auto ccs = json::jaxn::to_string( cc );
       const auto cjs = json::jaxn::to_string( cj );
@@ -53,7 +54,8 @@ namespace tao
 int main( int argc, char** argv )
 {
    for( int i = 1; i < argc; ++i ) {
-      tao::unit_test( argv[ i ] );
+      tao::unit_test< tao::json::traits >( argv[ i ] );
+      tao::unit_test< tao::config::traits >( argv[ i ] );
    }
    if( !tao::failed ) {
       std::cerr << "All testcases passed." << std::endl;
