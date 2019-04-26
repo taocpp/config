@@ -7,6 +7,7 @@
 #include <cassert>
 #include <ostream>
 #include <string>
+#include <variant>
 
 #include "internal/grammar.hpp"
 
@@ -17,55 +18,57 @@ namespace tao::config
    public:
       enum kind : char
       {
-         name,
-         index,
-         star,
-         minus
+         star = 0,
+         minus = 1,
+         name = 2,
+         index = 3
       };
 
-      explicit part( const kind t )
-         : m_type( t )
+      struct star_t {};
+      struct minus_t {};
+
+      explicit part( const star_t t )
+         : m_data( t )
       {
-         assert( ( t == star ) || ( t == minus ) );
+      }
+
+      explicit part( const minus_t t )
+         : m_data( t )
+      {
       }
 
       explicit part( const std::uint64_t i )
-         : m_type( kind::index ),
-           m_index( i )
+         : m_data( i )
       {
       }
 
       explicit part( const std::string& n )
-         : m_type( name ),
-           m_name( n )
+         : m_data( n )
       {
       }
 
       kind type() const noexcept
       {
-         return m_type;
+         return kind( m_data.index() );
       }
 
       std::uint64_t get_index() const noexcept
       {
-         assert( m_type == index );
-
-         return m_index;
+         const std::uint64_t* s = std::get_if< std::uint64_t >( &m_data );
+         assert( s != nullptr );
+         return *s;
       }
 
       const std::string& get_name() const noexcept
       {
-         assert( m_type == name );
-
-         return m_name;
+         const std::string* s = std::get_if< std::string >( &m_data );
+         assert( s != nullptr );
+         return *s;
       }
 
    private:
-      kind m_type;
-      // TODO: Change m_index to signed type (change semantics of minus).
-      // TODO: Use std::variant or union for the following data members.
-      std::uint64_t m_index;
-      std::string m_name;
+      // TODO: Change index to signed type (change semantics of minus).
+      std::variant< star_t, minus_t, std::string, std::uint64_t > m_data;
    };
 
    inline bool is_alpha( const int c )

@@ -50,7 +50,7 @@ namespace tao::config::internal
    {
       switch( v.type() ) {
          case json::type::BOOLEAN:
-            return part( v.unsafe_get_boolean() ? part::star : part::minus );
+            return v.unsafe_get_boolean() ? part( part::star_t() ) : part( part::minus_t() );
          case json::type::STRING:
          case json::type::STRING_VIEW:
             return part( v.template as< std::string >() );

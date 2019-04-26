@@ -46,7 +46,7 @@ namespace tao::config
       {
          static void apply0( std::vector< part >& st )
          {
-            st.emplace_back( part::star );
+            st.emplace_back( part::star_t() );
          }
       };
 
@@ -55,7 +55,7 @@ namespace tao::config
       {
          static void apply0( std::vector< part >& st )
          {
-            st.emplace_back( part::minus );
+            st.emplace_back( part::minus_t() );
          }
       };
 
