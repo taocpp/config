@@ -7,10 +7,11 @@
 #include <iterator>
 
 #include "access.hpp"
-#include "addition.hpp"
 #include "json.hpp"
+#include "phase2_add.hpp"
+#include "phase2_guard.hpp"
+#include "phase2_repackage.hpp"
 #include "state.hpp"
-#include "type_traits.hpp"
 #include "utility.hpp"
 
 namespace tao
@@ -32,21 +33,31 @@ namespace tao
             template< template< typename... > class Traits >
             json::basic_value< Traits > process_entry( const entry& e ) const
             {
+               json::basic_value< phase2_traits > r;
+
                const phase2_guard p2g( e );
 
                switch( e.type() ) {
                   case entry::atom:
-                     return process_atom< Traits >( e.get_atom() );
+                     r = process_atom< Traits >( e.get_atom() );
+                     break;
                   case entry::array:
-                     return process_array< Traits >( e.get_array() );
+                     r = process_array< Traits >( e.get_array() );
+                     break;
                   case entry::object:
-                     return process_object< Traits >( e.get_object() );
+                     r = process_object< Traits >( e.get_object() );
+                     break;
                   case entry::nothing:
                      assert( false );
                   case entry::reference:
-                     return process_reference< Traits >( e.position(), e.parent()->parent(), e.get_reference() );
+                     r = process_reference< Traits >( e.position(), e.parent()->parent(), e.get_reference() );
+                     break;
+                  default:
+                     assert( false );
                }
-               assert( false );
+               r.clear = e.clear();
+               r.set_position( e.position() );
+               return r;
             }
 
             template< template< typename... > class Traits >
@@ -57,11 +68,9 @@ namespace tao
                json::basic_value< Traits > r = process_entry< Traits >( l.entries().front() );
 
                for( auto i = std::next( l.entries().begin() ); i != l.entries().end(); ++i ) {
-                  addition( r, process_entry< Traits >( *i ), i->position() );
+                  phase2_add( r, process_entry< Traits >( *i ), i->position() );
                }
-               if constexpr( has_set_position< json::basic_value< Traits > >::value ) {
-                  r.set_position( l.p );
-               }
+               r.set_position( l.p );
                return r;
             }
 
@@ -105,7 +114,7 @@ namespace tao
 
                for( auto& i : r.get_array() ) {
                   if( i.is_array() ) {
-                     k.emplace_back( part_from_value( pos, process_list< json::traits >( process_reference_impl( pos, e, i ) ) ) );
+                     k.emplace_back( part_from_value( pos, process_list< phase2_traits >( process_reference_impl( pos, e, i ) ) ) );
                   }
                   else {
                      k.emplace_back( part_from_value( pos, i ) );
@@ -122,34 +131,6 @@ namespace tao
          };
 
          template< template< typename... > class Traits >
-         void phase2_set_keys( json::basic_value< Traits >& r, const config::key& k )
-         {
-            switch( r.type() ) {
-               case json::type::ARRAY:
-                  for( std::size_t i = 0; i < r.unsafe_get_array().size(); ++i ) {
-                     phase2_set_keys( r[ i ], k + i );
-                  }
-                  break;
-               case json::type::OBJECT:
-                  for( auto& i : r.unsafe_get_object() ) {
-                     phase2_set_keys( i.second, k + i.first );
-                  }
-                  break;
-               default:
-                  break;
-            }
-            r.set_key( k );
-         }
-
-         template< template< typename... > class Traits >
-         void phase2_set_keys( json::basic_value< Traits >& r )
-         {
-            if constexpr( has_set_key< json::basic_value< Traits > >::value ) {
-               phase2_set_keys( r, config::key() );
-            }
-         }
-
-         template< template< typename... > class Traits >
          json::basic_value< Traits > phase2( state& st )
          {
             assert( st.astack.empty() );
@@ -157,9 +138,7 @@ namespace tao
             assert( st.rstack.empty() );
             assert( st.ostack.size() == 1 );
 
-            auto r = phase2_impl().phase2< Traits >( st.root );  // TODO: Eliminate phase2_impl instance if it remains stateless.
-            phase2_set_keys( r );
-            return r;
+            return phase2_repackage< Traits >( phase2_impl().phase2< phase2_traits >( st.root ) );  // TODO: Eliminate phase2_impl instance if it remains stateless.
          }
 
       }  // namespace internal

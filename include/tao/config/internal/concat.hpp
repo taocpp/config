@@ -118,11 +118,15 @@ namespace tao
                m_entries.front().set_clear();
             }
 
+            void back_set_clear() noexcept
+            {
+               assert( !m_entries.empty() );
+
+               m_entries.back().set_clear();
+            }
+
             void post_array_merge()
             {
-               //               assert( !m_entries.empty() );
-               //               assert( m_entries.back().is_array() );
-
                if( m_entries.size() >= 2 ) {
                   if( m_entries.back().clear() ) {
                      m_entries.erase( m_entries.begin(), --m_entries.end() );
@@ -139,9 +143,6 @@ namespace tao
 
             void post_object_merge()
             {
-               //               assert( !m_entries.empty() );
-               //               assert( m_entries.back().is_object() );
-
                if( m_entries.size() >= 2 ) {
                   if( m_entries.back().clear() ) {
                      m_entries.erase( m_entries.begin(), --m_entries.end() );

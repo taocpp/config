@@ -149,10 +149,6 @@ namespace tao
                assert( !st.ostack.empty() );
                assert( !st.lstack.empty() );
 
-               if( st.cstack.back() ) {
-                  st.lstack.back()->front_set_clear();
-               }
-
                st.cstack.pop_back();
                st.lstack.pop_back();
             }

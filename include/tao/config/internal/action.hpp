@@ -152,6 +152,38 @@ namespace tao
             }
          };
 
+         struct part_action
+         {
+            static void apply0( state& st )
+            {
+               assert( !st.cstack.empty() );
+               assert( !st.lstack.empty() );
+
+               if( st.cstack.back() ) {
+                  st.lstack.back()->back_set_clear();
+                  st.cstack.back() = false;
+               }
+            }
+         };
+
+         template<>
+         struct action< rules::value_part >
+            : public part_action
+         {
+         };
+
+         template<>
+         struct action< rules::array_part >
+            : public part_action
+         {
+         };
+
+         template<>
+         struct action< rules::object_part >
+            : public part_action
+         {
+         };
+
          template<>
          struct action< rules::ext_name >
          {
