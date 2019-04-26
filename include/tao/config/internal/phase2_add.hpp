@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE2_ADD_HH
 #define TAO_CONFIG_INTERNAL_PHASE2_ADD_HH
 
+#include <utility>
+
 #include "concat.hpp"
 #include "entry.hpp"
 #include "format.hpp"
@@ -124,12 +126,16 @@ namespace tao::config::internal
       }
    }
 
+   inline void phase2_value_add( json::basic_value< phase2_traits >& l, json::basic_value< phase2_traits >&& r );
+
    inline void phase2_object_add( json::basic_value< phase2_traits >& l, json::basic_value< phase2_traits >&& r )
    {
       switch( r.type() ) {
          case json::type::OBJECT:
             for( auto&& i : r.unsafe_get_object() ) {
-               l.unsafe_get_object().insert_or_assign( i.first, std::move( i.second ) );
+               if( const auto p = l.unsafe_get_object().try_emplace( i.first, std::move( i.second ) ); !p.second ) {
+                  phase2_value_add( p.first->second, std::move( i.second ) );
+               }
             }
             break;
          default:
@@ -137,7 +143,7 @@ namespace tao::config::internal
       }
    }
 
-   inline void phase2_add( json::basic_value< phase2_traits >& l, json::basic_value< phase2_traits >&& r, const position& pos )
+   inline void phase2_value_add( json::basic_value< phase2_traits >& l, json::basic_value< phase2_traits >&& r )
    {
       if( r.is_null() ) {
          return;
@@ -146,29 +152,40 @@ namespace tao::config::internal
          l = std::move( r );
          return;
       }
+      switch( l.type() ) {
+         case json::type::NULL_:
+            assert( false );
+         case json::type::BOOLEAN:
+            phase2_boolean_add( l, r );
+            break;
+         case json::type::SIGNED:
+         case json::type::UNSIGNED:
+         case json::type::DOUBLE:
+            phase2_number_add( l, r );
+            break;
+         case json::type::STRING:
+         case json::type::STRING_VIEW:
+            phase2_string_add( l, r );
+            break;
+         case json::type::BINARY:
+         case json::type::BINARY_VIEW:
+            phase2_binary_add( l, r );
+            break;
+         case json::type::ARRAY:
+            phase2_array_add( l, std::move( r ) );
+            break;
+         case json::type::OBJECT:
+            phase2_object_add( l, std::move( r ) );
+            break;
+         default:
+            assert( false );
+      }
+   }
+
+   inline void phase2_add( json::basic_value< phase2_traits >& l, json::basic_value< phase2_traits >&& r, const position& pos )
+   {
       try {
-         switch( l.type() ) {
-            case json::type::NULL_:
-               assert( false );
-            case json::type::BOOLEAN:
-               return phase2_boolean_add( l, r );
-            case json::type::SIGNED:
-            case json::type::UNSIGNED:
-            case json::type::DOUBLE:
-               return phase2_number_add( l, r );
-            case json::type::STRING:
-            case json::type::STRING_VIEW:
-               return phase2_string_add( l, r );
-            case json::type::BINARY:
-            case json::type::BINARY_VIEW:
-               return phase2_binary_add( l, r );
-            case json::type::ARRAY:
-               return phase2_array_add( l, std::move( r ) );
-            case json::type::OBJECT:
-               return phase2_object_add( l, std::move( r ) );
-            default:
-               assert( false );
-         }
+         phase2_value_add( l, std::move( r ) );
       }
       catch( const addition_error& e ) {
          throw std::runtime_error( format( "inconsistent types in addition", { &pos, { "left", e.l }, { "right", e.r } } ) );

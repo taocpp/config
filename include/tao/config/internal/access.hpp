@@ -117,7 +117,7 @@ namespace tao
                      }
                      break;
                   case entry::reference:
-                     throw std::runtime_error( format( "object index access across reference", { &pos } ) );  // Alternatively print a warning and continue?
+                     throw std::runtime_error( format( "object index access across reference", { &pos, { "string", k } } ) );  // Alternatively print a warning and continue?
                   case entry::nothing:
                      assert( false );
                      break;
