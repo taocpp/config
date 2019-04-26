@@ -4,7 +4,6 @@
 #ifndef TAO_CONFIG_INTERNAL_STATE_HPP
 #define TAO_CONFIG_INTERNAL_STATE_HPP
 
-#include <cassert>
 #include <functional>
 #include <string>
 #include <vector>
@@ -32,7 +31,8 @@ namespace tao
 
             // General Structure
 
-            std::vector< bool > cstack;  // Clear-for-assign stack.
+            bool clear = false;
+
             std::vector< entry* > ostack;   // Object contexts via '{'.
             std::vector< concat* > lstack;  // Current rules::value_list.
             std::vector< entry* > astack;   // Array contexts via '['.
@@ -46,17 +46,6 @@ namespace tao
 
             std::vector< json::value* > rstack;  // Nested phase 2 references (and also phase 1 keys).
          };
-
-         inline void apply0_clear( state& st )
-         {
-            assert( !st.cstack.empty() );
-            assert( !st.lstack.empty() );
-
-            if( st.cstack.back() ) {
-               st.lstack.back()->back_set_clear();
-               st.cstack.back() = false;
-            }
-         }
 
       }  // namespace internal
 

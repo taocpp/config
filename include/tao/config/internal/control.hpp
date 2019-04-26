@@ -75,10 +75,6 @@ namespace tao
                assert( !st.rstack.empty() );
 
                st.rstack.pop_back();
-
-               if( st.rstack.empty() ) {
-                  apply0_clear( st );
-               }
             }
          };
 
@@ -89,6 +85,7 @@ namespace tao
             template< typename Input >
             static void start( const Input& in, state& st )
             {
+               assert( !st.clear );
                assert( !st.astack.empty() );
 
                st.lstack.emplace_back( &st.astack.back()->emplace_back( in.position() ) );
@@ -122,7 +119,6 @@ namespace tao
                assert( !st.lstack.empty() );
                assert( !st.astack.empty() );
 
-               apply0_clear( st );
                st.astack.pop_back();
                st.lstack.back()->post_array_merge();
             }
@@ -135,26 +131,20 @@ namespace tao
             template< typename Input >
             static void start( const Input& in, state& st )
             {
-               assert( !st.cstack.empty() );
                assert( !st.ostack.empty() );
 
                const auto pos = in.position();
 
                st.lstack.emplace_back( &assign( pos, *st.ostack.back(), key_from_value( pos, st.temporary ) ) );
-
-               if( st.cstack.back() ) {
-                  st.lstack.back()->clear();
-               }
+               st.lstack.back()->clear( st.clear );
             }
 
             template< typename Input >
             static void success( const Input&, state& st )
             {
-               assert( !st.cstack.empty() );
                assert( !st.ostack.empty() );
                assert( !st.lstack.empty() );
 
-               st.cstack.pop_back();
                st.lstack.pop_back();
             }
          };
@@ -177,7 +167,6 @@ namespace tao
                assert( !st.lstack.empty() );
                assert( !st.ostack.empty() );
 
-               apply0_clear( st );
                st.ostack.pop_back();
                st.lstack.back()->post_object_merge();
             }

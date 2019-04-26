@@ -59,9 +59,13 @@ namespace tao
                m_temporary = t;
             }
 
-            void clear()
+            void clear( bool& c )
             {
-               m_entries.clear();
+               if( c ) {
+                  c = false;
+                  m_clear = true;
+                  m_entries.clear();
+               }
             }
 
             bool empty() const noexcept
@@ -78,7 +82,12 @@ namespace tao
             {
                for( const auto& i : other.m_entries ) {
                   m_entries.emplace_back( this, i );
+                  if( m_clear ) {
+                     m_entries.back().set_clear();
+                     m_clear = false;
+                  }
                }
+               m_clear = false;
             }
 
             const std::list< E >& entries() const noexcept
@@ -91,12 +100,14 @@ namespace tao
             {
                auto& e = m_entries.emplace_back( this, pos );
                e.set_atom( std::forward< T >( t ) );
+               back_set_clear();
             }
 
             E& emplace_back_array( const position& pos )
             {
                auto& e = m_entries.emplace_back( this, pos );
                e.set_array();
+               back_set_clear();
                return e;
             }
 
@@ -104,6 +115,7 @@ namespace tao
             {
                auto& e = m_entries.emplace_back( this, pos );
                e.set_object();
+               back_set_clear();
                return e;
             }
 
@@ -111,6 +123,7 @@ namespace tao
             {
                auto& e = m_entries.emplace_back( this, pos );
                e.set_reference( std::move( v ) );
+               back_set_clear();
                return e.get_reference();
             }
 
@@ -119,24 +132,6 @@ namespace tao
             std::list< E >& private_entries() noexcept
             {
                return m_entries;
-            }
-
-            bool index_set_clear( const std::size_t i ) noexcept
-            {
-               if( m_entries.size() > i ) {
-                  auto j = m_entries.begin();
-                  std::advance( j, i );
-                  j->set_clear();
-                  return true;
-               }
-               return false;
-            }
-
-            void back_set_clear() noexcept
-            {
-               assert( !m_entries.empty() );
-
-               m_entries.back().set_clear();
             }
 
             void post_array_merge()
@@ -177,9 +172,20 @@ namespace tao
             }
 
          private:
+            void back_set_clear()
+            {
+               assert( !m_entries.empty() );
+
+               if( m_clear ) {
+                  m_entries.back().set_clear();
+                  m_clear = false;
+               }
+            }
+
             E* m_parent;  // TODO?
             std::list< E > m_entries;
 
+            bool m_clear = false;
             mutable bool m_temporary = false;
          };
 

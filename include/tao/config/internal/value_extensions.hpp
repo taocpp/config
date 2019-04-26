@@ -28,7 +28,6 @@ namespace tao
 
          template< typename Input >
          inline void do_inner_extension( Input& in, state& st );
-
          template< typename Input >
          inline json::value obtain_jaxn( Input& in )
          {
@@ -69,7 +68,6 @@ namespace tao
          template< typename Input >
          inline void copy_extension( Input& in, state& st )
          {
-            assert( !st.cstack.empty() );
             assert( !st.ostack.empty() );
             assert( !st.lstack.empty() );
 
@@ -82,13 +80,7 @@ namespace tao
             if( &d == &s ) {
                throw std::runtime_error( format( "copy to self detected", { &pos, &p } ) );
             }
-            const auto i = d.size();
             d.append( s );  // TOOD: Modify/update d.position?
-
-            if( st.cstack.back() ) {
-               d.index_set_clear( i );
-               st.cstack.back() = false;
-            }
          }
 
          template< typename Input >
@@ -172,24 +164,15 @@ namespace tao
          template< typename Input >
          inline void parse_extension( Input& in, state& st )
          {
+            assert( !st.lstack.empty() );
+
             const auto pos = in.position();
 
             do_inner_extension( in, st );
 
             if( st.temporary.is_string_type() ) {
-               assert( !st.cstack.empty() );
-               assert( !st.lstack.empty() );
-
-               concat& d = *st.lstack.back();
-               const auto i = d.size();
-
                pegtl::string_input< pegtl::tracking_mode::eager, typename Input::eol_t, const char* > i2( st.temporary.as< std::string >(), __FUNCTION__ );
                pegtl::parse_nested< rules::value, action, control >( in, i2, st );
-
-               if( st.cstack.back() ) {
-                  d.index_set_clear( i );
-                  st.cstack.back() = false;
-               }
                return;
             }
             throw std::runtime_error( format( "require string to parse value", { &pos, st.temporary.type() } ) );
@@ -316,6 +299,7 @@ namespace tao
          template< typename Input >
          inline bool do_value_extension( Input& in, state& st )
          {
+            assert( !st.clear );
             assert( !st.lstack.empty() );
 
             const auto pos = in.position();
@@ -338,7 +322,6 @@ namespace tao
                assert( !st.temporary.is_discarded() );
                st.lstack.back()->emplace_back_atom( in.position(), std::move( st.temporary ) );
                st.temporary.discard();
-               apply0_clear( st );
                return true;
             }
             throw std::runtime_error( format( "unknown value extension", { &pos, { "name", ext } } ) );
