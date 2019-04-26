@@ -77,6 +77,10 @@ namespace tao
 
             concat& d = *st.lstack.back();
             const concat& s = access( pos, d.parent(), p );
+
+            if( &d == &s ) {
+               throw std::runtime_error( format( "copy to self detected", { &pos, &p } ) );
+            }
             d.append( s );  // TOOD: Modify/update d.position?
          }
 
