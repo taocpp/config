@@ -7,6 +7,7 @@
 #include "concat.hpp"
 #include "entry.hpp"
 #include "format.hpp"
+#include "phase2_traits.hpp"
 
 namespace tao::config::internal
 {
@@ -20,33 +21,31 @@ namespace tao::config::internal
       json::type r;
    };
 
-   template< template< typename... > class Traits >
-   void boolean_addition( json::basic_value< Traits >& l, const json::basic_value< Traits >& r )
+   inline void phase2_boolean_add( json::basic_value< phase2_traits >& l, const json::basic_value< phase2_traits >& r )
    {
       switch( r.type() ) {
          case json::type::BOOLEAN:
-            l = json::basic_value< Traits >( l.unsafe_get_boolean() || r.unsafe_get_boolean() );
+            l = json::basic_value< phase2_traits >( l.unsafe_get_boolean() || r.unsafe_get_boolean() );
             break;
          default:
             throw addition_error{ l.type(), r.type() };
       }
    }
 
-   template< template< typename... > class Traits >
-   void number_addition( json::basic_value< Traits >& l, const json::basic_value< Traits >& r )
+   inline void phase2_number_add( json::basic_value< phase2_traits >& l, const json::basic_value< phase2_traits >& r )
    {
       if( l.type() == json::type::DOUBLE ) {
          if( !r.is_number() ) {
             throw addition_error{ l.type(), r.type() };
          }
-         l = json::basic_value< Traits >( l.unsafe_get_double() + r.template as< double >() );
+         l = json::basic_value< phase2_traits >( l.unsafe_get_double() + r.template as< double >() );
          return;
       }
       if( r.type() == json::type::DOUBLE ) {
          if( !l.is_number() ) {
             assert( false );
          }
-         l = json::basic_value< Traits >( l.template as< double >() + r.unsafe_get_double() );
+         l = json::basic_value< phase2_traits >( l.template as< double >() + r.unsafe_get_double() );
          return;
       }
       __int128_t t = 0;
@@ -73,18 +72,17 @@ namespace tao::config::internal
          if( t != __int128_t( std::uint64_t( t ) ) ) {
             throw overflow_error();
          }
-         l = json::basic_value< Traits >( std::uint64_t( t ) );
+         l = json::basic_value< phase2_traits >( std::uint64_t( t ) );
       }
       else {
          if( t != __int128_t( std::int64_t( t ) ) ) {
             throw overflow_error();
          }
-         l = json::basic_value< Traits >( std::int64_t( t ) );
+         l = json::basic_value< phase2_traits >( std::int64_t( t ) );
       }
    }
 
-   template< template< typename... > class Traits >
-   void string_addition( json::basic_value< Traits >& l, const json::basic_value< Traits >& r )
+   inline void phase2_string_add( json::basic_value< phase2_traits >& l, const json::basic_value< phase2_traits >& r )
    {
       switch( r.type() ) {
          case json::type::STRING:
@@ -98,8 +96,7 @@ namespace tao::config::internal
       }
    }
 
-   template< template< typename... > class Traits >
-   void binary_addition( json::basic_value< Traits >& l, const json::basic_value< Traits >& r )
+   inline void phase2_binary_add( json::basic_value< phase2_traits >& l, const json::basic_value< phase2_traits >& r )
    {
       switch( r.type() ) {
          case json::type::BINARY:
@@ -113,8 +110,7 @@ namespace tao::config::internal
       }
    }
 
-   template< template< typename... > class Traits >
-   void array_addition( json::basic_value< Traits >& l, json::basic_value< Traits >&& r )
+   inline void phase2_array_add( json::basic_value< phase2_traits >& l, json::basic_value< phase2_traits >&& r )
    {
       switch( r.type() ) {
          case json::type::ARRAY:
@@ -128,8 +124,7 @@ namespace tao::config::internal
       }
    }
 
-   template< template< typename... > class Traits >
-   void object_addition( json::basic_value< Traits >& l, json::basic_value< Traits >&& r )
+   inline void phase2_object_add( json::basic_value< phase2_traits >& l, json::basic_value< phase2_traits >&& r )
    {
       switch( r.type() ) {
          case json::type::OBJECT:
@@ -142,8 +137,7 @@ namespace tao::config::internal
       }
    }
 
-   template< template< typename... > class Traits >
-   void phase2_add( json::basic_value< Traits >& l, json::basic_value< Traits >&& r, const position& pos )
+   inline void phase2_add( json::basic_value< phase2_traits >& l, json::basic_value< phase2_traits >&& r, const position& pos )
    {
       if( r.is_null() ) {
          return;
@@ -157,21 +151,21 @@ namespace tao::config::internal
             case json::type::NULL_:
                assert( false );
             case json::type::BOOLEAN:
-               return boolean_addition( l, r );
+               return phase2_boolean_add( l, r );
             case json::type::SIGNED:
             case json::type::UNSIGNED:
             case json::type::DOUBLE:
-               return number_addition( l, r );
+               return phase2_number_add( l, r );
             case json::type::STRING:
             case json::type::STRING_VIEW:
-               return string_addition( l, r );
+               return phase2_string_add( l, r );
             case json::type::BINARY:
             case json::type::BINARY_VIEW:
-               return binary_addition( l, r );
+               return phase2_binary_add( l, r );
             case json::type::ARRAY:
-               return array_addition( l, std::move( r ) );
+               return phase2_array_add( l, std::move( r ) );
             case json::type::OBJECT:
-               return object_addition( l, std::move( r ) );
+               return phase2_object_add( l, std::move( r ) );
             default:
                assert( false );
          }
