@@ -8,14 +8,18 @@ During parsing, all Phase One features are evaluated immediately as they are enc
 
 Most features are Phase One, i.e. everything except for references and, consequently, additions (or concatenations).
 
-*References are the only reason that additions need to be stored in the intermediate data structure. Additions can't be performed until Phase Two when all operands, some of which can be references, are resolved to values. Otherwise additions could be performed while parsing like in JAXN.*
+*References are the only reason that additions need to be stored in the intermediate data structure.
+Most additions are not performed until Phase Two; when an operand is a reference it is necessary to delay the addition to after the reference was resolved to a value.
+Otherwise additions could be performed while parsing like in JAXN.*
 
 The resulting data structure can be conceptually imagined as JSON (actually JAXN) with two extensions:
 
  * A new value type *reference* for (nested) references, e.g. `(foo.bar.1.(baz))`.
  * Every value is actually an addition (concatenation) of other values and/or references.
 
-*This alternation between values and references, and additions, is modelled by the C++ types `tao::config::internal::entry` and `tao::config::internal::concat`. The former can be an Object or an Array with `concat` as value, a reference, or an atomic JSON Value. The latter is a list of `entry`.*
+*This alternation between values and references, and additions, is modelled by the C++ types `tao::config::internal::entry` and `tao::config::internal::concat`.
+An `entry` can be an Object or an Array with `concat` as value type, a reference, or an atomic JSON Value.
+A `concat` consists of a `std::list< entry >`.*
 
 ## Phase Two
 

@@ -14,8 +14,8 @@
  * [JAXN] data model ([JSON] extended with binary data and non-finites).
  * Meta data, all sub-values are annotated with filename and position.
  * Copy, reference, replace and delete anything in the [JSON] structure.
- * Multiple ways to read and parse other config and data files, and use
- * environment variables and the output of arbitrary shell commands.
+ * Multiple ways to read and parse other config and data files, and
+ * use environment variables and the output of arbitrary shell commands.
  * The function [`tao::config::parse_file()`](doc/Parsing-Config-Files.md) is all you need to get going.
 
 ## Status

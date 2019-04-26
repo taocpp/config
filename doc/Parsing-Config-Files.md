@@ -2,7 +2,7 @@
 
 *Warning: The documentation is still work-in-progress and very incomplete.*
 
-Requires good C++17 support, currently only tested on GCC 8.
+Requires good C++17 support, currently only tested on GCC 8 and Clang.
 
 If you manage to compile the tests and examples by tweaking the `Makefile`, and want to try this out in your application, simply include `tao/config/config.hpp` and use one of the functions
 
