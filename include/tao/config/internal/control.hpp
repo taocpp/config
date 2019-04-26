@@ -115,9 +115,11 @@ namespace tao
             template< typename Input >
             static void success( const Input&, state& st )
             {
+               assert( !st.lstack.empty() );
                assert( !st.astack.empty() );
 
                st.astack.pop_back();
+               st.lstack.back()->post_array_merge();
             }
          };
 
@@ -171,9 +173,11 @@ namespace tao
             template< typename Input >
             static void success( const Input&, state& st )
             {
+               assert( !st.lstack.empty() );
                assert( !st.ostack.empty() );
 
                st.ostack.pop_back();
+               st.lstack.back()->post_object_merge();
             }
          };
 

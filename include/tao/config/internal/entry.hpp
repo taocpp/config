@@ -67,7 +67,8 @@ namespace tao
             entry( concat* parent, const entry& r )
                : m_type( nothing ),
                  m_parent( parent ),
-                 m_position( r.m_position )
+                 m_position( r.m_position ),
+                 m_clear( r.m_clear )
             {
                embed( r );
                m_type = r.m_type;

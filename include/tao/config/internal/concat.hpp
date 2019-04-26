@@ -118,6 +118,49 @@ namespace tao
                m_entries.front().set_clear();
             }
 
+            void post_array_merge()
+            {
+               //               assert( !m_entries.empty() );
+               //               assert( m_entries.back().is_array() );
+
+               if( m_entries.size() >= 2 ) {
+                  if( m_entries.back().clear() ) {
+                     m_entries.erase( m_entries.begin(), --m_entries.end() );
+                     return;
+                  }
+                  if( E& e = *----m_entries.end(); e.is_array() && m_entries.back().is_array() ) {
+                     for( const basic_concat& j : m_entries.back().get_array() ) {
+                        e.get_array().emplace_back( &e, j );
+                     }
+                     m_entries.pop_back();
+                  }
+               }
+            }
+
+            void post_object_merge()
+            {
+               //               assert( !m_entries.empty() );
+               //               assert( m_entries.back().is_object() );
+
+               if( m_entries.size() >= 2 ) {
+                  if( m_entries.back().clear() ) {
+                     m_entries.erase( m_entries.begin(), --m_entries.end() );
+                     return;
+                  }
+                  if( E& e = *----m_entries.end(); e.is_object() && m_entries.back().is_object() ) {
+                     for( const auto& j : m_entries.back().get_object() ) {
+                        if( const auto p = e.get_object().try_emplace( j.first, &e, j.second ); !p.second ) {
+                           for( const E& k : j.second.m_entries ) {
+                              p.first->second.m_entries.emplace_back( &p.first->second, k );
+                              p.first->second.post_object_merge();
+                           }
+                        }
+                     }
+                     m_entries.pop_back();
+                  }
+               }
+            }
+
          private:
             E* m_parent;  // TODO?
             std::list< E > m_entries;

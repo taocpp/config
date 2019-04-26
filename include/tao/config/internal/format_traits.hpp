@@ -105,6 +105,29 @@ namespace tao
                }
                assert( false );
             }
+
+            template< template< typename... > class Traits, typename Consumer >
+            static void produce( Consumer& c, const entry::kind k )
+            {
+               switch( k ) {
+                  case entry::atom:
+                     c.string( "atom" );
+                     return;
+                  case entry::array:
+                     c.string( "array" );
+                     return;
+                  case entry::object:
+                     c.string( "object" );
+                     return;
+                  case entry::nothing:
+                     c.string( "nothing" );
+                     return;
+                  case entry::reference:
+                     c.string( "reference" );
+                     return;
+               }
+               assert( false );
+            }
          };
 
          template<>
@@ -113,30 +136,41 @@ namespace tao
             template< template< typename... > class Traits, typename Consumer >
             static void produce( Consumer& c, const entry& v )
             {
+               c.begin_object();
+               c.key( "type" );
+               json::events::produce< Traits >( c, v.type() );
+               c.member();
+               c.key( "clear" );
+               c.boolean( v.clear() );
+               c.member();
+               c.key( "data" );
                switch( v.type() ) {
                   case entry::atom:
                      json::events::produce< Traits >( c, v.get_atom() );
-                     return;
+                     break;
                   case entry::array:
                      json::events::produce< Traits >( c, v.get_array() );
-                     return;
+                     break;
                   case entry::object:
                      json::events::produce< Traits >( c, v.get_object() );
-                     return;
+                     break;
                   case entry::nothing:
                      assert( false );
                   case entry::reference:
                      json::events::produce< Traits >( c, v.get_reference() );
-                     return;
+                     break;
+                  default:
+                     assert( false );
                }
-               assert( false );
+               c.member();
+               c.end_object();
             }
          };
 
          template<>
          struct format_traits< concat >
             : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
-                                            TAO_JSON_BIND_REQUIRED( "concat", &concat::entries ),
+                                            TAO_JSON_BIND_REQUIRED( "entries", &concat::entries ),
                                             TAO_JSON_BIND_REQUIRED( "temporary", &concat::is_temporary ) >
          {
          };
