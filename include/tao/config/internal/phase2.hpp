@@ -19,37 +19,13 @@ namespace tao
    {
       namespace internal
       {
-         template< template< typename... > class Traits >
-         inline void phase2_set_keys( json::basic_value< Traits >& r, const config::key& k )
-         {
-            switch( r.type() ) {
-               case json::type::ARRAY:
-                  for( std::size_t i = 0; i < r.unsafe_get_array().size(); ++i ) {
-                     phase2_set_keys( r[ i ], k + i );
-                  }
-                  break;
-               case json::type::OBJECT:
-                  for( auto& i : r.unsafe_get_object() ) {
-                     phase2_set_keys( i.second, k + i.first );
-                  }
-                  break;
-               default:
-                  break;
-            }
-            r.set_key( k );
-         }
-
          class phase2_impl
          {
          public:
             template< template< typename... > class Traits >
             json::basic_value< Traits > phase2( const entry& root ) const
             {
-               json::basic_value< Traits > r = process_object< Traits >( root.get_object() );
-               if constexpr( has_set_key< json::basic_value< Traits > >::value ) {
-                  phase2_set_keys( r, config::key() );
-               }
-               return r;
+               return process_object< Traits >( root.get_object() );
             }
 
          private:
@@ -146,6 +122,34 @@ namespace tao
          };
 
          template< template< typename... > class Traits >
+         void phase2_set_keys( json::basic_value< Traits >& r, const config::key& k )
+         {
+            switch( r.type() ) {
+               case json::type::ARRAY:
+                  for( std::size_t i = 0; i < r.unsafe_get_array().size(); ++i ) {
+                     phase2_set_keys( r[ i ], k + i );
+                  }
+                  break;
+               case json::type::OBJECT:
+                  for( auto& i : r.unsafe_get_object() ) {
+                     phase2_set_keys( i.second, k + i.first );
+                  }
+                  break;
+               default:
+                  break;
+            }
+            r.set_key( k );
+         }
+
+         template< template< typename... > class Traits >
+         void phase2_set_keys( json::basic_value< Traits >& r )
+         {
+            if constexpr( has_set_key< json::basic_value< Traits > >::value ) {
+               phase2_set_keys( r, config::key() );
+            }
+         }
+
+         template< template< typename... > class Traits >
          json::basic_value< Traits > phase2( state& st )
          {
             assert( st.astack.empty() );
@@ -153,7 +157,9 @@ namespace tao
             assert( st.rstack.empty() );
             assert( st.ostack.size() == 1 );
 
-            return phase2_impl().phase2< Traits >( st.root );  // TODO: Eliminate phase2_impl instance if it remains stateless.
+            auto r = phase2_impl().phase2< Traits >( st.root );  // TODO: Eliminate phase2_impl instance if it remains stateless.
+            phase2_set_keys( r );
+            return r;
          }
 
       }  // namespace internal

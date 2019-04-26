@@ -31,11 +31,10 @@ namespace tao
 
             // General Structure
 
-            bool clear_for_assign = false;
-
-            std::vector< entry* > ostack;   // Object contexts via '{'
-            std::vector< concat* > lstack;  // Current rules::value_list
-            std::vector< entry* > astack;   // Array contexts via '['
+            std::vector< bool > cstack;  // Clear-for-assign stack.
+            std::vector< entry* > ostack;   // Object contexts via '{'.
+            std::vector< concat* > lstack;  // Current rules::value_list.
+            std::vector< entry* > astack;   // Array contexts via '['.
 
             // Phase 1 Extensions
 

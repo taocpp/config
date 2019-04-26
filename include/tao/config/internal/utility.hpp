@@ -77,23 +77,25 @@ namespace tao
          template< typename T >
          phase2_guard( const T& )->phase2_guard< T >;
 
-         inline part part_from_value( const position& pos, const json::value& v )
+         template< template< typename... > class Traits >
+         part part_from_value( const position& pos, const json::basic_value< Traits >& v )
          {
             switch( v.type() ) {
                case json::type::BOOLEAN:
                   return part( v.unsafe_get_boolean() ? part::star : part::minus );
                case json::type::STRING:
                case json::type::STRING_VIEW:
-                  return part( v.as< std::string >() );
+                  return part( v.template as< std::string >() );
                case json::type::SIGNED:
                case json::type::UNSIGNED:
-                  return part( v.as< std::size_t >() );
+                  return part( v.template as< std::size_t >() );
                default:
                   throw std::runtime_error( format( "invalid json for part -- expected string or integer (or bool)", { &pos, v.type() } ) );
             }
          }
 
-         inline key key_from_value( const position& pos, json::value& v )
+         template< template< typename... > class Traits >
+         key key_from_value( const position& pos, json::basic_value< Traits >& v )
          {
             key p;
 

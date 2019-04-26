@@ -111,6 +111,13 @@ namespace tao
                return m_entries;
             }
 
+            void front_set_clear() noexcept
+            {
+               assert( !m_entries.empty() );
+
+               m_entries.front().set_clear();
+            }
+
          private:
             E* m_parent;  // TODO?
             std::list< E > m_entries;

@@ -229,6 +229,16 @@ namespace tao
                return m_position;
             }
 
+            bool clear() const noexcept
+            {
+               return m_clear;
+            }
+
+            void set_clear() noexcept
+            {
+               m_clear = true;
+            }
+
          private:
             void discard() noexcept
             {
@@ -278,6 +288,7 @@ namespace tao
             entry_union m_union;
             internal::position m_position;
 
+            bool m_clear = false;
             mutable bool m_phase2_recursion_marker = false;
          };
 

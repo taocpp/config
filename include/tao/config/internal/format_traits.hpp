@@ -1,8 +1,10 @@
 // Copyright (c) 2018-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_TRAITS_HPP
-#define TAO_CONFIG_INTERNAL_TRAITS_HPP
+#ifndef TAO_CONFIG_INTERNAL_FORMAT_TRAITS_HPP
+#define TAO_CONFIG_INTERNAL_FORMAT_TRAITS_HPP
+
+#include "../traits.hpp"
 
 #include "concat.hpp"
 #include "entry.hpp"
@@ -15,19 +17,19 @@ namespace tao
       namespace internal
       {
          template< typename T >
-         struct traits
+         struct format_traits
             : public config::traits< T >
          {
          };
 
          template<>
-         struct traits< void >
+         struct format_traits< void >
             : public json::traits< void >
          {
          };
 
          template<>
-         struct traits< pegtl::position >
+         struct format_traits< pegtl::position >
          {
             template< template< typename... > class Traits, typename Consumer >
             static void produce( Consumer& c, const pegtl::position& p )
@@ -37,7 +39,7 @@ namespace tao
          };
 
          template<>
-         struct traits< const pegtl::position* >
+         struct format_traits< const pegtl::position* >
          {
             TAO_JSON_DEFAULT_KEY( "position" );
 
@@ -49,13 +51,13 @@ namespace tao
          };
 
          template<>
-         struct traits< pegtl::position* >
-            : public traits< const pegtl::position* >
+         struct format_traits< pegtl::position* >
+            : public format_traits< const pegtl::position* >
          {
          };
 
          template<>
-         struct traits< json::type >
+         struct format_traits< json::type >
          {
             TAO_JSON_DEFAULT_KEY( "type" );
 
@@ -67,7 +69,7 @@ namespace tao
          };
 
          template<>
-         struct traits< json::value >
+         struct format_traits< json::value >
          {
             template< template< typename... > class, typename Consumer >
             static void produce( Consumer& c, const json::value& v )
@@ -77,7 +79,7 @@ namespace tao
          };
 
          template<>
-         struct traits< entry::kind >
+         struct format_traits< entry::kind >
          {
             TAO_JSON_DEFAULT_KEY( "type" );
 
@@ -106,7 +108,7 @@ namespace tao
          };
 
          template<>
-         struct traits< entry >
+         struct format_traits< entry >
          {
             template< template< typename... > class Traits, typename Consumer >
             static void produce( Consumer& c, const entry& v )
@@ -132,7 +134,7 @@ namespace tao
          };
 
          template<>
-         struct traits< concat >
+         struct format_traits< concat >
             : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
                                             TAO_JSON_BIND_REQUIRED( "concat", &concat::entries ),
                                             TAO_JSON_BIND_REQUIRED( "temporary", &concat::is_temporary ) >

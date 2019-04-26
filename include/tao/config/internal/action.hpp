@@ -121,7 +121,34 @@ namespace tao
          {
             static void apply0( state& st )
             {
-               st.clear_for_assign = true;
+               st.cstack.push_back( true );
+            }
+         };
+
+         template<>
+         struct action< rules::plus_equals >
+         {
+            static void apply0( state& st )
+            {
+               st.cstack.push_back( false );
+            }
+         };
+
+         template<>
+         struct action< pegtl::at< rules::square_a > >
+         {
+            static void apply0( state& st )
+            {
+               st.cstack.push_back( false );
+            }
+         };
+
+         template<>
+         struct action< pegtl::at< rules::curly_a > >
+         {
+            static void apply0( state& st )
+            {
+               st.cstack.push_back( false );
             }
          };
 

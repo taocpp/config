@@ -128,24 +128,30 @@ namespace tao
             template< typename Input >
             static void start( const Input& in, state& st )
             {
+               assert( !st.cstack.empty() );
                assert( !st.ostack.empty() );
 
                const auto pos = in.position();
 
                st.lstack.emplace_back( &assign( pos, *st.ostack.back(), key_from_value( pos, st.temporary ) ) );
 
-               if( st.clear_for_assign ) {
+               if( st.cstack.back() ) {
                   st.lstack.back()->clear();
-                  st.clear_for_assign = false;
                }
             }
 
             template< typename Input >
             static void success( const Input&, state& st )
             {
+               assert( !st.cstack.empty() );
                assert( !st.ostack.empty() );
                assert( !st.lstack.empty() );
 
+               if( st.cstack.back() ) {
+                  st.lstack.back()->front_set_clear();
+               }
+
+               st.cstack.pop_back();
                st.lstack.pop_back();
             }
          };
