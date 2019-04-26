@@ -40,6 +40,7 @@ namespace tao
                assert( !st.lstack.empty() );
 
                st.lstack.back()->emplace_back_atom( m_position, m_value );
+               apply0_clear( st );
             }
 
             template< typename Input, typename T >

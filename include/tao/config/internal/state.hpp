@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_STATE_HPP
 #define TAO_CONFIG_INTERNAL_STATE_HPP
 
+#include <cassert>
 #include <functional>
 #include <string>
 #include <vector>
@@ -21,7 +22,7 @@ namespace tao
          struct state
          {
             state()
-               : root( nullptr, internal::position( pegtl::internal::iterator(), "(implicit)" ) )
+               : root( nullptr, internal::position( pegtl::internal::iterator(), "(root)" ) )
             {
                root.set_object();
                ostack.emplace_back( &root );
@@ -45,6 +46,17 @@ namespace tao
 
             std::vector< json::value* > rstack;  // Nested phase 2 references (and also phase 1 keys).
          };
+
+         inline void apply0_clear( state& st )
+         {
+            assert( !st.cstack.empty() );
+            assert( !st.lstack.empty() );
+
+            if( st.cstack.back() ) {
+               st.lstack.back()->back_set_clear();
+               st.cstack.back() = false;
+            }
+         }
 
       }  // namespace internal
 

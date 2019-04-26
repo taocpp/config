@@ -64,6 +64,16 @@ namespace tao
                m_entries.clear();
             }
 
+            bool empty() const noexcept
+            {
+               return m_entries.empty();
+            }
+
+            std::size_t size() const noexcept
+            {
+               return m_entries.size();
+            }
+
             void append( const basic_concat& other )
             {
                for( const auto& i : other.m_entries ) {
@@ -111,11 +121,15 @@ namespace tao
                return m_entries;
             }
 
-            void front_set_clear() noexcept
+            bool index_set_clear( const std::size_t i ) noexcept
             {
-               assert( !m_entries.empty() );
-
-               m_entries.front().set_clear();
+               if( m_entries.size() > i ) {
+                  auto j = m_entries.begin();
+                  std::advance( j, i );
+                  j->set_clear();
+                  return true;
+               }
+               return false;
             }
 
             void back_set_clear() noexcept

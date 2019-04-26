@@ -75,6 +75,10 @@ namespace tao
                assert( !st.rstack.empty() );
 
                st.rstack.pop_back();
+
+               if( st.rstack.empty() ) {
+                  apply0_clear( st );
+               }
             }
          };
 
@@ -118,6 +122,7 @@ namespace tao
                assert( !st.lstack.empty() );
                assert( !st.astack.empty() );
 
+               apply0_clear( st );
                st.astack.pop_back();
                st.lstack.back()->post_array_merge();
             }
@@ -172,6 +177,7 @@ namespace tao
                assert( !st.lstack.empty() );
                assert( !st.ostack.empty() );
 
+               apply0_clear( st );
                st.ostack.pop_back();
                st.lstack.back()->post_object_merge();
             }

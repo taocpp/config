@@ -39,6 +39,7 @@ namespace tao
                assert( !st.lstack.empty() );
 
                st.lstack.back()->emplace_back_atom( in.position(), json::null );
+               apply0_clear( st );
             }
          };
 
@@ -51,6 +52,7 @@ namespace tao
                assert( !st.lstack.empty() );
 
                st.lstack.back()->emplace_back_atom( in.position(), true );
+               apply0_clear( st );
             }
          };
 
@@ -63,6 +65,7 @@ namespace tao
                assert( !st.lstack.empty() );
 
                st.lstack.back()->emplace_back_atom( in.position(), false );
+               apply0_clear( st );
             }
          };
 
@@ -152,38 +155,6 @@ namespace tao
             }
          };
 
-         struct part_action
-         {
-            static void apply0( state& st )
-            {
-               assert( !st.cstack.empty() );
-               assert( !st.lstack.empty() );
-
-               if( st.cstack.back() ) {
-                  st.lstack.back()->back_set_clear();
-                  st.cstack.back() = false;
-               }
-            }
-         };
-
-         template<>
-         struct action< rules::value_part >
-            : public part_action
-         {
-         };
-
-         template<>
-         struct action< rules::array_part >
-            : public part_action
-         {
-         };
-
-         template<>
-         struct action< rules::object_part >
-            : public part_action
-         {
-         };
-
          template<>
          struct action< rules::ext_name >
          {
@@ -219,8 +190,9 @@ namespace tao
             void operator=( kludge_state&& ) = delete;
 
             template< typename Input >
-            void success( const Input& /*unused*/, state& /*unused*/ )
+            void success( const Input& /*unused*/, state& st )
             {
+               apply0_clear( st );
             }
 
             const position pos;
