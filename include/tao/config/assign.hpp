@@ -13,56 +13,52 @@
 #include "external/json.hpp"
 #include "internal/format.hpp"
 
-namespace tao
+namespace tao::config
 {
-   namespace config
+   template< template< typename... > class Traits >
+   json::basic_value< Traits >& assign( json::basic_value< Traits >& v, const key& k );
+
+   template< template< typename... > class Traits >
+   json::basic_value< Traits >& assign( json::basic_value< Traits >& v, const std::string& k, const key& p )
    {
-      template< template< typename... > class Traits >
-      json::basic_value< Traits >& assign( json::basic_value< Traits >& v, const key& k );
-
-      template< template< typename... > class Traits >
-      json::basic_value< Traits >& assign( json::basic_value< Traits >& v, const std::string& k, const key& p )
-      {
-         if( !v.is_object() ) {
-            throw std::runtime_error( internal::format( "attempt to index non-object with string", { &v.key, &v.position, { "string", k } } ) );
-         }
-         const auto t = v.unsafe_get_object().try_emplace( k, json::empty_object );
-         return assign( t.first->second, p );
+      if( !v.is_object() ) {
+         throw std::runtime_error( internal::format( "attempt to index non-object with string", { &v.key, &v.position, { "string", k } } ) );
       }
+      const auto t = v.unsafe_get_object().try_emplace( k, json::empty_object );
+      return assign( t.first->second, p );
+   }
 
-      template< template< typename... > class Traits >
-      json::basic_value< Traits >& assign( json::basic_value< Traits >& v, const std::uint64_t n, const key& p )
-      {
-         if( !v.is_array() ) {
-            throw std::runtime_error( internal::format( "attempt to index non-array with integer", { &v.key, &v.position, { "integer", n } } ) );
-         }
-         if( v.unsafe_get_array().size() <= n ) {
-            throw std::runtime_error( internal::format( "array index out of bounds", { &v.key, &v.position, { "integer", n } } ) );
-         }
-         return assign( v.unsafe_get_array()[ n ], p );
+   template< template< typename... > class Traits >
+   json::basic_value< Traits >& assign( json::basic_value< Traits >& v, const std::uint64_t n, const key& p )
+   {
+      if( !v.is_array() ) {
+         throw std::runtime_error( internal::format( "attempt to index non-array with integer", { &v.key, &v.position, { "integer", n } } ) );
       }
-
-      template< template< typename... > class Traits >
-      json::basic_value< Traits >& assign( json::basic_value< Traits >& v, const key& k )
-      {
-         if( k.empty() ) {
-            return v;
-         }
-         switch( k[ 0 ].type() ) {
-            case part::name:
-               return assign( v, k[ 0 ].get_name(), pop_front( k ) );
-            case part::index:
-               return assign( v, k[ 0 ].get_index(), pop_front( k ) );
-            case part::star:
-               throw std::runtime_error( internal::format( "attempt to assign to star", { &v.key, &v.position } ) );
-            case part::minus:
-               throw std::runtime_error( internal::format( "attempt to assign to minus", { &v.key, &v.position } ) );
-         }
-         assert( false );
+      if( v.unsafe_get_array().size() <= n ) {
+         throw std::runtime_error( internal::format( "array index out of bounds", { &v.key, &v.position, { "integer", n } } ) );
       }
+      return assign( v.unsafe_get_array()[ n ], p );
+   }
 
-   }  // namespace config
+   template< template< typename... > class Traits >
+   json::basic_value< Traits >& assign( json::basic_value< Traits >& v, const key& k )
+   {
+      if( k.empty() ) {
+         return v;
+      }
+      switch( k[ 0 ].type() ) {
+         case part::name:
+            return assign( v, k[ 0 ].get_name(), pop_front( k ) );
+         case part::index:
+            return assign( v, k[ 0 ].get_index(), pop_front( k ) );
+         case part::star:
+            throw std::runtime_error( internal::format( "attempt to assign to star", { &v.key, &v.position } ) );
+         case part::minus:
+            throw std::runtime_error( internal::format( "attempt to assign to minus", { &v.key, &v.position } ) );
+      }
+      assert( false );
+   }
 
-}  // namespace tao
+}  // namespace tao::config
 
 #endif

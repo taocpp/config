@@ -9,23 +9,15 @@
 #include "format_traits.hpp"
 #include "json.hpp"
 
-namespace tao
+namespace tao::config::internal
 {
-   namespace config
+   inline std::string format( const std::string& message, std::initializer_list< json::internal::pair< format_traits > >&& l )
    {
-      namespace internal
-      {
-         inline std::string format( const std::string& message, std::initializer_list< json::internal::pair< format_traits > >&& l )
-         {
-            std::ostringstream os;
-            os << "'" << message << "' -- " << json::basic_value< format_traits >( std::move( l ) );
-            return os.str();
-         }
+      std::ostringstream os;
+      os << "'" << message << "' -- " << json::basic_value< format_traits >( std::move( l ) );
+      return os.str();
+   }
 
-      }  // namespace internal
-
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config::internal
 
 #endif

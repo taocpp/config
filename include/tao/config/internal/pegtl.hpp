@@ -6,20 +6,16 @@
 
 #include "../external/pegtl.hpp"
 
-namespace tao
+namespace tao::config
 {
-   namespace config
+   namespace pegtl = json::pegtl;
+
+   namespace internal
    {
-      namespace pegtl = json::pegtl;
+      using pegtl::position;
 
-      namespace internal
-      {
-         using pegtl::position;
+   }  // namespace internal
 
-      }  // namespace internal
-
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config
 
 #endif

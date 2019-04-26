@@ -8,68 +8,64 @@
 
 #include "key.hpp"
 
-namespace tao
+namespace tao::config
 {
-   namespace config
+   struct annotation
    {
-      struct annotation
+      config::key key;
+      json::position position;  // TODO: json::position, pegtl::position or TBD config::position?
+
+      annotation() noexcept = default;
+
+      annotation( annotation&& ) noexcept = default;
+      annotation& operator=( annotation&& ) noexcept = default;
+
+      annotation( const annotation& ) = default;
+      annotation& operator=( const annotation& ) = default;
+
+      std::size_t line() const noexcept
       {
-         config::key key;
-         json::position position;  // TODO: json::position, pegtl::position or TBD config::position?
+         return position.line();
+      }
 
-         annotation() noexcept = default;
+      std::size_t byte_in_line() const noexcept
+      {
+         return position.byte_in_line();
+      }
 
-         annotation( annotation&& ) noexcept = default;
-         annotation& operator=( annotation&& ) noexcept = default;
+      const std::string& source() const noexcept
+      {
+         return position.source();
+      }
 
-         annotation( const annotation& ) = default;
-         annotation& operator=( const annotation& ) = default;
+      void set_key( config::key&& k ) noexcept
+      {
+         key = std::move( k );
+      }
 
-         std::size_t line() const noexcept
-         {
-            return position.line();
-         }
+      void set_key( const config::key& k )
+      {
+         key = k;
+      }
 
-         std::size_t byte_in_line() const noexcept
-         {
-            return position.byte_in_line();
-         }
+      void set_position( const json::position& pos )
+      {
+         position = pos;
+      }
 
-         const std::string& source() const noexcept
-         {
-            return position.source();
-         }
+      void set_position( const pegtl::position& pos )
+      {
+         position.set_position( pos );
+      }
 
-         void set_key( config::key&& k ) noexcept
-         {
-            key = std::move( k );
-         }
+      void append_message_extension( std::ostream& o ) const
+      {
+         o << ' ';
+         to_stream( o, key );
+         o << " (" << source() << ':' << line() << ':' << byte_in_line() << ')';
+      }
+   };
 
-         void set_key( const config::key& k )
-         {
-            key = k;
-         }
-
-         void set_position( const json::position& pos )
-         {
-            position = pos;
-         }
-
-         void set_position( const pegtl::position& pos )
-         {
-            position.set_position( pos );
-         }
-
-         void append_message_extension( std::ostream& o ) const
-         {
-            o << ' ';
-            to_stream( o, key );
-            o << " (" << source() << ':' << line() << ':' << byte_in_line() << ')';
-         }
-      };
-
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config
 
 #endif

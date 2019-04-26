@@ -15,65 +15,57 @@
 #include "format.hpp"
 #include "pegtl.hpp"
 
-namespace tao
+namespace tao::config::internal
 {
-   namespace config
+   inline std::string read_file_throws( const std::string& f )
    {
-      namespace internal
-      {
-         inline std::string read_file_throws( const std::string& f )
-         {
-            return pegtl::internal::file_reader( f.c_str() ).read();
-         }
+      return pegtl::internal::file_reader( f.c_str() ).read();
+   }
 
-         inline std::optional< std::string > read_file_nothrow( const std::string& f )
-         {
-            try {
-               return pegtl::internal::file_reader( f.c_str() ).read();
-            }
-            catch( const std::system_error& ) {
-               return std::nullopt;
-            }
-         }
+   inline std::optional< std::string > read_file_nothrow( const std::string& f )
+   {
+      try {
+         return pegtl::internal::file_reader( f.c_str() ).read();
+      }
+      catch( const std::system_error& ) {
+         return std::nullopt;
+      }
+   }
 
-         inline std::string get_env_throws( const position& pos, const std::string& e )
-         {
-            if( const char* r = std::getenv( e.c_str() ) ) {
-               return std::string( r );
-            }
-            throw std::runtime_error( format( "environment variable not found", { &pos, { "variable", e } } ) );
-         }
+   inline std::string get_env_throws( const position& pos, const std::string& e )
+   {
+      if( const char* r = std::getenv( e.c_str() ) ) {
+         return std::string( r );
+      }
+      throw std::runtime_error( format( "environment variable not found", { &pos, { "variable", e } } ) );
+   }
 
-         inline std::optional< std::string > get_env_nothrow( const std::string& e )
-         {
-            if( const char* r = std::getenv( e.c_str() ) ) {
-               return std::string( r );
-            }
-            return std::nullopt;
-         }
+   inline std::optional< std::string > get_env_nothrow( const std::string& e )
+   {
+      if( const char* r = std::getenv( e.c_str() ) ) {
+         return std::string( r );
+      }
+      return std::nullopt;
+   }
 
-         inline std::string shell_popen_throws( const position& pos, const std::string& c )
-         {
-            errno = 0;
+   inline std::string shell_popen_throws( const position& pos, const std::string& c )
+   {
+      errno = 0;
 
-            const std::unique_ptr< FILE, void ( * )( FILE* ) > f( ::popen( c.c_str(), "r" ), []( FILE* f ) { ::pclose( f ); } );
+      const std::unique_ptr< FILE, void ( * )( FILE* ) > f( ::popen( c.c_str(), "r" ), []( FILE* f ) { ::pclose( f ); } );
 
-            if( !f ) {
-               throw std::runtime_error( format( "popen failed", { &pos, { "command", c }, { "errno", errno } } ) );
-            }
-            std::string r;
-            char b[ 4096 ];
+      if( !f ) {
+         throw std::runtime_error( format( "popen failed", { &pos, { "command", c }, { "errno", errno } } ) );
+      }
+      std::string r;
+      char b[ 4096 ];
 
-            while( const auto t = ::fread( b, 1, sizeof( b ), f.get() ) ) {
-               r.append( b, t );
-            }
-            return r;
-         }
+      while( const auto t = ::fread( b, 1, sizeof( b ), f.get() ) ) {
+         r.append( b, t );
+      }
+      return r;
+   }
 
-      }  // namespace internal
-
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config::internal
 
 #endif

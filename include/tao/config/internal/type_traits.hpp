@@ -11,40 +11,32 @@
 #include "json.hpp"
 #include "pegtl.hpp"
 
-namespace tao
+namespace tao::config::internal
 {
-   namespace config
+   template< typename V, typename = void >
+   struct has_set_key
+      : public std::false_type
    {
-      namespace internal
-      {
-         template< typename V, typename = void >
-         struct has_set_key
-            : public std::false_type
-         {
-         };
+   };
 
-         template< typename V >
-         struct has_set_key< V, decltype( std::declval< V >().public_base().set_key( std::declval< const config::key& >() ), void() ) >
-            : public std::true_type
-         {
-         };
+   template< typename V >
+   struct has_set_key< V, decltype( std::declval< V >().public_base().set_key( std::declval< const config::key& >() ), void() ) >
+      : public std::true_type
+   {
+   };
 
-         template< typename V, typename = void >
-         struct has_set_position
-            : public std::false_type
-         {
-         };
+   template< typename V, typename = void >
+   struct has_set_position
+      : public std::false_type
+   {
+   };
 
-         template< typename V >
-         struct has_set_position< V, decltype( std::declval< V >().public_base().set_position( std::declval< const pegtl::position& >() ), void() ) >
-            : public std::true_type
-         {
-         };
+   template< typename V >
+   struct has_set_position< V, decltype( std::declval< V >().public_base().set_position( std::declval< const pegtl::position& >() ), void() ) >
+      : public std::true_type
+   {
+   };
 
-      }  // namespace internal
-
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config::internal
 
 #endif

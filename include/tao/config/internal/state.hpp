@@ -12,45 +12,37 @@
 #include "json.hpp"
 #include "pegtl.hpp"
 
-namespace tao
+namespace tao::config::internal
 {
-   namespace config
+   struct state
    {
-      namespace internal
+      state()
+         : root( nullptr, internal::position( pegtl::internal::iterator(), "(root)" ) )
       {
-         struct state
-         {
-            state()
-               : root( nullptr, internal::position( pegtl::internal::iterator(), "(root)" ) )
-            {
-               root.set_object();
-               ostack.emplace_back( &root );
-            }
+         root.set_object();
+         ostack.emplace_back( &root );
+      }
 
-            entry root;
+      entry root;
 
-            // General Structure
+      // General Structure
 
-            bool clear = false;
+      bool clear = false;  // 'true' when = was used for something new.
 
-            std::vector< entry* > ostack;   // Object contexts via '{'.
-            std::vector< concat* > lstack;  // Current rules::value_list.
-            std::vector< entry* > astack;   // Array contexts via '['.
+      std::vector< entry* > ostack;   // Object contexts via '{'.
+      std::vector< concat* > lstack;  // Current rules::value_list.
+      std::vector< entry* > astack;   // Array contexts via '['.
 
-            // Phase 1 Extensions
+      // Phase 1 Extensions
 
-            json::value temporary;
-            std::string extension;
+      json::value temporary;
+      std::string extension;
 
-            // Phase 2 Extensions
+      // Phase 2 Extensions
 
-            std::vector< json::value* > rstack;  // Nested phase 2 references (and also phase 1 keys).
-         };
+      std::vector< json::value* > rstack;  // Nested phase 2 references (and also phase 1 keys).
+   };
 
-      }  // namespace internal
-
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config::internal
 
 #endif

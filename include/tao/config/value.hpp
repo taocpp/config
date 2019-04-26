@@ -8,14 +8,10 @@
 
 #include "traits.hpp"
 
-namespace tao
+namespace tao::config
 {
-   namespace config
-   {
-      using value = json::basic_value< traits >;
+   using value = json::basic_value< traits >;
 
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config
 
 #endif

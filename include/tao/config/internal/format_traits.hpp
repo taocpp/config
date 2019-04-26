@@ -10,175 +10,167 @@
 #include "entry.hpp"
 #include "json.hpp"
 
-namespace tao
+namespace tao::config::internal
 {
-   namespace config
+   template< typename T >
+   struct format_traits
+      : public config::traits< T >
    {
-      namespace internal
+   };
+
+   template<>
+   struct format_traits< void >
+      : public json::traits< void >
+   {
+   };
+
+   template<>
+   struct format_traits< pegtl::position >
+   {
+      template< template< typename... > class Traits, typename Consumer >
+      static void produce( Consumer& c, const pegtl::position& p )
       {
-         template< typename T >
-         struct format_traits
-            : public config::traits< T >
-         {
-         };
+         c.string( p.source + ':' + std::to_string( p.line ) + ':' + std::to_string( p.byte_in_line ) );
+      }
+   };
 
-         template<>
-         struct format_traits< void >
-            : public json::traits< void >
-         {
-         };
+   template<>
+   struct format_traits< const pegtl::position* >
+   {
+      TAO_JSON_DEFAULT_KEY( "position" );
 
-         template<>
-         struct format_traits< pegtl::position >
-         {
-            template< template< typename... > class Traits, typename Consumer >
-            static void produce( Consumer& c, const pegtl::position& p )
-            {
-               c.string( p.source + ':' + std::to_string( p.line ) + ':' + std::to_string( p.byte_in_line ) );
-            }
-         };
+      template< template< typename... > class Traits >
+      static void assign( json::basic_value< Traits >& v, const pegtl::position* p )
+      {
+         v.unsafe_assign_opaque_ptr( p );
+      }
+   };
 
-         template<>
-         struct format_traits< const pegtl::position* >
-         {
-            TAO_JSON_DEFAULT_KEY( "position" );
+   template<>
+   struct format_traits< pegtl::position* >
+      : public format_traits< const pegtl::position* >
+   {
+   };
 
-            template< template< typename... > class Traits >
-            static void assign( json::basic_value< Traits >& v, const pegtl::position* p )
-            {
-               v.unsafe_assign_opaque_ptr( p );
-            }
-         };
+   template<>
+   struct format_traits< json::type >
+   {
+      TAO_JSON_DEFAULT_KEY( "type" );
 
-         template<>
-         struct format_traits< pegtl::position* >
-            : public format_traits< const pegtl::position* >
-         {
-         };
+      template< template< typename... > class Traits >
+      static void assign( json::basic_value< Traits >& v, const json::type t )
+      {
+         v.unsafe_assign_string( std::string( json::to_string( t ) ) );
+      }
+   };
 
-         template<>
-         struct format_traits< json::type >
-         {
-            TAO_JSON_DEFAULT_KEY( "type" );
+   template<>
+   struct format_traits< json::value >
+   {
+      template< template< typename... > class, typename Consumer >
+      static void produce( Consumer& c, const json::value& v )
+      {
+         json::events::from_value( c, v );
+      }
+   };
 
-            template< template< typename... > class Traits >
-            static void assign( json::basic_value< Traits >& v, const json::type t )
-            {
-               v.unsafe_assign_string( std::string( json::to_string( t ) ) );
-            }
-         };
+   template<>
+   struct format_traits< entry::kind >
+   {
+      TAO_JSON_DEFAULT_KEY( "type" );
 
-         template<>
-         struct format_traits< json::value >
-         {
-            template< template< typename... > class, typename Consumer >
-            static void produce( Consumer& c, const json::value& v )
-            {
-               json::events::from_value( c, v );
-            }
-         };
+      template< template< typename... > class Traits >
+      static void assign( json::basic_value< Traits >& v, const entry::kind k )
+      {
+         switch( k ) {
+            case entry::atom:
+               v.unsafe_assign_string( "atom" );
+               return;
+            case entry::array:
+               v.unsafe_assign_string( "array" );
+               return;
+            case entry::object:
+               v.unsafe_assign_string( "object" );
+               return;
+            case entry::nothing:
+               v.unsafe_assign_string( "nothing" );
+               return;
+            case entry::reference:
+               v.unsafe_assign_string( "reference" );
+               return;
+         }
+         assert( false );
+      }
 
-         template<>
-         struct format_traits< entry::kind >
-         {
-            TAO_JSON_DEFAULT_KEY( "type" );
+      template< template< typename... > class Traits, typename Consumer >
+      static void produce( Consumer& c, const entry::kind k )
+      {
+         switch( k ) {
+            case entry::atom:
+               c.string( "atom" );
+               return;
+            case entry::array:
+               c.string( "array" );
+               return;
+            case entry::object:
+               c.string( "object" );
+               return;
+            case entry::nothing:
+               c.string( "nothing" );
+               return;
+            case entry::reference:
+               c.string( "reference" );
+               return;
+         }
+         assert( false );
+      }
+   };
 
-            template< template< typename... > class Traits >
-            static void assign( json::basic_value< Traits >& v, const entry::kind k )
-            {
-               switch( k ) {
-                  case entry::atom:
-                     v.unsafe_assign_string( "atom" );
-                     return;
-                  case entry::array:
-                     v.unsafe_assign_string( "array" );
-                     return;
-                  case entry::object:
-                     v.unsafe_assign_string( "object" );
-                     return;
-                  case entry::nothing:
-                     v.unsafe_assign_string( "nothing" );
-                     return;
-                  case entry::reference:
-                     v.unsafe_assign_string( "reference" );
-                     return;
-               }
+   template<>
+   struct format_traits< entry >
+   {
+      template< template< typename... > class Traits, typename Consumer >
+      static void produce( Consumer& c, const entry& v )
+      {
+         c.begin_object();
+         c.key( "type" );
+         json::events::produce< Traits >( c, v.type() );
+         c.member();
+         c.key( "clear" );
+         c.boolean( v.clear() );
+         c.member();
+         c.key( "data" );
+         switch( v.type() ) {
+            case entry::atom:
+               json::events::produce< Traits >( c, v.get_atom() );
+               break;
+            case entry::array:
+               json::events::produce< Traits >( c, v.get_array() );
+               break;
+            case entry::object:
+               json::events::produce< Traits >( c, v.get_object() );
+               break;
+            case entry::nothing:
                assert( false );
-            }
-
-            template< template< typename... > class Traits, typename Consumer >
-            static void produce( Consumer& c, const entry::kind k )
-            {
-               switch( k ) {
-                  case entry::atom:
-                     c.string( "atom" );
-                     return;
-                  case entry::array:
-                     c.string( "array" );
-                     return;
-                  case entry::object:
-                     c.string( "object" );
-                     return;
-                  case entry::nothing:
-                     c.string( "nothing" );
-                     return;
-                  case entry::reference:
-                     c.string( "reference" );
-                     return;
-               }
+            case entry::reference:
+               json::events::produce< Traits >( c, v.get_reference() );
+               break;
+            default:
                assert( false );
-            }
-         };
+         }
+         c.member();
+         c.end_object();
+      }
+   };
 
-         template<>
-         struct format_traits< entry >
-         {
-            template< template< typename... > class Traits, typename Consumer >
-            static void produce( Consumer& c, const entry& v )
-            {
-               c.begin_object();
-               c.key( "type" );
-               json::events::produce< Traits >( c, v.type() );
-               c.member();
-               c.key( "clear" );
-               c.boolean( v.clear() );
-               c.member();
-               c.key( "data" );
-               switch( v.type() ) {
-                  case entry::atom:
-                     json::events::produce< Traits >( c, v.get_atom() );
-                     break;
-                  case entry::array:
-                     json::events::produce< Traits >( c, v.get_array() );
-                     break;
-                  case entry::object:
-                     json::events::produce< Traits >( c, v.get_object() );
-                     break;
-                  case entry::nothing:
-                     assert( false );
-                  case entry::reference:
-                     json::events::produce< Traits >( c, v.get_reference() );
-                     break;
-                  default:
-                     assert( false );
-               }
-               c.member();
-               c.end_object();
-            }
-         };
+   template<>
+   struct format_traits< concat >
+      : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
+                                      TAO_JSON_BIND_REQUIRED( "entries", &concat::entries ),
+                                      TAO_JSON_BIND_REQUIRED( "temporary", &concat::is_temporary ) >
+   {
+   };
 
-         template<>
-         struct format_traits< concat >
-            : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
-                                            TAO_JSON_BIND_REQUIRED( "entries", &concat::entries ),
-                                            TAO_JSON_BIND_REQUIRED( "temporary", &concat::is_temporary ) >
-         {
-         };
-
-      }  // namespace internal
-
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config::internal
 
 #endif

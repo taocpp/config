@@ -11,214 +11,210 @@
 
 #include "part.hpp"
 
-namespace tao
+namespace tao::config
 {
-   namespace config
+   namespace internal
    {
-      namespace internal
+      template< typename Rule >
+      struct key_action
+         : public pegtl::nothing< Rule >
       {
-         template< typename Rule >
-         struct key_action
-            : public pegtl::nothing< Rule >
-         {
-         };
+      };
 
-         template<>
-         struct key_action< rules::identifier >
-         {
-            template< typename Input >
-            static void apply( const Input& in, std::vector< part >& st )
-            {
-               st.emplace_back( in.string() );
-            }
-         };
-
-         template<>
-         struct key_action< rules::index >
-         {
-            template< typename Input >
-            static void apply( const Input& in, std::vector< part >& st )
-            {
-               st.emplace_back( std::stoul( in.string() ) );
-            }
-         };
-
-         template<>
-         struct key_action< rules::star >
-         {
-            static void apply0( std::vector< part >& st )
-            {
-               st.emplace_back( part::star );
-            }
-         };
-
-         template<>
-         struct key_action< rules::minus >
-         {
-            static void apply0( std::vector< part >& st )
-            {
-               st.emplace_back( part::minus );
-            }
-         };
-
-      }  // namespace internal
-
-      struct key
-         : public std::vector< part >
+      template<>
+      struct key_action< rules::identifier >
       {
-         key() noexcept = default;
-
-         key( key&& ) noexcept = default;
-         key& operator=( key&& ) noexcept = default;
-
-         key( const key& ) = default;
-         key& operator=( const key& ) = default;
-
-         ~key() = default;
-
-         explicit key( const std::string& s )
+         template< typename Input >
+         static void apply( const Input& in, std::vector< part >& st )
          {
-            parse( s );
-         }
-
-         key( const std::initializer_list< part >& l )
-            : std::vector< part >( l )
-         {
-         }
-
-         key( const std::vector< part >::const_iterator& begin, const std::vector< part >::const_iterator& end )
-            : std::vector< part >( begin, end )
-         {
-         }
-
-         key& operator=( const std::string& s )
-         {
-            clear();
-            parse( s );
-            return *this;
-         }
-
-         key& operator=( const std::initializer_list< part >& l )
-         {
-            vector() = l;
-            return *this;
-         }
-
-         void pop_front()
-         {
-            assert( !empty() );
-            pop_front();
-         }
-
-         void pop_back()
-         {
-            assert( !empty() );
-            pop_back();
-         }
-
-         std::vector< part >& vector() noexcept
-         {
-            return static_cast< std::vector< part >& >( *this );
-         }
-
-         const std::vector< part >& vector() const noexcept
-         {
-            return static_cast< const std::vector< part >& >( *this );
-         }
-
-         void parse( const std::string& s )
-         {
-            using grammar = pegtl::must< internal::rules::pointer, pegtl::eof >;  // TODO: Relax restriction on first part here?
-            pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl::eol::lf_crlf, const char* > in( s, __FUNCTION__ );
-            pegtl::parse< grammar, internal::key_action >( in, vector() );
+            st.emplace_back( in.string() );
          }
       };
 
-      inline key pop_front( const key& p )
+      template<>
+      struct key_action< rules::index >
       {
-         assert( !p.empty() );
-         return key( p.begin() + 1, p.end() );
+         template< typename Input >
+         static void apply( const Input& in, std::vector< part >& st )
+         {
+            st.emplace_back( std::stoul( in.string() ) );
+         }
+      };
+
+      template<>
+      struct key_action< rules::star >
+      {
+         static void apply0( std::vector< part >& st )
+         {
+            st.emplace_back( part::star );
+         }
+      };
+
+      template<>
+      struct key_action< rules::minus >
+      {
+         static void apply0( std::vector< part >& st )
+         {
+            st.emplace_back( part::minus );
+         }
+      };
+
+   }  // namespace internal
+
+   struct key
+      : public std::vector< part >
+   {
+      key() noexcept = default;
+
+      key( key&& ) noexcept = default;
+      key& operator=( key&& ) noexcept = default;
+
+      key( const key& ) = default;
+      key& operator=( const key& ) = default;
+
+      ~key() = default;
+
+      explicit key( const std::string& s )
+      {
+         parse( s );
       }
 
-      inline key pop_back( const key& p )
+      key( const std::initializer_list< part >& l )
+         : std::vector< part >( l )
       {
-         assert( !p.empty() );
-         return key( p.begin(), p.end() - 1 );
       }
 
-      inline key& operator+=( key& l, const part& p )
+      key( const std::vector< part >::const_iterator& begin, const std::vector< part >::const_iterator& end )
+         : std::vector< part >( begin, end )
       {
-         l.emplace_back( p );
-         return l;
       }
 
-      inline key& operator+=( key& l, const part::kind k )
+      key& operator=( const std::string& s )
       {
-         l.emplace_back( k );
-         return l;
+         clear();
+         parse( s );
+         return *this;
       }
 
-      inline key& operator+=( key& l, const std::size_t i )
+      key& operator=( const std::initializer_list< part >& l )
       {
-         l.emplace_back( i );
-         return l;
+         vector() = l;
+         return *this;
       }
 
-      inline key& operator+=( key& l, const std::string& n )
+      void pop_front()
       {
-         l.emplace_back( n );
-         return l;
+         assert( !empty() );
+         pop_front();
       }
 
-      inline key operator+( const key& l, const part& p )
+      void pop_back()
       {
-         key r = l;
-         r += p;
-         return r;
+         assert( !empty() );
+         pop_back();
       }
 
-      inline key operator+( const key& l, const part::kind k )
+      std::vector< part >& vector() noexcept
       {
-         key r = l;
-         r += k;
-         return r;
+         return static_cast< std::vector< part >& >( *this );
       }
 
-      inline key operator+( const key& l, const std::size_t i )
+      const std::vector< part >& vector() const noexcept
       {
-         key r = l;
-         r += i;
-         return r;
+         return static_cast< const std::vector< part >& >( *this );
       }
 
-      inline key operator+( const key& l, const std::string& n )
+      void parse( const std::string& s )
       {
-         key r = l;
-         r += n;
-         return r;
+         using grammar = pegtl::must< internal::rules::pointer, pegtl::eof >;  // TODO: Relax restriction on first part here?
+         pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl::eol::lf_crlf, const char* > in( s, __FUNCTION__ );
+         pegtl::parse< grammar, internal::key_action >( in, vector() );
       }
+   };
 
-      inline void to_stream( std::ostream& o, const key& p )
-      {
-         if( !p.empty() ) {
-            to_stream( o, p[ 0 ] );
+   inline key pop_front( const key& p )
+   {
+      assert( !p.empty() );
+      return key( p.begin() + 1, p.end() );
+   }
 
-            for( std::size_t i = 1; i < p.size(); ++i ) {
-               o << '.';
-               to_stream( o, p[ i ] );
-            }
+   inline key pop_back( const key& p )
+   {
+      assert( !p.empty() );
+      return key( p.begin(), p.end() - 1 );
+   }
+
+   inline key& operator+=( key& l, const part& p )
+   {
+      l.emplace_back( p );
+      return l;
+   }
+
+   inline key& operator+=( key& l, const part::kind k )
+   {
+      l.emplace_back( k );
+      return l;
+   }
+
+   inline key& operator+=( key& l, const std::size_t i )
+   {
+      l.emplace_back( i );
+      return l;
+   }
+
+   inline key& operator+=( key& l, const std::string& n )
+   {
+      l.emplace_back( n );
+      return l;
+   }
+
+   inline key operator+( const key& l, const part& p )
+   {
+      key r = l;
+      r += p;
+      return r;
+   }
+
+   inline key operator+( const key& l, const part::kind k )
+   {
+      key r = l;
+      r += k;
+      return r;
+   }
+
+   inline key operator+( const key& l, const std::size_t i )
+   {
+      key r = l;
+      r += i;
+      return r;
+   }
+
+   inline key operator+( const key& l, const std::string& n )
+   {
+      key r = l;
+      r += n;
+      return r;
+   }
+
+   inline void to_stream( std::ostream& o, const key& p )
+   {
+      if( !p.empty() ) {
+         to_stream( o, p[ 0 ] );
+
+         for( std::size_t i = 1; i < p.size(); ++i ) {
+            o << '.';
+            to_stream( o, p[ i ] );
          }
       }
+   }
 
-      inline std::string to_string( const key& p )
-      {
-         std::ostringstream o;
-         to_stream( o, p );
-         return o.str();
-      }
+   inline std::string to_string( const key& p )
+   {
+      std::ostringstream o;
+      to_stream( o, p );
+      return o.str();
+   }
 
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config
 
 #endif

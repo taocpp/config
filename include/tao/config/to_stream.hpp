@@ -8,24 +8,20 @@
 
 #include "internal/events.hpp"
 
-namespace tao
+namespace tao::config
 {
-   namespace config
+   inline void to_stream( std::ostream& os, const value& v )
    {
-      inline void to_stream( std::ostream& os, const value& v )
-      {
-         json::jaxn::events::to_stream consumer( os );
-         internal::events_from_value( consumer, v );
-      }
+      json::jaxn::events::to_stream consumer( os );
+      internal::events_from_value( consumer, v );
+   }
 
-      inline void to_stream( std::ostream& os, const value& v, const std::size_t indent )
-      {
-         json::jaxn::events::to_pretty_stream consumer( os, indent );
-         internal::events_from_value( consumer, v );
-      }
+   inline void to_stream( std::ostream& os, const value& v, const std::size_t indent )
+   {
+      json::jaxn::events::to_pretty_stream consumer( os, indent );
+      internal::events_from_value( consumer, v );
+   }
 
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config
 
 #endif

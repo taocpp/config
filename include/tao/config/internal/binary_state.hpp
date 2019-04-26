@@ -11,45 +11,37 @@
 #include "pegtl.hpp"
 #include "state.hpp"
 
-namespace tao
+namespace tao::config::internal
 {
-   namespace config
+   struct binary_state
    {
-      namespace internal
+      template< typename Input >
+      explicit binary_state( const Input& in, state& )
+         : m_position( in.position() )
       {
-         struct binary_state
-         {
-            template< typename Input >
-            explicit binary_state( const Input& in, state& )
-               : m_position( in.position() )
-            {
-            }
+      }
 
-            binary_state( const binary_state& ) = delete;
-            binary_state( binary_state&& ) = delete;
+      binary_state( const binary_state& ) = delete;
+      binary_state( binary_state&& ) = delete;
 
-            ~binary_state() = default;
+      ~binary_state() = default;
 
-            void operator=( const binary_state& ) = delete;
-            void operator=( binary_state&& ) = delete;
+      void operator=( const binary_state& ) = delete;
+      void operator=( binary_state&& ) = delete;
 
-            template< typename Input >
-            void success( const Input&, state& st )
-            {
-               assert( !st.lstack.empty() );
+      template< typename Input >
+      void success( const Input&, state& st )
+      {
+         assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back_atom( m_position, std::move( value ) );
-            }
+         st.lstack.back()->emplace_back_atom( m_position, std::move( value ) );
+      }
 
-            std::vector< std::byte > value;
+      std::vector< std::byte > value;
 
-            const position m_position;
-         };
+      const position m_position;
+   };
 
-      }  // namespace internal
-
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config::internal
 
 #endif

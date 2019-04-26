@@ -10,149 +10,141 @@
 #include "format.hpp"
 #include "value_extensions.hpp"
 
-namespace tao
+namespace tao::config::internal
 {
-   namespace config
+   template< typename Input >
+   inline void erase_extension( Input& in, state& st )
    {
-      namespace internal
-      {
-         template< typename Input >
-         inline void erase_extension( Input& in, state& st )
-         {
-            assert( !st.ostack.empty() );
+      assert( !st.ostack.empty() );
 
-            const auto pos = in.position();
-            const auto k = obtain_key( in, st );
+      const auto pos = in.position();
+      const auto k = obtain_key( in, st );
 
-            if( erase( pos, *st.ostack.back(), k ) == 0 ) {
-               throw std::runtime_error( format( "nothing to delete", { &pos, &k } ) );
-            }
+      if( erase( pos, *st.ostack.back(), k ) == 0 ) {
+         throw std::runtime_error( format( "nothing to delete", { &pos, &k } ) );
+      }
+   }
+
+   template< typename Input >
+   inline void erase_if_extension( Input& in, state& st )
+   {
+      assert( !st.ostack.empty() );
+
+      const auto pos = in.position();
+      const auto p = obtain_key( in, st );
+
+      erase( pos, *st.ostack.back(), p );
+   }
+
+   template< typename Input >
+   inline void include_extension( Input& in, state& st )
+   {
+      const auto pos = in.position();
+
+      do_inner_extension( in, st );
+
+      if( !st.temporary.is_string_type() ) {
+         throw std::runtime_error( format( "include requires string", { &pos, st.temporary.type() } ) );
+      }
+      const auto f = st.temporary.as< std::string >();
+
+      try {
+         pegtl::file_input i2( f );
+         pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
+         st.temporary.discard();
+      }
+      catch( const std::system_error& e ) {
+         throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ) );
+      }
+      catch( const pegtl::parse_error& e ) {
+         throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() } } ) );  // TODO: Or rely on parse_nested()'s parse_error?
+      }
+   }
+
+   template< typename Input >
+   inline void include_if_extension( Input& in, state& st )
+   {
+      const auto pos = in.position();
+
+      do_inner_extension( in, st );
+
+      if( st.temporary.is_null() ) {
+         return;
+      }
+      if( !st.temporary.is_string_type() ) {
+         throw std::runtime_error( format( "include requires string", { &pos, st.temporary.type() } ) );
+      }
+      const auto f = st.temporary.as< std::string >();
+
+      try {
+         pegtl::file_input i2( f );
+         pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
+         st.temporary.discard();
+      }
+      catch( const std::system_error& e ) {
+         if( e.code().value() != ENOENT ) {
+            throw std::runtime_error( format( "include? failed", { &pos, { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ) );
          }
+      }
+      catch( const pegtl::parse_error& e ) {
+         throw std::runtime_error( format( "include? failed", { &pos, { "filename", f }, { "error", e.what() } } ) );  // TODO: Or rely on parse_nested()'s parse_error?
+      }
+   }
 
-         template< typename Input >
-         inline void erase_if_extension( Input& in, state& st )
-         {
-            assert( !st.ostack.empty() );
+   template< typename Input >
+   inline void stderr_extension( Input& in, state& st )
+   {
+      assert( !st.ostack.empty() );
 
-            const auto pos = in.position();
-            const auto p = obtain_key( in, st );
+      const auto pos = in.position();
+      const auto p = obtain_key( in, st );
 
-            erase( pos, *st.ostack.back(), p );
-         }
+      to_stream( std::cerr, access( pos, *st.ostack.back(), p ), 3 );
+      std::cerr << std::endl;
+   }
 
-         template< typename Input >
-         inline void include_extension( Input& in, state& st )
-         {
-            const auto pos = in.position();
+   template< typename Input >
+   inline void temporary_extension( Input& in, state& st )
+   {
+      assert( !st.ostack.empty() );
 
-            do_inner_extension( in, st );
+      const auto pos = in.position();
+      const auto p = obtain_key( in, st );
 
-            if( !st.temporary.is_string_type() ) {
-               throw std::runtime_error( format( "include requires string", { &pos, st.temporary.type() } ) );
-            }
-            const auto f = st.temporary.as< std::string >();
+      assign( pos, *st.ostack.back(), p ).set_temporary();
+   }
 
-            try {
-               pegtl::file_input i2( f );
-               pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
-               st.temporary.discard();
-            }
-            catch( const std::system_error& e ) {
-               throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ) );
-            }
-            catch( const pegtl::parse_error& e ) {
-               throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() } } ) );  // TODO: Or rely on parse_nested()'s parse_error?
-            }
-         }
+   template< typename Input >
+   inline const auto& member_extension_map()
+   {
+      static const extension_map_t< Input > map = {
+         { "delete", erase_extension< Input > },
+         { "delete?", erase_if_extension< Input > },
+         { "include", include_extension< Input > },
+         { "include?", include_if_extension< Input > },
+         { "stderr", stderr_extension< Input > },
+         { "temporary", temporary_extension< Input > }
+      };
+      return map;
+   }
 
-         template< typename Input >
-         inline void include_if_extension( Input& in, state& st )
-         {
-            const auto pos = in.position();
+   template< typename Input >
+   inline bool do_member_extension( Input& in, state& st )
+   {
+      const auto pos = in.position();
+      pegtl::parse< rules::outer, action, control >( in, st );
 
-            do_inner_extension( in, st );
+      const auto ext = std::move( st.extension );
+      const auto& map = member_extension_map< Input >();
+      const auto i = map.find( ext );
 
-            if( st.temporary.is_null() ) {
-               return;
-            }
-            if( !st.temporary.is_string_type() ) {
-               throw std::runtime_error( format( "include requires string", { &pos, st.temporary.type() } ) );
-            }
-            const auto f = st.temporary.as< std::string >();
+      if( i != map.end() ) {
+         i->second( in, st );
+         return true;
+      }
+      throw std::runtime_error( format( "unknown member extension", { &pos, { "name", ext } } ) );
+   }
 
-            try {
-               pegtl::file_input i2( f );
-               pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
-               st.temporary.discard();
-            }
-            catch( const std::system_error& e ) {
-               if( e.code().value() != ENOENT ) {
-                  throw std::runtime_error( format( "include? failed", { &pos, { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ) );
-               }
-            }
-            catch( const pegtl::parse_error& e ) {
-               throw std::runtime_error( format( "include? failed", { &pos, { "filename", f }, { "error", e.what() } } ) );  // TODO: Or rely on parse_nested()'s parse_error?
-            }
-         }
-
-         template< typename Input >
-         inline void stderr_extension( Input& in, state& st )
-         {
-            assert( !st.ostack.empty() );
-
-            const auto pos = in.position();
-            const auto p = obtain_key( in, st );
-
-            to_stream( std::cerr, access( pos, *st.ostack.back(), p ), 3 );
-            std::cerr << std::endl;
-         }
-
-         template< typename Input >
-         inline void temporary_extension( Input& in, state& st )
-         {
-            assert( !st.ostack.empty() );
-
-            const auto pos = in.position();
-            const auto p = obtain_key( in, st );
-
-            assign( pos, *st.ostack.back(), p ).set_temporary();
-         }
-
-         template< typename Input >
-         inline const auto& member_extension_map()
-         {
-            static const extension_map_t< Input > map = {
-               { "delete", erase_extension< Input > },
-               { "delete?", erase_if_extension< Input > },
-               { "include", include_extension< Input > },
-               { "include?", include_if_extension< Input > },
-               { "stderr", stderr_extension< Input > },
-               { "temporary", temporary_extension< Input > }
-            };
-            return map;
-         }
-
-         template< typename Input >
-         inline bool do_member_extension( Input& in, state& st )
-         {
-            const auto pos = in.position();
-            pegtl::parse< rules::outer, action, control >( in, st );
-
-            const auto ext = std::move( st.extension );
-            const auto& map = member_extension_map< Input >();
-            const auto i = map.find( ext );
-
-            if( i != map.end() ) {
-               i->second( in, st );
-               return true;
-            }
-            throw std::runtime_error( format( "unknown member extension", { &pos, { "name", ext } } ) );
-         }
-
-      }  // namespace internal
-
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config::internal
 
 #endif

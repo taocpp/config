@@ -18,25 +18,21 @@
 #include "internal/member_extensions.hpp"
 #include "internal/value_extensions.hpp"
 
-namespace tao
+namespace tao::config
 {
-   namespace config
+   template< template< typename... > class Traits >
+   json::basic_value< Traits > basic_parse_file( const std::string& filename )
    {
-      template< template< typename... > class Traits >
-      json::basic_value< Traits > basic_parse_file( const std::string& filename )
-      {
-         internal::state st;
-         pegtl::file_input in( filename );
-         pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );
-         return internal::phase2< Traits >( st );
-      }
+      internal::state st;
+      pegtl::file_input in( filename );
+      pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );
+      return internal::phase2< Traits >( st );
+   }
 
-      inline value parse_file( const std::string& filename )
-      {
-         return basic_parse_file< traits >( filename );
-      }
-
-   }  // namespace config
+   inline value parse_file( const std::string& filename )
+   {
+      return basic_parse_file< traits >( filename );
+   }
 
 }  // namespace tao
 

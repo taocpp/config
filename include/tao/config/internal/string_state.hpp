@@ -11,45 +11,37 @@
 #include "pegtl.hpp"
 #include "state.hpp"
 
-namespace tao
+namespace tao::config::internal
 {
-   namespace config
+   struct string_state
    {
-      namespace internal
+      template< typename Input >
+      explicit string_state( const Input& in, state& )
+         : m_position( in.position() )
       {
-         struct string_state
-         {
-            template< typename Input >
-            explicit string_state( const Input& in, state& )
-               : m_position( in.position() )
-            {
-            }
+      }
 
-            string_state( const string_state& ) = delete;
-            string_state( string_state&& ) = delete;
+      string_state( const string_state& ) = delete;
+      string_state( string_state&& ) = delete;
 
-            ~string_state() = default;
+      ~string_state() = default;
 
-            void operator=( const string_state& ) = delete;
-            void operator=( string_state&& ) = delete;
+      void operator=( const string_state& ) = delete;
+      void operator=( string_state&& ) = delete;
 
-            template< typename Input >
-            void success( const Input&, state& st )
-            {
-               assert( !st.lstack.empty() );
+      template< typename Input >
+      void success( const Input&, state& st )
+      {
+         assert( !st.lstack.empty() );
 
-               st.lstack.back()->emplace_back_atom( m_position, std::move( unescaped ) );
-            }
+         st.lstack.back()->emplace_back_atom( m_position, std::move( unescaped ) );
+      }
 
-            std::string unescaped;
+      std::string unescaped;
 
-            const position m_position;
-         };
+      const position m_position;
+   };
 
-      }  // namespace internal
-
-   }  // namespace config
-
-}  // namespace tao
+}  // namespace tao::config::internal
 
 #endif
