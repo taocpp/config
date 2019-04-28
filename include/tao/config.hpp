@@ -14,6 +14,4 @@
 #include "config/parse_input.hpp"
 #include "config/to_stream.hpp"
 
-#include "config/schema.hpp"
-
 #endif

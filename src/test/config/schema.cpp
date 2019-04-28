@@ -2,6 +2,7 @@
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #include <tao/config.hpp>
+#include <tao/config/schema.hpp>
 
 int main()
 {

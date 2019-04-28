@@ -198,6 +198,7 @@ namespace tao::config
             {
                if( m_node ) {
                   m_node->resolve( m );
+                  m_ptr = m_node.get();
                }
                else {
                   const auto k = m_value.as< std::string >();
@@ -646,7 +647,7 @@ namespace tao::config
                add< max_items >( internal::find( v, "max_items" ) );
                add< array_ref >( internal::find( v, "items" ), m, path );
                if( const auto& n = internal::find( v, "unique_items" ) ) {
-                  if( n.as< bool >() == true ) {
+                  if( n.as< bool >() ) {
                      m_properties.emplace_back( std::make_unique< unique_items >() );
                   }
                }
@@ -694,15 +695,12 @@ namespace tao::config
                else {
                   m_node = std::make_unique< failure_node >();
                }
-               m_ptr = m_node.get();
             }
             else if( v.is_array() ) {
                m_node = std::make_unique< list< any_of, ref > >( v, m, path );
-               m_ptr = m_node.get();
             }
             else if( v.is_object() ) {
                m_node = std::make_unique< node >( v, m, path );
-               m_ptr = m_node.get();
             }
          }
 
