@@ -1,0 +1,7 @@
+//-*- mode: JavaScript -*-
+
+{
+    b: 42,
+    c: 1,
+    d: null
+}
