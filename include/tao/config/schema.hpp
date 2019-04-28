@@ -768,11 +768,15 @@ namespace tao::config
                     min_properties: "unsigned"
                     max_properties: "unsigned"
                     property_names: "ref"
-                    properties: { property_names: "identifier", additional_properties: "ref" }
+                    properties.additional_properties: "ref"
                     additional_properties: "ref"
                     required.items: "string"
 
-                    definitions.additional_properties: "schema"
+                    definitions
+                    {
+                        property_names: "identifier"
+                        additional_properties: "schema"
+                    }
                 }
                 additional_properties: false
             }
