@@ -289,6 +289,24 @@ namespace tao::config
             }
          };
 
+         struct is_regex : node_base
+         {
+            bool validate( const value& v ) const override
+            {
+               if( !v.is_string_type() ) {
+                  return false;
+               }
+               const std::string_view sv = v.as< std::string_view >();
+               try {
+                  std::regex( sv.begin(), sv.end() );
+               }
+               catch( const std::regex_error& ) {
+                  return false;
+               }
+               return true;
+            }
+         };
+
          template< typename T >
          struct compare : node_base
          {
@@ -705,6 +723,7 @@ namespace tao::config
             m_nodes.emplace( "object", std::make_unique< internal::is_object_node >() );
 
             m_nodes.emplace( "integer", std::make_unique< internal::is_integer_node >() );
+            m_nodes.emplace( "regex", std::make_unique< internal::is_regex >() );
 
             m_nodes.emplace( "", std::make_unique< internal::node >( v, m_nodes ) );
 
@@ -732,7 +751,7 @@ namespace tao::config
             key.pattern: "^[a-zA-Z_][a-zA-Z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*$"
 
             ref.any_of: [ "boolean", "key", "ref_list", "schema" ]
-            ref_list: { items: "ref", unique_items: true }
+            ref_list.items: "ref"
 
             schema
             {
@@ -742,6 +761,7 @@ namespace tao::config
 
                     type: "ref"
                     not: "ref"
+
                     all_of: "ref_list"
                     any_of: "ref_list"
                     one_of: "ref_list"
@@ -756,7 +776,7 @@ namespace tao::config
                     length: "unsigned"
                     min_length: "unsigned"
                     max_length: "unsigned"
-                    pattern: "string"
+                    pattern: "regex"
 
                     minimum: "number"
                     maximum: "number"
