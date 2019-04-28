@@ -24,8 +24,11 @@ namespace tao::config
          index = 3
       };
 
-      struct star_t {};
-      struct minus_t {};
+      struct star_t
+      {};
+
+      struct minus_t
+      {};
 
       explicit part( const star_t t )
          : m_data( t )

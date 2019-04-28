@@ -37,6 +37,6 @@ namespace tao::config
       return basic_parse_files< traits >( filenames );
    }
 
-}  // namespace tao
+}  // namespace tao::config
 
 #endif

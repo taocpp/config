@@ -11,6 +11,7 @@
 
 #include "config/parse_file.hpp"
 #include "config/parse_files.hpp"
+#include "config/parse_input.hpp"
 #include "config/to_stream.hpp"
 
 #endif
