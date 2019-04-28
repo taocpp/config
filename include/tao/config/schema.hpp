@@ -43,79 +43,25 @@ namespace tao::config
             virtual bool validate( const value& v ) const = 0;
          };
 
-         struct failure_node : node_base
+         template< bool B >
+         struct trivial : node_base
          {
             bool validate( const value& /*unused*/ ) const override
             {
-               return false;
+               return B;
             }
          };
 
-         struct success_node : node_base
-         {
-            bool validate( const value& /*unused*/ ) const override
-            {
-               return true;
-            }
-         };
-
-         struct is_null_node : node_base
+         template< json::type... Ts >
+         struct type : node_base
          {
             bool validate( const value& v ) const override
             {
-               return v.is_null();
+               return ( ( v.type() == Ts ) || ... );
             }
          };
 
-         struct is_boolean_node : node_base
-         {
-            bool validate( const value& v ) const override
-            {
-               return v.is_boolean();
-            }
-         };
-
-         struct is_number_node : node_base
-         {
-            bool validate( const value& v ) const override
-            {
-               return v.is_number();
-            }
-         };
-
-         struct is_string_node : node_base
-         {
-            bool validate( const value& v ) const override
-            {
-               return v.is_string_type();
-            }
-         };
-
-         struct is_binary_node : node_base
-         {
-            bool validate( const value& v ) const override
-            {
-               return v.is_binary_type();
-            }
-         };
-
-         struct is_array_node : node_base
-         {
-            bool validate( const value& v ) const override
-            {
-               return v.is_array();
-            }
-         };
-
-         struct is_object_node : node_base
-         {
-            bool validate( const value& v ) const override
-            {
-               return v.is_object();
-            }
-         };
-
-         struct is_integer_node : node_base
+         struct integer : node_base
          {
             bool validate( const value& v ) const override
             {
@@ -132,8 +78,7 @@ namespace tao::config
             }
          };
 
-         template< bool B >
-         struct combine : node_base
+         struct container : node_base
          {
             std::vector< std::unique_ptr< node_base > > m_properties;
 
@@ -143,7 +88,11 @@ namespace tao::config
                   p->resolve( m );
                }
             }
+         };
 
+         template< bool B >
+         struct combine : container
+         {
             bool validate( const value& v ) const override
             {
                const auto& vs = v.skip_value_ptr();
@@ -159,17 +108,8 @@ namespace tao::config
          using any_of = combine< true >;
          using all_of = combine< false >;
 
-         struct one_of : node_base
+         struct one_of : container
          {
-            std::vector< std::unique_ptr< node_base > > m_properties;
-
-            void resolve( const node_map& m ) override
-            {
-               for( const auto& p : m_properties ) {
-                  p->resolve( m );
-               }
-            }
-
             bool validate( const value& v ) const override
             {
                const auto& vs = v.skip_value_ptr();
@@ -290,7 +230,7 @@ namespace tao::config
             }
          };
 
-         struct is_regex : node_base
+         struct regex : node_base
          {
             bool validate( const value& v ) const override
             {
@@ -690,10 +630,10 @@ namespace tao::config
          {
             if( v.is_boolean() ) {
                if( v.as< bool >() ) {
-                  m_node = std::make_unique< success_node >();
+                  m_node = std::make_unique< trivial< true > >();
                }
                else {
-                  m_node = std::make_unique< failure_node >();
+                  m_node = std::make_unique< trivial< false > >();
                }
             }
             else if( v.is_array() ) {
@@ -712,16 +652,16 @@ namespace tao::config
 
          explicit validator( const value& v )
          {
-            m_nodes.emplace( "null", std::make_unique< internal::is_null_node >() );
-            m_nodes.emplace( "boolean", std::make_unique< internal::is_boolean_node >() );
-            m_nodes.emplace( "number", std::make_unique< internal::is_number_node >() );
-            m_nodes.emplace( "string", std::make_unique< internal::is_string_node >() );
-            m_nodes.emplace( "binary", std::make_unique< internal::is_binary_node >() );
-            m_nodes.emplace( "array", std::make_unique< internal::is_array_node >() );
-            m_nodes.emplace( "object", std::make_unique< internal::is_object_node >() );
+            m_nodes.emplace( "null", std::make_unique< internal::type< json::type::NULL_ > >() );
+            m_nodes.emplace( "boolean", std::make_unique< internal::type< json::type::BOOLEAN > >() );
+            m_nodes.emplace( "number", std::make_unique< internal::type< json::type::SIGNED, json::type::UNSIGNED, json::type::DOUBLE > >() );
+            m_nodes.emplace( "string", std::make_unique< internal::type< json::type::STRING, json::type::STRING_VIEW > >() );
+            m_nodes.emplace( "binary", std::make_unique< internal::type< json::type::BINARY, json::type::BINARY_VIEW > >() );
+            m_nodes.emplace( "array", std::make_unique< internal::type< json::type::ARRAY > >() );
+            m_nodes.emplace( "object", std::make_unique< internal::type< json::type::OBJECT > >() );
 
-            m_nodes.emplace( "integer", std::make_unique< internal::is_integer_node >() );
-            m_nodes.emplace( "regex", std::make_unique< internal::is_regex >() );
+            m_nodes.emplace( "integer", std::make_unique< internal::integer >() );
+            m_nodes.emplace( "regex", std::make_unique< internal::regex >() );
 
             m_nodes.emplace( "", std::make_unique< internal::node >( v, m_nodes ) );
 
