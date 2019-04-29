@@ -2,43 +2,43 @@
 
 definitions
 {
-    foo
+    foo.properties
     {
-        required_properties
+        required
         {
             a.const: "FOO"
             b: "number"
         }
-        additional_properties: false
+        additional: false
     }
 
-    bar
+    bar.properties
     {
-        required_properties
+        required
         {
             a.const: "BAR"
             c: "string"
         }
     }
 
-    baz
+    baz.properties
     {
-        required_properties
+        required
         {
             b.const: 42
             c: "integer"
         }
-        optional_properties
+        optional
         {
             d: "null"
         }
-        additional_properties: false
+        additional: false
     }
 }
 
 any_of
 [
-    { if.required_properties.a.const: "FOO" then: "foo" }
-    { if.required_properties.a.const: "BAR" then: "bar" }
-    { if.required_properties.b.const: 42 then: "baz" }
+    { if.properties.required.a.const: "FOO" then: "foo" }
+    { if.properties.required.a.const: "BAR" then: "bar" }
+    { if.properties.required.b.const: 42 then: "baz" }
 ]

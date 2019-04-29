@@ -598,14 +598,14 @@ namespace tao::config
 
             using node_base::node_base;
 
-            void add_required_properties( const value& v, node_map& m, const std::string& path )
+            void add_required( const value& v, node_map& m, const std::string& path )
             {
                for( const auto& e : v.get_object() ) {
                   m_required.emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
                }
             }
 
-            void add_properties( const value& v, node_map& m, const std::string& path )
+            void add_optional( const value& v, node_map& m, const std::string& path )
             {
                for( const auto& e : v.get_object() ) {
                   m_optional.emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
@@ -759,9 +759,6 @@ namespace tao::config
                   }
                   m_properties.emplace_back( std::move( p ) );
                }
-               else {
-                  // TODO: detect then/else without if (use the schema schema, not the code!)
-               }
 
                // value (generic)
                add< constant >( internal::find( v, "const" ) );
@@ -799,23 +796,18 @@ namespace tao::config
                add< min_properties >( internal::find( v, "min_properties" ) );
                add< max_properties >( internal::find( v, "max_properties" ) );
                add< property_names >( internal::find( v, "property_names" ), m, path );
-               {
-                  const auto& r = internal::find( v, "required_properties" );
-                  const auto& p = internal::find( v, "optional_properties" );
-                  const auto& a = internal::find( v, "additional_properties" );
-                  if( r || p || a ) {
-                     auto n = std::make_unique< properties >( v );
-                     if( r ) {
-                        n->add_required_properties( r, m, path );
-                     }
-                     if( p ) {
-                        n->add_properties( p, m, path );
-                     }
-                     if( a ) {
-                        n->m_default = std::make_unique< ref >( a, m, path );
-                     }
-                     m_properties.emplace_back( std::move( n ) );
+               if( const auto& p = internal::find( v, "properties" ) ) {
+                  auto n = std::make_unique< properties >( v );
+                  if( const auto& r = internal::find( p, "required" ) ) {
+                     n->add_required( r, m, path );
                   }
+                  if( const auto& o = internal::find( p, "optional" ) ) {
+                     n->add_optional( o, m, path );
+                  }
+                  if( const auto& a = internal::find( p, "additional" ) ) {
+                     n->m_default = std::make_unique< ref >( a, m, path );
+                  }
+                  m_properties.emplace_back( std::move( n ) );
                }
 
                // definitions
@@ -910,9 +902,9 @@ namespace tao::config
             ref.any_of: [ "boolean", "key", "ref_list", "schema" ]
             ref_list.items: "ref"
 
-            schema
+            schema.properties
             {
-                optional_properties
+                optional
                 {
                     description: "string"
 
@@ -949,17 +941,20 @@ namespace tao::config
                     min_properties: "unsigned"
                     max_properties: "unsigned"
                     property_names: "ref"
-                    required_properties.additional_properties: "ref"
-                    optional_properties.additional_properties: "ref"
-                    additional_properties: "ref"
+                    properties.properties.optional
+                    {
+                        required.properties.additional: "ref"
+                        optional.properties.additional: "ref"
+                        additional: "ref"
+                    }
 
                     definitions
                     {
                         property_names: "identifier"
-                        additional_properties: "schema"
+                        properties.additional: "schema"
                     }
                 }
-                additional_properties: false
+                additional: false
             }
         }
 
