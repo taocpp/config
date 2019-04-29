@@ -19,14 +19,16 @@ definitions
             a.const: "BAR"
             c: "string"
         }
+        additional: false
     }
 
     baz.properties
     {
         required
         {
-            b.const: 42
+            a.const: "BAZ"
             c: "integer"
+            e: "integer"
         }
         optional
         {
@@ -36,9 +38,10 @@ definitions
     }
 }
 
-any_of
+properties.required.a.enum: [ "FOO", "BAR", "BAZ" ]
+all_of
 [
     { if.properties.required.a.const: "FOO" then: "foo" }
     { if.properties.required.a.const: "BAR" then: "bar" }
-    { if.properties.required.b.const: 42 then: "baz" }
+    { if.properties.required.a.const: "BAZ" then: "baz" }
 ]

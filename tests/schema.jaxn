@@ -1,7 +1,7 @@
 //-*- mode: JavaScript -*-
 
 {
-    b: 42,
+    a: "BAZ",
     c: 1,
-    d: "null"
+    d: null
 }

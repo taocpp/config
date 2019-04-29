@@ -691,8 +691,7 @@ namespace tao::config
 
             json::value validate( const value& v ) const override
             {
-               auto condition_error = ref::validate( v );
-               if( !condition_error ) {
+               if( !ref::validate( v ) ) {
                   if( m_then ) {
                      return m_then->validate( v );
                   }
@@ -702,7 +701,7 @@ namespace tao::config
                      return m_else->validate( v );
                   }
                }
-               return condition_error;
+               return ok();
             }
          };
 
@@ -902,59 +901,62 @@ namespace tao::config
             ref.any_of: [ "boolean", "key", "ref_list", "schema" ]
             ref_list.items: "ref"
 
-            schema.properties
+            schema
             {
-                optional
+                properties
                 {
-                    description: "string"
-
-                    type: "ref"
-                    not: "ref"
-
-                    all_of: "ref_list"
-                    any_of: "ref_list"
-                    one_of: "ref_list"
-
-                    if: "ref"
-                    then: "ref"
-                    else: "ref"
-
-                    const: true
-                    enum.unique_items: true
-
-                    length: "unsigned"
-                    min_length: "unsigned"
-                    max_length: "unsigned"
-                    pattern: "regex"
-
-                    minimum: "number"
-                    maximum: "number"
-                    exclusive_minimum: "number"
-                    exclusive_maximum: "number"
-                    multiple_of.exclusive_minimum: 0
-
-                    min_items: "unsigned"
-                    max_items: "unsigned"
-                    items: "ref"
-                    unique_items: "boolean"
-
-                    min_properties: "unsigned"
-                    max_properties: "unsigned"
-                    property_names: "ref"
-                    properties.properties.optional
+                    optional
                     {
-                        required.properties.additional: "ref"
-                        optional.properties.additional: "ref"
-                        additional: "ref"
-                    }
+                        description: "string"
 
-                    definitions
-                    {
-                        property_names: "identifier"
-                        properties.additional: "schema"
+                        type: "ref"
+                        not: "ref"
+
+                        all_of: "ref_list"
+                        any_of: "ref_list"
+                        one_of: "ref_list"
+
+                        if: "ref"
+                        then: "ref"
+                        else: "ref"
+
+                        const: true
+                        enum.unique_items: true
+
+                        length: "unsigned"
+                        min_length: "unsigned"
+                        max_length: "unsigned"
+                        pattern: "regex"
+
+                        minimum: "number"
+                        maximum: "number"
+                        exclusive_minimum: "number"
+                        exclusive_maximum: "number"
+                        multiple_of.exclusive_minimum: 0
+
+                        min_items: "unsigned"
+                        max_items: "unsigned"
+                        items: "ref"
+                        unique_items: "boolean"
+
+                        min_properties: "unsigned"
+                        max_properties: "unsigned"
+                        property_names: "ref"
+                        properties.properties.optional
+                        {
+                            required.properties.additional: "ref"
+                            optional.properties.additional: "ref"
+                            additional: "ref"
+                        }
+
+                        definitions
+                        {
+                            property_names: "identifier"
+                            properties.additional: "schema"
+                        }
                     }
+                    additional: false
                 }
-                additional: false
             }
         }
 
