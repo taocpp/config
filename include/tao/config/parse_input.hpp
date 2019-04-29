@@ -25,7 +25,7 @@ namespace tao::config
    {
       internal::state st;
       pegtl::parse< internal::rules::grammar, internal::action, internal::control >( std::forward< Input >( in ), st );
-      return internal::phase2< Traits >( st );
+      return internal::phase2< Traits >( in.source(), st );
    }
 
    template< typename Input >

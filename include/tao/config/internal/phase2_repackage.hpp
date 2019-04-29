@@ -55,7 +55,7 @@ namespace tao::config::internal
    }
 
    template< template< typename... > class Traits >
-   json::basic_value< Traits > phase2_repackage( const json::basic_value< phase2_traits >& v )
+   json::basic_value< Traits > phase2_repackage( const std::string& source, const json::basic_value< phase2_traits >& v )
    {
       json::events::to_basic_value< Traits > consumer;
       json::events::from_value( consumer, v );
@@ -65,6 +65,7 @@ namespace tao::config::internal
       }
       if constexpr( has_set_position< json::basic_value< Traits > >::value ) {
          phase2_set_positions( consumer.value, v );
+         consumer.value.set_position( json::position( source, 0, 0 ) );
       }
       return std::move( consumer.value );
    }

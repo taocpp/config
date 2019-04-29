@@ -29,7 +29,7 @@ namespace tao::config
          pegtl::file_input in( filename );
          pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );
       }
-      return internal::phase2< Traits >( st );
+      return internal::phase2< Traits >( filenames.empty() ? std::string() : filenames[ 0 ], st );
    }
 
    inline value parse_files( const std::vector< std::string >& filenames )
