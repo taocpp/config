@@ -107,6 +107,7 @@ namespace tao::config::internal
 
       for( auto& i : reverse( l.private_entries() ) ) {
          if( !i.is_object() ) {
+            // TODO: Should references be silently ignored (continue)?
             throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
          }
          const auto j = i.get_object().find( k );
