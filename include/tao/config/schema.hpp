@@ -590,6 +590,38 @@ namespace tao::config
             }
          };
 
+         struct property : node_base
+         {
+            std::string m_key;
+            std::unique_ptr< ref > m_schema;
+
+            property( const value& v, node_map& m, const std::string& path )
+               : node_base( v )
+            {
+               const auto& e = *v.get_object().begin();
+               m_key = e.first;
+               m_schema = std::make_unique< ref >( e.second, m, path );
+            }
+
+            void resolve( const node_map& m ) override
+            {
+               m_schema->resolve( m );
+            }
+
+            json::value validate( const value& v ) const override
+            {
+               if( auto e = object( m_source ).validate( v ) ) {
+                  return e;
+               }
+               const auto& o = v.unsafe_get_object();
+               const auto it = o.find( m_key );
+               if( it == o.end() ) {
+                  return error( v, "missing key", { { "key", m_key } } );
+               }
+               return m_schema->validate( it->second );
+            }
+         };
+
          struct properties : node_base
          {
             std::map< std::string, std::unique_ptr< ref > > m_required;
@@ -760,7 +792,7 @@ namespace tao::config
                }
 
                // value (generic)
-               add< constant >( internal::find( v, "const" ) );
+               add< constant >( internal::find( v, "value" ) );
                add< list< any_of, constant > >( internal::find( v, "enum" ) );
 
                // string/binary
@@ -795,6 +827,7 @@ namespace tao::config
                add< min_properties >( internal::find( v, "min_properties" ) );
                add< max_properties >( internal::find( v, "max_properties" ) );
                add< property_names >( internal::find( v, "property_names" ), m, path );
+               add< property >( internal::find( v, "property" ), m, path );
                if( const auto& p = internal::find( v, "properties" ) ) {
                   auto n = std::make_unique< properties >( v );
                   if( const auto& r = internal::find( p, "required" ) ) {
@@ -920,7 +953,7 @@ namespace tao::config
                         then: "ref"
                         else: "ref"
 
-                        const: true
+                        value: true
                         enum.unique_items: true
 
                         length: "unsigned"
@@ -942,6 +975,12 @@ namespace tao::config
                         min_properties: "unsigned"
                         max_properties: "unsigned"
                         property_names: "ref"
+                        property
+                        {
+                            min_properties: 1
+                            max_properties: 1
+                            properties.additional: "ref"
+                        }
                         properties.properties.optional
                         {
                             required.properties.additional: "ref"

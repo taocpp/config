@@ -6,7 +6,7 @@ definitions
     {
         required
         {
-            a.const: "FOO"
+            a.value: "FOO"
             b: "number"
         }
         additional: false
@@ -16,7 +16,7 @@ definitions
     {
         required
         {
-            a.const: "BAR"
+            a.value: "BAR"
             c: "string"
         }
         additional: false
@@ -26,7 +26,7 @@ definitions
     {
         required
         {
-            a.const: "BAZ"
+            a.value: "BAZ"
             c: "integer"
             e: "integer"
         }
@@ -38,10 +38,10 @@ definitions
     }
 }
 
-properties.required.a.enum: [ "FOO", "BAR", "BAZ" ]
+property.a.enum: [ "FOO", "BAR", "BAZ" ]
 all_of
 [
-    { if.properties.required.a.const: "FOO" then: "foo" }
-    { if.properties.required.a.const: "BAR" then: "bar" }
-    { if.properties.required.a.const: "BAZ" then: "baz" }
+    { if.property.a.value: "FOO" then: "foo" }
+    { if.property.a.value: "BAR" then: "bar" }
+    { if.property.a.value: "BAZ" then: "baz" }
 ]
