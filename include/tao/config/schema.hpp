@@ -89,7 +89,7 @@ namespace tao::config
                data.unsafe_emplace( "message", message );
                data.unsafe_emplace( "schema", pos() );
                data.unsafe_emplace( "value", internal::pos( v ) );
-               return std::move( data );
+               return data;
             }
 
             virtual ~node_base() = default;
@@ -186,7 +186,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = number( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                if( v.is_double() ) {
                   const double d = v.as< double >();
@@ -413,7 +413,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = string( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                const std::string_view sv = v.as< std::string_view >();
                return std::regex_search( sv.begin(), sv.end(), m_regex ) ? ok() : error( v, "pattern did not match" );
@@ -427,7 +427,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = string( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                const std::string_view sv = v.as< std::string_view >();
                try {
@@ -452,7 +452,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = number( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                return T()( m_source, v ) ? ok() : error( v, "value did not match" );
             }
@@ -475,7 +475,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = number( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                // TODO: enhance for for large integer values (uint64_t, ...)
                const auto x = v.as< double >();
@@ -504,7 +504,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = array( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                return T()( m_length, v.unsafe_get_array().size() ) ? ok() : error( v, "wrong array size" );
             }
@@ -520,7 +520,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = array( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                std::set< value > s;
                for( const auto& e : v.unsafe_get_array() ) {
@@ -539,7 +539,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = array( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                for( const auto& e : v.unsafe_get_array() ) {
                   if( ref::validate( e ) ) {
@@ -563,7 +563,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = object( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                return T()( m_length, v.unsafe_get_object().size() ) ? ok() : error( v, "wrong array size" );
             }
@@ -579,7 +579,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = object( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                for( const auto& e : v.unsafe_get_object() ) {
                   if( ref::validate( value( e.first ) ) ) {
@@ -597,7 +597,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = object( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                for( const auto& e : v.unsafe_get_object() ) {
                   if( ref::validate( e.second ) ) {
@@ -620,7 +620,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = object( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
                const auto& o = v.unsafe_get_object();
                return ( o.find( m_key ) != o.end() ) ? ok() : error( v, "required key missing", { { "key", m_key } } );
@@ -653,7 +653,7 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                if( auto e = object( m_source ).validate( v ) ) {
-                  return std::move( e );
+                  return e;
                }
 
                json::value errors = json::empty_array;
