@@ -76,11 +76,14 @@ namespace tao::config::internal
 
       void append( const basic_concat& other )
       {
-         for( const auto& i : other.m_entries ) {
-            m_entries.emplace_back( this, i );
-            if( m_clear ) {
-               m_entries.back().set_clear();
-               m_clear = false;
+         if( !other.m_entries.empty() ) {
+            m_entries.emplace_back( this, other.m_entries.front() );
+            m_entries.back().set_clear( m_clear );
+            // Assumption is that one of the two following functions might do something, and that's enough to keep an array/non-array or object/non-object alternation.
+            post_array_merge();
+            post_object_merge();
+            for( auto i = ++other.m_entries.begin(); i != other.m_entries.end(); ++i ) {
+               m_entries.emplace_back( this, *i );
             }
          }
          m_clear = false;

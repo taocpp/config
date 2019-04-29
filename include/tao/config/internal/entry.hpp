@@ -231,9 +231,9 @@ namespace tao::config::internal
          return m_clear;
       }
 
-      void set_clear() noexcept
+      void set_clear( const bool c = true ) noexcept
       {
-         m_clear = true;
+         m_clear = c;
       }
 
    private:
