@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <strings.h>
 #include <utility>
 #include <vector>
 
@@ -368,6 +369,39 @@ namespace tao::config
             {
                return ( v == m_source ) ? ok() : error( v, "value did not match" );
                // TODO: return ( v == m_value ) ? ok() : error( v, "value did not match", { { "actual", v }, { "expected", m_value } } );
+            }
+         };
+
+         struct istring : node_base
+         {
+            std::vector< std::string_view > m_values;
+
+            explicit istring( const value& v )
+               : node_base( v )
+            {
+               if( m_source.is_array() ) {
+                  for( const auto& e : m_source.unsafe_get_array() ) {
+                     m_values.emplace_back( e.as< std::string_view >() );
+                  }
+               }
+               else {
+                  m_values.emplace_back( m_source.as< std::string_view >() );
+               }
+            }
+
+            json::value validate( const value& v ) const override
+            {
+               const auto s = v.as< std::string_view >();
+               for( const auto sv : m_values ) {
+                  if( ( s.size() == sv.size() ) && ( ::strncasecmp( s.begin(), sv.begin(), s.size() ) == 0 ) ) {
+                     return ok();
+                  }
+               }
+               json::value candidates = json::empty_array;
+               for( const auto sv : m_values ) {
+                  candidates.unsafe_emplace_back( sv );
+               }
+               return error( v, "value did not match", { { "value", s }, { "candidates", std::move( candidates ) } } );
             }
          };
 
@@ -793,6 +827,7 @@ namespace tao::config
 
                // value (generic)
                add< constant >( internal::find( v, "value" ) );
+               add< istring >( internal::find( v, "istring" ) );
                add< list< any_of, constant > >( internal::find( v, "enum" ) );
 
                // string/binary
@@ -954,7 +989,8 @@ namespace tao::config
                         else: "ref"
 
                         value: true
-                        enum.unique_items: true
+                        enum.items: true
+                        istring: [ "string", { items: "string" } ]
 
                         length: "unsigned"
                         min_length: "unsigned"

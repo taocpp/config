@@ -38,10 +38,10 @@ definitions
     }
 }
 
-property.a.enum: [ "FOO", "BAR", "BAZ" ]
+property.a.istring: [ "fOo", "BaR", "bAz" ]
 all_of
 [
-    { if.property.a.value: "FOO" then: "foo" }
-    { if.property.a.value: "BAR" then: "bar" }
-    { if.property.a.value: "BAZ" then: "baz" }
+    { if.property.a.istring: "Foo" then: "foo" }
+    { if.property.a.istring: "Bar" then: "bar" }
+    { if.property.a.istring: "Baz" then: "baz" }
 ]
