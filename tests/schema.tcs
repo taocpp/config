@@ -4,10 +4,9 @@ definitions
 {
     foo
     {
-        required [ "a", "b" ]
-        properties
+        required_properties
         {
-            a: true
+            a.const: "FOO"
             b: "number"
         }
         additional_properties: false
@@ -15,27 +14,31 @@ definitions
 
     bar
     {
-        required [ "a", "c" ]
-        properties
+        required_properties
         {
+            a.const: "BAR"
             c: "string"
         }
     }
 
     baz
     {
-        required [ "b", "c", "d" ]
-        properties
+        required_properties
         {
+            b.const: 42
             c: "integer"
+        }
+        optional_properties
+        {
             d: "null"
         }
+        additional_properties: false
     }
 }
 
 any_of
 [
-    { if.properties.a.const: "FOO" then: "foo" else: false }
-    { if.properties.a.const: "BAR" then: "bar" else: false }
-    { if.properties.b.const: 42 then: "baz" else: false }
+    { if.required_properties.a.const: "FOO" then: "foo" }
+    { if.required_properties.a.const: "BAR" then: "bar" }
+    { if.required_properties.b.const: 42 then: "baz" }
 ]

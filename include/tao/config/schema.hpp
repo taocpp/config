@@ -86,9 +86,9 @@ namespace tao::config
 
             virtual json::value error( const value& v, const char* message, json::value data = json::empty_object ) const
             {
-               data.unsafe_emplace( "message", message );
-               data.unsafe_emplace( "schema", pos() );
-               data.unsafe_emplace( "value", internal::pos( v ) );
+               data.unsafe_emplace( "_message", message );
+               data.unsafe_emplace( "_schema", pos() );
+               data.unsafe_emplace( "_value", internal::pos( v ) );
                return data;
             }
 
@@ -572,7 +572,7 @@ namespace tao::config
          using min_properties = object_length< std::less_equal<> >;
          using max_properties = object_length< std::greater_equal<> >;
 
-         struct keys_ref : ref
+         struct property_names : ref
          {
             using ref::ref;
 
@@ -590,59 +590,34 @@ namespace tao::config
             }
          };
 
-         struct object_ref : ref
-         {
-            using ref::ref;
-
-            json::value validate( const value& v ) const override
-            {
-               if( auto e = object( m_source ).validate( v ) ) {
-                  return e;
-               }
-               for( const auto& e : v.unsafe_get_object() ) {
-                  if( ref::validate( e.second ) ) {
-                     return error( v.at( e.first ), "invalid value" );
-                  }
-               }
-               return ok();
-            }
-         };
-
-         struct has_property : node_base
-         {
-            const std::string m_key;
-
-            explicit has_property( const value& v )
-               : node_base( v ),
-                 m_key( v.as< std::string >() )
-            {}
-
-            json::value validate( const value& v ) const override
-            {
-               if( auto e = object( m_source ).validate( v ) ) {
-                  return e;
-               }
-               const auto& o = v.unsafe_get_object();
-               return ( o.find( m_key ) != o.end() ) ? ok() : error( v, "required key missing", { { "key", m_key } } );
-            }
-         };
-
          struct properties : node_base
          {
-            std::map< std::string, std::unique_ptr< ref > > m_map;
+            std::map< std::string, std::unique_ptr< ref > > m_required;
+            std::map< std::string, std::unique_ptr< ref > > m_optional;
             std::unique_ptr< ref > m_default;
 
-            properties( const value& v, node_map& m, const std::string& path )
-               : node_base( v )
+            using node_base::node_base;
+
+            void add_required_properties( const value& v, node_map& m, const std::string& path )
             {
                for( const auto& e : v.get_object() ) {
-                  m_map.emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
+                  m_required.emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
+               }
+            }
+
+            void add_properties( const value& v, node_map& m, const std::string& path )
+            {
+               for( const auto& e : v.get_object() ) {
+                  m_optional.emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
                }
             }
 
             void resolve( const node_map& m ) override
             {
-               for( const auto& e : m_map ) {
+               for( const auto& e : m_required ) {
+                  e.second->resolve( m );
+               }
+               for( const auto& e : m_optional ) {
                   e.second->resolve( m );
                }
                if( m_default ) {
@@ -657,14 +632,28 @@ namespace tao::config
                }
 
                json::value errors = json::empty_array;
-               for( const auto& e : v.unsafe_get_object() ) {
-                  const auto it = m_map.find( e.first );
-                  if( it != m_map.end() ) {
+               const auto& o = v.unsafe_get_object();
+
+               for( const auto& e : m_required ) {
+                  const auto it = o.find( e.first );
+                  if( it != o.end() ) {
+                     if( auto r = e.second->validate( it->second ) ) {
+                        errors.unsafe_emplace_back( std::move( r ) );
+                     }
+                  }
+                  else {
+                     errors.unsafe_emplace_back( error( v, "missing property", { { "key", e.first } } ) );
+                  }
+               }
+
+               for( const auto& e : o ) {
+                  const auto it = m_optional.find( e.first );
+                  if( it != m_optional.end() ) {
                      if( auto r = it->second->validate( e.second ) ) {
                         errors.unsafe_emplace_back( std::move( r ) );
                      }
                   }
-                  else if( m_default ) {
+                  else if( m_default && ( m_required.find( e.first ) == m_required.end() ) ) {
                      if( auto r = m_default->validate( e.second ) ) {
                         errors.unsafe_emplace_back( std::move( r ) );
                      }
@@ -678,7 +667,7 @@ namespace tao::config
                if( a.size() == 1 ) {
                   return std::move( a.back() );
                }
-               return error( v, "properties: multiple errors", { { "errors", std::move( errors ) } } );
+               return error( v, "multiple errors", { { "errors", std::move( errors ) } } );
             }
          };
 
@@ -702,7 +691,8 @@ namespace tao::config
 
             json::value validate( const value& v ) const override
             {
-               if( !ref::validate( v ) ) {
+               auto condition_error = ref::validate( v );
+               if( !condition_error ) {
                   if( m_then ) {
                      return m_then->validate( v );
                   }
@@ -712,7 +702,7 @@ namespace tao::config
                      return m_else->validate( v );
                   }
                }
-               return ok();
+               return condition_error;
             }
          };
 
@@ -769,6 +759,9 @@ namespace tao::config
                   }
                   m_properties.emplace_back( std::move( p ) );
                }
+               else {
+                  // TODO: detect then/else without if (use the schema schema, not the code!)
+               }
 
                // value (generic)
                add< constant >( internal::find( v, "const" ) );
@@ -805,18 +798,25 @@ namespace tao::config
                // object
                add< min_properties >( internal::find( v, "min_properties" ) );
                add< max_properties >( internal::find( v, "max_properties" ) );
-               add< keys_ref >( internal::find( v, "property_names" ), m, path );
-               if( const auto& n = internal::find( v, "properties" ) ) {
-                  auto p = std::make_unique< properties >( n, m, path );
-                  if( const auto& n = internal::find( v, "additional_properties" ) ) {
-                     p->m_default = std::make_unique< ref >( n, m, path );
+               add< property_names >( internal::find( v, "property_names" ), m, path );
+               {
+                  const auto& r = internal::find( v, "required_properties" );
+                  const auto& p = internal::find( v, "optional_properties" );
+                  const auto& a = internal::find( v, "additional_properties" );
+                  if( r || p || a ) {
+                     auto n = std::make_unique< properties >( v );
+                     if( r ) {
+                        n->add_required_properties( r, m, path );
+                     }
+                     if( p ) {
+                        n->add_properties( p, m, path );
+                     }
+                     if( a ) {
+                        n->m_default = std::make_unique< ref >( a, m, path );
+                     }
+                     m_properties.emplace_back( std::move( n ) );
                   }
-                  m_properties.emplace_back( std::move( p ) );
                }
-               else {
-                  add< object_ref >( internal::find( v, "additional_properties" ), m, path );
-               }
-               add< list< all_of, has_property > >( internal::find( v, "required" ) );
 
                // definitions
                if( const auto& d = internal::find( v, "definitions" ) ) {
@@ -865,7 +865,7 @@ namespace tao::config
          {
             value source;
             source.key = name;
-            source.position = json::position( "<builtin>", 1, 0 );
+            source.position = json::position( "<builtin>", 0, 0 );
             m_nodes.emplace( name, std::make_unique< T >( source ) );
          }
 
@@ -912,7 +912,7 @@ namespace tao::config
 
             schema
             {
-                properties
+                optional_properties
                 {
                     description: "string"
 
@@ -949,9 +949,9 @@ namespace tao::config
                     min_properties: "unsigned"
                     max_properties: "unsigned"
                     property_names: "ref"
-                    properties.additional_properties: "ref"
+                    required_properties.additional_properties: "ref"
+                    optional_properties.additional_properties: "ref"
                     additional_properties: "ref"
-                    required.items: "string"
 
                     definitions
                     {
@@ -973,6 +973,7 @@ namespace tao::config
          const auto data = config::parse_file( filename );
          if( const auto error = schema_validator.validate( data ) ) {
             std::cerr << std::setw( 2 ) << error << std::endl;
+            throw std::runtime_error( "invalid schema file '" + filename + "'" );  // TODO: store error in exception
          }
          return validator( data );
       }
