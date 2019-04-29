@@ -62,7 +62,8 @@ namespace tao::config
       {
          o << ' ';
          to_stream( o, key );
-         o << " (" << source() << ':' << line() << ':' << byte_in_line() << ')';
+         o << ' ';
+         position.append_message_extension( o );
       }
    };
 

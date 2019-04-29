@@ -32,54 +32,148 @@ namespace tao::config
             return ( it != o.end() ) ? it->second : nope;
          }
 
+         std::string pos( const json::position& p )
+         {
+            std::ostringstream os;
+            p.append_message_extension( os );
+            return os.str();
+         }
+
+         json::value ok()
+         {
+            return json::value();
+         }
+
          struct node_base;
          using node_map = std::map< std::string, std::unique_ptr< node_base > >;
 
          struct node_base
          {
+            value m_source;
+
+            explicit node_base( const value& source )
+               : m_source( source )
+            {}
+
+            json::value error( const value& v, const char* message, json::value data = json::empty_object ) const
+            {
+               data.unsafe_emplace( "message", message );
+               data.unsafe_emplace( "schema", json::value( { { "key", config::to_string( m_source.key ) }, { "pos", pos( m_source.position ) } } ) );
+               data.unsafe_emplace( "value", json::value( { { "key", config::to_string( v.key ) }, { "pos", pos( v.position ) } } ) );
+               return std::move( data );
+            }
+
             virtual ~node_base() = default;
 
             virtual void resolve( const node_map& /*unused*/ ) {}
-            virtual bool validate( const value& v ) const = 0;
+            virtual json::value validate( const value& v ) const = 0;
          };
 
          template< bool B >
          struct trivial : node_base
          {
-            bool validate( const value& /*unused*/ ) const override
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
             {
-               return B;
+               return B ? ok() : error( v, "always fails" );
             }
          };
 
-         template< json::type... Ts >
-         struct type : node_base
+         struct null : node_base
          {
-            bool validate( const value& v ) const override
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
             {
-               return ( ( v.type() == Ts ) || ... );
+               return v.is_null() ? ok() : error( v, "expected null" );
+            }
+         };
+
+         struct boolean : node_base
+         {
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
+            {
+               return v.is_boolean() ? ok() : error( v, "expected boolean" );
+            }
+         };
+
+         struct number : node_base
+         {
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
+            {
+               return v.is_number() ? ok() : error( v, "expected number" );
+            }
+         };
+
+         struct string : node_base
+         {
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
+            {
+               return v.is_string_type() ? ok() : error( v, "expected string" );
+            }
+         };
+
+         struct binary : node_base
+         {
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
+            {
+               return v.is_binary_type() ? ok() : error( v, "expected binary" );
+            }
+         };
+
+         struct array : node_base
+         {
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
+            {
+               return v.is_array() ? ok() : error( v, "expected array" );
+            }
+         };
+
+         struct object : node_base
+         {
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
+            {
+               return v.is_object() ? ok() : error( v, "expected object" );
             }
          };
 
          struct integer : node_base
          {
-            bool validate( const value& v ) const override
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_number() ) {
-                  return false;
+               if( auto e = number( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
                if( v.is_double() ) {
+                  const double d = v.as< double >();
                   double dummy;
-                  if( std::modf( v.as< double >(), &dummy ) != 0 ) {
-                     return false;
+                  if( std::modf( d, &dummy ) != 0 ) {
+                     return error( v, "expected integer", { { "value", d } } );
                   }
                }
-               return true;
+               return ok();
             }
          };
 
          struct container : node_base
          {
+            using node_base::node_base;
+
             std::vector< std::unique_ptr< node_base > > m_properties;
 
             void resolve( const node_map& m ) override
@@ -90,45 +184,84 @@ namespace tao::config
             }
          };
 
-         template< bool B >
-         struct combine : container
+         struct any_of : container
          {
-            bool validate( const value& v ) const override
+            using container::container;
+
+            json::value validate( const value& v ) const override
             {
                const auto& vs = v.skip_value_ptr();
+
+               json::value errors = json::empty_array;
                for( const auto& p : m_properties ) {
-                  if( p->validate( vs ) == B ) {
-                     return B;
+                  if( auto e = p->validate( vs ) ) {
+                     errors.unsafe_emplace_back( std::move( e ) );
+                  }
+                  else {
+                     return ok();
                   }
                }
-               return !B;
+
+               // TODO: pick the best candidate(s) only!
+               return error( v, "no match", { { "errors", std::move( errors ) } } );
             }
          };
 
-         using any_of = combine< true >;
-         using all_of = combine< false >;
+         struct all_of : container
+         {
+            using container::container;
+
+            json::value validate( const value& v ) const override
+            {
+               const auto& vs = v.skip_value_ptr();
+
+               json::value errors = json::empty_array;
+               for( const auto& p : m_properties ) {
+                  if( auto e = p->validate( vs ) ) {
+                     errors.unsafe_emplace_back( std::move( e ) );
+                  }
+               }
+
+               auto& a = errors.unsafe_get_array();
+               if( a.empty() ) {
+                  return ok();
+               }
+               if( a.size() == 1 ) {
+                  return std::move( a.back() );
+               }
+               return error( v, "multiple errors", { { "errors", std::move( errors ) } } );
+            }
+         };
 
          struct one_of : container
          {
-            bool validate( const value& v ) const override
+            using container::container;
+
+            json::value validate( const value& v ) const override
             {
                const auto& vs = v.skip_value_ptr();
-               bool found = false;
+
+               json::value errors = json::empty_array;
                for( const auto& p : m_properties ) {
-                  if( p->validate( vs ) ) {
-                     if( found ) {
-                        return false;
-                     }
-                     found = true;
+                  if( auto e = p->validate( vs ) ) {
+                     errors.unsafe_emplace_back( std::move( e ) );
                   }
                }
-               return found;
+
+               auto& a = errors.unsafe_get_array();
+               if( a.empty() ) {
+                  return error( v, "no match", { { "errors", std::move( errors ) } } );
+               }
+               if( ( a.size() + 1 ) == m_properties.size() ) {
+                  return ok();
+               }
+               // TODO: list matches
+               return error( v, "multiple matches found" );
             }
          };
 
          struct ref : node_base
          {
-            const value m_value;
             std::unique_ptr< node_base > m_node;
             const node_base* m_ptr = nullptr;
 
@@ -141,19 +274,19 @@ namespace tao::config
                   m_ptr = m_node.get();
                }
                else {
-                  const auto k = m_value.as< std::string >();
+                  const auto k = m_source.as< std::string >();
                   const auto it = m.find( k );
                   if( it == m.end() ) {
                      std::ostringstream os;
                      os << "can not resolve '" << k << "' defined here:";
-                     m_value.append_message_extension( os );
+                     m_source.append_message_extension( os );
                      throw std::runtime_error( os.str() );
                   }
                   m_ptr = it->second.get();
                }
             }
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
                return m_ptr->validate( v );
             }
@@ -163,23 +296,21 @@ namespace tao::config
          {
             using ref::ref;
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               return !ref::validate( v );
+               // TODO: unexpected match against what schema?
+               return ref::validate( v ) ? ok() : error( v, "unexpected match" );
             }
          };
 
          struct constant : node_base
          {
-            const value m_value;
+            using node_base::node_base;
 
-            explicit constant( const value& v )
-               : m_value( v )
-            {}
-
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               return v == m_value;
+               return ( v == m_source ) ? ok() : error( v, "value did not match" );
+               // TODO: return ( v == m_value ) ? ok() : error( v, "value did not match", { { "actual", v }, { "expected", m_value } } );
             }
          };
 
@@ -189,18 +320,19 @@ namespace tao::config
             const std::size_t m_length;
 
             explicit value_length( const value& v )
-               : m_length( v.as< std::size_t >() )
+               : node_base( v ),
+                 m_length( v.as< std::size_t >() )
             {}
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
                if( v.is_string_type() ) {
-                  return T()( m_length, v.as< std::string_view >().size() );
+                  return T()( m_length, v.as< std::string_view >().size() ) ? ok() : error( v, "length did not match" );
                }
                if( v.is_binary_type() ) {
-                  return T()( m_length, v.as< tao::binary_view >().size() );
+                  return T()( m_length, v.as< tao::binary_view >().size() ) ? ok() : error( v, "length did not match" );
                }
-               return false;
+               return error( v, "expected string or binary" );
             }
          };
 
@@ -212,56 +344,60 @@ namespace tao::config
          {
             const std::regex m_regex;
 
-            explicit pattern( const std::string_view sv )
-               : m_regex( sv.begin(), sv.end() )
+            pattern( const value& v, const std::string_view sv )
+               : node_base( v ),
+                 m_regex( sv.begin(), sv.end() )
             {}
 
             explicit pattern( const value& v )
-               : pattern( v.as< std::string_view >() )
+               : pattern( v, v.as< std::string_view >() )
             {}
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_string_type() ) {
-                  return false;
+               if( auto e = string( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
                const std::string_view sv = v.as< std::string_view >();
-               return std::regex_search( sv.begin(), sv.end(), m_regex );
+               return std::regex_search( sv.begin(), sv.end(), m_regex ) ? ok() : error( v, "pattern did not match" );
             }
          };
 
          struct regex : node_base
          {
-            bool validate( const value& v ) const override
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_string_type() ) {
-                  return false;
+               if( auto e = string( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
                const std::string_view sv = v.as< std::string_view >();
                try {
                   std::regex( sv.begin(), sv.end() );
                }
                catch( const std::regex_error& ) {
-                  return false;
+                  return error( v, "invalid regular expression" );
                }
-               return true;
+               return ok();
             }
          };
 
          template< typename T >
          struct compare : node_base
          {
-            const value m_value;
-
             explicit compare( const value& v )
-               : m_value( v )
+               : node_base( v )
             {
-               assert( m_value.is_number() );
+               assert( m_source.is_number() );
             }
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               return v.is_number() && T()( m_value, v );
+               if( auto e = number( m_source ).validate( v ) ) {
+                  return std::move( e );
+               }
+               return T()( m_source, v ) ? ok() : error( v, "value did not match" );
             }
          };
 
@@ -272,30 +408,29 @@ namespace tao::config
 
          struct multiple_of : node_base
          {
-            const value m_value;
-
             explicit multiple_of( const value& v )
-               : m_value( v )
+               : node_base( v )
             {
-               assert( m_value.is_number() );
-               assert( m_value > 0 );
+               assert( m_source.is_number() );
+               assert( m_source > 0 );
             }
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_number() ) {
-                  return false;
+               if( auto e = number( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
                // TODO: enhance for for large integer values (uint64_t, ...)
-               const auto d = m_value.as< double >();
-               const auto r = std::fmod( v.as< double >(), d );
+               const auto x = v.as< double >();
+               const auto d = m_source.as< double >();
+               const auto r = std::fmod( x, d );
                if( std::fabs( r ) < std::numeric_limits< double >::epsilon() ) {
-                  return true;
+                  return ok();
                }
                if( std::fabs( r - d ) < std::numeric_limits< double >::epsilon() ) {
-                  return true;
+                  return ok();
                }
-               return false;
+               return error( v, "value is not a multiple of given constant", { { "value", x }, { "divident", d } } );
             }
          };
 
@@ -305,15 +440,16 @@ namespace tao::config
             const std::size_t m_length;
 
             explicit array_length( const value& v )
-               : m_length( v.as< std::size_t >() )
+               : node_base( v ),
+                 m_length( v.as< std::size_t >() )
             {}
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_array() ) {
-                  return false;
+               if( auto e = array( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
-               return T()( m_length, v.unsafe_get_array().size() );
+               return T()( m_length, v.unsafe_get_array().size() ) ? ok() : error( v, "wrong array size" );
             }
          };
 
@@ -322,18 +458,20 @@ namespace tao::config
 
          struct unique_items : node_base
          {
-            bool validate( const value& v ) const override
+            using node_base::node_base;
+
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_array() ) {
-                  return false;
+               if( auto e = array( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
                std::set< value > s;
                for( const auto& e : v.unsafe_get_array() ) {
                   if( !s.emplace( &e ).second ) {
-                     return false;
+                     return error( v, "duplicate items detected" );
                   }
                }
-               return true;
+               return ok();
             }
          };
 
@@ -341,17 +479,17 @@ namespace tao::config
          {
             using ref::ref;
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_array() ) {
-                  return false;
+               if( auto e = array( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
                for( const auto& e : v.unsafe_get_array() ) {
-                  if( !ref::validate( e ) ) {
-                     return false;
+                  if( ref::validate( e ) ) {
+                     return error( v, "invalid item" );
                   }
                }
-               return true;
+               return ok();
             }
          };
 
@@ -361,15 +499,16 @@ namespace tao::config
             const std::size_t m_length;
 
             explicit object_length( const value& v )
-               : m_length( v.as< std::size_t >() )
+               : node_base( v ),
+                 m_length( v.as< std::size_t >() )
             {}
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_object() ) {
-                  return false;
+               if( auto e = object( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
-               return T()( m_length, v.unsafe_get_object().size() );
+               return T()( m_length, v.unsafe_get_object().size() ) ? ok() : error( v, "wrong array size" );
             }
          };
 
@@ -380,17 +519,17 @@ namespace tao::config
          {
             using ref::ref;
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_object() ) {
-                  return false;
+               if( auto e = object( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
                for( const auto& e : v.unsafe_get_object() ) {
-                  if( !ref::validate( value( e.first ) ) ) {
-                     return false;
+                  if( ref::validate( value( e.first ) ) ) {
+                     return error( v.at( e.first ), "invalid key" );
                   }
                }
-               return true;
+               return ok();
             }
          };
 
@@ -398,17 +537,17 @@ namespace tao::config
          {
             using ref::ref;
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_object() ) {
-                  return false;
+               if( auto e = object( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
                for( const auto& e : v.unsafe_get_object() ) {
-                  if( !ref::validate( e.second ) ) {
-                     return false;
+                  if( ref::validate( e.second ) ) {
+                     return error( v.at( e.first ), "invalid value" );
                   }
                }
-               return true;
+               return ok();
             }
          };
 
@@ -417,16 +556,17 @@ namespace tao::config
             const std::string m_key;
 
             explicit has_property( const value& v )
-               : m_key( v.as< std::string >() )
+               : node_base( v ),
+                 m_key( v.as< std::string >() )
             {}
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_object() ) {
-                  return false;
+               if( auto e = object( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
                const auto& o = v.unsafe_get_object();
-               return o.find( m_key ) != o.end();
+               return ( o.find( m_key ) != o.end() ) ? ok() : error( v, "required key missing", { { "key", m_key } } );
             }
          };
 
@@ -436,6 +576,7 @@ namespace tao::config
             std::unique_ptr< ref > m_default;
 
             properties( const value& v, node_map& m, const std::string& path )
+               : node_base( v )
             {
                for( const auto& e : v.get_object() ) {
                   m_map.emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
@@ -452,25 +593,35 @@ namespace tao::config
                }
             }
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               if( !v.is_object() ) {
-                  return false;
+               if( auto e = object( m_source ).validate( v ) ) {
+                  return std::move( e );
                }
+
+               json::value errors = json::empty_array;
                for( const auto& e : v.unsafe_get_object() ) {
                   const auto it = m_map.find( e.first );
                   if( it != m_map.end() ) {
-                     if( !it->second->validate( e.second ) ) {
-                        return false;
+                     if( auto r = it->second->validate( e.second ) ) {
+                        errors.unsafe_emplace_back( std::move( r ) );
                      }
                   }
                   else if( m_default ) {
-                     if( !m_default->validate( e.second ) ) {
-                        return false;
+                     if( auto r = m_default->validate( e.second ) ) {
+                        errors.unsafe_emplace_back( std::move( r ) );
                      }
                   }
                }
-               return true;
+
+               auto& a = errors.unsafe_get_array();
+               if( a.empty() ) {
+                  return ok();
+               }
+               if( a.size() == 1 ) {
+                  return std::move( a.back() );
+               }
+               return error( v, "properties: multiple errors", { { "errors", std::move( errors ) } } );
             }
          };
 
@@ -492,9 +643,9 @@ namespace tao::config
                }
             }
 
-            bool validate( const value& v ) const override
+            json::value validate( const value& v ) const override
             {
-               if( ref::validate( v ) ) {
+               if( !ref::validate( v ) ) {
                   if( m_then ) {
                      return m_then->validate( v );
                   }
@@ -504,7 +655,7 @@ namespace tao::config
                      return m_else->validate( v );
                   }
                }
-               return true;
+               return ok();
             }
          };
 
@@ -513,6 +664,7 @@ namespace tao::config
          {
             template< typename... Ts >
             explicit list( const value& v, Ts&&... ts )
+               : T( v )
             {
                for( const auto& e : v.get_array() ) {
                   this->m_properties.emplace_back( std::make_unique< E >( e, ts... ) );
@@ -533,13 +685,14 @@ namespace tao::config
             }
 
             node( const value& v, node_map& m, const std::string& path = "" )
+               : all_of( v )
             {
                // description
                if( const auto& n = internal::find( v, "description" ) ) {
                   m_description = n.as< std::string >();
                }
 
-               // sub/ref
+               // ref
                add< ref >( internal::find( v, "type" ), m, path );
 
                // structural
@@ -588,7 +741,7 @@ namespace tao::config
                add< array_ref >( internal::find( v, "items" ), m, path );
                if( const auto& n = internal::find( v, "unique_items" ) ) {
                   if( n.as< bool >() ) {
-                     m_properties.emplace_back( std::make_unique< unique_items >() );
+                     m_properties.emplace_back( std::make_unique< unique_items >( v ) );
                   }
                }
 
@@ -626,14 +779,14 @@ namespace tao::config
          };
 
          ref::ref( const value& v, node_map& m, const std::string& path )
-            : m_value( v )
+            : node_base( v )
          {
             if( v.is_boolean() ) {
                if( v.as< bool >() ) {
-                  m_node = std::make_unique< trivial< true > >();
+                  m_node = std::make_unique< trivial< true > >( v );
                }
                else {
-                  m_node = std::make_unique< trivial< false > >();
+                  m_node = std::make_unique< trivial< false > >( v );
                }
             }
             else if( v.is_array() ) {
@@ -650,18 +803,27 @@ namespace tao::config
       {
          internal::node_map m_nodes;
 
+         template< typename T >
+         void add_builtin( const char* name )
+         {
+            value dummy;
+            dummy.key = name;
+            dummy.position = json::position( "<builtin>", 1, 0 );
+            m_nodes.emplace( name, std::make_unique< T >( dummy ) );
+         }
+
          explicit validator( const value& v )
          {
-            m_nodes.emplace( "null", std::make_unique< internal::type< json::type::NULL_ > >() );
-            m_nodes.emplace( "boolean", std::make_unique< internal::type< json::type::BOOLEAN > >() );
-            m_nodes.emplace( "number", std::make_unique< internal::type< json::type::SIGNED, json::type::UNSIGNED, json::type::DOUBLE > >() );
-            m_nodes.emplace( "string", std::make_unique< internal::type< json::type::STRING, json::type::STRING_VIEW > >() );
-            m_nodes.emplace( "binary", std::make_unique< internal::type< json::type::BINARY, json::type::BINARY_VIEW > >() );
-            m_nodes.emplace( "array", std::make_unique< internal::type< json::type::ARRAY > >() );
-            m_nodes.emplace( "object", std::make_unique< internal::type< json::type::OBJECT > >() );
+            add_builtin< internal::null >( "null" );
+            add_builtin< internal::boolean >( "boolean" );
+            add_builtin< internal::number >( "number" );
+            add_builtin< internal::string >( "string" );
+            add_builtin< internal::binary >( "binary" );
+            add_builtin< internal::array >( "array" );
+            add_builtin< internal::object >( "object" );
 
-            m_nodes.emplace( "integer", std::make_unique< internal::integer >() );
-            m_nodes.emplace( "regex", std::make_unique< internal::regex >() );
+            add_builtin< internal::integer >( "integer" );
+            add_builtin< internal::regex >( "regex" );
 
             m_nodes.emplace( "", std::make_unique< internal::node >( v, m_nodes ) );
 
@@ -670,7 +832,7 @@ namespace tao::config
             }
          }
 
-         bool validate( const value& v ) const
+         json::value validate( const value& v ) const
          {
             return m_nodes.at( "" )->validate( v );
          }
@@ -752,7 +914,9 @@ namespace tao::config
       validator read( const std::string& filename )
       {
          const auto data = config::parse_file( filename );
-         assert( schema_validator.validate( data ) );
+         if( const auto result = schema_validator.validate( data ) ) {
+            std::cerr << std::setw( 2 ) << result << std::endl;
+         }
          return validator( data );
       }
 

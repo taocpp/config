@@ -8,8 +8,11 @@ int main()
 {
    const auto tcs = tao::config::schema::read( "tests/schema.tcs" );
 
-   const auto data = tao::json::jaxn::basic_parse_file< tao::config::traits >( "tests/schema.jaxn" );
-   assert( tcs.validate( data ) );
+   const auto data = tao::config::parse_file( "tests/schema.jaxn" );
+   const auto result = tcs.validate( data );
+   if( !result.is_uninitialized() ) {
+      std::cerr << std::setw( 2 ) << result << std::endl;
+   }
 
-   return 0;
+   return result ? 0 : 1;
 }
