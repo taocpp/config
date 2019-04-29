@@ -39,6 +39,30 @@ namespace tao::config
             return os.str();
          }
 
+         json::value pos( const value& v )
+         {
+            return { { "key", config::to_string( v.key ) }, { "pos", pos( v.position ) } };
+         }
+
+         json::value append_via( json::value& result, json::value&& via )
+         {
+            auto& a = result[ "via" ];
+            if( !a ) {
+               a.emplace_back( std::move( via ) );
+            }
+            else {
+               auto& l = a.get_array().back();
+               auto sv = via.at( "key" ).as< std::string_view >();
+               if( l.at( "key" ).as< std::string_view >().substr( 0, sv.size() ) == sv ) {
+                  l = std::move( via );
+               }
+               else {
+                  a.emplace_back( std::move( via ) );
+               }
+            }
+            return result;
+         }
+
          json::value ok()
          {
             return json::value();
@@ -55,11 +79,16 @@ namespace tao::config
                : m_source( source )
             {}
 
-            json::value error( const value& v, const char* message, json::value data = json::empty_object ) const
+            virtual json::value pos() const
+            {
+               return internal::pos( m_source );
+            }
+
+            virtual json::value error( const value& v, const char* message, json::value data = json::empty_object ) const
             {
                data.unsafe_emplace( "message", message );
-               data.unsafe_emplace( "schema", json::value( { { "key", config::to_string( m_source.key ) }, { "pos", pos( m_source.position ) } } ) );
-               data.unsafe_emplace( "value", json::value( { { "key", config::to_string( v.key ) }, { "pos", pos( v.position ) } } ) );
+               data.unsafe_emplace( "schema", pos() );
+               data.unsafe_emplace( "value", internal::pos( v ) );
                return std::move( data );
             }
 
@@ -182,6 +211,18 @@ namespace tao::config
                   p->resolve( m );
                }
             }
+
+            json::value pos() const override
+            {
+               if( m_properties.size() == 1 ) {
+                  auto result = m_properties.front()->pos();
+                  append_via( result, node_base::pos() );
+                  return result;
+               }
+               else {
+                  return node_base::pos();
+               }
+            }
          };
 
          struct any_of : container
@@ -242,21 +283,27 @@ namespace tao::config
                const auto& vs = v.skip_value_ptr();
 
                json::value errors = json::empty_array;
+               std::vector< node_base* > matched;
                for( const auto& p : m_properties ) {
                   if( auto e = p->validate( vs ) ) {
                      errors.unsafe_emplace_back( std::move( e ) );
                   }
+                  else {
+                     matched.emplace_back( p.get() );
+                  }
                }
 
-               auto& a = errors.unsafe_get_array();
-               if( a.empty() ) {
-                  return error( v, "no match", { { "errors", std::move( errors ) } } );
-               }
-               if( ( a.size() + 1 ) == m_properties.size() ) {
+               if( matched.size() == 1 ) {
                   return ok();
                }
-               // TODO: list matches
-               return error( v, "multiple matches found" );
+               if( matched.empty() ) {
+                  return error( v, "no match", { { "errors", std::move( errors ) } } );
+               }
+               json::value data = json::empty_array;
+               for( const auto& e : matched ) {
+                  data.unsafe_emplace_back( e->pos() );
+               }
+               return error( v, "multiple matches found", { { "matched", data } } );
             }
          };
 
@@ -284,6 +331,16 @@ namespace tao::config
                   }
                   m_ptr = it->second.get();
                }
+            }
+
+            json::value pos() const override
+            {
+               auto result = m_ptr->pos();
+               auto via = node_base::pos();
+               if( result != via ) {
+                  append_via( result, std::move( via ) );
+               }
+               return result;
             }
 
             json::value validate( const value& v ) const override
@@ -806,10 +863,10 @@ namespace tao::config
          template< typename T >
          void add_builtin( const char* name )
          {
-            value dummy;
-            dummy.key = name;
-            dummy.position = json::position( "<builtin>", 1, 0 );
-            m_nodes.emplace( name, std::make_unique< T >( dummy ) );
+            value source;
+            source.key = name;
+            source.position = json::position( "<builtin>", 1, 0 );
+            m_nodes.emplace( name, std::make_unique< T >( source ) );
          }
 
          explicit validator( const value& v )
@@ -914,8 +971,8 @@ namespace tao::config
       validator read( const std::string& filename )
       {
          const auto data = config::parse_file( filename );
-         if( const auto result = schema_validator.validate( data ) ) {
-            std::cerr << std::setw( 2 ) << result << std::endl;
+         if( const auto error = schema_validator.validate( data ) ) {
+            std::cerr << std::setw( 2 ) << error << std::endl;
          }
          return validator( data );
       }

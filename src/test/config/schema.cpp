@@ -9,10 +9,10 @@ int main()
    const auto tcs = tao::config::schema::read( "tests/schema.tcs" );
 
    const auto data = tao::config::parse_file( "tests/schema.jaxn" );
-   const auto result = tcs.validate( data );
-   if( !result.is_uninitialized() ) {
-      std::cerr << std::setw( 2 ) << result << std::endl;
+   const auto error = tcs.validate( data );
+   if( error ) {
+      std::cerr << std::setw( 2 ) << error << std::endl;
    }
 
-   return result ? 0 : 1;
+   return !error ? 0 : 1;
 }
