@@ -65,7 +65,7 @@ namespace tao::config::internal
       }
       if constexpr( has_set_position< json::basic_value< Traits > >::value ) {
          phase2_set_positions( consumer.value, v );
-         consumer.value.set_position( json::position( source, 0, 0 ) );
+         consumer.value.set_position( json::position( source, 1, 0 ) );
       }
       return std::move( consumer.value );
    }
