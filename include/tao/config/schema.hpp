@@ -934,6 +934,12 @@ namespace tao::config
             {
                 description: "string"
 
+                definitions
+                {
+                    property_names: "identifier"
+                    properties.additional: "schema"
+                }
+
                 type: "ref"
                 not: "ref"
 
@@ -945,25 +951,31 @@ namespace tao::config
                 then: "ref"
                 else: "ref"
 
+                // any
                 value: true
                 enum.items: true
-                istring: [ "string", { items: "string" } ]
 
+                // string/binary/array/object
                 size: "unsigned"
                 min_size: "unsigned"
                 max_size: "unsigned"
 
+                // string
+                istring: [ "string", { items: "string" } ]
                 pattern: "regex"
 
+                // number
                 minimum: "number"
                 maximum: "number"
                 exclusive_minimum: "number"
                 exclusive_maximum: "number"
                 multiple_of.exclusive_minimum: 0
 
+                // array
                 items: "ref"
                 unique_items: "boolean"
 
+                // object
                 property_names: "ref"
                 property
                 {
@@ -975,12 +987,6 @@ namespace tao::config
                     required.properties.additional: "ref"
                     optional.properties.additional: "ref"
                     additional: "ref"
-                }
-
-                definitions
-                {
-                    property_names: "identifier"
-                    properties.additional: "schema"
                 }
             }
         }
