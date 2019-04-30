@@ -4,37 +4,35 @@ definitions
 {
     foo.properties.required
     {
-        a.value: "FOO"
+        a.istring: "foO"
         b: "number"
     }
 
     bar.properties.required
     {
-        a.value: "BAR"
-        c: "string"
+        a.istring: "baR"
+        b: "string"
     }
 
     baz.properties
     {
         required
         {
-            a.value: "BAZ"
-            c: "integer"
-            e: "integer"
+            a.istring: "baZ"
+            b: "integer"
+            c: "null"
         }
         optional
         {
-            d: "null"
+            d: "string"
         }
     }
 }
 
 all_of
 [
-    { property.a.istring: [ "fOo", "BaR", "bAz" ] }
+    { property.a.istring: [ "fOo", "bAr", "bAz" ] }
     { if.property.a.istring: "Foo" then: "foo" }
     { if.property.a.istring: "Bar" then: "bar" }
     { if.property.a.istring: "Baz" then: "baz" }
 ]
-
-// TODO: short-cut for: { foo: [ { items: "ref" }, { properties.additional: "ref" } ] }

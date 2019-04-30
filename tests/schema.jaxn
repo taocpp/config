@@ -2,6 +2,7 @@
 
 {
     a: "BAZ",
-    c: 1,
-    d: null
+    b: 42,
+    c: null,
+    d: -Infinity
 }

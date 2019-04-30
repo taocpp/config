@@ -743,8 +743,6 @@ namespace tao::config
 
          struct schema : all_of
          {
-            std::string m_description;
-
             template< typename P, typename T, typename... Ts >
             void add( T&& t, Ts&&... ts )
             {
@@ -756,9 +754,19 @@ namespace tao::config
             schema( const value& v, node_map& m, const std::string& path = "" )
                : all_of( v )
             {
-               // description
-               if( const auto& n = internal::find( v, "description" ) ) {
-                  m_description = n.as< std::string >();
+               // definitions
+               if( const auto& d = internal::find( v, "definitions" ) ) {
+                  for( const auto& e : d.get_object() ) {
+                     assert( is_identifier( e.first ) );
+                     auto p = path.empty() ? e.first : ( path + '.' + e.first );
+                     auto n = std::make_unique< schema >( e.second, m, p );
+                     if( !m.emplace( p, std::move( n ) ).second ) {
+                        std::ostringstream os;
+                        os << "type '" << p << "' already defined, redefined here:";
+                        internal::find( d, e.first ).append_message_extension( os );
+                        throw std::runtime_error( os.str() );
+                     }
+                  }
                }
 
                // ref
@@ -782,10 +790,9 @@ namespace tao::config
                   m_properties.emplace_back( std::move( p ) );
                }
 
-               // value (generic)
+               // any
                add< constant >( internal::find( v, "value" ) );
                add< list< any_of, constant > >( internal::find( v, "enum" ) );
-               add< istring >( internal::find( v, "istring" ) );
 
                // string/binary/array/object
                add< size >( internal::find( v, "size" ) );
@@ -793,10 +800,8 @@ namespace tao::config
                add< max_size >( internal::find( v, "max_size" ) );
 
                // string
+               add< istring >( internal::find( v, "istring" ) );
                add< pattern >( internal::find( v, "pattern" ) );
-
-               // binary
-               // TODO
 
                // number
                add< minimum >( internal::find( v, "minimum" ) );
@@ -828,21 +833,6 @@ namespace tao::config
                      n->m_default = std::make_unique< ref >( a, m, path );
                   }
                   m_properties.emplace_back( std::move( n ) );
-               }
-
-               // definitions
-               if( const auto& d = internal::find( v, "definitions" ) ) {
-                  for( const auto& e : d.get_object() ) {
-                     assert( is_identifier( e.first ) );
-                     auto p = path.empty() ? e.first : ( path + '.' + e.first );
-                     auto n = std::make_unique< schema >( e.second, m, p );
-                     if( !m.emplace( p, std::move( n ) ).second ) {
-                        std::ostringstream os;
-                        os << "type '" << p << "' already defined, redefined here:";
-                        internal::find( d, e.first ).append_message_extension( os );
-                        throw std::runtime_error( os.str() );
-                     }
-                  }
                }
             }
          };
@@ -924,14 +914,13 @@ namespace tao::config
 
             schema.properties.optional
             {
-                description: "string"
-
                 definitions
                 {
                     property_names: "identifier"
                     properties.additional: "schema"
                 }
 
+                // structural
                 type: "ref"
                 not: "ref"
 
