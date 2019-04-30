@@ -69,14 +69,14 @@ namespace tao::config
             return json::value();
          }
 
-         struct node_base;
-         using node_map = std::map< std::string, std::unique_ptr< node_base > >;
+         struct node;
+         using node_map = std::map< std::string, std::unique_ptr< node > >;
 
-         struct node_base
+         struct node
          {
             value m_source;
 
-            explicit node_base( const value& source )
+            explicit node( const value& source )
                : m_source( source )
             {}
 
@@ -93,16 +93,16 @@ namespace tao::config
                return data;
             }
 
-            virtual ~node_base() = default;
+            virtual ~node() = default;
 
             virtual void resolve( const node_map& /*unused*/ ) {}
             virtual json::value validate( const value& v ) const = 0;
          };
 
          template< bool B >
-         struct trivial : node_base
+         struct trivial : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -110,9 +110,9 @@ namespace tao::config
             }
          };
 
-         struct null : node_base
+         struct null : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -120,9 +120,9 @@ namespace tao::config
             }
          };
 
-         struct boolean : node_base
+         struct boolean : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -130,9 +130,9 @@ namespace tao::config
             }
          };
 
-         struct number : node_base
+         struct number : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -140,9 +140,9 @@ namespace tao::config
             }
          };
 
-         struct string : node_base
+         struct string : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -150,9 +150,9 @@ namespace tao::config
             }
          };
 
-         struct binary : node_base
+         struct binary : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -160,9 +160,9 @@ namespace tao::config
             }
          };
 
-         struct array : node_base
+         struct array : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -170,9 +170,9 @@ namespace tao::config
             }
          };
 
-         struct object : node_base
+         struct object : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -180,9 +180,9 @@ namespace tao::config
             }
          };
 
-         struct integer : node_base
+         struct integer : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -200,11 +200,11 @@ namespace tao::config
             }
          };
 
-         struct container : node_base
+         struct container : node
          {
-            using node_base::node_base;
+            using node::node;
 
-            std::vector< std::unique_ptr< node_base > > m_properties;
+            std::vector< std::unique_ptr< node > > m_properties;
 
             void resolve( const node_map& m ) override
             {
@@ -217,11 +217,11 @@ namespace tao::config
             {
                if( m_properties.size() == 1 ) {
                   auto result = m_properties.front()->pos();
-                  append_via( result, node_base::pos() );
+                  append_via( result, node::pos() );
                   return result;
                }
                else {
-                  return node_base::pos();
+                  return node::pos();
                }
             }
          };
@@ -283,7 +283,7 @@ namespace tao::config
                const auto& vs = v.skip_value_ptr();
 
                json::value errors = json::empty_array;
-               std::vector< node_base* > matched;
+               std::vector< node* > matched;
                for( const auto& p : m_properties ) {
                   if( auto e = p->validate( vs ) ) {
                      errors.unsafe_emplace_back( std::move( e ) );
@@ -307,10 +307,10 @@ namespace tao::config
             }
          };
 
-         struct ref : node_base
+         struct ref : node
          {
-            std::unique_ptr< node_base > m_node;
-            const node_base* m_ptr = nullptr;
+            std::unique_ptr< node > m_node;
+            const node* m_ptr = nullptr;
 
             ref( const value& v, node_map& m, const std::string& path );
 
@@ -336,7 +336,7 @@ namespace tao::config
             json::value pos() const override
             {
                auto result = m_ptr->pos();
-               auto via = node_base::pos();
+               auto via = node::pos();
                if( result != via ) {
                   append_via( result, std::move( via ) );
                }
@@ -359,9 +359,9 @@ namespace tao::config
             }
          };
 
-         struct constant : node_base
+         struct constant : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -370,12 +370,12 @@ namespace tao::config
             }
          };
 
-         struct istring : node_base
+         struct istring : node
          {
             std::vector< std::string_view > m_values;
 
             explicit istring( const value& v )
-               : node_base( v )
+               : node( v )
             {
                if( m_source.is_array() ) {
                   for( const auto& e : m_source.unsafe_get_array() ) {
@@ -404,12 +404,12 @@ namespace tao::config
          };
 
          template< typename T >
-         struct compare_size : node_base
+         struct compare_size : node
          {
             const std::size_t m_size;
 
             explicit compare_size( const value& v )
-               : node_base( v ),
+               : node( v ),
                  m_size( v.as< std::size_t >() )
             {}
 
@@ -435,12 +435,12 @@ namespace tao::config
          using min_size = compare_size< std::less_equal<> >;
          using max_size = compare_size< std::greater_equal<> >;
 
-         struct pattern : node_base
+         struct pattern : node
          {
             const std::regex m_regex;
 
             pattern( const value& v, const std::string_view sv )
-               : node_base( v ),
+               : node( v ),
                  m_regex( sv.begin(), sv.end() )
             {}
 
@@ -458,9 +458,9 @@ namespace tao::config
             }
          };
 
-         struct regex : node_base
+         struct regex : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -479,10 +479,10 @@ namespace tao::config
          };
 
          template< typename T >
-         struct compare : node_base
+         struct compare : node
          {
             explicit compare( const value& v )
-               : node_base( v )
+               : node( v )
             {
                assert( m_source.is_number() );
             }
@@ -501,10 +501,10 @@ namespace tao::config
          using exclusive_minimum = compare< std::less<> >;
          using exclusive_maximum = compare< std::greater<> >;
 
-         struct multiple_of : node_base
+         struct multiple_of : node
          {
             explicit multiple_of( const value& v )
-               : node_base( v )
+               : node( v )
             {
                assert( m_source.is_number() );
                assert( m_source > 0 );
@@ -529,9 +529,9 @@ namespace tao::config
             }
          };
 
-         struct unique_items : node_base
+         struct unique_items : node
          {
-            using node_base::node_base;
+            using node::node;
 
             json::value validate( const value& v ) const override
             {
@@ -584,13 +584,13 @@ namespace tao::config
             }
          };
 
-         struct property : node_base
+         struct property : node
          {
             std::string m_key;
             std::unique_ptr< ref > m_schema;
 
             property( const value& v, node_map& m, const std::string& path )
-               : node_base( v )
+               : node( v )
             {
                const auto& e = *v.get_object().begin();
                m_key = e.first;
@@ -616,13 +616,13 @@ namespace tao::config
             }
          };
 
-         struct properties : node_base
+         struct properties : node
          {
             std::map< std::string, std::unique_ptr< ref > > m_required;
             std::map< std::string, std::unique_ptr< ref > > m_optional;
             std::unique_ptr< ref > m_default;
 
-            using node_base::node_base;
+            using node::node;
 
             void add_required( const value& v, node_map& m, const std::string& path )
             {
@@ -749,7 +749,7 @@ namespace tao::config
             }
          };
 
-         struct node : all_of
+         struct schema : all_of
          {
             std::string m_description;
 
@@ -761,7 +761,7 @@ namespace tao::config
                }
             }
 
-            node( const value& v, node_map& m, const std::string& path = "" )
+            schema( const value& v, node_map& m, const std::string& path = "" )
                : all_of( v )
             {
                // description
@@ -843,7 +843,7 @@ namespace tao::config
                   for( const auto& e : d.get_object() ) {
                      assert( is_identifier( e.first ) );
                      auto p = path.empty() ? e.first : ( path + '.' + e.first );
-                     auto n = std::make_unique< node >( e.second, m, p );
+                     auto n = std::make_unique< schema >( e.second, m, p );
                      if( !m.emplace( p, std::move( n ) ).second ) {
                         std::ostringstream os;
                         os << "type '" << p << "' already defined, redefined here:";
@@ -856,7 +856,7 @@ namespace tao::config
          };
 
          ref::ref( const value& v, node_map& m, const std::string& path )
-            : node_base( v )
+            : node( v )
          {
             if( v.is_boolean() ) {
                if( v.as< bool >() ) {
@@ -870,7 +870,7 @@ namespace tao::config
                m_node = std::make_unique< list< any_of, ref > >( v, m, path );
             }
             else if( v.is_object() ) {
-               m_node = std::make_unique< node >( v, m, path );
+               m_node = std::make_unique< schema >( v, m, path );
             }
          }
 
@@ -902,7 +902,7 @@ namespace tao::config
             add_builtin< internal::integer >( "integer" );
             add_builtin< internal::regex >( "regex" );
 
-            m_nodes.emplace( "", std::make_unique< internal::node >( v, m_nodes ) );
+            m_nodes.emplace( "", std::make_unique< internal::schema >( v, m_nodes ) );
 
             for( const auto& e : m_nodes ) {
                e.second->resolve( m_nodes );
