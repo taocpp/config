@@ -240,6 +240,7 @@ namespace tao::config
                      errors.unsafe_emplace_back( std::move( e ) );
                   }
                   else {
+                     // short-circuit
                      return ok();
                   }
                }
@@ -255,22 +256,13 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                const auto& vs = v.skip_value_ptr();
-
-               json::value errors = json::empty_array;
                for( const auto& p : m_properties ) {
                   if( auto e = p->validate( vs ) ) {
-                     errors.unsafe_emplace_back( std::move( e ) );
+                     // short-circuit
+                     return e;
                   }
                }
-
-               auto& a = errors.unsafe_get_array();
-               if( a.empty() ) {
-                  return ok();
-               }
-               if( a.size() == 1 ) {
-                  return std::move( a.back() );
-               }
-               return error( v, "multiple errors", { { "errors", std::move( errors ) } } );
+               return ok();
             }
          };
 
