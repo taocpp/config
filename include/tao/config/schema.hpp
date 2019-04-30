@@ -80,23 +80,23 @@ namespace tao::config
                : m_source( source )
             {}
 
+            virtual ~node() = default;
+
+            virtual void resolve( const node_map& /*unused*/ ) {}
+            virtual json::value validate( const value& v ) const = 0;
+
             virtual json::value pos() const
             {
                return internal::pos( m_source );
             }
 
-            virtual json::value error( const value& v, const char* message, json::value data = json::empty_object ) const
+            json::value error( const value& v, const char* message, json::value data = json::empty_object ) const
             {
                data.unsafe_emplace( "_message", message );
                data.unsafe_emplace( "_schema", pos() );
                data.unsafe_emplace( "_value", internal::pos( v ) );
                return data;
             }
-
-            virtual ~node() = default;
-
-            virtual void resolve( const node_map& /*unused*/ ) {}
-            virtual json::value validate( const value& v ) const = 0;
          };
 
          template< bool B >
@@ -325,6 +325,11 @@ namespace tao::config
                }
             }
 
+            json::value validate( const value& v ) const override
+            {
+               return m_ptr->validate( v );
+            }
+
             json::value pos() const override
             {
                auto result = m_ptr->pos();
@@ -333,11 +338,6 @@ namespace tao::config
                   append_via( result, std::move( via ) );
                }
                return result;
-            }
-
-            json::value validate( const value& v ) const override
-            {
-               return m_ptr->validate( v );
             }
          };
 
