@@ -650,7 +650,7 @@ namespace tao::config
                const auto& o = v.unsafe_get_object();
                const auto it = o.find( m_key );
                if( it == o.end() ) {
-                  return error( v, "missing key", { { "key", m_key } } );
+                  return error( v, "missing property", { { "key", m_key } } );
                }
                return m_schema->validate( it->second );
             }
@@ -719,9 +719,14 @@ namespace tao::config
                         errors.unsafe_emplace_back( std::move( r ) );
                      }
                   }
-                  else if( m_default && ( m_required.find( e.first ) == m_required.end() ) ) {
-                     if( auto r = m_default->validate( e.second ) ) {
-                        errors.unsafe_emplace_back( std::move( r ) );
+                  else if( m_required.find( e.first ) == m_required.end() ) {
+                     if( m_default ) {
+                        if( auto r = m_default->validate( e.second ) ) {
+                           errors.unsafe_emplace_back( std::move( r ) );
+                        }
+                     }
+                     else {
+                        errors.unsafe_emplace_back( error( v, "unexpected property", { { "key", e.first } } ) );
                      }
                   }
                }
@@ -969,68 +974,61 @@ namespace tao::config
             ref.any_of: [ "boolean", "key", "ref_list", "schema" ]
             ref_list.items: "ref"
 
-            schema
+            schema.properties.optional
             {
-                properties
+                description: "string"
+
+                type: "ref"
+                not: "ref"
+
+                all_of: "ref_list"
+                any_of: "ref_list"
+                one_of: "ref_list"
+
+                if: "ref"
+                then: "ref"
+                else: "ref"
+
+                value: true
+                enum.items: true
+                istring: [ "string", { items: "string" } ]
+
+                length: "unsigned"
+                min_length: "unsigned"
+                max_length: "unsigned"
+                pattern: "regex"
+
+                minimum: "number"
+                maximum: "number"
+                exclusive_minimum: "number"
+                exclusive_maximum: "number"
+                multiple_of.exclusive_minimum: 0
+
+                min_items: "unsigned"
+                max_items: "unsigned"
+                items: "ref"
+                unique_items: "boolean"
+
+                min_properties: "unsigned"
+                max_properties: "unsigned"
+                property_names: "ref"
+                property
                 {
-                    optional
-                    {
-                        description: "string"
+                    min_properties: 1
+                    max_properties: 1
+                    properties.additional: "ref"
+                }
+                properties.properties.optional
+                {
+                    required.properties.additional: "ref"
+                    optional.properties.additional: "ref"
+                    additional: "ref"
+                }
 
-                        type: "ref"
-                        not: "ref"
-
-                        all_of: "ref_list"
-                        any_of: "ref_list"
-                        one_of: "ref_list"
-
-                        if: "ref"
-                        then: "ref"
-                        else: "ref"
-
-                        value: true
-                        enum.items: true
-                        istring: [ "string", { items: "string" } ]
-
-                        length: "unsigned"
-                        min_length: "unsigned"
-                        max_length: "unsigned"
-                        pattern: "regex"
-
-                        minimum: "number"
-                        maximum: "number"
-                        exclusive_minimum: "number"
-                        exclusive_maximum: "number"
-                        multiple_of.exclusive_minimum: 0
-
-                        min_items: "unsigned"
-                        max_items: "unsigned"
-                        items: "ref"
-                        unique_items: "boolean"
-
-                        min_properties: "unsigned"
-                        max_properties: "unsigned"
-                        property_names: "ref"
-                        property
-                        {
-                            min_properties: 1
-                            max_properties: 1
-                            properties.additional: "ref"
-                        }
-                        properties.properties.optional
-                        {
-                            required.properties.additional: "ref"
-                            optional.properties.additional: "ref"
-                            additional: "ref"
-                        }
-
-                        definitions
-                        {
-                            property_names: "identifier"
-                            properties.additional: "schema"
-                        }
-                    }
-                    additional: false
+                definitions
+                {
+                    property_names: "identifier"
+                    properties.additional: "schema"
                 }
             }
         }

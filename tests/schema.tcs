@@ -2,24 +2,16 @@
 
 definitions
 {
-    foo.properties
+    foo.properties.required
     {
-        required
-        {
-            a.value: "FOO"
-            b: "number"
-        }
-        additional: false
+        a.value: "FOO"
+        b: "number"
     }
 
-    bar.properties
+    bar.properties.required
     {
-        required
-        {
-            a.value: "BAR"
-            c: "string"
-        }
-        additional: false
+        a.value: "BAR"
+        c: "string"
     }
 
     baz.properties
@@ -34,7 +26,6 @@ definitions
         {
             d: "null"
         }
-        additional: false
     }
 }
 
