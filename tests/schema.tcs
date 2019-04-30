@@ -29,9 +29,9 @@ definitions
     }
 }
 
-property.a.istring: [ "fOo", "BaR", "bAz" ]
 all_of
 [
+    { property.a.istring: [ "fOo", "BaR", "bAz" ] }
     { if.property.a.istring: "Foo" then: "foo" }
     { if.property.a.istring: "Bar" then: "bar" }
     { if.property.a.istring: "Baz" then: "baz" }
