@@ -36,3 +36,5 @@ all_of
     { if.property.a.istring: "Bar" then: "bar" }
     { if.property.a.istring: "Baz" then: "baz" }
 ]
+
+// TODO: short-cut for: { foo: [ { items: "ref" }, { properties.additional: "ref" } ] }

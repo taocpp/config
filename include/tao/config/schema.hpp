@@ -244,7 +244,6 @@ namespace tao::config
                   }
                }
 
-               // TODO: pick the best candidate(s) only!
                return error( v, "no match", { { "errors", std::move( errors ) } } );
             }
          };
@@ -356,7 +355,6 @@ namespace tao::config
 
             json::value validate( const value& v ) const override
             {
-               // TODO: unexpected match against what schema?
                return ref::validate( v ) ? ok() : error( v, "unexpected match" );
             }
          };
@@ -406,30 +404,36 @@ namespace tao::config
          };
 
          template< typename T >
-         struct value_length : node_base
+         struct compare_size : node_base
          {
-            const std::size_t m_length;
+            const std::size_t m_size;
 
-            explicit value_length( const value& v )
+            explicit compare_size( const value& v )
                : node_base( v ),
-                 m_length( v.as< std::size_t >() )
+                 m_size( v.as< std::size_t >() )
             {}
 
             json::value validate( const value& v ) const override
             {
                if( v.is_string_type() ) {
-                  return T()( m_length, v.as< std::string_view >().size() ) ? ok() : error( v, "length did not match" );
+                  return T()( m_size, v.as< std::string_view >().size() ) ? ok() : error( v, "size did not match" );
                }
                if( v.is_binary_type() ) {
-                  return T()( m_length, v.as< tao::binary_view >().size() ) ? ok() : error( v, "length did not match" );
+                  return T()( m_size, v.as< tao::binary_view >().size() ) ? ok() : error( v, "size did not match" );
                }
-               return error( v, "expected string or binary" );
+               if( v.is_array() ) {
+                  return T()( m_size, v.unsafe_get_array().size() ) ? ok() : error( v, "size did not match" );
+               }
+               if( v.is_object() ) {
+                  return T()( m_size, v.unsafe_get_object().size() ) ? ok() : error( v, "size did not match" );
+               }
+               return error( v, "invalid type for size comparison" );
             }
          };
 
-         using length = value_length< std::equal_to<> >;
-         using min_length = value_length< std::less_equal<> >;
-         using max_length = value_length< std::greater_equal<> >;
+         using size = compare_size< std::equal_to<> >;
+         using min_size = compare_size< std::less_equal<> >;
+         using max_size = compare_size< std::greater_equal<> >;
 
          struct pattern : node_base
          {
@@ -511,7 +515,7 @@ namespace tao::config
                if( auto e = number( m_source ).validate( v ) ) {
                   return e;
                }
-               // TODO: enhance for for large integer values (uint64_t, ...)
+               // TODO: enhance for large integer values (uint64_t, ...)
                const auto x = v.as< double >();
                const auto d = m_source.as< double >();
                const auto r = std::fmod( x, d );
@@ -524,28 +528,6 @@ namespace tao::config
                return error( v, "value is not a multiple of given constant", { { "value", x }, { "divident", d } } );
             }
          };
-
-         template< typename T >
-         struct array_length : node_base
-         {
-            const std::size_t m_length;
-
-            explicit array_length( const value& v )
-               : node_base( v ),
-                 m_length( v.as< std::size_t >() )
-            {}
-
-            json::value validate( const value& v ) const override
-            {
-               if( auto e = array( m_source ).validate( v ) ) {
-                  return e;
-               }
-               return T()( m_length, v.unsafe_get_array().size() ) ? ok() : error( v, "wrong array size" );
-            }
-         };
-
-         using min_items = array_length< std::less_equal<> >;
-         using max_items = array_length< std::greater_equal<> >;
 
          struct unique_items : node_base
          {
@@ -566,7 +548,7 @@ namespace tao::config
             }
          };
 
-         struct array_ref : ref
+         struct items : ref
          {
             using ref::ref;
 
@@ -583,28 +565,6 @@ namespace tao::config
                return ok();
             }
          };
-
-         template< typename T >
-         struct object_length : node_base
-         {
-            const std::size_t m_length;
-
-            explicit object_length( const value& v )
-               : node_base( v ),
-                 m_length( v.as< std::size_t >() )
-            {}
-
-            json::value validate( const value& v ) const override
-            {
-               if( auto e = object( m_source ).validate( v ) ) {
-                  return e;
-               }
-               return T()( m_length, v.unsafe_get_object().size() ) ? ok() : error( v, "wrong array size" );
-            }
-         };
-
-         using min_properties = object_length< std::less_equal<> >;
-         using max_properties = object_length< std::greater_equal<> >;
 
          struct property_names : ref
          {
@@ -832,13 +792,13 @@ namespace tao::config
 
                // value (generic)
                add< constant >( internal::find( v, "value" ) );
-               add< istring >( internal::find( v, "istring" ) );
                add< list< any_of, constant > >( internal::find( v, "enum" ) );
+               add< istring >( internal::find( v, "istring" ) );
 
-               // string/binary
-               add< length >( internal::find( v, "length" ) );
-               add< min_length >( internal::find( v, "min_length" ) );
-               add< max_length >( internal::find( v, "max_length" ) );
+               // string/binary/array/object
+               add< size >( internal::find( v, "size" ) );
+               add< min_size >( internal::find( v, "min_size" ) );
+               add< max_size >( internal::find( v, "max_size" ) );
 
                // string
                add< pattern >( internal::find( v, "pattern" ) );
@@ -854,9 +814,7 @@ namespace tao::config
                add< multiple_of >( internal::find( v, "multiple_of" ) );
 
                // array
-               add< min_items >( internal::find( v, "min_items" ) );
-               add< max_items >( internal::find( v, "max_items" ) );
-               add< array_ref >( internal::find( v, "items" ), m, path );
+               add< items >( internal::find( v, "items" ), m, path );
                if( const auto& n = internal::find( v, "unique_items" ) ) {
                   if( n.as< bool >() ) {
                      m_properties.emplace_back( std::make_unique< unique_items >( v ) );
@@ -864,8 +822,6 @@ namespace tao::config
                }
 
                // object
-               add< min_properties >( internal::find( v, "min_properties" ) );
-               add< max_properties >( internal::find( v, "max_properties" ) );
                add< property_names >( internal::find( v, "property_names" ), m, path );
                add< property >( internal::find( v, "property" ), m, path );
                if( const auto& p = internal::find( v, "properties" ) ) {
@@ -993,9 +949,10 @@ namespace tao::config
                 enum.items: true
                 istring: [ "string", { items: "string" } ]
 
-                length: "unsigned"
-                min_length: "unsigned"
-                max_length: "unsigned"
+                size: "unsigned"
+                min_size: "unsigned"
+                max_size: "unsigned"
+
                 pattern: "regex"
 
                 minimum: "number"
@@ -1004,18 +961,13 @@ namespace tao::config
                 exclusive_maximum: "number"
                 multiple_of.exclusive_minimum: 0
 
-                min_items: "unsigned"
-                max_items: "unsigned"
                 items: "ref"
                 unique_items: "boolean"
 
-                min_properties: "unsigned"
-                max_properties: "unsigned"
                 property_names: "ref"
                 property
                 {
-                    min_properties: 1
-                    max_properties: 1
+                    size: 1
                     properties.additional: "ref"
                 }
                 properties.properties.optional
