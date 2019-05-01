@@ -226,6 +226,23 @@ namespace tao::config
             }
          };
 
+         struct all_of : container
+         {
+            using container::container;
+
+            json::value validate( const value& v ) const override
+            {
+               const auto& vs = v.skip_value_ptr();
+               for( const auto& p : m_properties ) {
+                  if( auto e = p->validate( vs ) ) {
+                     // short-circuit
+                     return e;
+                  }
+               }
+               return ok();
+            }
+         };
+
          struct any_of : container
          {
             using container::container;
@@ -244,25 +261,7 @@ namespace tao::config
                      return ok();
                   }
                }
-
                return error( v, "no match", { { "errors", std::move( errors ) } } );
-            }
-         };
-
-         struct all_of : container
-         {
-            using container::container;
-
-            json::value validate( const value& v ) const override
-            {
-               const auto& vs = v.skip_value_ptr();
-               for( const auto& p : m_properties ) {
-                  if( auto e = p->validate( vs ) ) {
-                     // short-circuit
-                     return e;
-                  }
-               }
-               return ok();
             }
          };
 
@@ -939,7 +938,7 @@ namespace tao::config
             key.pattern: "^[a-zA-Z_][a-zA-Z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*$"
 
             ref.any_of: [ "boolean", "key", "ref_list", "schema" ]
-            ref_list.items: "ref"
+            ref_list: { min_size: 1, items: "ref" }
 
             schema
             {
@@ -1005,6 +1004,10 @@ namespace tao::config
 
                 definitions
                 {
+                    has_then_or_else.any_of: [
+                        { property.then: true }
+                        { property.else: true }
+                    ]
                     has_size.any_of: [
                         { property.type.enum: [ "string", "binary", "array", "object" ] }
                         { property.size: true }
@@ -1039,8 +1042,9 @@ namespace tao::config
 
                 all_of
                 [
-                    { exclusive: [ "schema.is_string", "schema.is_number", "schema.is_array", "schema.is_object" ] }
+                    { if: "schema.has_then_or_else" then.property.if: true }
                     { exclusive: [ "schema.has_size", "schema.is_number" ] }
+                    { exclusive: [ "schema.is_string", "schema.is_number", "schema.is_array", "schema.is_object" ] }
                 ]
             }
         }
