@@ -298,36 +298,6 @@ namespace tao::config
             }
          };
 
-         struct exclusive : container
-         {
-            using container::container;
-
-            json::value validate( const value& v ) const override
-            {
-               const auto& vs = v.skip_value_ptr();
-
-               json::value errors = json::empty_array;
-               std::vector< node* > matched;
-               for( const auto& p : m_properties ) {
-                  if( auto e = p->validate( vs ) ) {
-                     errors.unsafe_emplace_back( std::move( e ) );
-                  }
-                  else {
-                     matched.emplace_back( p.get() );
-                  }
-               }
-
-               if( matched.size() <= 1 ) {
-                  return ok();
-               }
-               json::value data = json::empty_array;
-               for( const auto& e : matched ) {
-                  data.unsafe_emplace_back( e->pos() );
-               }
-               return error( v, "multiple matches found", { { "matched", data } } );
-            }
-         };
-
          struct ref : node
          {
             std::unique_ptr< node > m_node;
@@ -837,7 +807,6 @@ namespace tao::config
                add< list< all_of, ref > >( internal::find( v, "all_of" ), m, path );
                add< list< any_of, ref > >( internal::find( v, "any_of" ), m, path );
                add< list< one_of, ref > >( internal::find( v, "one_of" ), m, path );
-               add< list< exclusive, ref > >( internal::find( v, "exclusive" ), m, path );
 
                if( const auto& n = internal::find( v, "if" ) ) {
                   auto p = std::make_unique< if_then_else >( n, m, path );
@@ -990,7 +959,6 @@ namespace tao::config
                     all_of: "ref_list"  // short-circuit
                     any_of: "ref_list"  // short-circuit
                     one_of: "ref_list"  // exactly one
-                    exclusive: "ref_list"  // at most one
 
                     if: "ref"
                     then: "ref"
@@ -1047,7 +1015,7 @@ namespace tao::config
                         { has_property: [ "istring", "pattern" ] }
                     ]
                     is_number.any_of: [
-                        { property.type.value: "number" }
+                        { property.type.enum: [ "number", "integer" ] }
                         { has_property: [ "minimum", "maximum", "exclusive_minimum", "exclusive_maximum", "multiple_of" ] }
                     ]
                     is_array.any_of: [
@@ -1062,9 +1030,21 @@ namespace tao::config
 
                 all_of
                 [
-                    { if.has_property: [ "then", "else" ] then.has_property: "if" }
-                    { exclusive: [ "schema.has_size", "schema.is_number" ] }
-                    { exclusive: [ "schema.is_string", "schema.is_number", "schema.is_array", "schema.is_object" ] }
+                    { if.has_property: "if" then.has_property: [ "then", "else" ] }
+                    { if.not.has_property: "if" then.not.has_property: [ "then", "else" ] }
+
+                    {
+                        if.property.type.enum: [ "null", "boolean", "binary" ]
+                        then.not: [ "schema.is_string", "schema.is_number", "schema.is_array", "schema.is_object" ]
+                    }
+
+                    { if: "schema.has_size" then.not: "schema.is_number" }
+                    { if: "schema.is_string" then.not: [ "schema.is_number", "schema.is_array", "schema.is_object" ] }
+                    { if: "schema.is_number" then.not: [ "schema.is_array", "schema.is_object" ] }
+                    { if: "schema.is_array" then.not: [ "schema.is_object" ] }
+                    { if.has_property: "size" then.not.has_property: [ "min_size", "max_size" ] }
+                    { if.has_property: "minimum" then.not.has_property: "exclusive_minimum" }
+                    { if.has_property: "maximum" then.not.has_property: "exclusive_maximum" }
                 ]
             }
         }
