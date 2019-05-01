@@ -605,6 +605,38 @@ namespace tao::config
             }
          };
 
+         struct has_property : node
+         {
+            std::vector< std::string > m_keys;
+
+            explicit has_property( const value& v )
+               : node( v )
+            {
+               if( v.is_string_type() ) {
+                  m_keys.emplace_back( v.as< std::string_view >() );
+               }
+               else {
+                  for( const auto& e : v.get_array() ) {
+                     m_keys.emplace_back( e.as< std::string_view >() );
+                  }
+               }
+            }
+
+            json::value validate( const value& v ) const override
+            {
+               if( auto e = object( m_source ).validate( v ) ) {
+                  return e;
+               }
+               const auto& o = v.unsafe_get_object();
+               for( const auto& k : m_keys ) {
+                  if( o.find( k ) != o.end() ) {
+                     return ok();
+                  }
+               }
+               return error( v, "missing property", { { "keys", m_keys } } );
+            }
+         };
+
          struct property : node
          {
             std::string m_key;
@@ -848,6 +880,7 @@ namespace tao::config
 
                // object
                add< property_names >( internal::find( v, "property_names" ), m, path );
+               add< has_property >( internal::find( v, "has_property" ) );
                add< property >( internal::find( v, "property" ), m, path );
                if( const auto& p = internal::find( v, "properties" ) ) {
                   auto n = std::make_unique< properties >( v );
@@ -989,6 +1022,7 @@ namespace tao::config
 
                     // object
                     property_names: "ref"
+                    has_property: [ "string", { items: "string" } ]
                     property
                     {
                         size: 1
@@ -1004,45 +1038,31 @@ namespace tao::config
 
                 definitions
                 {
-                    has_then_or_else.any_of: [
-                        { property.then: true }
-                        { property.else: true }
-                    ]
                     has_size.any_of: [
                         { property.type.enum: [ "string", "binary", "array", "object" ] }
-                        { property.size: true }
-                        { property.min_size: true }
-                        { property.max_size: true }
+                        { has_property: [ "size", "min_size", "max_size" ] }
                     ]
                     is_string.any_of: [
                         { property.type.value: "string" }
-                        { property.istring: true }
-                        { property.pattern: true }
+                        { has_property: [ "istring", "pattern" ] }
                     ]
                     is_number.any_of: [
                         { property.type.value: "number" }
-                        { property.minimum: true }
-                        { property.maximum: true }
-                        { property.exclusive_minimum: true }
-                        { property.exclusive_maximum: true }
-                        { property.multiple_of: true }
+                        { has_property: [ "minimum", "maximum", "exclusive_minimum", "exclusive_maximum", "multiple_of" ] }
                     ]
                     is_array.any_of: [
                         { property.type.value: "array" }
-                        { property.items: true }
-                        { property.unique_items: true }
+                        { has_property: [ "items", "unique_items" ] }
                     ]
                     is_object.any_of: [
                         { property.type.value: "object" }
-                        { property.property_names: true }
-                        { property.property: true }
-                        { properties.property: true }
+                        { has_property: [ "property_names", "has_property", "property", "properties" ] }
                     ]
                 }
 
                 all_of
                 [
-                    { if: "schema.has_then_or_else" then.property.if: true }
+                    { if.has_property: [ "then", "else" ] then.has_property: "if" }
                     { exclusive: [ "schema.has_size", "schema.is_number" ] }
                     { exclusive: [ "schema.is_string", "schema.is_number", "schema.is_array", "schema.is_object" ] }
                 ]
