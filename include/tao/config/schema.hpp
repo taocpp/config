@@ -299,6 +299,36 @@ namespace tao::config
             }
          };
 
+         struct exclusive : container
+         {
+            using container::container;
+
+            json::value validate( const value& v ) const override
+            {
+               const auto& vs = v.skip_value_ptr();
+
+               json::value errors = json::empty_array;
+               std::vector< node* > matched;
+               for( const auto& p : m_properties ) {
+                  if( auto e = p->validate( vs ) ) {
+                     errors.unsafe_emplace_back( std::move( e ) );
+                  }
+                  else {
+                     matched.emplace_back( p.get() );
+                  }
+               }
+
+               if( matched.size() <= 1 ) {
+                  return ok();
+               }
+               json::value data = json::empty_array;
+               for( const auto& e : matched ) {
+                  data.unsafe_emplace_back( e->pos() );
+               }
+               return error( v, "multiple matches found", { { "matched", data } } );
+            }
+         };
+
          struct ref : node
          {
             std::unique_ptr< node > m_node;
@@ -769,15 +799,14 @@ namespace tao::config
                   }
                }
 
-               // ref
-               add< ref >( internal::find( v, "type" ), m, path );
-
                // structural
+               add< ref >( internal::find( v, "type" ), m, path );
                add< not_ref >( internal::find( v, "not" ), m, path );
 
                add< list< all_of, ref > >( internal::find( v, "all_of" ), m, path );
                add< list< any_of, ref > >( internal::find( v, "any_of" ), m, path );
                add< list< one_of, ref > >( internal::find( v, "one_of" ), m, path );
+               add< list< exclusive, ref > >( internal::find( v, "exclusive" ), m, path );
 
                if( const auto& n = internal::find( v, "if" ) ) {
                   auto p = std::make_unique< if_then_else >( n, m, path );
@@ -912,63 +941,107 @@ namespace tao::config
             ref.any_of: [ "boolean", "key", "ref_list", "schema" ]
             ref_list.items: "ref"
 
-            schema.properties.optional
+            schema
             {
+                properties.optional
+                {
+                    definitions
+                    {
+                        property_names: "identifier"
+                        properties.additional: "schema"
+                    }
+
+                    // structural
+                    type: "ref"
+                    not: "ref"
+
+                    all_of: "ref_list"  // short-circuit
+                    any_of: "ref_list"  // short-circuit
+                    one_of: "ref_list"  // exactly one
+                    exclusive: "ref_list"  // at most one
+
+                    if: "ref"
+                    then: "ref"
+                    else: "ref"
+
+                    // any
+                    value: true
+                    enum.items: true
+
+                    // string/binary/array/object
+                    size: "unsigned"
+                    min_size: "unsigned"
+                    max_size: "unsigned"
+
+                    // string
+                    istring: [ "string", { items: "string" } ]
+                    pattern: "regex"
+
+                    // number
+                    minimum: "number"
+                    maximum: "number"
+                    exclusive_minimum: "number"
+                    exclusive_maximum: "number"
+                    multiple_of.exclusive_minimum: 0
+
+                    // array
+                    items: "ref"
+                    unique_items: "boolean"
+
+                    // object
+                    property_names: "ref"
+                    property
+                    {
+                        size: 1
+                        properties.additional: "ref"
+                    }
+                    properties.properties.optional
+                    {
+                        required.properties.additional: "ref"
+                        optional.properties.additional: "ref"
+                        additional: "ref"
+                    }
+                }
+
                 definitions
                 {
-                    property_names: "identifier"
-                    properties.additional: "schema"
+                    has_size.any_of: [
+                        { property.type.enum: [ "string", "binary", "array", "object" ] }
+                        { property.size: true }
+                        { property.min_size: true }
+                        { property.max_size: true }
+                    ]
+                    is_string.any_of: [
+                        { property.type.value: "string" }
+                        { property.istring: true }
+                        { property.pattern: true }
+                    ]
+                    is_number.any_of: [
+                        { property.type.value: "number" }
+                        { property.minimum: true }
+                        { property.maximum: true }
+                        { property.exclusive_minimum: true }
+                        { property.exclusive_maximum: true }
+                        { property.multiple_of: true }
+                    ]
+                    is_array.any_of: [
+                        { property.type.value: "array" }
+                        { property.items: true }
+                        { property.unique_items: true }
+                    ]
+                    is_object.any_of: [
+                        { property.type.value: "object" }
+                        { property.property_names: true }
+                        { property.property: true }
+                        { properties.property: true }
+                    ]
                 }
 
-                // structural
-                type: "ref"
-                not: "ref"
-
-                all_of: "ref_list"
-                any_of: "ref_list"
-                one_of: "ref_list"
-
-                if: "ref"
-                then: "ref"
-                else: "ref"
-
-                // any
-                value: true
-                enum.items: true
-
-                // string/binary/array/object
-                size: "unsigned"
-                min_size: "unsigned"
-                max_size: "unsigned"
-
-                // string
-                istring: [ "string", { items: "string" } ]
-                pattern: "regex"
-
-                // number
-                minimum: "number"
-                maximum: "number"
-                exclusive_minimum: "number"
-                exclusive_maximum: "number"
-                multiple_of.exclusive_minimum: 0
-
-                // array
-                items: "ref"
-                unique_items: "boolean"
-
-                // object
-                property_names: "ref"
-                property
-                {
-                    size: 1
-                    properties.additional: "ref"
-                }
-                properties.properties.optional
-                {
-                    required.properties.additional: "ref"
-                    optional.properties.additional: "ref"
-                    additional: "ref"
-                }
+                all_of
+                [
+                    { exclusive: [ "schema.is_string", "schema.is_number", "schema.is_array", "schema.is_object" ] }
+                    { exclusive: [ "schema.has_size", "schema.is_number" ] }
+                ]
             }
         }
 
