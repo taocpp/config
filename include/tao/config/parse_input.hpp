@@ -4,8 +4,6 @@
 #ifndef TAO_CONFIG_PARSE_INPUT_HPP
 #define TAO_CONFIG_PARSE_INPUT_HPP
 
-#include <utility>
-
 #include "value.hpp"
 
 #include "internal/action.hpp"
@@ -23,15 +21,24 @@ namespace tao::config
    template< template< typename... > class Traits, typename Input >
    json::basic_value< Traits > basic_parse_input( Input&& in )
    {
-      internal::state st;
-      pegtl::parse< internal::rules::grammar, internal::action, internal::control >( std::forward< Input >( in ), st );
-      return internal::phase2< Traits >( in.source(), st );
+      try {
+         internal::state st;
+         pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );
+         return internal::phase2< Traits >( in.source(), st );
+      }
+      catch( const pegtl::parse_error& e ) {
+         const auto p = e.positions.front();
+         std::cerr << p << ": " << e.what() << std::endl
+                   << in.line_at( p ) << std::endl
+                   << std::string( p.byte_in_line, ' ' ) << '^' << std::endl;
+         throw;
+      }
    }
 
    template< typename Input >
    inline value parse_input( Input&& in )
    {
-      return basic_parse_input< traits >( std::forward< Input >( in ) );
+      return basic_parse_input< traits >( in );
    }
 
 }  // namespace tao::config
