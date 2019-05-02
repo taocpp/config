@@ -1030,7 +1030,7 @@ namespace tao::config
 
                 all_of
                 [
-                    { if.has_property: "value" then.any_of: [ { size: 1 }, { size: 2, has_property: "definitions" } ] }
+                    { if.has_property: "value" then: [ { size: 1 }, { size: 2, has_property: "definitions" } ] }
                     { if.has_property: "if" then.has_property: "then" else.not.has_property: "then" }
                     { if.has_property: "else" then.has_property: "then" }
 
