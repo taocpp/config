@@ -790,7 +790,7 @@ namespace tao::config
                   for( const auto& e : d.get_object() ) {
                      assert( is_identifier( e.first ) );
                      auto p = path.empty() ? e.first : ( path + '.' + e.first );
-                     auto n = std::make_unique< schema >( e.second, m, p );
+                     auto n = std::make_unique< ref >( e.second, m, p );
                      if( !m.emplace( p, std::move( n ) ).second ) {
                         std::ostringstream os;
                         os << "type '" << p << "' already defined, redefined here:";
@@ -939,7 +939,7 @@ namespace tao::config
             identifier.pattern: "^[a-zA-Z_][a-zA-Z0-9_]*$"
             key.pattern: "^[a-zA-Z_][a-zA-Z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*$"
 
-            ref.any_of: [ "boolean", "key", "ref_list", "schema" ]
+            ref: [ "boolean", "key", "ref_list", "schema" ]
             ref_list: { min_size: 1, items: "ref" }
 
             schema
@@ -949,7 +949,7 @@ namespace tao::config
                     definitions
                     {
                         property_names: "identifier"
-                        properties.additional: "schema"
+                        properties.additional: "ref"
                     }
 
                     // structural
@@ -1006,23 +1006,23 @@ namespace tao::config
 
                 definitions
                 {
-                    has_size.any_of: [
+                    has_size: [
                         { property.type.enum: [ "string", "binary", "array", "object" ] }
                         { has_property: [ "size", "min_size", "max_size" ] }
                     ]
-                    is_string.any_of: [
+                    is_string: [
                         { property.type.value: "string" }
                         { has_property: [ "istring", "pattern" ] }
                     ]
-                    is_number.any_of: [
+                    is_number: [
                         { property.type.enum: [ "number", "integer" ] }
                         { has_property: [ "minimum", "maximum", "exclusive_minimum", "exclusive_maximum", "multiple_of" ] }
                     ]
-                    is_array.any_of: [
+                    is_array: [
                         { property.type.value: "array" }
                         { has_property: [ "items", "unique_items" ] }
                     ]
-                    is_object.any_of: [
+                    is_object: [
                         { property.type.value: "object" }
                         { has_property: [ "property_names", "has_property", "property", "properties" ] }
                     ]
