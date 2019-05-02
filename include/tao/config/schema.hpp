@@ -1030,8 +1030,7 @@ namespace tao::config
 
                 all_of
                 [
-                    { if.has_property: "if" then.has_property: [ "then", "else" ] }
-                    { if.not.has_property: "if" then.not.has_property: [ "then", "else" ] }
+                    { if.has_property: "if" then.has_property: [ "then", "else" ] else.not.has_property: [ "then", "else" ] }
 
                     {
                         if.property.type.enum: [ "null", "boolean", "binary" ]
