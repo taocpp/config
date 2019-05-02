@@ -520,6 +520,24 @@ namespace tao::config
             }
          };
 
+         struct items : ref
+         {
+            using ref::ref;
+
+            json::value validate( const value& v ) const override
+            {
+               if( auto e = array( m_source ).validate( v ) ) {
+                  return e;
+               }
+               for( const auto& e : v.unsafe_get_array() ) {
+                  if( ref::validate( e ) ) {
+                     return error( v, "invalid item" );
+                  }
+               }
+               return ok();
+            }
+         };
+
          struct unique_items : node
          {
             using node::node;
@@ -539,7 +557,7 @@ namespace tao::config
             }
          };
 
-         struct items : ref
+         struct contains : ref
          {
             using ref::ref;
 
@@ -549,11 +567,11 @@ namespace tao::config
                   return e;
                }
                for( const auto& e : v.unsafe_get_array() ) {
-                  if( ref::validate( e ) ) {
-                     return error( v, "invalid item" );
+                  if( !ref::validate( e ) ) {
+                     return ok();
                   }
                }
-               return ok();
+               return error( v, "no valid item found" );
             }
          };
 
@@ -846,6 +864,7 @@ namespace tao::config
                      m_properties.emplace_back( std::make_unique< unique_items >( v ) );
                   }
                }
+               add< contains >( internal::find( v, "contains" ), m, path );
 
                // object
                add< property_names >( internal::find( v, "property_names" ), m, path );
@@ -987,6 +1006,7 @@ namespace tao::config
                     // array
                     items: "ref"
                     unique_items: "boolean"
+                    contains: "ref"
 
                     // object
                     property_names: "ref"
@@ -1020,7 +1040,7 @@ namespace tao::config
                     ]
                     is_array: [
                         { property.type.value: "array" }
-                        { has_property: [ "items", "unique_items" ] }
+                        { has_property: [ "items", "unique_items", "contains" ] }
                     ]
                     is_object: [
                         { property.type.value: "object" }
