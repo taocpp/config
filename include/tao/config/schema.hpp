@@ -557,24 +557,6 @@ namespace tao::config
             }
          };
 
-         struct contains : ref
-         {
-            using ref::ref;
-
-            json::value validate( const value& v ) const override
-            {
-               if( auto e = array( m_source ).validate( v ) ) {
-                  return e;
-               }
-               for( const auto& e : v.unsafe_get_array() ) {
-                  if( !ref::validate( e ) ) {
-                     return ok();
-                  }
-               }
-               return error( v, "no valid item found" );
-            }
-         };
-
          struct property_names : ref
          {
             using ref::ref;
@@ -864,7 +846,6 @@ namespace tao::config
                      m_properties.emplace_back( std::make_unique< unique_items >( v ) );
                   }
                }
-               add< contains >( internal::find( v, "contains" ), m, path );
 
                // object
                add< property_names >( internal::find( v, "property_names" ), m, path );
@@ -1006,7 +987,6 @@ namespace tao::config
                     // array
                     items: "ref"
                     unique_items: "boolean"
-                    contains: "ref"
 
                     // object
                     property_names: "ref"
@@ -1040,7 +1020,7 @@ namespace tao::config
                     ]
                     is_array: [
                         { property.type.value: "array" }
-                        { has_property: [ "items", "unique_items", "contains" ] }
+                        { has_property: [ "items", "unique_items" ] }
                     ]
                     is_object: [
                         { property.type.value: "object" }
