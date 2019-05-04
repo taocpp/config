@@ -19,6 +19,7 @@
 #include "parse_input.hpp"
 #include "value.hpp"
 
+#include <tao/json/external/pegtl/contrib/json_pointer.hpp>
 #include <tao/json/external/pegtl/contrib/uri.hpp>
 
 namespace tao::config
@@ -948,11 +949,21 @@ namespace tao::config
             add_builtin< internal::is< pegtl::identifier > >( "std.identifier" );
             add_builtin< internal::is< pegtl::list< pegtl::identifier, pegtl::one< '.' > > > >( "std.key" );
 
+            add_builtin< internal::is< pegtl::json_pointer::json_pointer > >( "std.json_pointer" );
+            add_builtin< internal::is< pegtl::json_pointer::relative_json_pointer > >( "std.relative_json_pointer" );
+
             add_builtin< internal::is< pegtl::uri::URI > >( "std.net.uri" );
-            add_builtin< internal::is< pegtl::uri::IPv4address > >( "std.net.ip_v4" );
-            add_builtin< internal::is< pegtl::uri::IPv6address > >( "std.net.ip_v6" );
-            // TODO: IP ranges / subnets / ...
-            // TODO: MAC
+            add_builtin< internal::is< pegtl::uri::URI_reference > >( "std.net.uri_reference" );
+            add_builtin< internal::is< pegtl::uri::IPv4address > >( "std.net.ip_v4_address" );
+            add_builtin< internal::is< pegtl::uri::IPv6address > >( "std.net.ip_v6_address" );
+
+            // TODO:
+            // IP prefix (RFC 2673 / RFC 4291)
+            // MAC
+            // date/time/... (RFC 3339)
+            // email addresses
+            // IRI/IRI_reference
+            // ...
 
             m_nodes.emplace( "", std::make_unique< internal::schema >( v, m_nodes ) );
 
