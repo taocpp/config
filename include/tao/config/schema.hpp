@@ -19,6 +19,8 @@
 #include "parse_input.hpp"
 #include "value.hpp"
 
+#include <tao/json/external/pegtl/contrib/uri.hpp>
+
 namespace tao::config
 {
    namespace schema
@@ -177,26 +179,6 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                return v.is_object() ? ok() : error( v, "expected object" );
-            }
-         };
-
-         struct integer : node
-         {
-            using node::node;
-
-            json::value validate( const value& v ) const override
-            {
-               if( auto e = number( m_source ).validate( v ) ) {
-                  return e;
-               }
-               if( v.is_double() ) {
-                  const double d = v.as< double >();
-                  double dummy;
-                  if( std::modf( d, &dummy ) != 0 ) {
-                     return error( v, "expected integer", { { "value", d } } );
-                  }
-               }
-               return ok();
             }
          };
 
@@ -446,26 +428,6 @@ namespace tao::config
                }
                const std::string_view sv = v.as< std::string_view >();
                return std::regex_search( sv.begin(), sv.end(), m_regex ) ? ok() : error( v, "pattern did not match" );
-            }
-         };
-
-         struct regex : node
-         {
-            using node::node;
-
-            json::value validate( const value& v ) const override
-            {
-               if( auto e = string( m_source ).validate( v ) ) {
-                  return e;
-               }
-               const std::string_view sv = v.as< std::string_view >();
-               try {
-                  std::regex( sv.begin(), sv.end() );
-               }
-               catch( const std::regex_error& ) {
-                  return error( v, "invalid regular expression" );
-               }
-               return ok();
             }
          };
 
@@ -886,6 +848,74 @@ namespace tao::config
             }
          }
 
+         struct is_integer : node
+         {
+            using node::node;
+
+            json::value validate( const value& v ) const override
+            {
+               if( auto e = number( m_source ).validate( v ) ) {
+                  return e;
+               }
+               if( v.is_double() ) {
+                  const double d = v.as< double >();
+                  double dummy;
+                  if( std::modf( d, &dummy ) != 0 ) {
+                     return error( v, "expected integer", { { "value", d } } );
+                  }
+               }
+               return ok();
+            }
+         };
+
+         struct is_unsigned : is_integer
+         {
+            using is_integer::is_integer;
+
+            json::value validate( const value& v ) const override
+            {
+               return is_integer::validate( v ) && ( v >= 0 );
+            }
+         };
+
+         struct is_regex : node
+         {
+            using node::node;
+
+            json::value validate( const value& v ) const override
+            {
+               if( auto e = string( m_source ).validate( v ) ) {
+                  return e;
+               }
+               const std::string_view sv = v.as< std::string_view >();
+               try {
+                  std::regex( sv.begin(), sv.end() );
+                  return ok();
+               }
+               catch( const std::regex_error& ) {
+                  return error( v, "invalid regex" );
+               }
+            }
+         };
+
+         template< typename Grammar >
+         struct is : node
+         {
+            using node::node;
+
+            json::value validate( const value& v ) const override
+            {
+               if( auto e = string( m_source ).validate( v ) ) {
+                  return e;
+               }
+               const std::string_view sv = v.as< std::string_view >();
+               if( pegtl::parse< pegtl::seq< Grammar, pegtl::eof > >( pegtl::memory_input( sv, "<internal>" ) ) ) {
+                  return ok();
+               }
+               return error( v, "invalid format" );
+            }
+         };
+
       }  // namespace internal
 
       struct validator
@@ -911,8 +941,18 @@ namespace tao::config
             add_builtin< internal::array >( "array" );
             add_builtin< internal::object >( "object" );
 
-            add_builtin< internal::integer >( "integer" );
-            add_builtin< internal::regex >( "regex" );
+            add_builtin< internal::is_integer >( "std.integer" );
+            add_builtin< internal::is_unsigned >( "std.unsigned" );
+            add_builtin< internal::is_regex >( "std.regex" );
+
+            add_builtin< internal::is< pegtl::identifier > >( "std.identifier" );
+            add_builtin< internal::is< pegtl::list< pegtl::identifier, pegtl::one< '.' > > > >( "std.key" );
+
+            add_builtin< internal::is< pegtl::uri::URI > >( "std.net.uri" );
+            add_builtin< internal::is< pegtl::uri::IPv4address > >( "std.net.ip_v4" );
+            add_builtin< internal::is< pegtl::uri::IPv6address > >( "std.net.ip_v6" );
+            // TODO: IP ranges / subnets / ...
+            // TODO: MAC
 
             m_nodes.emplace( "", std::make_unique< internal::schema >( v, m_nodes ) );
 
@@ -934,12 +974,7 @@ namespace tao::config
 
         definitions
         {
-            unsigned: { type: "integer", minimum: 0 }
-
-            identifier.pattern: "^[a-zA-Z_][a-zA-Z0-9_]*$"
-            key.pattern: "^[a-zA-Z_][a-zA-Z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*$"
-
-            ref: [ "boolean", "key", "ref_list", "schema" ]
+            ref: [ "boolean", "std.key", "ref_list", "schema" ]
             ref_list: { min_size: 1, items: "ref" }
 
             schema
@@ -948,7 +983,7 @@ namespace tao::config
                 {
                     definitions
                     {
-                        property_names: "identifier"
+                        property_names: "std.identifier"
                         properties.additional: "ref"
                     }
 
@@ -969,13 +1004,13 @@ namespace tao::config
                     enum.items: true
 
                     // string/binary/array/object
-                    size: "unsigned"
-                    min_size: "unsigned"
-                    max_size: "unsigned"
+                    size: "std.unsigned"
+                    min_size: "std.unsigned"
+                    max_size: "std.unsigned"
 
                     // string
                     istring: [ "string", { items: "string" } ]
-                    pattern: "regex"
+                    pattern: "std.regex"
 
                     // number
                     minimum: "number"
@@ -1015,7 +1050,7 @@ namespace tao::config
                         { has_property: [ "istring", "pattern" ] }
                     ]
                     is_number: [
-                        { property.type.enum: [ "number", "integer" ] }
+                        { property.type.enum: [ "number", "std.integer" ] }
                         { has_property: [ "minimum", "maximum", "exclusive_minimum", "exclusive_maximum", "multiple_of" ] }
                     ]
                     is_array: [
@@ -1030,7 +1065,7 @@ namespace tao::config
 
                 all_of
                 [
-                    { if.has_property: "value" then: [ { size: 1 }, { size: 2, has_property: "definitions" } ] }
+                    { if.has_property: "value" then.properties.optional: { value: true, definitions: true } }
                     { if.has_property: "if" then.has_property: "then" else.not.has_property: "then" }
                     { if.has_property: "else" then.has_property: "then" }
 

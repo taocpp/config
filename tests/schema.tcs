@@ -19,7 +19,7 @@ definitions
         required
         {
             a.istring: "baZ"
-            b: "integer"
+            b: "std.integer"
             c: "null"
         }
         optional
