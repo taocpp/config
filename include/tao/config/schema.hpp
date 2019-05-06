@@ -244,6 +244,7 @@ namespace tao::config
                      return ok();
                   }
                }
+               // TODO: Pick "best" error
                return error( v, "no match", { { "errors", std::move( errors ) } } );
             }
          };
@@ -271,6 +272,7 @@ namespace tao::config
                   return ok();
                }
                if( matched.empty() ) {
+                  // TODO: Pick "best" error
                   return error( v, "no match", { { "errors", std::move( errors ) } } );
                }
                json::value data = json::empty_array;
@@ -340,7 +342,6 @@ namespace tao::config
             json::value validate( const value& v ) const override
             {
                return ( v == m_source ) ? ok() : error( v, "value did not match" );
-               // TODO: return ( v == m_value ) ? ok() : error( v, "value did not match", { { "actual", v }, { "expected", m_value } } );
             }
          };
 
@@ -946,24 +947,47 @@ namespace tao::config
             add_builtin< internal::is_unsigned >( "std.unsigned" );
             add_builtin< internal::is_regex >( "std.regex" );
 
-            add_builtin< internal::is< pegtl::identifier > >( "std.identifier" );
-            add_builtin< internal::is< pegtl::list< pegtl::identifier, pegtl::one< '.' > > > >( "std.key" );
+            {
+               using namespace pegtl;
+               add_builtin< internal::is< identifier > >( "std.identifier" );
+               add_builtin< internal::is< pegtl::list< identifier, one< '.' > > > >( "std.key" );
 
-            add_builtin< internal::is< pegtl::json_pointer::json_pointer > >( "std.json_pointer" );
-            add_builtin< internal::is< pegtl::json_pointer::relative_json_pointer > >( "std.relative_json_pointer" );
+               add_builtin< internal::is< json_pointer::json_pointer > >( "std.json_pointer" );
+               add_builtin< internal::is< json_pointer::relative_json_pointer > >( "std.relative_json_pointer" );
 
-            add_builtin< internal::is< pegtl::uri::URI > >( "std.net.uri" );
-            add_builtin< internal::is< pegtl::uri::URI_reference > >( "std.net.uri_reference" );
-            add_builtin< internal::is< pegtl::uri::IPv4address > >( "std.net.ip_v4_address" );
-            add_builtin< internal::is< pegtl::uri::IPv6address > >( "std.net.ip_v6_address" );
+               using namespace uri;
+               add_builtin< internal::is< URI > >( "std.net.uri" );
+               add_builtin< internal::is< URI_reference > >( "std.net.uri_reference" );
+               add_builtin< internal::is< IPv4address > >( "std.net.ip_v4_address" );
+               add_builtin< internal::is< IPv6address > >( "std.net.ip_v6_address" );
+               add_builtin< internal::is< sor< IPv4address, IPv6address > > >( "std.net.ip_address" );
 
-            // TODO:
-            // IP prefix (RFC 2673 / RFC 4291)
-            // MAC
-            // date/time/... (RFC 3339)
-            // email addresses
-            // IRI/IRI_reference
-            // ...
+               struct m32
+                  : sor< one< '0' >,
+                         seq< one< '1', '2' >, digit >,
+                         seq< one< '3' >, one< '0', '1', '2' > > >
+               {};
+
+               struct ip_v4_cidr
+                  : seq< IPv4address, one< '/' >, m32 >
+               {};
+
+               struct m128
+                  : sor< one< '0' >,
+                         rep< 2, digit >,
+                         seq< one< '1' >,
+                              sor< seq< one< '0', '1' >, digit >,
+                                   seq< one< '2' >, range< '0', '8' > > > > >
+               {};
+
+               struct ip_v6_cidr
+                  : seq< IPv6address, one< '/' >, m128 >
+               {};
+
+               add_builtin< internal::is< ip_v4_cidr > >( "std.net.ip_v4_cidr" );
+               add_builtin< internal::is< ip_v6_cidr > >( "std.net.ip_v6_cidr" );
+               add_builtin< internal::is< sor< ip_v4_cidr, ip_v6_cidr > > >( "std.net.ip_cidr" );
+            }
 
             m_nodes.emplace( "", std::make_unique< internal::schema >( v, m_nodes ) );
 
@@ -1061,7 +1085,7 @@ namespace tao::config
                         { has_property: [ "istring", "pattern" ] }
                     ]
                     is_number: [
-                        { property.type.enum: [ "number", "std.integer" ] }
+                        { property.type.value: "number" }
                         { has_property: [ "minimum", "maximum", "exclusive_minimum", "exclusive_maximum", "multiple_of" ] }
                     ]
                     is_array: [
