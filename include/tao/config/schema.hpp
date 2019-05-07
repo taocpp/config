@@ -1113,7 +1113,7 @@ namespace tao::config
 
                     { if: "schema.is_string" then.not: [ "schema.is_number", "schema.is_array", "schema.is_object" ] }
                     { if: "schema.is_number" then.not: [ "schema.is_array", "schema.is_object" ] }
-                    { if: "schema.is_array" then.not: [ "schema.is_object" ] }
+                    { if: "schema.is_array" then.not: "schema.is_object" }
 
                     { if.has_property: "size" then.not.has_property: [ "min_size", "max_size" ] }
                     { if.has_property: "minimum" then.not.has_property: "exclusive_minimum" }
