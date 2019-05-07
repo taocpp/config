@@ -974,10 +974,10 @@ namespace tao::config
 
                struct m128
                   : sor< one< '0' >,
-                         rep< 2, digit >,
                          seq< one< '1' >,
                               sor< seq< one< '0', '1' >, digit >,
-                                   seq< one< '2' >, range< '0', '8' > > > > >
+                                   seq< one< '2' >, range< '0', '8' > > > >,
+                         rep< 2, digit > >
                {};
 
                struct ip_v6_cidr
