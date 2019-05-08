@@ -21,10 +21,7 @@ definitions
             a.istring: "baZ"
             b: "std.integer"
             c: "null"
-        }
-        optional
-        {
-            d: "string"
+            d: "std.net.ip_v4_cidr"
         }
     }
 }

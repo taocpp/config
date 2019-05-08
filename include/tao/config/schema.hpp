@@ -19,6 +19,7 @@
 #include "parse_input.hpp"
 #include "value.hpp"
 
+#include <tao/json/external/pegtl/contrib/ascii_numeric_string.hpp>
 #include <tao/json/external/pegtl/contrib/json_pointer.hpp>
 #include <tao/json/external/pegtl/contrib/uri.hpp>
 
@@ -958,32 +959,13 @@ namespace tao::config
                using namespace uri;
                add_builtin< internal::is< URI > >( "std.net.uri" );
                add_builtin< internal::is< URI_reference > >( "std.net.uri_reference" );
+
                add_builtin< internal::is< IPv4address > >( "std.net.ip_v4_address" );
                add_builtin< internal::is< IPv6address > >( "std.net.ip_v6_address" );
                add_builtin< internal::is< sor< IPv4address, IPv6address > > >( "std.net.ip_address" );
 
-               struct m32
-                  : sor< one< '0' >,
-                         seq< one< '1', '2' >, digit >,
-                         seq< one< '3' >, one< '0', '1', '2' > > >
-               {};
-
-               struct ip_v4_cidr
-                  : seq< IPv4address, one< '/' >, m32 >
-               {};
-
-               struct m128
-                  : sor< one< '0' >,
-                         seq< one< '1' >,
-                              sor< seq< one< '0', '1' >, digit >,
-                                   seq< one< '2' >, range< '0', '8' > > > >,
-                         rep< 2, digit > >
-               {};
-
-               struct ip_v6_cidr
-                  : seq< IPv6address, one< '/' >, m128 >
-               {};
-
+               using ip_v4_cidr = seq< IPv4address, one< '/' >, numeric_string< 32 > >;
+               using ip_v6_cidr = seq< IPv6address, one< '/' >, numeric_string< 128 > >;
                add_builtin< internal::is< ip_v4_cidr > >( "std.net.ip_v4_cidr" );
                add_builtin< internal::is< ip_v6_cidr > >( "std.net.ip_v6_cidr" );
                add_builtin< internal::is< sor< ip_v4_cidr, ip_v6_cidr > > >( "std.net.ip_cidr" );
