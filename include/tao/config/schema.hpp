@@ -877,7 +877,10 @@ namespace tao::config
 
             json::value validate( const value& v ) const override
             {
-               return is_integer::validate( v ) && ( v >= 0 );
+               if( auto e = is_integer::validate( v ) ) {
+                  return e;
+               }
+               return ( v >= 0 ) ? ok() : error( v, "expected positive integer" );
             }
          };
 
