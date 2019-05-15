@@ -27,7 +27,7 @@ namespace tao::config::schema
 {
    namespace internal
    {
-      const value& find( const value& v, const std::string& k )
+      inline const value& find( const value& v, const std::string& k )
       {
          static const value nope;
          const auto& o = v.get_object();
@@ -35,19 +35,19 @@ namespace tao::config::schema
          return ( it != o.end() ) ? it->second : nope;
       }
 
-      std::string pos( const json::position& p )
+      inline std::string pos( const json::position& p )
       {
          std::ostringstream os;
          p.append_message_extension( os );
          return os.str();
       }
 
-      json::value pos( const value& v )
+      inline json::value pos( const value& v )
       {
          return { { "key", config::to_string( v.key ) }, { "pos", pos( v.position ) } };
       }
 
-      json::value append_via( json::value& result, json::value&& via )
+      inline json::value append_via( json::value& result, json::value&& via )
       {
          auto& a = result[ "via" ];
          if( !a ) {
@@ -66,7 +66,7 @@ namespace tao::config::schema
          return result;
       }
 
-      json::value ok()
+      inline json::value ok()
       {
          return json::value();
       }
@@ -830,7 +830,7 @@ namespace tao::config::schema
          }
       };
 
-      ref::ref( const value& v, node_map& m, const std::string& path )
+      inline ref::ref( const value& v, node_map& m, const std::string& path )
          : node( v )
       {
          if( v.is_boolean() ) {
@@ -1119,14 +1119,14 @@ namespace tao::config::schema
    )", "schema" ) ) );
    // clang-format on
 
-   validator read( const std::string& filename )
+   inline validator read( const std::string& filename, builtin b = builtin() )
    {
       const auto data = config::parse_file( filename );
       if( const auto error = schema_validator.validate( data ) ) {
          std::cerr << std::setw( 2 ) << error << std::endl;
          throw std::runtime_error( "invalid schema file '" + filename + "'" );  // TODO: store error in exception
       }
-      return validator( data );
+      return validator( data, std::move( b ) );
    }
 
 }  // namespace tao::config::schema
