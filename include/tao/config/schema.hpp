@@ -19,7 +19,7 @@
 #include "parse_input.hpp"
 #include "value.hpp"
 
-#include <tao/json/external/pegtl/contrib/ascii_numeric_string.hpp>
+#include <tao/json/external/pegtl/contrib/integer.hpp>
 #include <tao/json/external/pegtl/contrib/json_pointer.hpp>
 #include <tao/json/external/pegtl/contrib/uri.hpp>
 
@@ -965,8 +965,8 @@ namespace tao::config::schema
             add< internal::is< IPv6address > >( "std.net.ip_v6_address" );
             add< internal::is< sor< IPv4address, IPv6address > > >( "std.net.ip_address" );
 
-            using ip_v4_cidr = seq< IPv4address, one< '/' >, numeric_string< 32 > >;
-            using ip_v6_cidr = seq< IPv6address, one< '/' >, numeric_string< 128 > >;
+            using ip_v4_cidr = seq< IPv4address, one< '/' >, integer::maximum_rule< std::uint8_t, 32 > >;
+            using ip_v6_cidr = seq< IPv6address, one< '/' >, integer::maximum_rule< std::uint8_t, 128 > >;
             add< internal::is< ip_v4_cidr > >( "std.net.ip_v4_cidr" );
             add< internal::is< ip_v6_cidr > >( "std.net.ip_v6_cidr" );
             add< internal::is< sor< ip_v4_cidr, ip_v6_cidr > > >( "std.net.ip_cidr" );
