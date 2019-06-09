@@ -24,7 +24,7 @@ Every JSON or JAXN file with a top-level JSON Object is also a valid taocpp/conf
 ## Comments
 
 The same kinds of comments as in JAXN are supported, "shell-style" until-end-of-line with `#`, "C++-style" until-end-of-line with `//`, and "C-style" non-nesting block comments with `/*` and `*/`.
-In particular, a first line starting with the traditional "shebang", i.e. `#!`, is possible.
+In particular, a first line starting with the traditional "shebang", i.e. `#!`, can be used as comment.
 
 ## State Model
 
