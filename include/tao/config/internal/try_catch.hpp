@@ -1,0 +1,34 @@
+// Copyright (c) 2019 Dr. Colin Hirsch and Daniel Frey
+// Please see LICENSE for license or visit https://github.com/taocpp/config/
+
+#ifndef TAO_CONFIG_INTERNAL_TRY_CATCH_HPP
+#define TAO_CONFIG_INTERNAL_TRY_CATCH_HPP
+
+#include <iostream>
+#include <stdexcept>
+
+#include "pegtl.hpp"
+#include "utility.hpp"
+
+namespace tao::config::internal
+{
+   template< typename F >
+   void try_catch( const F& f )
+   {
+      try {
+         f();
+      }
+      catch( const tao::json::pegtl::parse_error& e ) {
+         for( const auto& p : tao::config::internal::reverse( e.positions ) ) {
+            std::cerr << "at " << p << std::endl;
+         }
+         std::cerr << e.what() << std::endl;
+      }
+      catch( const std::exception& e ) {
+         std::cerr << e.what() << std::endl;
+      }
+   }
+
+}  // namespace tao::config::internal
+
+#endif

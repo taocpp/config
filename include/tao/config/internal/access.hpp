@@ -22,7 +22,7 @@ namespace tao::config::internal
    {
       for( const auto& i : reverse( l.entries() ) ) {
          if( !i.is_object() ) {
-            throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
+            throw pegtl::parse_error( format( "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
          }
          const auto j = i.get_object().find( k );
 
@@ -30,14 +30,14 @@ namespace tao::config::internal
             return access_impl( pos, j->second, p );
          }
       }
-      throw std::runtime_error( format( "object index not found", { &pos, { "string", k }, { "object", { &l.p } } } ) );
+      throw pegtl::parse_error( format( "object index not found", { { "string", k }, { "object", { &l.p } } } ), pos );
    }
 
    inline const concat& access_index( const position& pos, const concat& l, std::size_t n, const key& p )
    {
       for( const auto& i : l.entries() ) {
          if( !i.is_array() ) {
-            throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-array", { &i.position(), i.type() } } } ) );
+            throw pegtl::parse_error( format( "attempt to index non-array with integer", { { "integer", n }, { "non-array", { &i.position(), i.type() } } } ), pos );
          }
          const auto s = i.get_array().size();
 
@@ -48,20 +48,20 @@ namespace tao::config::internal
          }
          n -= s;
       }
-      throw std::runtime_error( format( "array index out of range", { &pos, { "integer", n }, { "array", { &l.p } } } ) );
+      throw pegtl::parse_error( format( "array index out of range", { { "integer", n }, { "array", { &l.p } } } ), pos );
    }
 
    inline const concat& access_minus( const position& pos, const concat& l, const key& p )
    {
       for( const auto& i : reverse( l.entries() ) ) {
          if( !i.is_array() ) {
-            throw std::runtime_error( format( "attempt to access last element in non-array", { &pos, { "non-array", { &i.position(), i.type() } } } ) );
+            throw pegtl::parse_error( format( "attempt to access last element in non-array", { { "non-array", { &i.position(), i.type() } } } ), pos );
          }
          if( !i.get_array().empty() ) {
             return access_impl( pos, i.get_array().back(), p );
          }
       }
-      throw std::runtime_error( format( "array has no last element to access", { &pos, { "array", { &l.p } } } ) );
+      throw pegtl::parse_error( format( "array has no last element to access", { { "array", { &l.p } } } ), pos );
    }
 
    inline const concat& access_impl( const position& pos, const concat& l, const part& t, const key& p )
@@ -72,7 +72,7 @@ namespace tao::config::internal
          case part::index:
             return access_index( pos, l, t.get_index(), p );
          case part::star:
-            throw std::runtime_error( format( "attempt to access star", { &pos } ) );
+            throw pegtl::parse_error( "attempt to access star", pos );
          case part::minus:
             return access_minus( pos, l, p );
       }
@@ -104,16 +104,16 @@ namespace tao::config::internal
       for( const auto& i : reverse( l.entries() ) ) {
          switch( i.type() ) {
             case entry::atom:
-               throw std::runtime_error( format( "addition of atom and object detected", { &pos } ) );
+               throw pegtl::parse_error( "addition of atom and object detected", pos );
             case entry::array:
-               throw std::runtime_error( format( "addition of array and object detected", { &pos } ) );
+               throw pegtl::parse_error( "addition of array and object detected", pos );
             case entry::object:
                if( const auto* c = access( pos, i.get_object(), k, p ) ) {
                   return *c;
                }
                break;
             case entry::reference:
-               throw std::runtime_error( format( "object index access across reference", { &pos, { "string", k } } ) );  // Alternatively print a warning and continue?
+               throw pegtl::parse_error( format( "object index access across reference", { { "string", k } } ), pos );  // Alternatively print a warning and continue?
             case entry::nothing:
                assert( false );
                break;
@@ -145,7 +145,7 @@ namespace tao::config::internal
             assert( false );
             break;
       }
-      throw std::runtime_error( format( "object index not found", { &pos, { "string", k }, e.type() } ) );
+      throw pegtl::parse_error( format( "object index not found", { { "string", k }, e.type() } ), pos );
    }
 
    inline const concat& access( const position& pos, const entry& e, const part& t, const key& p )

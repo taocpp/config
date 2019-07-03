@@ -58,7 +58,7 @@ namespace tao::config::internal
          st.temporary = json::cbor::from_string( st.temporary.as< std::string >() );
          return;
       }
-      throw std::runtime_error( format( "require string to parse cbor", { &pos, st.temporary.type() } ) );
+      throw pegtl::parse_error( format( "require string to parse cbor", { st.temporary.type() } ), pos );
    }
 
    template< typename Input >
@@ -74,7 +74,7 @@ namespace tao::config::internal
       const concat& s = access( pos, d.parent(), p );
 
       if( &d == &s ) {
-         throw std::runtime_error( format( "copy to self detected", { &pos, &p } ) );
+         throw pegtl::parse_error( format( "copy to self detected", { &p } ), pos );
       }
       d.append( s );  // TOOD: Modify/update d.position?
    }
@@ -126,7 +126,7 @@ namespace tao::config::internal
          st.temporary = json::jaxn::from_string( st.temporary.as< std::string >() );
          return;
       }
-      throw std::runtime_error( format( "require string to parse jaxn", { &pos, st.temporary.type() } ) );
+      throw pegtl::parse_error( format( "require string to parse jaxn", { st.temporary.type() } ), pos );
    }
 
    template< typename Input >
@@ -140,7 +140,7 @@ namespace tao::config::internal
          st.temporary = json::from_string( st.temporary.as< std::string >() );
          return;
       }
-      throw std::runtime_error( format( "require string to parse json", { &pos, st.temporary.type() } ) );
+      throw pegtl::parse_error( format( "require string to parse json", { st.temporary.type() } ), pos );
    }
 
    template< typename Input >
@@ -154,7 +154,7 @@ namespace tao::config::internal
          st.temporary = json::msgpack::from_string( st.temporary.as< std::string >() );
          return;
       }
-      throw std::runtime_error( format( "require string to parse msgpack", { &pos, st.temporary.type() } ) );
+      throw pegtl::parse_error( format( "require string to parse msgpack", { st.temporary.type() } ), pos );
    }
 
    template< typename Input >
@@ -171,7 +171,7 @@ namespace tao::config::internal
          pegtl::parse_nested< rules::value, action, control >( in, i2, st );
          return;
       }
-      throw std::runtime_error( format( "require string to parse value", { &pos, st.temporary.type() } ) );
+      throw pegtl::parse_error( format( "require string to parse value", { st.temporary.type() } ), pos );
    }
 
    template< typename Input >
@@ -185,7 +185,7 @@ namespace tao::config::internal
          st.temporary = read_file_throws( st.temporary.as< std::string >() );
          return;
       }
-      throw std::runtime_error( format( "require string as filename", { &pos, st.temporary.type() } ) );
+      throw pegtl::parse_error( format( "require string as filename", { st.temporary.type() } ), pos );
    }
 
    template< typename Input >
@@ -199,7 +199,7 @@ namespace tao::config::internal
          st.temporary = shell_popen_throws( pos, st.temporary.as< std::string >() );
          return;
       }
-      throw std::runtime_error( format( "require string for shell command", { &pos, st.temporary.type() } ) );
+      throw pegtl::parse_error( format( "require string for shell command", { st.temporary.type() } ), pos );
    }
 
    // clang-format off
@@ -234,7 +234,7 @@ namespace tao::config::internal
          pegtl::parse_nested< split_grammar, split_action >( in, i2, st.temporary );
          return;
       }
-      throw std::runtime_error( format( "require string to split", { &pos, st.temporary.type() } ) );
+      throw pegtl::parse_error( format( "require string to split", { st.temporary.type() } ), pos );
    }
 
    template< typename Input >
@@ -248,7 +248,7 @@ namespace tao::config::internal
          st.temporary = json::ubjson::from_string( st.temporary.as< std::string >() );
          return;
       }
-      throw std::runtime_error( format( "require string to parse ubjson", { &pos, st.temporary.type() } ) );
+      throw pegtl::parse_error( format( "require string to parse ubjson", { st.temporary.type() } ), pos );
    }
 
    template< typename Input >
@@ -287,7 +287,7 @@ namespace tao::config::internal
             pegtl::parse< pegtl::must< rules::round_z > >( in );
             return;
          }
-         throw std::runtime_error( format( "unknown value extension", { &pos, { "name", ext } } ) );
+         throw pegtl::parse_error( format( "unknown value extension", { { "name", ext } } ), pos );
       }
       st.temporary = obtain_string( in );
    }
@@ -320,7 +320,7 @@ namespace tao::config::internal
          st.temporary.discard();
          return true;
       }
-      throw std::runtime_error( format( "unknown value extension", { &pos, { "name", ext } } ) );
+      throw pegtl::parse_error( format( "unknown value extension", { { "name", ext } } ), pos );
    }
 
 }  // namespace tao::config::internal

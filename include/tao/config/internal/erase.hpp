@@ -23,7 +23,7 @@ namespace tao::config::internal
 
       for( auto& i : l.private_entries() ) {
          if( !i.is_object() ) {
-            throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
+            throw pegtl::parse_error( format( "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
          }
          r += i.get_object().erase( k );
       }
@@ -34,7 +34,7 @@ namespace tao::config::internal
    {
       for( auto& i : l.private_entries() ) {
          if( !i.is_array() ) {
-            throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-array", { &i.position(), i.type() } } } ) );
+            throw pegtl::parse_error( format( "attempt to index non-array with integer", { { "integer", n }, { "non-array", { &i.position(), i.type() } } } ), pos );
          }
          auto& a = i.get_array();
          const auto s = a.size();
@@ -47,7 +47,7 @@ namespace tao::config::internal
          }
          n -= s;
       }
-      throw std::runtime_error( format( "array index out of range", { &pos, { "integer", n }, { "array", { &l.p } } } ) );
+      throw pegtl::parse_error( format( "array index out of range", { { "integer", n }, { "array", { &l.p } } } ), pos );
    }
 
    inline std::size_t erase_star( const position& pos, concat& l )
@@ -65,7 +65,7 @@ namespace tao::config::internal
             i.get_object().clear();
             continue;
          }
-         throw std::runtime_error( format( "attempt to delete everything from non-container", { &pos, { "non-container", { &i.position(), i.type() } } } ) );
+         throw pegtl::parse_error( format( "attempt to delete everything from non-container", { { "non-container", { &i.position(), i.type() } } } ), pos );
       }
       return r;
    }
@@ -74,7 +74,7 @@ namespace tao::config::internal
    {
       for( auto& i : reverse( l.private_entries() ) ) {
          if( !i.is_array() ) {
-            throw std::runtime_error( format( "attempt to delete last element from non-array", { &pos, { "non-array", { &i.position(), i.type() } } } ) );
+            throw pegtl::parse_error( format( "attempt to delete last element from non-array", { { "non-array", { &i.position(), i.type() } } } ), pos );
          }
          auto& a = i.get_array();
 
@@ -83,7 +83,7 @@ namespace tao::config::internal
             return 1;
          }
       }
-      throw std::runtime_error( format( "array has no last element to delete in", { &pos, { "array", { &l.p } } } ) );
+      throw pegtl::parse_error( format( "array has no last element to delete in", { { "array", { &l.p } } } ), pos );
    }
 
    inline std::size_t erase( const position& pos, concat& l, const part& f )
@@ -108,7 +108,7 @@ namespace tao::config::internal
       for( auto& i : reverse( l.private_entries() ) ) {
          if( !i.is_object() ) {
             // TODO: Should references be silently ignored (continue)?
-            throw std::runtime_error( format( "attempt to index non-object with string", { &pos, { "string", k }, { "non-object", { &i.position(), i.type() } } } ) );
+            throw pegtl::parse_error( format( "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
          }
          const auto j = i.get_object().find( k );
 
@@ -123,7 +123,7 @@ namespace tao::config::internal
    {
       for( auto& i : l.private_entries() ) {
          if( !i.is_array() ) {
-            throw std::runtime_error( format( "attempt to index non-array with integer", { &pos, { "integer", n }, { "non-array", { &i.position(), i.type() } } } ) );
+            throw pegtl::parse_error( format( "attempt to index non-array with integer", { { "integer", n }, { "non-array", { &i.position(), i.type() } } } ), pos );
          }
          const auto s = i.get_array().size();
 
@@ -134,7 +134,7 @@ namespace tao::config::internal
          }
          n -= s;
       }
-      throw std::runtime_error( format( "array index out of range", { &pos, { "integer", n }, { "array", { &l.p } } } ) );
+      throw pegtl::parse_error( format( "array index out of range", { { "integer", n }, { "array", { &l.p } } } ), pos );
    }
 
    inline std::size_t erase_star( const position& pos, concat& l, const key& p, const part& f )
@@ -154,7 +154,7 @@ namespace tao::config::internal
             }
             continue;
          }
-         throw std::runtime_error( format( "attempt to delete in non-container", { &pos, { "non-container", { &i.position(), i.type() } } } ) );
+         throw pegtl::parse_error( format( "attempt to delete in non-container", { { "non-container", { &i.position(), i.type() } } } ), pos );
       }
       return r;
    }
@@ -163,13 +163,13 @@ namespace tao::config::internal
    {
       for( auto& i : reverse( l.private_entries() ) ) {
          if( !i.is_array() ) {
-            throw std::runtime_error( format( "attempt to delete last element from non-array", { &pos, { "non-array", { &i.position(), i.type() } } } ) );
+            throw pegtl::parse_error( format( "attempt to delete last element from non-array", { { "non-array", { &i.position(), i.type() } } } ), pos );
          }
          if( !i.get_array().empty() ) {
             return erase( pos, i.get_array().back(), p, f );
          }
       }
-      throw std::runtime_error( format( "array has no last element to delete", { &pos, { "array", { &l.p } } } ) );
+      throw pegtl::parse_error( format( "array has no last element to delete", { { "array", { &l.p } } } ), pos );
    }
 
    inline std::size_t erase( const position& pos, concat& l, const part& t, const key& p, const part& f )

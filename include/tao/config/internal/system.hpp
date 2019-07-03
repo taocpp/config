@@ -37,7 +37,7 @@ namespace tao::config::internal
       if( const char* r = std::getenv( e.c_str() ) ) {
          return std::string( r );
       }
-      throw std::runtime_error( format( "environment variable not found", { &pos, { "variable", e } } ) );
+      throw pegtl::parse_error( format( "environment variable not found", { { "variable", e } } ), pos );
    }
 
    inline std::optional< std::string > get_env_nothrow( const std::string& e )
@@ -55,7 +55,7 @@ namespace tao::config::internal
       const std::unique_ptr< FILE, void ( * )( FILE* ) > f( ::popen( c.c_str(), "r" ), []( FILE* f ) { ::pclose( f ); } );
 
       if( !f ) {
-         throw std::runtime_error( format( "popen failed", { &pos, { "command", c }, { "errno", errno } } ) );
+         throw pegtl::parse_error( format( "popen failed", { { "command", c }, { "errno", errno } } ), pos );
       }
       std::string r;
       char b[ 4096 ];

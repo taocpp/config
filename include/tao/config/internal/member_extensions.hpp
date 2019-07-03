@@ -21,7 +21,7 @@ namespace tao::config::internal
       const auto k = obtain_key( in, st );
 
       if( erase( pos, *st.ostack.back(), k ) == 0 ) {
-         throw std::runtime_error( format( "nothing to delete", { &pos, &k } ) );
+         throw pegtl::parse_error( format( "nothing to delete", { &k } ), pos );
       }
    }
 
@@ -44,20 +44,21 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( !st.temporary.is_string_type() ) {
-         throw std::runtime_error( format( "include requires string", { &pos, st.temporary.type() } ) );
+         throw pegtl::parse_error( format( "include requires string", { st.temporary.type() } ), pos );
       }
       const auto f = st.temporary.as< std::string >();
 
       try {
          pegtl::file_input i2( f );
-         pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
+         pegtl::parse< rules::grammar, action, control >( i2, st );
          st.temporary.discard();
       }
       catch( const std::system_error& e ) {
-         throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ) );
+         throw pegtl::parse_error( format( "include failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
       }
-      catch( const pegtl::parse_error& e ) {
-         throw std::runtime_error( format( "include failed", { &pos, { "filename", f }, { "error", e.what() } } ) );  // TODO: Or rely on parse_nested()'s parse_error?
+      catch( pegtl::parse_error& e ) {
+         e.positions.emplace_back( pos );
+         throw;
       }
    }
 
@@ -72,22 +73,23 @@ namespace tao::config::internal
          return;
       }
       if( !st.temporary.is_string_type() ) {
-         throw std::runtime_error( format( "include requires string", { &pos, st.temporary.type() } ) );
+         throw pegtl::parse_error( format( "include requires string", { st.temporary.type() } ), pos );
       }
       const auto f = st.temporary.as< std::string >();
 
       try {
          pegtl::file_input i2( f );
-         pegtl::parse_nested< rules::grammar, action, control >( in, i2, st );
+         pegtl::parse< rules::grammar, action, control >( i2, st );
          st.temporary.discard();
       }
       catch( const std::system_error& e ) {
          if( e.code().value() != ENOENT ) {
-            throw std::runtime_error( format( "include? failed", { &pos, { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ) );
+            throw pegtl::parse_error( format( "include? failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
          }
       }
-      catch( const pegtl::parse_error& e ) {
-         throw std::runtime_error( format( "include? failed", { &pos, { "filename", f }, { "error", e.what() } } ) );  // TODO: Or rely on parse_nested()'s parse_error?
+      catch( pegtl::parse_error& e ) {
+         e.positions.emplace_back( pos );
+         throw;
       }
    }
 
@@ -142,7 +144,7 @@ namespace tao::config::internal
          i->second( in, st );
          return true;
       }
-      throw std::runtime_error( format( "unknown member extension", { &pos, { "name", ext } } ) );
+      throw pegtl::parse_error( format( "unknown member extension", { { "name", ext } } ), pos );
    }
 
 }  // namespace tao::config::internal
