@@ -7,7 +7,7 @@
 
 int main( int argc, char** argv )
 {
-   tao::config::internal::try_catch( [=](){
+   tao::config::internal::try_catch( [=]() {
       tao::config::internal::state st;
       for( int i = 1; i < argc; ++i ) {
          tao::json::pegtl::file_input in( argv[ i ] );
