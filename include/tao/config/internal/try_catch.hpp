@@ -19,12 +19,14 @@ namespace tao::config::internal
          f();
       }
       catch( const tao::json::pegtl::parse_error& e ) {
+         std::cerr << "*** config parse error ***" << std::endl;
          for( const auto& p : tao::config::internal::reverse( e.positions ) ) {
-            std::cerr << "at " << p << std::endl;
+            std::cerr << "  at " << p << std::endl;
          }
          std::cerr << e.what() << std::endl;
       }
       catch( const std::exception& e ) {
+         std::cerr << "*** config error ***" << std::endl;
          std::cerr << e.what() << std::endl;
       }
    }

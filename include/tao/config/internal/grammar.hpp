@@ -152,8 +152,7 @@ namespace tao::config::internal::rules
    struct object : pegtl::if_must< curly_a, wss, member_list > {};
 
    struct compat_file : pegtl::must< wss, compat_list, wss, pegtl::eof > {};
-
-   struct grammar : pegtl::must< wss, pegtl::if_must_else< curly_a, compat_file, grammar_list > > {};  // Top-level rule for a config file.
+   struct config_file : pegtl::must< wss, pegtl::if_must_else< curly_a, compat_file, grammar_list > > {};
 
    struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};
    struct inner : pegtl::if_must< round_a, ext_name, wsp > {};

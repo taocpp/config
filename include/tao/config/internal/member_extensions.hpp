@@ -50,7 +50,7 @@ namespace tao::config::internal
 
       try {
          pegtl::file_input i2( f );
-         pegtl::parse< rules::grammar, action, control >( i2, st );
+         pegtl::parse< rules::config_file, action, control >( i2, st );
          st.temporary.discard();
       }
       catch( const std::system_error& e ) {
@@ -79,7 +79,7 @@ namespace tao::config::internal
 
       try {
          pegtl::file_input i2( f );
-         pegtl::parse< rules::grammar, action, control >( i2, st );
+         pegtl::parse< rules::config_file, action, control >( i2, st );
          st.temporary.discard();
       }
       catch( const std::system_error& e ) {

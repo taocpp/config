@@ -113,7 +113,8 @@ namespace tao::config::internal
                }
                break;
             case entry::reference:
-               throw pegtl::parse_error( format( __FUNCTION__, "object index access across reference", { { "string", k } } ), pos );  // Alternatively print a warning and continue?
+               // TODO: Print a warning and continue instead?
+               throw pegtl::parse_error( format( __FUNCTION__, "object index access across reference", { { "string", k } } ), pos );
             case entry::nothing:
                assert( false );
                break;

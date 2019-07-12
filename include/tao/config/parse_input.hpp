@@ -23,7 +23,7 @@ namespace tao::config
    {
       try {
          internal::state st;
-         pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );
+         pegtl::parse< internal::rules::config_file, internal::action, internal::control >( in, st );
          return internal::phase2< Traits >( in.source(), st );
       }
       catch( const pegtl::parse_error& e ) {

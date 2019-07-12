@@ -27,7 +27,7 @@ namespace tao::config
       internal::state st;
       for( const auto& filename : filenames ) {
          pegtl::file_input in( filename );
-         pegtl::parse< internal::rules::grammar, internal::action, internal::control >( in, st );
+         pegtl::parse< internal::rules::config_file, internal::action, internal::control >( in, st );
       }
       return internal::phase2< Traits >( filenames.empty() ? std::string() : filenames[ 0 ], st );
    }
