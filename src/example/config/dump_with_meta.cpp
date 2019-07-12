@@ -7,7 +7,7 @@
 
 int main( int argc, char** argv )
 {
-   tao::config::internal::try_catch( [=](){
+   tao::config::internal::try_catch( [=]() {
       const tao::config::value v = tao::config::parse_files( std::vector< std::string >( argv + 1, argv + argc ) );
       tao::config::to_stream( std::cout, v, 3 );
       std::cout << std::endl;
