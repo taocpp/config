@@ -4,21 +4,22 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE2_TRAITS_HPP
 #define TAO_CONFIG_INTERNAL_PHASE2_TRAITS_HPP
 
+#include "../traits.hpp"
+
 #include "annotation.hpp"
-#include "format_traits.hpp"
 #include "json.hpp"
 
 namespace tao::config::internal
 {
    template< typename T >
    struct phase2_traits
-      : public format_traits< T >
+      : public config::traits< T >
    {
    };
 
    template<>
    struct phase2_traits< void >
-      : public format_traits< void >
+      : public json::traits< void >
    {
       static constexpr const bool enable_implicit_constructor = false;
 
