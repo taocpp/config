@@ -21,7 +21,7 @@ namespace tao::config::internal
       const auto k = obtain_key( in, st );
 
       if( erase( pos, *st.ostack.back(), k ) == 0 ) {
-         throw pegtl::parse_error( format( __FUNCTION__, "nothing to delete", { &k } ), pos );
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "nothing to delete", { &k } ), pos );
       }
    }
 
@@ -44,7 +44,7 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( !st.temporary.is_string_type() ) {
-         throw pegtl::parse_error( format( __FUNCTION__, "include requires string", { st.temporary.type() } ), pos );
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "include requires string", { st.temporary.type() } ), pos );
       }
       const auto f = st.temporary.as< std::string >();
 
@@ -54,7 +54,7 @@ namespace tao::config::internal
          st.temporary.discard();
       }
       catch( const std::system_error& e ) {
-         throw pegtl::parse_error( format( __FUNCTION__, "include failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "include failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
       }
       catch( pegtl::parse_error& e ) {
          e.positions.emplace_back( pos );
@@ -73,7 +73,7 @@ namespace tao::config::internal
          return;
       }
       if( !st.temporary.is_string_type() ) {
-         throw pegtl::parse_error( format( __FUNCTION__, "include requires string", { st.temporary.type() } ), pos );
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "include requires string", { st.temporary.type() } ), pos );
       }
       const auto f = st.temporary.as< std::string >();
 
@@ -84,7 +84,7 @@ namespace tao::config::internal
       }
       catch( const std::system_error& e ) {
          if( e.code().value() != ENOENT ) {
-            throw pegtl::parse_error( format( __FUNCTION__, "include? failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "include? failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
          }
       }
       catch( pegtl::parse_error& e ) {
@@ -144,7 +144,7 @@ namespace tao::config::internal
          i->second( in, st );
          return true;
       }
-      throw pegtl::parse_error( format( __FUNCTION__, "unknown member extension", { { "name", ext } } ), pos );
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "unknown member extension", { { "name", ext } } ), pos );
    }
 
 }  // namespace tao::config::internal

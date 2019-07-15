@@ -22,7 +22,7 @@ namespace tao::config::internal
    {
       for( const auto& i : reverse( l.entries() ) ) {
          if( !i.is_object() ) {
-            throw pegtl::parse_error( format( __FUNCTION__, "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
          }
          const auto j = i.get_object().find( k );
 
@@ -30,14 +30,14 @@ namespace tao::config::internal
             return access_impl( pos, j->second, p );
          }
       }
-      throw pegtl::parse_error( format( __FUNCTION__, "object index not found", { { "string", k }, { "object", { &l.p } } } ), pos );
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "object index not found", { { "string", k }, { "object", { &l.p } } } ), pos );
    }
 
    inline const concat& access_index( const position& pos, const concat& l, std::size_t n, const key& p )
    {
       for( const auto& i : l.entries() ) {
          if( !i.is_array() ) {
-            throw pegtl::parse_error( format( __FUNCTION__, "attempt to index non-array with integer", { { "integer", n }, { "non-array", { &i.position(), i.type() } } } ), pos );
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to index non-array with integer", { { "integer", n }, { "non-array", { &i.position(), i.type() } } } ), pos );
          }
          const auto s = i.get_array().size();
 
@@ -48,20 +48,20 @@ namespace tao::config::internal
          }
          n -= s;
       }
-      throw pegtl::parse_error( format( __FUNCTION__, "array index out of range", { { "integer", n }, { "array", { &l.p } } } ), pos );
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "array index out of range", { { "integer", n }, { "array", { &l.p } } } ), pos );
    }
 
    inline const concat& access_minus( const position& pos, const concat& l, const key& p )
    {
       for( const auto& i : reverse( l.entries() ) ) {
          if( !i.is_array() ) {
-            throw pegtl::parse_error( format( __FUNCTION__, "attempt to access last element in non-array", { { "non-array", { &i.position(), i.type() } } } ), pos );
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to access last element in non-array", { { "non-array", { &i.position(), i.type() } } } ), pos );
          }
          if( !i.get_array().empty() ) {
             return access_impl( pos, i.get_array().back(), p );
          }
       }
-      throw pegtl::parse_error( format( __FUNCTION__, "array has no last element to access", { { "array", { &l.p } } } ), pos );
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "array has no last element to access", { { "array", { &l.p } } } ), pos );
    }
 
    inline const concat& access_impl( const position& pos, const concat& l, const part& t, const key& p )
@@ -114,7 +114,7 @@ namespace tao::config::internal
                break;
             case entry::reference:
                // TODO: Print a warning and continue instead?
-               throw pegtl::parse_error( format( __FUNCTION__, "object index access across reference", { { "string", k } } ), pos );
+               throw pegtl::parse_error( format( __FILE__, __LINE__, "object index access across reference", { { "string", k } } ), pos );
             case entry::nothing:
                assert( false );
                break;
@@ -146,7 +146,7 @@ namespace tao::config::internal
             assert( false );
             break;
       }
-      throw pegtl::parse_error( format( __FUNCTION__, "object index not found", { { "string", k }, e.type() } ), pos );
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "object index not found", { { "string", k }, e.type() } ), pos );
    }
 
    inline const concat& access( const position& pos, const entry& e, const part& t, const key& p )

@@ -188,7 +188,7 @@ namespace tao::config::internal
          phase2_value_add( l, std::move( r ) );
       }
       catch( const addition_error& e ) {
-         throw pegtl::parse_error( format( __FUNCTION__, "inconsistent types in addition", { { "left", e.l }, { "right", e.r } } ), pos );
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "inconsistent types in addition", { { "left", e.l }, { "right", e.r } } ), pos );
       }
       catch( const overflow_error& ) {
          throw pegtl::parse_error( "numeric overflow in addition", pos );

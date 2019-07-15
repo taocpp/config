@@ -22,7 +22,7 @@ namespace tao::config::internal
    {
       for( auto& i : reverse( l.private_entries() ) ) {
          if( !i.is_object() ) {
-            throw pegtl::parse_error( format( __FUNCTION__, "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
          }
          const auto j = i.get_object().find( k );
 
@@ -42,7 +42,7 @@ namespace tao::config::internal
          l.emplace_back_array( pos );
       }
       else if( !l.entries().back().is_array() ) {
-         throw pegtl::parse_error( format( __FUNCTION__, "attempt to append to non-array", { { "non-array", { &l.entries().back().position(), l.entries().back().type() } } } ), pos );
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to append to non-array", { { "non-array", { &l.entries().back().position(), l.entries().back().type() } } } ), pos );
       }
       return assign( pos, l.private_entries().back().emplace_back( pos ), p );
    }
@@ -53,7 +53,7 @@ namespace tao::config::internal
 
       for( auto& i : l.private_entries() ) {
          if( !i.is_array() ) {
-            throw pegtl::parse_error( format( __FUNCTION__, "attempt to index non-array with integer", { { "integer", m }, { "partial", n }, { "non-array", { &i.position(), i.type() } } } ), pos );
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to index non-array with integer", { { "integer", m }, { "partial", n }, { "non-array", { &i.position(), i.type() } } } ), pos );
          }
          const auto s = i.get_array().size();
 
@@ -67,7 +67,7 @@ namespace tao::config::internal
       if( n == 0 ) {
          return assign_minus( pos, l, p );
       }
-      throw pegtl::parse_error( format( __FUNCTION__, "array index out of range", { { "integer", m }, { "partial", n } } ), pos );
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "array index out of range", { { "integer", m }, { "partial", n } } ), pos );
    }
 
    inline concat& assign( const position& pos, concat& l, const part& t, const key& p )
