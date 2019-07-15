@@ -20,9 +20,11 @@
 
 ## Status
 
-This library is still under heavy development and not well documented...
+This library is still under heavy development and not very well documented...
 
-...however it works, test coverage is good, and the error messages ... informative.
+...however it generally works, and test coverage and error messages are not too bad.
+
+The ongoing changes to the semantics of config files affects mostly advanced use cases.
 
 To compile the tests and examples it requires [taocpp/json] checked out next to it.
 
