@@ -8,7 +8,10 @@
 #include <string>
 #include <vector>
 
+#include "../key.hpp"
+
 #include "entry.hpp"
+#include "forward.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"
 
@@ -17,7 +20,8 @@ namespace tao::config::internal
    struct state
    {
       state()
-         : root( nullptr, internal::position( pegtl::internal::iterator(), "(root)" ) )
+         : root( nullptr, pegtl::position( pegtl::internal::iterator(), "(root)" ) ),
+           temporary( json::uninitialized, pegtl::position( pegtl::internal::iterator(), "(temporary)" ) )
       {
          root.set_object();
          ostack.emplace_back( &root );
@@ -35,12 +39,13 @@ namespace tao::config::internal
 
       // Phase 1 Extensions
 
-      json::value temporary;
+      json_t temporary;
       std::string extension;
 
       // Phase 2 Extensions
 
-      std::vector< json::value* > rstack;  // Nested phase 2 references (and also phase 1 keys).
+      std::vector< key > temporaries;  // Delete from final result.
+      std::vector< json_t* > rstack;   // Nested phase 2 references (and also phase 1 keys).
    };
 
 }  // namespace tao::config::internal

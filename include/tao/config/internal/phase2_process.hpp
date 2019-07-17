@@ -4,117 +4,152 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE2_PROCESS_HPP
 #define TAO_CONFIG_INTERNAL_PHASE2_PROCESS_HPP
 
-#include "access.hpp"
+#include <numeric>
+
 #include "concat.hpp"
 #include "entry.hpp"
 #include "json.hpp"
+#include "phase2_access.hpp"
 #include "phase2_add.hpp"
 #include "phase2_guard.hpp"
-#include "phase2_traits.hpp"
+#include "to_stream.hpp"
+#include "value_traits.hpp"
 #include "utility.hpp"
 
 namespace tao::config::internal
 {
-   inline json::basic_value< phase2_traits > phase2_process_entry( const entry& e );
+   inline bool phase2_process_entry( entry& e );
 
-   inline json::basic_value< phase2_traits > phase2_process_atom( const atom_t& v )
-   {
-      json::events::to_basic_value< phase2_traits > consumer;
-      json::events::from_value( consumer, v );
-      return std::move( consumer.value );
-   }
-
-   inline json::basic_value< phase2_traits > phase2_process_list( const concat& l )
+   inline const json_t* phase2_process_concat( concat& l )
    {
       assert( !l.entries().empty() );
 
-      json::basic_value< phase2_traits > r = phase2_process_entry( l.entries().front() );
+      bool done = true;
 
-      for( auto i = std::next( l.entries().begin() ); i != l.entries().end(); ++i ) {
-         phase2_add( r, phase2_process_entry( *i ), i->position() );
+      for( auto& i : l.private_entries() ) {
+         done &= phase2_process_entry( i );
       }
-      r.set_position( l.p );
-      return r;
-   }
-
-   inline json::basic_value< phase2_traits > phase2_process_array( const array_t& a )
-   {
-      json::basic_value< phase2_traits > t( json::empty_array );
-
-      for( const auto& i : a ) {
-         if( !i.is_temporary() ) {
-            t.emplace_back( phase2_process_list( i ) );
+      if( !done ) {
+         return nullptr;
+      }
+      if( l.entries().size() > 1 ) {
+         for( auto i = std::next( l.private_entries().begin() ); i != l.private_entries().end(); ++i ) {
+            phase2_add( l.private_entries().front().get_atom(), std::move( i->get_atom() ) );
          }
+         l.private_entries().erase( std::next( l.private_entries().begin() ), l.private_entries().end() );
       }
-      return t;
+      return &l.private_entries().front().get_atom();
    }
 
-   inline json::basic_value< phase2_traits > phase2_process_object( const object_t& o )
+   inline bool phase2_process_array_entry( entry& e )
    {
-      json::basic_value< phase2_traits > t( json::empty_object );
+      json_t j( json::empty_array, e.position() );
 
-      for( const auto& i : o ) {
-         if( !i.second.is_temporary() ) {
-            t.emplace( i.first, phase2_process_list( i.second ) );
+      bool done = true;
+
+      for( auto& i : e.get_array() ) {
+         if( const json_t* t = phase2_process_concat( i ) ) {
+            j.unsafe_emplace_back( *t );
+            continue;
          }
+         done = false;
       }
-      return t;
+      if( done ) {
+         e.set_atom( std::move( j ) );
+         return true;
+      }
+      return false;
    }
 
-   inline const concat& phase2_process_reference_impl( const position& pos, const entry& e, const reference_t& r )
+   inline bool phase2_process_object_entry( entry& e )
+   {
+      json_t j( json::empty_object, e.position() );
+
+      bool done = true;
+
+      for( auto& i : e.get_object() ) {
+         if( const json_t* t = phase2_process_concat( i.second ) ) {
+            j.unsafe_emplace( i.first, *t );
+            continue;
+         }
+         done = false;
+      }
+      if( done ) {
+         e.set_atom( std::move( j ) );
+         return true;
+      }
+      return false;
+   }
+
+   inline const json_t* phase2_process_reference_impl( entry& e, json_t& r )
    {
       config::key k;
 
       for( auto& i : r.get_array() ) {
          if( i.is_array() ) {
-            k.emplace_back( part_from_value( pos, phase2_process_list( phase2_process_reference_impl( pos, e, i ) ) ) );
+            if( const json_t* t = phase2_process_reference_impl( e, i ) ) {
+               k.emplace_back( value_to_part( *t ) );
+            }
+            else {
+               return nullptr;
+            }
          }
          else {
-            k.emplace_back( part_from_value( pos, i ) );
+            k.emplace_back( value_to_part( i ) );
          }
       }
-      return access( pos, e, k );
+      return phase2_access( e, k );
    }
 
-   inline json::basic_value< phase2_traits > phase2_process_reference( const position& pos, const entry& e, const reference_t& r )
+   inline bool phase2_process_reference_entry( entry& e )
    {
-      return phase2_process_list( phase2_process_reference_impl( pos, e, r ) );
+      if( const json_t* t = phase2_process_reference_impl( e.parent()->parent(), e.get_reference() ) ) {
+         e.set_atom( *t );
+         return true;
+      }
+      return false;
    }
 
-   inline json::basic_value< phase2_traits > phase2_process_entry( const entry& e )
+   inline bool phase2_process_entry( entry& e )
    {
-      json::basic_value< phase2_traits > r;
-
       const phase2_guard p2g( e );
 
       switch( e.type() ) {
          case entry::atom:
-            r = phase2_process_atom( e.get_atom() );
-            break;
+            return true;
          case entry::array:
-            r = phase2_process_array( e.get_array() );
-            break;
+            return phase2_process_array_entry( e );
          case entry::object:
-            r = phase2_process_object( e.get_object() );
-            break;
+            return phase2_process_object_entry( e );
          case entry::nothing:
             assert( false );
          case entry::reference:
-            r = phase2_process_reference( e.position(), e.parent()->parent(), e.get_reference() );
-            break;
-         default:
-            assert( false );
+            return phase2_process_reference_entry( e );
       }
-      r.clear = e.clear();
-      r.set_position( e.position() );
-      return r;
+      assert( false );
    }
 
-   inline json::basic_value< phase2_traits > phase2_process( const entry& root )
+   inline json::basic_value< value_traits > phase2_process( entry& root )
    {
       assert( root.is_object() );
 
-      return phase2_process_object( root.get_object() );
+      // TODO: Remove counter, iterate until we reach a fixed-point.
+
+      for( unsigned i = 0; i < 42; ++i ) {
+         // std::cout << "ITERATION " << i << std::endl;
+         // tao::config::internal::to_stream( std::cout, root, 3 );
+         // std::cout << std::endl;
+         if( phase2_process_object_entry( root ) ) {
+            // std::cout << "SUCCESS " << i << std::endl;
+            // tao::config::internal::to_stream( std::cout, root, 3 );
+            // std::cout << std::endl;
+            return root.get_atom();
+         }
+      }
+      // std::cout << "FAILURE" << std::endl;
+      // tao::config::internal::to_stream( std::cout, root, 3 );
+      // std::cout << std::endl;
+      throw std::runtime_error( "config error" );  // TODO: Better error message (find unresolved references in root).
    }
 
 }  // namespace tao::config::internal

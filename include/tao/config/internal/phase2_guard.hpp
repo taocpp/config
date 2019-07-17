@@ -10,7 +10,7 @@ namespace tao::config::internal
    class phase2_guard
    {
    public:
-      explicit phase2_guard( const T& v )
+      explicit phase2_guard( T& v )
          : m_v( v )
       {
          m_v.set_recursion_marker();
@@ -28,11 +28,11 @@ namespace tao::config::internal
       void operator=( const phase2_guard& ) = delete;
 
    private:
-      const T& m_v;
+      T& m_v;
    };
 
    template< typename T >
-   phase2_guard( const T& )->phase2_guard< T >;
+   phase2_guard( T& )->phase2_guard< T >;
 
 }  // namespace tao::config::internal
 

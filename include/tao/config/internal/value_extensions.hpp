@@ -4,11 +4,10 @@
 #ifndef TAO_CONFIG_INTERNAL_VALUE_EXTENSIONS_HPP
 #define TAO_CONFIG_INTERNAL_VALUE_EXTENSIONS_HPP
 
-#include "access.hpp"
 #include "action.hpp"
 #include "control.hpp"
-#include "erase.hpp"
 #include "grammar.hpp"
+#include "phase1_access.hpp"
 #include "state.hpp"
 #include "system.hpp"
 #include "to_stream.hpp"
@@ -24,6 +23,7 @@ namespace tao::config::internal
 
    template< typename Input >
    inline void do_inner_extension( Input& in, state& st );
+
    template< typename Input >
    inline json::value obtain_jaxn( Input& in )
    {
@@ -44,7 +44,7 @@ namespace tao::config::internal
    inline key obtain_key( Input& in, state& st )
    {
       pegtl::parse< pegtl::must< rules::pointer >, action, control >( in, st );
-      return key_from_value( in.position(), st.temporary );
+      return value_to_key( st.temporary );
    }
 
    template< typename Input >
@@ -55,7 +55,7 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         st.temporary = json::cbor::from_string( st.temporary.as< std::string >() );
+         st.temporary = json::cbor::basic_from_string< value_traits >( st.temporary.as< std::string >() );
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse cbor", { st.temporary.type() } ), pos );
@@ -71,7 +71,7 @@ namespace tao::config::internal
       const auto p = obtain_key( in, st );
 
       concat& d = *st.lstack.back();
-      const concat& s = access( pos, d.parent(), p );
+      const concat& s = phase1_access( pos, d.parent(), p );
 
       if( &d == &s ) {
          throw pegtl::parse_error( format( __FILE__, __LINE__, "copy to self detected", { &p } ), pos );
@@ -86,8 +86,8 @@ namespace tao::config::internal
       const auto p = obtain_key( in, st );
 
       std::ostringstream oss;
-      to_stream( oss, access( pos, st.lstack.back()->parent(), p ) );
-      st.temporary = oss.str();
+      to_stream( oss, phase1_access( pos, st.lstack.back()->parent(), p ) );
+      st.temporary.assign( oss.str(), pos );
    }
 
    template< typename Input >
@@ -96,7 +96,7 @@ namespace tao::config::internal
       const auto pos = in.position();
       const auto v = obtain_string( in );
 
-      st.temporary = get_env_throws( pos, v );
+      st.temporary.assign( get_env_throws( pos, v ), pos );
    }
 
    template< typename Input >
@@ -104,15 +104,14 @@ namespace tao::config::internal
    {
       const auto pos = in.position();
       const auto v = obtain_string( in );
-
       const auto e = get_env_nothrow( v );
 
       if( pegtl::parse< rules::wsp >( in ) ) {
          const auto d = obtain_string( in );
-         st.temporary = e.value_or( d );
+         st.temporary.assign( e.value_or( d ), pos );
          return;
       }
-      st.temporary = e;
+      st.temporary.assign( e, pos );
    }
 
    template< typename Input >
@@ -123,7 +122,7 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         st.temporary = json::jaxn::from_string( st.temporary.as< std::string >() );
+         st.temporary = json::jaxn::basic_from_string< value_traits >( st.temporary.as< std::string >() );
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse jaxn", { st.temporary.type() } ), pos );
@@ -137,7 +136,7 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         st.temporary = json::from_string( st.temporary.as< std::string >() );
+         st.temporary = json::basic_from_string< value_traits >( st.temporary.as< std::string >() );
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse json", { st.temporary.type() } ), pos );
@@ -151,7 +150,7 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         st.temporary = json::msgpack::from_string( st.temporary.as< std::string >() );
+         st.temporary = json::msgpack::basic_from_string< value_traits >( st.temporary.as< std::string >() );
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse msgpack", { st.temporary.type() } ), pos );
@@ -182,7 +181,7 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         st.temporary = read_file_throws( st.temporary.as< std::string >() );
+         st.temporary.assign( read_file_throws( st.temporary.as< std::string >() ), pos );
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string as filename", { st.temporary.type() } ), pos );
@@ -196,7 +195,7 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         st.temporary = shell_popen_throws( pos, st.temporary.as< std::string >() );
+         st.temporary.assign( shell_popen_throws( pos, st.temporary.as< std::string >() ), pos );
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string for shell command", { st.temporary.type() } ), pos );
@@ -208,16 +207,16 @@ namespace tao::config::internal
    struct split_string : pegtl::plus< pegtl::not_one< ' ', '\n', '\r', '\t', '\v', '\f' > > {};
    struct split_grammar : pegtl::must< split_star_ws, pegtl::list_tail< split_string, split_plus_ws >, pegtl::eof > {};
 
-   template< typename > struct split_action {};
+   template< typename Rule > struct split_action : pegtl::nothing< Rule > {};
    // clang-format on
 
    template<>
    struct split_action< split_string >
    {
       template< typename Input >
-      static void apply( const Input& in, json::value& temporary )
+      static void apply( const Input& in, json_t& temporary )
       {
-         temporary.emplace_back( in.string() );
+         temporary.emplace_back( in.string(), in.position() );
       }
    };
 
@@ -230,7 +229,7 @@ namespace tao::config::internal
 
       if( st.temporary.is_string_type() ) {
          pegtl::string_input< pegtl::tracking_mode::eager, typename Input::eol_t, const char* > i2( st.temporary.as< std::string >(), __FUNCTION__ );
-         st.temporary = json::empty_array;
+         st.temporary.assign( json::empty_array, pos );
          pegtl::parse_nested< split_grammar, split_action >( in, i2, st.temporary );
          return;
       }
@@ -245,7 +244,7 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         st.temporary = json::ubjson::from_string( st.temporary.as< std::string >() );
+         st.temporary = json::ubjson::basic_from_string< value_traits >( st.temporary.as< std::string >() );
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse ubjson", { st.temporary.type() } ), pos );
@@ -289,7 +288,7 @@ namespace tao::config::internal
          }
          throw pegtl::parse_error( format( __FILE__, __LINE__, "unknown value extension", { { "name", ext } } ), pos );
       }
-      st.temporary = obtain_string( in );
+      st.temporary.assign( obtain_string( in ), pos );
    }
 
    template< typename Input >
@@ -316,7 +315,7 @@ namespace tao::config::internal
       if( i != map.end() ) {
          i->second( in, st );
          assert( !st.temporary.is_discarded() );
-         st.lstack.back()->emplace_back_atom( in.position(), std::move( st.temporary ) );
+         st.lstack.back()->emplace_back_atom( std::move( st.temporary ) );
          st.temporary.discard();
          return true;
       }

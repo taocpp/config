@@ -19,7 +19,7 @@ namespace tao::config::internal
       assert( st.rstack.empty() );
       assert( st.ostack.size() == 1 );
 
-      return phase2_repackage< Traits >( source, phase2_process( st.root ) );
+      return phase2_repackage< Traits >( source, st.temporaries, phase2_process( st.root ) );
    }
 
 }  // namespace tao::config::internal

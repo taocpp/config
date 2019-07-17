@@ -1,8 +1,8 @@
 // Copyright (c) 2018-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_PHASE2_TRAITS_HPP
-#define TAO_CONFIG_INTERNAL_PHASE2_TRAITS_HPP
+#ifndef TAO_CONFIG_INTERNAL_VALUE_TRAITS_HPP
+#define TAO_CONFIG_INTERNAL_VALUE_TRAITS_HPP
 
 #include "../traits.hpp"
 
@@ -12,13 +12,13 @@
 namespace tao::config::internal
 {
    template< typename T >
-   struct phase2_traits
+   struct value_traits
       : public config::traits< T >
    {
    };
 
    template<>
-   struct phase2_traits< void >
+   struct value_traits< void >
       : public json::traits< void >
    {
       static constexpr const bool enable_implicit_constructor = false;

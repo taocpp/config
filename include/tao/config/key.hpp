@@ -144,6 +144,12 @@ namespace tao::config
       return key( p.begin(), p.end() - 1 );
    }
 
+   inline key& operator+=( key& l, const key& r )
+   {
+      l.insert( l.end(), r.begin(), r.end() );
+      return l;
+   }
+
    inline key& operator+=( key& l, const part& p )
    {
       l.emplace_back( p );
@@ -166,6 +172,13 @@ namespace tao::config
    {
       l.emplace_back( n );
       return l;
+   }
+
+   inline key operator+( const key& l, const key& k )
+   {
+      key r = l;
+      r += k;
+      return r;
    }
 
    inline key operator+( const key& l, const part& p )
@@ -194,6 +207,15 @@ namespace tao::config
       key r = l;
       r += n;
       return r;
+   }
+
+   inline key operator+( const std::string& n, const key& l )  // TODO: Ensure this doesn't survive the first wave of refactoring after stabilising the semantics.
+   {
+      key t = l + n;
+      if( t.size() > 1 ) {
+         std::swap( t.front(), t.back() );
+      }
+      return t;
    }
 
    inline void to_stream( std::ostream& o, const key& p )

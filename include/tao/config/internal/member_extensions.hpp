@@ -8,6 +8,9 @@
 #include <system_error>
 
 #include "format.hpp"
+#include "phase1_access.hpp"
+#include "phase1_assign.hpp"
+#include "phase1_erase.hpp"
 #include "value_extensions.hpp"
 
 namespace tao::config::internal
@@ -20,7 +23,7 @@ namespace tao::config::internal
       const auto pos = in.position();
       const auto k = obtain_key( in, st );
 
-      if( erase( pos, *st.ostack.back(), k ) == 0 ) {
+      if( phase1_erase( pos, *st.ostack.back(), k ) == 0 ) {
          throw pegtl::parse_error( format( __FILE__, __LINE__, "nothing to delete", { &k } ), pos );
       }
    }
@@ -33,7 +36,7 @@ namespace tao::config::internal
       const auto pos = in.position();
       const auto p = obtain_key( in, st );
 
-      erase( pos, *st.ostack.back(), p );
+      phase1_erase( pos, *st.ostack.back(), p );
    }
 
    template< typename Input >
@@ -101,8 +104,52 @@ namespace tao::config::internal
       const auto pos = in.position();
       const auto p = obtain_key( in, st );
 
-      to_stream( std::cerr, access( pos, *st.ostack.back(), p ), 3 );
+      to_stream( std::cerr, phase1_access( pos, *st.ostack.back(), p ), 3 );
       std::cerr << std::endl;
+   }
+
+   inline void temporary_compute_current_prefix( const entry& haystack, const entry* needle, const key& prefix );
+
+   inline void temporary_compute_current_prefix( const concat& haystack, const entry* needle, const key& prefix )
+   {
+      for( const auto& e : haystack.entries() ) {
+         temporary_compute_current_prefix( e, needle, prefix );
+      }
+   }
+
+   inline void temporary_compute_current_prefix( const entry& haystack, const entry* needle, const key& prefix )
+   {
+      if( &haystack == needle ) {
+         throw prefix;
+      }
+      switch( haystack.type() ) {
+         case entry::atom:
+         case entry::nothing:
+         case entry::reference:
+            return;
+         case entry::array: {
+            std::size_t c = 0;
+            for( const auto& i : haystack.get_array() ) {
+               temporary_compute_current_prefix( i, needle, prefix + c++ );
+            }
+         }  break;
+         case entry::object:
+            for( const auto& i : haystack.get_object() ) {
+               temporary_compute_current_prefix( i.second, needle, prefix + i.first );
+            }
+            break;
+      }
+   }
+
+   inline key temporary_compute_current_prefix( state& st )
+   {
+      try {
+         temporary_compute_current_prefix( st.root, st.ostack.back(), key() );
+      }
+      catch( const key& k ) {
+         return k;
+      }
+      assert( false );
    }
 
    template< typename Input >
@@ -113,7 +160,7 @@ namespace tao::config::internal
       const auto pos = in.position();
       const auto p = obtain_key( in, st );
 
-      assign( pos, *st.ostack.back(), p ).set_temporary();
+      st.temporaries.emplace_back( temporary_compute_current_prefix( st ) + p );
    }
 
    template< typename Input >

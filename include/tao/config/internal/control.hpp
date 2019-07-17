@@ -4,12 +4,13 @@
 #ifndef TAO_CONFIG_INTERNAL_CONTROL_HPP
 #define TAO_CONFIG_INTERNAL_CONTROL_HPP
 
-#include "assign.hpp"
 #include "entry.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"
+#include "phase1_assign.hpp"
 #include "state.hpp"
+#include "utility.hpp"
 
 namespace tao::config::internal
 {
@@ -24,11 +25,11 @@ namespace tao::config::internal
       : public pegtl::normal< rules::pointer >
    {
       template< typename Input >
-      static void start( const Input&, state& st )
+      static void start( const Input& in, state& st )
       {
          assert( st.rstack.empty() );
 
-         st.temporary = json::empty_array;
+         st.temporary.assign( json::empty_array, in.position() );
          st.rstack.emplace_back( &st.temporary );
       }
 
@@ -57,11 +58,12 @@ namespace tao::config::internal
       template< typename Input >
       static void start( const Input& in, state& st )
       {
+         json_t tmp( json::empty_array, in.position() );
          if( st.rstack.empty() ) {
-            st.rstack.emplace_back( &st.lstack.back()->emplace_back_reference( in.position(), json::empty_array ) );
+            st.rstack.emplace_back( &st.lstack.back()->emplace_back_reference( std::move( tmp ) ) );
          }
          else {
-            st.rstack.emplace_back( &st.rstack.back()->emplace_back( json::empty_array ) );
+            st.rstack.emplace_back( &st.rstack.back()->emplace_back( std::move( tmp ) ) );
          }
       }
 
@@ -131,7 +133,7 @@ namespace tao::config::internal
 
          const auto pos = in.position();
 
-         st.lstack.emplace_back( &assign( pos, *st.ostack.back(), key_from_value( pos, st.temporary ) ) );
+         st.lstack.emplace_back( &phase1_assign( pos, *st.ostack.back(), value_to_key( st.temporary ) ) );
          st.lstack.back()->clear( st.clear );
       }
 

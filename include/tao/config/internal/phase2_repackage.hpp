@@ -9,8 +9,9 @@
 #include "../key.hpp"
 
 #include "json.hpp"
-#include "phase2_traits.hpp"
+#include "value_traits.hpp"
 #include "type_traits.hpp"
+#include "utility.hpp"
 
 namespace tao::config::internal
 {
@@ -35,7 +36,7 @@ namespace tao::config::internal
    }
 
    template< template< typename... > class Traits >
-   void phase2_set_positions( json::basic_value< Traits >& r, const json::basic_value< phase2_traits >& v )
+   void phase2_set_positions( json::basic_value< Traits >& r, const json::basic_value< value_traits >& v )
    {
       switch( r.type() ) {
          case json::type::ARRAY:
@@ -54,9 +55,22 @@ namespace tao::config::internal
       r.set_position( v.position );
    }
 
-   template< template< typename... > class Traits >
-   json::basic_value< Traits > phase2_repackage( const std::string& source, const json::basic_value< phase2_traits >& v )
+   inline void phase2_filter_temporaries( const std::vector< key >& temporaries, json::basic_value< value_traits >& v )
    {
+      for( const key& k : temporaries ) {
+         try {
+            v.erase( key_to_pointer( k ) );
+         }
+         catch( ... ) {
+         }
+      }
+   }
+
+   template< template< typename... > class Traits >
+   json::basic_value< Traits > phase2_repackage( const std::string& source, const std::vector< key >& temporaries, json::basic_value< value_traits >&& v )
+   {
+      phase2_filter_temporaries( temporaries, v );
+
       json::events::to_basic_value< Traits > consumer;
       json::events::from_value( consumer, v );
 

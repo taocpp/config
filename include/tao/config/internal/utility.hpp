@@ -4,49 +4,16 @@
 #ifndef TAO_CONFIG_INTERNAL_UTILITY_HPP
 #define TAO_CONFIG_INTERNAL_UTILITY_HPP
 
-#include <cassert>
-#include <stdexcept>
-
 #include "../key.hpp"
 
 #include "format.hpp"
+#include "forward.hpp"
 #include "json.hpp"
+#include "value_traits.hpp"
 
 namespace tao::config::internal
 {
-   template< typename Container >
-   struct reverse
-   {
-      explicit reverse( Container& l )
-         : m_c( l )
-      {
-      }
-
-      reverse( reverse&& ) = delete;
-      reverse( const reverse& ) = delete;
-
-      void operator=( reverse&& ) = delete;
-      void operator=( const reverse& ) = delete;
-
-      auto begin()
-      {
-         return m_c.rbegin();
-      }
-
-      auto end()
-      {
-         return m_c.rend();
-      }
-
-   private:
-      Container& m_c;
-   };
-
-   template< typename T >
-   reverse( T& )->reverse< T >;
-
-   template< template< typename... > class Traits >
-   part part_from_value( const position& pos, const json::basic_value< Traits >& v )
+   inline part value_to_part( const json_t& v )
    {
       switch( v.type() ) {
          case json::type::BOOLEAN:
@@ -58,12 +25,11 @@ namespace tao::config::internal
          case json::type::UNSIGNED:
             return part( v.template as< std::size_t >() );
          default:
-            throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid json for part -- expected string or integer (or bool)", { v.type() } ), pos );
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid json for part -- expected string or integer (or bool)", { v.type() } ), v.position );
       }
    }
 
-   template< template< typename... > class Traits >
-   key key_from_value( const position& pos, json::basic_value< Traits >& v )
+   inline key value_to_key( json_t& v )
    {
       key p;
 
@@ -72,12 +38,58 @@ namespace tao::config::internal
          return p;
       }
       if( !v.is_array() ) {
-         throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid json for key -- expected array", { v.type() } ), pos );
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid json for key -- expected array", { v.type() } ), v.position );
       }
       for( const auto& t : v.unsafe_get_array() ) {
-         p.emplace_back( part_from_value( pos, t ) );
+         p.emplace_back( value_to_part( t ) );
       }
       v.discard();
+      return p;
+   }
+
+   inline json_t part_to_value( const part& p )
+   {
+      switch( p.type() ) {
+         case part::star:
+            return json_t( true );
+         case part::minus:
+            return json_t( false );
+         case part::name:
+            return json_t( p.get_name() );
+         case part::index:
+            return json_t( p.get_index() );
+      }
+   }
+
+   inline json_t key_to_value( const key& k )
+   {
+      json_t j( json::empty_array );
+      j.unsafe_get_array().reserve( k.size() );
+
+      for( const auto& p : k ) {
+         j.unsafe_get_array().emplace_back( part_to_value( p ) );
+      }
+      return j;
+   }
+
+   inline json::pointer key_to_pointer( const key& k )
+   {
+      json::pointer p;
+
+      for( const auto& i : k ) {
+         switch( i.type() ) {
+            case part::star:
+            case part::minus:
+               assert( false );
+            case part::name:
+               p += i.get_name();
+               continue;
+            case part::index:
+               p += std::size_t( i.get_index() );
+               continue;
+         }
+         assert( false );
+      }
       return p;
    }
 

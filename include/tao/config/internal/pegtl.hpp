@@ -10,12 +10,6 @@ namespace tao::config
 {
    namespace pegtl = json::pegtl;
 
-   namespace internal
-   {
-      using pegtl::position;
-
-   }  // namespace internal
-
 }  // namespace tao::config
 
 #endif

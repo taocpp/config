@@ -7,7 +7,10 @@
 #include <cassert>
 #include <list>
 
+#include "forward.hpp"
 #include "json.hpp"
+#include "pegtl.hpp"
+#include "value_traits.hpp"
 
 namespace tao::config::internal
 {
@@ -15,7 +18,7 @@ namespace tao::config::internal
    class basic_concat
    {
    public:
-      basic_concat( E* parent, const position& pos )
+      basic_concat( E* parent, const pegtl::position& pos )
          : p( pos ),
            m_parent( parent )
       {
@@ -43,16 +46,6 @@ namespace tao::config::internal
       E& parent() const noexcept
       {
          return *m_parent;
-      }
-
-      bool is_temporary() const noexcept
-      {
-         return m_temporary;
-      }
-
-      void set_temporary( const bool t = true ) noexcept
-      {
-         m_temporary = t;
       }
 
       void clear( bool& c )
@@ -94,15 +87,22 @@ namespace tao::config::internal
          return m_entries;
       }
 
-      template< typename T >
-      void emplace_back_atom( const position& pos, T&& t )
+      void emplace_back_atom( const json_t& v )
       {
-         auto& e = m_entries.emplace_back( this, pos );
-         e.set_atom( std::forward< T >( t ) );
+         auto& e = m_entries.emplace_back( this, v.position );
+         e.set_atom( v );
          back_set_clear();
       }
 
-      E& emplace_back_array( const position& pos )
+      template< typename T >
+      void emplace_back_atom( const pegtl::position& pos, T&& t )
+      {
+         auto& e = m_entries.emplace_back( this, pos );
+         e.set_atom( std::forward< T >( t ), pos );
+         back_set_clear();
+      }
+
+      E& emplace_back_array( const pegtl::position& pos )
       {
          auto& e = m_entries.emplace_back( this, pos );
          e.set_array();
@@ -110,7 +110,7 @@ namespace tao::config::internal
          return e;
       }
 
-      E& emplace_back_object( const position& pos )
+      E& emplace_back_object( const pegtl::position& pos )
       {
          auto& e = m_entries.emplace_back( this, pos );
          e.set_object();
@@ -118,15 +118,15 @@ namespace tao::config::internal
          return e;
       }
 
-      json::value& emplace_back_reference( const position& pos, json::value&& v )
+      json_t& emplace_back_reference( json_t&& v )
       {
-         auto& e = m_entries.emplace_back( this, pos );
+         auto& e = m_entries.emplace_back( this, v.position );
          e.set_reference( std::move( v ) );
          back_set_clear();
          return e.get_reference();
       }
 
-      position p;
+      pegtl::position p;
 
       std::list< E >& private_entries() noexcept
       {
@@ -185,7 +185,6 @@ namespace tao::config::internal
       std::list< E > m_entries;
 
       bool m_clear = false;
-      mutable bool m_temporary = false;
    };
 
    class entry;

@@ -32,7 +32,7 @@ namespace tao::config::internal
       }
    }
 
-   inline std::string get_env_throws( const position& pos, const std::string& e )
+   inline std::string get_env_throws( const pegtl::position& pos, const std::string& e )
    {
       if( const char* r = std::getenv( e.c_str() ) ) {
          return std::string( r );
@@ -48,7 +48,7 @@ namespace tao::config::internal
       return std::nullopt;
    }
 
-   inline std::string shell_popen_throws( const position& pos, const std::string& c )
+   inline std::string shell_popen_throws( const pegtl::position& pos, const std::string& c )
    {
       errno = 0;
 

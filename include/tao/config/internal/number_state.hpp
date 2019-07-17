@@ -17,7 +17,7 @@ namespace tao::config::internal
    {
       template< typename Input, typename T >
       explicit number_state( const Input& in, const T& )
-         : m_position( in.position() )
+         : m_value( json::uninitialized, in.position() )
       {
       }
 
@@ -35,7 +35,7 @@ namespace tao::config::internal
          assert( m_value );
          assert( !st.lstack.empty() );
 
-         st.lstack.back()->emplace_back_atom( m_position, m_value );
+         st.lstack.back()->emplace_back_atom( m_value );
       }
 
       template< typename Input, typename T >
@@ -47,12 +47,10 @@ namespace tao::config::internal
       template< typename T >
       void number( const T n )
       {
-         m_value = n;
+         m_value.assign( n );
       }
 
-      json::value m_value;
-
-      const position m_position;
+      json_t m_value;
    };
 
 }  // namespace tao::config::internal

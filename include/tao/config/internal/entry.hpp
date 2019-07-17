@@ -10,15 +10,16 @@
 #include <string>
 
 #include "concat.hpp"
+#include "forward.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"
+#include "value_traits.hpp"
 
 namespace tao::config::internal
 {
-   using atom_t = json::value;
-   using array_t = std::list< concat >;
-   using object_t = std::map< std::string, concat >;
-   using reference_t = json::value;
+   // NOTE: json_t now keeps it's own position(s), so:
+   using array_t = std::list< concat >;  // TODO: Move position from entry to here?
+   using object_t = std::map< std::string, concat >;  // TODO: Move position from entry to here?
 
    union entry_union
    {
@@ -36,9 +37,9 @@ namespace tao::config::internal
       {
       }
 
+      json_t j;
       array_t a;
       object_t o;
-      json::value j;
    };
 
    class entry
@@ -53,7 +54,7 @@ namespace tao::config::internal
          reference
       };
 
-      entry( concat* parent, const internal::position& pos )
+      entry( concat* parent, const pegtl::position& pos )
          : m_type( nothing ),
            m_parent( parent ),
            m_position( pos )
@@ -121,11 +122,19 @@ namespace tao::config::internal
          discard();
       }
 
-      template< typename T >
-      void set_atom( T&& t )
+      void set_atom( const json_t& v )
       {
          discard();
-         new( &m_union.j ) atom_t( std::forward< T >( t ) );
+         new( &m_union.j ) json_t( v );
+         m_type = atom;
+      }
+
+      template< typename T >
+      void set_atom( T&& t, const pegtl::position& pos )
+      {
+         discard();
+         new( &m_union.j ) json_t( json::uninitialized, pos );
+         m_union.j.assign( std::forward< T >( t ) );
          m_type = atom;
       }
 
@@ -143,14 +152,14 @@ namespace tao::config::internal
          m_type = object;
       }
 
-      void set_reference( json::value&& v )
+      void set_reference( json_t&& v )
       {
          discard();
-         new( &m_union.j ) reference_t( std::move( v ) );
+         new( &m_union.j ) json_t( std::move( v ) );
          m_type = reference;
       }
 
-      atom_t& get_atom() noexcept
+      json_t& get_atom() noexcept
       {
          assert( is_atom() );
          return m_union.j;
@@ -168,13 +177,13 @@ namespace tao::config::internal
          return m_union.o;
       }
 
-      reference_t& get_reference() noexcept
+      json_t& get_reference() noexcept
       {
          assert( is_reference() );
          return m_union.j;
       }
 
-      const atom_t& get_atom() const noexcept
+      const json_t& get_atom() const noexcept
       {
          assert( is_atom() );
          return m_union.j;
@@ -192,23 +201,23 @@ namespace tao::config::internal
          return m_union.o;
       }
 
-      const reference_t& get_reference() const noexcept
+      const json_t& get_reference() const noexcept
       {
          assert( is_reference() );
          return m_union.j;
       }
 
-      concat& emplace_back( const position& pos )
+      concat& emplace_back( const pegtl::position& pos )
       {
          return get_array().emplace_back( this, pos );
       }
 
-      concat& emplace( const std::string& k, const position& pos )
+      concat& emplace( const std::string& k, const pegtl::position& pos )
       {
          return get_object().try_emplace( k, this, pos ).first->second;
       }
 
-      void set_recursion_marker() const
+      void set_recursion_marker()
       {
          if( m_phase2_recursion_marker ) {
             throw std::runtime_error( "reference cycle detected -- " + to_string( m_position ) );
@@ -216,12 +225,12 @@ namespace tao::config::internal
          m_phase2_recursion_marker = true;
       }
 
-      void clear_recursion_marker() const noexcept
+      void clear_recursion_marker() noexcept
       {
          m_phase2_recursion_marker = false;
       }
 
-      const internal::position& position() const noexcept
+      const pegtl::position& position() const noexcept
       {
          return m_position;
       }
@@ -261,7 +270,7 @@ namespace tao::config::internal
          switch( r.m_type ) {
             case atom:
             case reference:
-               new( &m_union.j ) atom_t( r.m_union.j );
+               new( &m_union.j ) json_t( r.m_union.j );
                break;
             case array:
                new( &m_union.a ) array_t();
@@ -283,10 +292,10 @@ namespace tao::config::internal
       kind m_type;
       concat* m_parent;  // TODO?
       entry_union m_union;
-      internal::position m_position;
+      pegtl::position m_position;
 
       bool m_clear = false;
-      mutable bool m_phase2_recursion_marker = false;
+      bool m_phase2_recursion_marker = false;
    };
 
 }  // namespace tao::config::internal

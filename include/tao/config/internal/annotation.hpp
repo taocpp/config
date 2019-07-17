@@ -5,8 +5,8 @@
 #define TAO_CONFIG_INTERNAL_ANNOTATION_HPP
 
 #include <ostream>
+#include <utility>
 
-#include "json.hpp"
 #include "pegtl.hpp"
 
 namespace tao::config::internal
@@ -14,7 +14,8 @@ namespace tao::config::internal
    struct annotation
    {
       bool clear = false;
-      json::position position;  // TODO: json::position, pegtl::position or TBD config::position?
+      bool temporary = false;
+      pegtl::position position;
 
       annotation() noexcept = default;
 
@@ -24,34 +25,19 @@ namespace tao::config::internal
       annotation( const annotation& ) = default;
       annotation& operator=( const annotation& ) = default;
 
-      std::size_t line() const noexcept
+      annotation( pegtl::position&& pos )
+         : position( std::move( pos ) )
       {
-         return position.line();
       }
 
-      std::size_t byte_in_line() const noexcept
+      annotation( const pegtl::position& pos )
+         : position( pos )
       {
-         return position.byte_in_line();
-      }
-
-      const std::string& source() const noexcept
-      {
-         return position.source();
-      }
-
-      void set_position( const json::position& pos )
-      {
-         position = pos;
-      }
-
-      void set_position( const pegtl::position& pos )
-      {
-         position.set_position( pos );
       }
 
       void append_message_extension( std::ostream& o ) const
       {
-         o << " (" << source() << ':' << line() << ':' << byte_in_line() << ')';
+         o << " (" << position.source << ':' << position.line << ':' << position.byte_in_line << ')';
       }
    };
 

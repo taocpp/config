@@ -8,7 +8,6 @@
 #include <stdexcept>
 #include <string>
 
-#include "access.hpp"
 #include "binary_state.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
@@ -71,7 +70,7 @@ namespace tao::config::internal
          assert( !st.rstack.empty() );
          assert( st.rstack.back()->is_array() );
 
-         st.rstack.back()->emplace_back( in.string() );
+         st.rstack.back()->emplace_back( in.string(), in.position() );
       }
    };
 
@@ -84,31 +83,33 @@ namespace tao::config::internal
          assert( !st.rstack.empty() );
          assert( st.rstack.back()->is_array() );
 
-         st.rstack.back()->emplace_back( std::stoul( in.string() ) );
+         st.rstack.back()->emplace_back( std::stoul( in.string() ), in.position() );
       }
    };
 
    template<>
    struct action< rules::star >
    {
-      static void apply0( state& st )
+      template< typename Input >
+      static void apply( const Input& in, state& st )
       {
          assert( !st.rstack.empty() );
          assert( st.rstack.back()->is_array() );
 
-         st.rstack.back()->emplace_back( true );  // See token_from_value() in utility.hpp -> true -> token::star.
+         st.rstack.back()->emplace_back( true, in.position() );  // See token_from_value() in utility.hpp -> true -> token::star.
       }
    };
 
    template<>
    struct action< rules::minus >
    {
-      static void apply0( state& st )
+      template< typename Input >
+      static void apply( const Input& in, state& st )
       {
          assert( !st.rstack.empty() );
          assert( st.rstack.back()->is_array() );
 
-         st.rstack.back()->emplace_back( false );  // See token_from_value() in utility.hpp -> false -> token::minus.
+         st.rstack.back()->emplace_back( false, in.position() );  // See token_from_value() in utility.hpp -> false -> token::minus.
       }
    };
 
@@ -162,7 +163,7 @@ namespace tao::config::internal
       {
       }
 
-      const position pos;
+      const pegtl::position pos;
       state& st;
    };
 
@@ -211,11 +212,11 @@ namespace tao::config::internal
       : public pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
       template< typename Input >
-      static void success( const Input&, std::string& unescaped, state& st )
+      static void success( const Input& in, std::string& unescaped, state& st )
       {
          assert( !st.rstack.empty() );
 
-         st.rstack.back()->emplace_back( std::move( unescaped ) );
+         st.rstack.back()->emplace_back( std::move( unescaped ), in.position() );
       }
    };
 

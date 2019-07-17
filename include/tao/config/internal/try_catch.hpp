@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 #include "pegtl.hpp"
-#include "utility.hpp"
+#include "reverse.hpp"
 
 namespace tao::config::internal
 {

@@ -166,8 +166,7 @@ namespace tao::config::internal
    template<>
    struct format_traits< concat >
       : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
-                                      TAO_JSON_BIND_REQUIRED( "entries", &concat::entries ),
-                                      TAO_JSON_BIND_REQUIRED( "temporary", &concat::is_temporary ) >
+                                      TAO_JSON_BIND_REQUIRED( "entries", &concat::entries ) >
    {
    };
 
