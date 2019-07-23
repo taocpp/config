@@ -20,10 +20,10 @@ namespace tao::config::internal
    struct state
    {
       state()
-         : root( nullptr, pegtl::position( pegtl::internal::iterator(), "(root)" ) ),
+         : root( nullptr ),
            temporary( json::uninitialized, pegtl::position( pegtl::internal::iterator(), "(temporary)" ) )
       {
-         root.set_object();
+         root.set_object( pegtl::position( pegtl::internal::iterator(), "(root)" ) );
          ostack.emplace_back( &root );
       }
 

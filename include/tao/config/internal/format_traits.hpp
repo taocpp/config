@@ -139,7 +139,7 @@ namespace tao::config::internal
          c.key( "clear" );
          c.boolean( v.clear() );
          c.member();
-         c.key( "data" );
+         c.key( "union" );
          switch( v.type() ) {
             case entry::atom:
                json::events::produce< Traits >( c, v.get_atom() );
@@ -166,7 +166,21 @@ namespace tao::config::internal
    template<>
    struct format_traits< concat >
       : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
-                                      TAO_JSON_BIND_REQUIRED( "entries", &concat::entries ) >
+                                      TAO_JSON_BIND_REQUIRED( "concat", &concat::entries ) >
+   {
+   };
+
+   template<>
+   struct format_traits< entry_array >
+      : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &entry_array::position ),
+                                      TAO_JSON_BIND_REQUIRED( "array", &entry_array::list ) >
+   {
+   };
+
+   template<>
+   struct format_traits< entry_object >
+      : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &entry_object::position ),
+                                      TAO_JSON_BIND_REQUIRED( "object", &entry_object::map ) >
    {
    };
 

@@ -4,7 +4,6 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE1_ASSIGN_HPP
 #define TAO_CONFIG_INTERNAL_PHASE1_ASSIGN_HPP
 
-#include <iterator>
 #include <stdexcept>
 
 #include "../key.hpp"
@@ -24,9 +23,7 @@ namespace tao::config::internal
          if( !i.is_object() ) {
             throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
          }
-         const auto j = i.get_object().find( k );
-
-         if( j != i.get_object().end() ) {
+         if( auto* j = i.get_object().find( k ) ) {
             return phase1_assign( pos, j->second, p );
          }
       }
@@ -58,9 +55,8 @@ namespace tao::config::internal
          const auto s = i.get_array().size();
 
          if( n < s ) {
-            auto j = i.get_array().begin();
-            std::advance( j, n );
-            return phase1_assign( pos, *j, p );
+            auto& j = i.get_array()[ n ];
+            return phase1_assign( pos, j, p );
          }
          n -= s;
       }

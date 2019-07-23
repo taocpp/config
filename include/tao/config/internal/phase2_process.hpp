@@ -47,7 +47,7 @@ namespace tao::config::internal
 
       bool done = true;
 
-      for( auto& i : e.get_array() ) {
+      for( auto& i : e.get_array().private_list() ) {
          if( const json_t* t = phase2_process_concat( i ) ) {
             j.unsafe_emplace_back( *t );
             continue;
@@ -67,7 +67,7 @@ namespace tao::config::internal
 
       bool done = true;
 
-      for( auto& i : e.get_object() ) {
+      for( auto& i : e.get_object().private_map() ) {
          if( const json_t* t = phase2_process_concat( i.second ) ) {
             j.unsafe_emplace( i.first, *t );
             continue;

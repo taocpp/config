@@ -4,7 +4,6 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE2_ACCESS_HPP
 #define TAO_CONFIG_INTERNAL_PHASE2_ACCESS_HPP
 
-#include <iterator>
 #include <stdexcept>
 
 #include "../access.hpp"
@@ -22,7 +21,7 @@ namespace tao::config::internal
 
    inline const json_t& phase2_access_impl( const concat& l, const key& p );
 
-   inline const json_t& phase2_access_impl( const array_t& a, const part& t, const key& p )
+   inline const json_t& phase2_access_impl( const entry_array& a, const part& t, const key& p )
    {
       switch( t.type() ) {
          case part::star:
@@ -36,16 +35,14 @@ namespace tao::config::internal
             throw std::runtime_error( "attempt to reference string in array" );
          case part::index:
             if( a.size() > t.get_index() ) {
-               auto i = a.begin();
-               std::advance( i, t.get_index() );
-               return phase2_access_impl( *i, p );
+               return phase2_access_impl( a[ t.get_index() ], p );
             }
             throw std::runtime_error( "array reference out of bounds" );
       }
       assert( false );
    }
 
-   inline const json_t& phase2_access_impl( const object_t& o, const part& t, const key& p )
+   inline const json_t& phase2_access_impl( const entry_object& o, const part& t, const key& p )
    {
       switch( t.type() ) {
          case part::star:
@@ -53,7 +50,7 @@ namespace tao::config::internal
          case part::minus:
             throw std::runtime_error( "attempt to reference last entry object" );
          case part::name:
-            if( const auto i = o.find( t.get_name() ); i != o.end() ) {
+            if( const auto* i = o.find( t.get_name() ) ) {
                return phase2_access_impl( i->second, p );
             }
             throw std::runtime_error( "object reference not found" );
@@ -92,11 +89,9 @@ namespace tao::config::internal
       throw temporary_non_local_return_hack();  // Unsuitable thing found -- abort search and try again next iteration.
    }
 
-   inline const json_t* phase2_access( const object_t& o, const std::string& k, const key& p )
+   inline const json_t* phase2_access( const entry_object& o, const std::string& k, const key& p )
    {
-      const auto i = o.find( k );
-
-      if( i != o.end() ) {
+      if( const auto* i = o.find( k ) ) {
          return &phase2_access_impl( i->second, p );  // No backtracking once we enter _impl.
       }
       return nullptr;  // Nothing found -- backtrack search in entry/concat tree.

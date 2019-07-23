@@ -129,12 +129,12 @@ namespace tao::config::internal
             return;
          case entry::array: {
             std::size_t c = 0;
-            for( const auto& i : haystack.get_array() ) {
+            for( const auto& i : haystack.get_array().list() ) {
                temporary_compute_current_prefix( i, needle, prefix + c++ );
             }
          }  break;
          case entry::object:
-            for( const auto& i : haystack.get_object() ) {
+            for( const auto& i : haystack.get_object().map() ) {
                temporary_compute_current_prefix( i.second, needle, prefix + i.first );
             }
             break;

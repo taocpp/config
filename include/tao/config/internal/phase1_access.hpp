@@ -4,7 +4,6 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE1_ACCESS_HPP
 #define TAO_CONFIG_INTERNAL_PHASE1_ACCESS_HPP
 
-#include <iterator>
 #include <stdexcept>
 
 #include "../key.hpp"
@@ -24,9 +23,7 @@ namespace tao::config::internal
          if( !i.is_object() ) {
             throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
          }
-         const auto j = i.get_object().find( k );
-
-         if( j != i.get_object().end() ) {
+         if( const auto* j = i.get_object().find( k ) ) {
             return phase1_access_impl( pos, j->second, p );
          }
       }
@@ -42,9 +39,8 @@ namespace tao::config::internal
          const auto s = i.get_array().size();
 
          if( n < s ) {
-            auto j = i.get_array().begin();
-            std::advance( j, n );
-            return phase1_access_impl( pos, *j, p );
+            const auto& j = i.get_array()[ n ];
+            return phase1_access_impl( pos, j, p );
          }
          n -= s;
       }
@@ -87,11 +83,9 @@ namespace tao::config::internal
       return phase1_access_impl( pos, l, p.front(), pop_front( p ) );
    }
 
-   inline const concat* phase1_access( const pegtl::position& pos, const object_t& o, const std::string& k, const key& p )
+   inline const concat* phase1_access( const pegtl::position& pos, const entry_object& o, const std::string& k, const key& p )
    {
-      const auto i = o.find( k );
-
-      if( i != o.end() ) {
+      if( const auto* i = o.find( k ) ) {
          return &phase1_access_impl( pos, i->second, p );
       }
       return nullptr;

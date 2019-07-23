@@ -4,12 +4,12 @@
 #ifndef TAO_CONFIG_INTERNAL_ENTRY_HPP
 #define TAO_CONFIG_INTERNAL_ENTRY_HPP
 
-#include <list>
-#include <map>
 #include <stdexcept>
 #include <string>
 
 #include "concat.hpp"
+#include "entry_array.hpp"
+#include "entry_object.hpp"
 #include "forward.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"
@@ -17,10 +17,6 @@
 
 namespace tao::config::internal
 {
-   // NOTE: json_t now keeps it's own position(s), so:
-   using array_t = std::list< concat >;  // TODO: Move position from entry to here?
-   using object_t = std::map< std::string, concat >;  // TODO: Move position from entry to here?
-
    union entry_union
    {
       entry_union() noexcept
@@ -38,14 +34,15 @@ namespace tao::config::internal
       }
 
       json_t j;
-      array_t a;
-      object_t o;
+
+      entry_array a;
+      entry_object o;
    };
 
    class entry
    {
    public:
-      enum kind : char
+      enum kind : std::uint8_t
       {
          atom,
          array,
@@ -54,17 +51,15 @@ namespace tao::config::internal
          reference
       };
 
-      entry( concat* parent, const pegtl::position& pos )
+      explicit entry( concat* parent )
          : m_type( nothing ),
-           m_parent( parent ),
-           m_position( pos )
+           m_parent( parent )
       {
       }
 
       entry( concat* parent, const entry& r )
          : m_type( nothing ),
            m_parent( parent ),
-           m_position( r.m_position ),
            m_clear( r.m_clear )
       {
          embed( r );
@@ -138,17 +133,17 @@ namespace tao::config::internal
          m_type = atom;
       }
 
-      void set_array()
+      void set_array( const pegtl::position& pos )
       {
          discard();
-         new( &m_union.a ) array_t();
+         new( &m_union.a ) entry_array( pos );
          m_type = array;
       }
 
-      void set_object()
+      void set_object( const pegtl::position& pos )
       {
          discard();
-         new( &m_union.o ) object_t();
+         new( &m_union.o ) entry_object( pos );
          m_type = object;
       }
 
@@ -165,13 +160,13 @@ namespace tao::config::internal
          return m_union.j;
       }
 
-      array_t& get_array() noexcept
+      entry_array& get_array() noexcept
       {
          assert( is_array() );
          return m_union.a;
       }
 
-      object_t& get_object() noexcept
+      entry_object& get_object() noexcept
       {
          assert( is_object() );
          return m_union.o;
@@ -189,13 +184,13 @@ namespace tao::config::internal
          return m_union.j;
       }
 
-      const array_t& get_array() const noexcept
+      const entry_array& get_array() const noexcept
       {
          assert( is_array() );
          return m_union.a;
       }
 
-      const object_t& get_object() const noexcept
+      const entry_object& get_object() const noexcept
       {
          assert( is_object() );
          return m_union.o;
@@ -220,7 +215,7 @@ namespace tao::config::internal
       void set_recursion_marker()
       {
          if( m_phase2_recursion_marker ) {
-            throw std::runtime_error( "reference cycle detected -- " + to_string( m_position ) );
+            throw std::runtime_error( "reference cycle detected -- " + to_string( position() ) );
          }
          m_phase2_recursion_marker = true;
       }
@@ -228,11 +223,6 @@ namespace tao::config::internal
       void clear_recursion_marker() noexcept
       {
          m_phase2_recursion_marker = false;
-      }
-
-      const pegtl::position& position() const noexcept
-      {
-         return m_position;
       }
 
       bool clear() const noexcept
@@ -245,6 +235,24 @@ namespace tao::config::internal
          m_clear = c;
       }
 
+      const pegtl::position& position() const noexcept
+      {
+         // TODO: Check whether this function should be eliminated in refactoring.
+
+         switch( m_type ) {
+            case atom:
+            case reference:
+               return m_union.j.position;
+            case array:
+               return m_union.a.position();
+            case object:
+               return m_union.o.position();
+            case nothing:
+               break;
+         }
+         assert( false );
+      }
+
    private:
       void discard() noexcept
       {
@@ -254,10 +262,10 @@ namespace tao::config::internal
                m_union.j.~basic_value();
                break;
             case array:
-               m_union.a.~list();
+               m_union.a.~entry_array();
                break;
             case object:
-               m_union.o.~map();
+               m_union.o.~entry_object();
                break;
             case nothing:
                break;
@@ -273,14 +281,14 @@ namespace tao::config::internal
                new( &m_union.j ) json_t( r.m_union.j );
                break;
             case array:
-               new( &m_union.a ) array_t();
-               for( const auto& i : r.m_union.a ) {
+               new( &m_union.a ) entry_array( r.m_union.a.position() );
+               for( const auto& i : r.m_union.a.list() ) {
                   m_union.a.emplace_back( this, i );
                }
                break;
             case object:
-               new( &m_union.o ) object_t();
-               for( const auto& i : r.m_union.o ) {
+               new( &m_union.o ) entry_object( r.m_union.o.position() );
+               for( const auto& i : r.m_union.o.map() ) {
                   m_union.o.try_emplace( i.first, this, i.second );
                }
                break;
@@ -292,7 +300,6 @@ namespace tao::config::internal
       kind m_type;
       concat* m_parent;  // TODO?
       entry_union m_union;
-      pegtl::position m_position;
 
       bool m_clear = false;
       bool m_phase2_recursion_marker = false;

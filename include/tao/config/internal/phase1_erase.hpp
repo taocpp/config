@@ -4,7 +4,6 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE1_ERASE_HPP
 #define TAO_CONFIG_INTERNAL_PHASE1_ERASE_HPP
 
-#include <iterator>
 #include <stdexcept>
 
 #include "../key.hpp"
@@ -40,9 +39,7 @@ namespace tao::config::internal
          const auto s = a.size();
 
          if( n < s ) {
-            auto j = a.begin();
-            std::advance( j, n );
-            a.erase( j );
+            a.erase( n );
             return 1;
          }
          n -= s;
@@ -110,9 +107,7 @@ namespace tao::config::internal
             // TODO: Should references be silently ignored (continue)?
             throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
          }
-         const auto j = i.get_object().find( k );
-
-         if( j != i.get_object().end() ) {
+         if( auto* j = i.get_object().find( k ) ) {
             r += phase1_erase( pos, j->second, p, f );
          }
       }
@@ -128,9 +123,8 @@ namespace tao::config::internal
          const auto s = i.get_array().size();
 
          if( n < s ) {
-            auto j = i.get_array().begin();
-            std::advance( j, n );
-            return phase1_erase( pos, *j, p, f );
+            auto& j = i.get_array()[ n ];
+            return phase1_erase( pos, j, p, f );
          }
          n -= s;
       }
@@ -143,13 +137,13 @@ namespace tao::config::internal
 
       for( auto& i : l.private_entries() ) {
          if( i.is_array() ) {
-            for( auto& j : i.get_array() ) {
+            for( auto& j : i.get_array().private_list() ) {
                r += phase1_erase( pos, j, p, f );
             }
             continue;
          }
          if( i.is_object() ) {
-            for( auto& j : i.get_object() ) {
+            for( auto& j : i.get_object().private_map() ) {
                r += phase1_erase( pos, j.second, p, f );
             }
             continue;
@@ -197,14 +191,12 @@ namespace tao::config::internal
       }
    }
 
-   inline std::size_t phase1_erase( const pegtl::position& pos, object_t& o, const std::string& k, const key& p )
+   inline std::size_t phase1_erase( const pegtl::position& pos, entry_object& o, const std::string& k, const key& p )
    {
       if( p.empty() ) {
          return o.erase( k );
       }
-      const auto i = o.find( k );
-
-      if( i != o.end() ) {
+      if( auto* i = o.find( k ) ) {
          return phase1_erase( pos, i->second, pop_back( p ), p.back() );
       }
       return 0;
