@@ -25,7 +25,7 @@ namespace tao::config::internal
          case json::type::UNSIGNED:
             return part( v.template as< std::size_t >() );
          default:
-            throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid json for part -- expected string or integer (or bool)", { v.type() } ), v.position );
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid json for part -- expected string or integer (or bool)", { v.type() } ), *v.position );
       }
    }
 
@@ -38,7 +38,7 @@ namespace tao::config::internal
          return p;
       }
       if( !v.is_array() ) {
-         throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid json for key -- expected array", { v.type() } ), v.position );
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid json for key -- expected array", { v.type() } ), *v.position );
       }
       for( const auto& t : v.unsafe_get_array() ) {
          p.emplace_back( value_to_part( t ) );

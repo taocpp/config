@@ -242,7 +242,8 @@ namespace tao::config::internal
          switch( m_type ) {
             case atom:
             case reference:
-               return m_union.j.position;
+               assert( m_union.j.position );
+               return *m_union.j.position;
             case array:
                return m_union.a.position();
             case object:

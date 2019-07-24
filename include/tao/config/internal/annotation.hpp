@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_ANNOTATION_HPP
 #define TAO_CONFIG_INTERNAL_ANNOTATION_HPP
 
+#include <optional>
 #include <ostream>
 #include <utility>
 
@@ -15,7 +16,8 @@ namespace tao::config::internal
    {
       bool clear = false;
       bool temporary = false;
-      pegtl::position position;
+
+      std::optional< pegtl::position > position;
 
       annotation() noexcept = default;
 
@@ -37,7 +39,9 @@ namespace tao::config::internal
 
       void append_message_extension( std::ostream& o ) const
       {
-         o << " (" << position.source << ':' << position.line << ':' << position.byte_in_line << ')';
+         if( position ) {
+            o << " (" << position->source << ':' << position->line << ':' << position->byte_in_line << ')';
+         }
       }
    };
 

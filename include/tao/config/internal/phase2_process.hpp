@@ -130,7 +130,7 @@ namespace tao::config::internal
                k.emplace_back( value_to_part( i ) );
             }
          }
-         return phase2_access( r.position, e, k );
+         return phase2_access( *r.position, e, k );
       }
 
       [[nodiscard]] bool process_reference_entry( entry& e )

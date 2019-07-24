@@ -53,6 +53,29 @@ namespace tao::config::internal
    };
 
    template<>
+   struct format_traits< const std::optional< pegtl::position >* >
+   {
+      TAO_JSON_DEFAULT_KEY( "position" );
+
+      template< template< typename... > class Traits >
+      static void assign( json::basic_value< Traits >& v, const std::optional< pegtl::position >* p )
+      {
+         if( *p ) {
+            v.unsafe_assign_opaque_ptr( &**p );
+         }
+         else {
+            v.unsafe_assign_null();
+         }
+      }
+   };
+
+   template<>
+   struct format_traits< std::optional< pegtl::position >* >
+      : public format_traits< const std::optional< pegtl::position >* >
+   {
+   };
+
+   template<>
    struct format_traits< json::type >
    {
       TAO_JSON_DEFAULT_KEY( "type" );
