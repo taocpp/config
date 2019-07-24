@@ -21,7 +21,9 @@ namespace tao::config::internal
    {
       for( auto& i : reverse( l.private_entries() ) ) {
          if( !i.is_object() ) {
-            throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
+            l.emplace_back_object( pos );
+            break;
+            //         throw pegtl::parse_error( format( __FILE__, __LINE__, "attempt to index non-object with string", { { "string", k }, { "non-object", { &i.position(), i.type() } } } ), pos );
          }
          if( auto* j = i.get_object().find( k ) ) {
             return phase1_assign( pos, j->second, p );
@@ -36,6 +38,9 @@ namespace tao::config::internal
    inline concat& phase1_assign_minus( const pegtl::position& pos, concat& l, const key& p )
    {
       if( l.entries().empty() ) {
+         l.emplace_back_array( pos );
+      }
+      else if( l.entries().back().is_reference() ) {
          l.emplace_back_array( pos );
       }
       else if( !l.entries().back().is_array() ) {

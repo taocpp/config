@@ -4,7 +4,7 @@
 
 ## Documentation
 
-*Warning: The documentation is still work-in-progress and very incomplete.*
+*Warning: The library and documentation are still work-in-progress and not complete.*
 
  * [Version 1.x](doc/README.md) (requires C++17)
 
@@ -23,8 +23,6 @@
 This library is still under heavy development and not very well documented...
 
 ...however it generally works, and test coverage and error messages are not too bad.
-
-The ongoing changes to the semantics of config files affects mostly advanced use cases.
 
 To compile the tests and examples it requires [taocpp/json] checked out next to it.
 
