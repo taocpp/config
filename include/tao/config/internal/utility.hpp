@@ -47,31 +47,6 @@ namespace tao::config::internal
       return p;
    }
 
-   inline json_t part_to_value( const part& p )
-   {
-      switch( p.type() ) {
-         case part::star:
-            return json_t( true );
-         case part::minus:
-            return json_t( false );
-         case part::name:
-            return json_t( p.get_name() );
-         case part::index:
-            return json_t( p.get_index() );
-      }
-   }
-
-   inline json_t key_to_value( const key& k )
-   {
-      json_t j( json::empty_array );
-      j.unsafe_get_array().reserve( k.size() );
-
-      for( const auto& p : k ) {
-         j.unsafe_get_array().emplace_back( part_to_value( p ) );
-      }
-      return j;
-   }
-
    inline json::pointer key_to_pointer( const key& k )
    {
       json::pointer p;
