@@ -14,8 +14,7 @@
 
 namespace tao::config::internal
 {
-   template< typename Input >
-   inline void erase_extension( Input& in, state& st )
+   inline void erase_extension( pegtl_input_t& in, state& st )
    {
       assert( !st.ostack.empty() );
 
@@ -27,8 +26,7 @@ namespace tao::config::internal
       }
    }
 
-   template< typename Input >
-   inline void erase_if_extension( Input& in, state& st )
+   inline void erase_if_extension( pegtl_input_t& in, state& st )
    {
       assert( !st.ostack.empty() );
 
@@ -38,8 +36,7 @@ namespace tao::config::internal
       phase1_erase( pos, *st.ostack.back(), p );
    }
 
-   template< typename Input >
-   inline void include_extension( Input& in, state& st )
+   inline void include_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
@@ -52,7 +49,7 @@ namespace tao::config::internal
 
       try {
          pegtl::file_input i2( f );
-         pegtl::parse< rules::config_file, action, control >( i2, st );
+         pegtl::parse< rules::config_file, action, control >( static_cast< pegtl_input_t& >( i2 ), st );
          st.temporary.discard();
       }
       catch( const std::system_error& e ) {
@@ -64,8 +61,7 @@ namespace tao::config::internal
       }
    }
 
-   template< typename Input >
-   inline void include_if_extension( Input& in, state& st )
+   inline void include_if_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
@@ -81,7 +77,7 @@ namespace tao::config::internal
 
       try {
          pegtl::file_input i2( f );
-         pegtl::parse< rules::config_file, action, control >( i2, st );
+         pegtl::parse< rules::config_file, action, control >( static_cast< pegtl_input_t& >( i2 ), st );
          st.temporary.discard();
       }
       catch( const std::system_error& e ) {
@@ -95,8 +91,7 @@ namespace tao::config::internal
       }
    }
 
-   template< typename Input >
-   inline void stderr_extension( Input& in, state& st )
+   inline void stderr_extension( pegtl_input_t& in, state& st )
    {
       assert( !st.ostack.empty() );
 
@@ -151,8 +146,7 @@ namespace tao::config::internal
       assert( false );
    }
 
-   template< typename Input >
-   inline void temporary_extension( Input& in, state& st )
+   inline void temporary_extension( pegtl_input_t& in, state& st )
    {
       assert( !st.ostack.empty() );
 
@@ -162,28 +156,26 @@ namespace tao::config::internal
       st.temporaries.emplace_back( temporary_compute_current_prefix( st ) + p );
    }
 
-   template< typename Input >
    inline const auto& member_extension_map()
    {
-      static const extension_map_t< Input > map = {
-         { "delete", erase_extension< Input > },
-         { "delete?", erase_if_extension< Input > },
-         { "include", include_extension< Input > },
-         { "include?", include_if_extension< Input > },
-         { "stderr", stderr_extension< Input > },
-         { "temporary", temporary_extension< Input > }
+      static const extension_map_t map = {
+         { "delete", erase_extension },
+         { "delete?", erase_if_extension },
+         { "include", include_extension },
+         { "include?", include_if_extension },
+         { "stderr", stderr_extension },
+         { "temporary", temporary_extension }
       };
       return map;
    }
 
-   template< typename Input >
-   inline bool do_member_extension( Input& in, state& st )
+   inline bool do_member_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
       pegtl::parse< rules::outer, action, control >( in, st );
 
       const auto ext = std::move( st.extension );
-      const auto& map = member_extension_map< Input >();
+      const auto& map = member_extension_map();
       const auto i = map.find( ext );
 
       if( i != map.end() ) {

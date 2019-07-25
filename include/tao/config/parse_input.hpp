@@ -18,8 +18,8 @@
 
 namespace tao::config
 {
-   template< template< typename... > class Traits, typename Input >
-   json::basic_value< Traits > basic_parse_input( Input&& in )
+   template< template< typename... > class Traits >
+   json::basic_value< Traits > basic_parse_input( pegtl_input_t&& in )
    {
       try {
          internal::state st;
@@ -35,10 +35,9 @@ namespace tao::config
       }
    }
 
-   template< typename Input >
-   inline value parse_input( Input&& in )
+   inline value parse_input( pegtl_input_t&& in )
    {
-      return basic_parse_input< traits >( in );
+      return basic_parse_input< traits >( std::move( in ) );
    }
 
 }  // namespace tao::config

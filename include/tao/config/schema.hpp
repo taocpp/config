@@ -913,7 +913,7 @@ namespace tao::config::schema
                return e;
             }
             const std::string_view sv = v.as< std::string_view >();
-            if( pegtl::parse< pegtl::seq< Grammar, pegtl::eof > >( pegtl::memory_input( sv, "<internal>" ) ) ) {
+            if( pegtl::parse< pegtl::seq< Grammar, pegtl::eof > >( pegtl_input_t( sv, "<internal>" ) ) ) {
                return ok();
             }
             return error( v, "invalid format" );
@@ -995,7 +995,7 @@ namespace tao::config::schema
    };
 
    // clang-format off
-   const validator schema_validator( config::parse_input( pegtl::memory_input( R"(
+   const validator schema_validator( config::parse_input( pegtl_input_t( R"(
 
       // the schema for schemas:
 

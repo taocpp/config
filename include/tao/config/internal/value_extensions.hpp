@@ -15,40 +15,33 @@
 
 namespace tao::config::internal
 {
-   template< typename Input >
-   using extension_t = std::function< void( Input&, state& ) >;
+   using extension_t = std::function< void( pegtl_input_t&, state& ) >;
 
-   template< typename Input >
-   using extension_map_t = std::map< std::string, extension_t< Input > >;
+   using extension_map_t = std::map< std::string, extension_t >;
 
-   template< typename Input >
-   inline void do_inner_extension( Input& in, state& st );
+   inline void do_inner_extension( pegtl_input_t& in, state& st );
 
-   template< typename Input >
-   inline json::value obtain_jaxn( Input& in )
+   inline json::value obtain_jaxn( pegtl_input_t& in )
    {
       json::events::to_value consumer;
       pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_value >, json::jaxn::internal::action, json::jaxn::internal::errors >( in, consumer );
       return std::move( consumer.value );
    }
 
-   template< typename Input >
-   inline std::string obtain_string( Input& in )
+   inline std::string obtain_string( pegtl_input_t& in )
    {
       std::string s2;
       pegtl::parse< pegtl::must< json::jaxn::internal::rules::string_fragment >, json::jaxn::internal::unescape_action >( in, s2 );
       return s2;
    }
 
-   template< typename Input >
-   inline key obtain_key( Input& in, state& st )
+   inline key obtain_key( pegtl_input_t& in, state& st )
    {
       pegtl::parse< pegtl::must< rules::pointer >, action, control >( in, st );
       return value_to_key( st.temporary );
    }
 
-   template< typename Input >
-   inline void cbor_extension( Input& in, state& st )
+   inline void cbor_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
@@ -61,8 +54,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse cbor", { st.temporary.type() } ), pos );
    }
 
-   template< typename Input >
-   inline void copy_extension( Input& in, state& st )
+   inline void copy_extension( pegtl_input_t& in, state& st )
    {
       assert( !st.ostack.empty() );
       assert( !st.lstack.empty() );
@@ -79,8 +71,7 @@ namespace tao::config::internal
       d.append( s );  // TOOD: Modify/update d.position?
    }
 
-   template< typename Input >
-   inline void debug_extension( Input& in, state& st )
+   inline void debug_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
       const auto p = obtain_key( in, st );
@@ -90,8 +81,7 @@ namespace tao::config::internal
       st.temporary.assign( oss.str(), pos );
    }
 
-   template< typename Input >
-   inline void env_extension( Input& in, state& st )
+   inline void env_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
       const auto v = obtain_string( in );
@@ -99,8 +89,7 @@ namespace tao::config::internal
       st.temporary.assign( get_env_throws( pos, v ), pos );
    }
 
-   template< typename Input >
-   inline void env_if_extension( Input& in, state& st )
+   inline void env_if_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
       const auto v = obtain_string( in );
@@ -114,8 +103,7 @@ namespace tao::config::internal
       st.temporary.assign( e, pos );
    }
 
-   template< typename Input >
-   inline void jaxn_extension( Input& in, state& st )
+   inline void jaxn_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
@@ -128,8 +116,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse jaxn", { st.temporary.type() } ), pos );
    }
 
-   template< typename Input >
-   inline void json_extension( Input& in, state& st )
+   inline void json_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
@@ -142,8 +129,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse json", { st.temporary.type() } ), pos );
    }
 
-   template< typename Input >
-   inline void msgpack_extension( Input& in, state& st )
+   inline void msgpack_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
@@ -156,8 +142,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse msgpack", { st.temporary.type() } ), pos );
    }
 
-   template< typename Input >
-   inline void parse_extension( Input& in, state& st )
+   inline void parse_extension( pegtl_input_t& in, state& st )
    {
       assert( !st.lstack.empty() );
 
@@ -166,15 +151,14 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         pegtl::string_input< pegtl::tracking_mode::eager, typename Input::eol_t, const char* > i2( st.temporary.as< std::string >(), __FUNCTION__ );
-         pegtl::parse_nested< rules::value, action, control >( in, i2, st );
+         pegtl::string_input< pegtl::tracking_mode::eager, pegtl_input_t::eol_t, const char* > i2( st.temporary.as< std::string >(), __FUNCTION__ );
+         pegtl::parse_nested< rules::value, action, control >( in, static_cast< pegtl_input_t& >( i2 ), st );
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse value", { st.temporary.type() } ), pos );
    }
 
-   template< typename Input >
-   inline void read_extension( Input& in, state& st )
+   inline void read_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
@@ -187,8 +171,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string as filename", { st.temporary.type() } ), pos );
    }
 
-   template< typename Input >
-   inline void shell_extension( Input& in, state& st )
+   inline void shell_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
@@ -220,15 +203,14 @@ namespace tao::config::internal
       }
    };
 
-   template< typename Input >
-   inline void split_extension( Input& in, state& st )
+   inline void split_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         pegtl::string_input< pegtl::tracking_mode::eager, typename Input::eol_t, const char* > i2( st.temporary.as< std::string >(), __FUNCTION__ );
+         pegtl::string_input< pegtl::tracking_mode::eager, pegtl_input_t::eol_t, const char* > i2( st.temporary.as< std::string >(), __FUNCTION__ );
          st.temporary.assign( json::empty_array, pos );
          pegtl::parse_nested< split_grammar, split_action >( in, i2, st.temporary );
          return;
@@ -236,8 +218,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to split", { st.temporary.type() } ), pos );
    }
 
-   template< typename Input >
-   inline void ubjson_extension( Input& in, state& st )
+   inline void ubjson_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
@@ -250,35 +231,33 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse ubjson", { st.temporary.type() } ), pos );
    }
 
-   template< typename Input >
    inline const auto& value_extension_map()
    {
-      static const extension_map_t< Input > map = {
-         { "cbor", cbor_extension< Input > },
+      static const extension_map_t map = {
+         { "cbor", cbor_extension },
          // "copy" does not return a single value.
-         { "debug", debug_extension< Input > },
-         { "env", env_extension< Input > },
-         { "env?", env_if_extension< Input > },
-         { "jaxn", jaxn_extension< Input > },
-         { "json", json_extension< Input > },
-         { "msgpack", msgpack_extension< Input > },
+         { "debug", debug_extension },
+         { "env", env_extension },
+         { "env?", env_if_extension },
+         { "jaxn", jaxn_extension },
+         { "json", json_extension },
+         { "msgpack", msgpack_extension },
          // "parse" does not return a single value.
-         { "read", read_extension< Input > },
-         { "shell", shell_extension< Input > },
-         { "split", split_extension< Input > },
-         { "ubjson", ubjson_extension< Input > }
+         { "read", read_extension },
+         { "shell", shell_extension },
+         { "split", split_extension },
+         { "ubjson", ubjson_extension }
       };
       return map;
    }
 
-   template< typename Input >
-   inline void do_inner_extension( Input& in, state& st )
+   inline void do_inner_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
       if( pegtl::parse< rules::inner, action, control >( in, st ) ) {
          const auto ext = std::move( st.extension );
-         const auto& map = value_extension_map< Input >();
+         const auto& map = value_extension_map();
          const auto i = map.find( ext );
 
          if( i != map.end() ) {
@@ -291,8 +270,7 @@ namespace tao::config::internal
       st.temporary.assign( obtain_string( in ), pos );
    }
 
-   template< typename Input >
-   inline bool do_value_extension( Input& in, state& st )
+   inline bool do_value_extension( pegtl_input_t& in, state& st )
    {
       assert( !st.clear );
       assert( !st.lstack.empty() );
@@ -309,7 +287,7 @@ namespace tao::config::internal
          return true;
       }
       const auto ext = std::move( st.extension );
-      const auto& map = value_extension_map< Input >();
+      const auto& map = value_extension_map();
       const auto i = map.find( ext );
 
       if( i != map.end() ) {

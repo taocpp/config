@@ -10,6 +10,8 @@ namespace tao::config
 {
    namespace pegtl = json::pegtl;
 
+   using pegtl_input_t = pegtl::memory_input< pegtl::tracking_mode::eager, pegtl::eol::lf_crlf, const char* >;
+
 }  // namespace tao::config
 
 #endif
