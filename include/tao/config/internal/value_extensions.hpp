@@ -65,6 +65,10 @@ namespace tao::config::internal
       const auto v = obtain_string( in );
 
       st.temporary.assign( get_env_throws( pos, v ), pos );
+
+      if( !json::internal::validate_utf8_nothrow( st.temporary.as< std::string >() ) ) {
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid utf-8 in environment variable", { { "name", v } } ), pos );
+      }
    }
 
    inline void env_if_extension( pegtl_input_t& in, state& st )
@@ -76,6 +80,10 @@ namespace tao::config::internal
       if( pegtl::parse< rules::wsp >( in ) ) {
          const auto d = obtain_string( in );
          st.temporary.assign( e.value_or( d ), pos );
+
+         if( !json::internal::validate_utf8_nothrow( st.temporary.as< std::string >() ) ) {
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid utf-8 in environment variable", { { "name", v } } ), pos );
+         }
          return;
       }
       st.temporary.assign( e, pos );
@@ -143,7 +151,13 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         st.temporary.assign( read_file_throws( st.temporary.as< std::string >() ), pos );
+         const auto v = st.temporary.as< std::string >();
+
+         st.temporary.assign( read_file_throws( v ), pos );
+
+         if( !json::internal::validate_utf8_nothrow( st.temporary.as< std::string >() ) ) {
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid utf-8 in file", { { "filename", v } } ), pos );
+         }
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string as filename", { st.temporary.type() } ), pos );
@@ -156,7 +170,13 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
+         const auto v = st.temporary.as< std::string >();
+
          st.temporary.assign( shell_popen_throws( pos, st.temporary.as< std::string >() ), pos );
+
+         if( !json::internal::validate_utf8_nothrow( v ) ) {
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid utf-8 in shell output", { { "command", v } } ), pos );
+         }
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string for shell command", { st.temporary.type() } ), pos );
