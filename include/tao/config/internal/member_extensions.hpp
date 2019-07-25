@@ -7,6 +7,8 @@
 #include <cerrno>
 #include <system_error>
 
+#include "extension_t.hpp"
+#include "extension_obtain.hpp"
 #include "format.hpp"
 #include "phase1_access.hpp"
 #include "phase1_erase.hpp"
@@ -156,26 +158,13 @@ namespace tao::config::internal
       st.temporaries.emplace_back( temporary_compute_current_prefix( st ) + p );
    }
 
-   inline const auto& member_extension_map()
-   {
-      static const extension_map_t map = {
-         { "delete", erase_extension },
-         { "delete?", erase_if_extension },
-         { "include", include_extension },
-         { "include?", include_if_extension },
-         { "stderr", stderr_extension },
-         { "temporary", temporary_extension }
-      };
-      return map;
-   }
-
    inline bool do_member_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
       pegtl::parse< rules::outer, action, control >( in, st );
 
       const auto ext = std::move( st.extension );
-      const auto& map = member_extension_map();
+      const auto& map = st.member_extensions;
       const auto i = map.find( ext );
 
       if( i != map.end() ) {

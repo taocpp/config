@@ -5,31 +5,23 @@
 #define TAO_CONFIG_PARSE_FILES_HPP
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "value.hpp"
 
-#include "internal/action.hpp"
-#include "internal/control.hpp"
-#include "internal/grammar.hpp"
-#include "internal/pegtl.hpp"
-#include "internal/phase2.hpp"
-#include "internal/state.hpp"
-
-#include "internal/member_extensions.hpp"
-#include "internal/value_extensions.hpp"
+#include "internal/configurator.hpp"
 
 namespace tao::config
 {
    template< template< typename... > class Traits >
    json::basic_value< Traits > basic_parse_files( const std::vector< std::string >& filenames )
    {
-      internal::state st;
+      internal::configurator c;
       for( const auto& filename : filenames ) {
-         pegtl::file_input in( filename );
-         pegtl::parse< internal::rules::config_file, internal::action, internal::control >( in, st );
+         c.parse_only( pegtl::file_input( filename ) );
       }
-      return internal::phase2< Traits >( filenames.empty() ? std::string() : filenames[ 0 ], st );
+      return c.process_only< Traits >();
    }
 
    inline value parse_files( const std::vector< std::string >& filenames )

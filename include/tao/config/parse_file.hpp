@@ -4,14 +4,19 @@
 #ifndef TAO_CONFIG_PARSE_FILE_HPP
 #define TAO_CONFIG_PARSE_FILE_HPP
 
-#include "parse_input.hpp"
+#include <string>
+#include <utility>
+
+#include "value.hpp"
+
+#include "internal/configurator.hpp"
 
 namespace tao::config
 {
    template< template< typename... > class Traits >
    json::basic_value< Traits > basic_parse_file( const std::string& filename )
    {
-      return basic_parse_input< Traits >( pegtl::file_input( filename ) );
+      return internal::configurator().parse_and_process< Traits >( pegtl::file_input( filename ) );
    }
 
    inline value parse_file( const std::string& filename )

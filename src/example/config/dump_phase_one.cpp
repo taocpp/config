@@ -8,12 +8,11 @@
 int main( int argc, char** argv )
 {
    tao::config::internal::try_catch( [=]() {
-      tao::config::internal::state st;
+      tao::config::internal::configurator c;
       for( int i = 1; i < argc; ++i ) {
-         tao::json::pegtl::file_input in( argv[ i ] );
-         tao::json::pegtl::parse< tao::config::internal::rules::config_file, tao::config::internal::action, tao::config::internal::control >( in, st );
+         c.parse_only( tao::json::pegtl::file_input( argv[ i ] ) );
       }
-      tao::config::internal::to_stream( std::cout, st.root, 3 );
+      tao::config::internal::to_stream( std::cout, c.st.root, 3 );
       std::cout << std::endl;
    } );
    return 0;

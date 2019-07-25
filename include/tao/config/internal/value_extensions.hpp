@@ -6,6 +6,8 @@
 
 #include "action.hpp"
 #include "control.hpp"
+#include "extension_t.hpp"
+#include "extension_obtain.hpp"
 #include "grammar.hpp"
 #include "phase1_access.hpp"
 #include "state.hpp"
@@ -15,31 +17,7 @@
 
 namespace tao::config::internal
 {
-   using extension_t = std::function< void( pegtl_input_t&, state& ) >;
-
-   using extension_map_t = std::map< std::string, extension_t >;
-
    inline void do_inner_extension( pegtl_input_t& in, state& st );
-
-   inline json::value obtain_jaxn( pegtl_input_t& in )
-   {
-      json::events::to_value consumer;
-      pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_value >, json::jaxn::internal::action, json::jaxn::internal::errors >( in, consumer );
-      return std::move( consumer.value );
-   }
-
-   inline std::string obtain_string( pegtl_input_t& in )
-   {
-      std::string s2;
-      pegtl::parse< pegtl::must< json::jaxn::internal::rules::string_fragment >, json::jaxn::internal::unescape_action >( in, s2 );
-      return s2;
-   }
-
-   inline key obtain_key( pegtl_input_t& in, state& st )
-   {
-      pegtl::parse< pegtl::must< rules::pointer >, action, control >( in, st );
-      return value_to_key( st.temporary );
-   }
 
    inline void cbor_extension( pegtl_input_t& in, state& st )
    {
@@ -231,33 +209,13 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse ubjson", { st.temporary.type() } ), pos );
    }
 
-   inline const auto& value_extension_map()
-   {
-      static const extension_map_t map = {
-         { "cbor", cbor_extension },
-         // "copy" does not return a single value.
-         { "debug", debug_extension },
-         { "env", env_extension },
-         { "env?", env_if_extension },
-         { "jaxn", jaxn_extension },
-         { "json", json_extension },
-         { "msgpack", msgpack_extension },
-         // "parse" does not return a single value.
-         { "read", read_extension },
-         { "shell", shell_extension },
-         { "split", split_extension },
-         { "ubjson", ubjson_extension }
-      };
-      return map;
-   }
-
    inline void do_inner_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
 
       if( pegtl::parse< rules::inner, action, control >( in, st ) ) {
          const auto ext = std::move( st.extension );
-         const auto& map = value_extension_map();
+         const auto& map = st.value_extensions;
          const auto i = map.find( ext );
 
          if( i != map.end() ) {
@@ -287,7 +245,7 @@ namespace tao::config::internal
          return true;
       }
       const auto ext = std::move( st.extension );
-      const auto& map = value_extension_map();
+      const auto& map = st.value_extensions;
       const auto i = map.find( ext );
 
       if( i != map.end() ) {

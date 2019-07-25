@@ -12,14 +12,14 @@
 namespace tao::config::internal
 {
    template< template< typename... > class Traits >
-   json::basic_value< Traits > phase2( const std::string& source, state& st )
+   json::basic_value< Traits > phase2( state& st )
    {
       assert( st.astack.empty() );
       assert( st.lstack.empty() );
       assert( st.rstack.empty() );
       assert( st.ostack.size() == 1 );
 
-      return phase2_repackage< Traits >( source, st.temporaries, phase2_process( st.root ) );
+      return phase2_repackage< Traits >( st.temporaries, phase2_process( st.root ) );
    }
 
 }  // namespace tao::config::internal

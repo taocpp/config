@@ -11,6 +11,7 @@
 #include "../key.hpp"
 
 #include "entry.hpp"
+#include "extension_t.hpp"
 #include "forward.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"
@@ -19,9 +20,11 @@ namespace tao::config::internal
 {
    struct state
    {
-      state()
+      state( const extension_map_t& m, const extension_map_t& v )
          : root( nullptr ),
-           temporary( json::uninitialized, pegtl::position( pegtl::internal::iterator(), "(temporary)" ) )
+           temporary( json::uninitialized, pegtl::position( pegtl::internal::iterator(), "(temporary)" ) ),
+           member_extensions( m ),
+           value_extensions( v )
       {
          root.set_object( pegtl::position( pegtl::internal::iterator(), "(root)" ) );
          ostack.emplace_back( &root );
@@ -41,6 +44,9 @@ namespace tao::config::internal
 
       json_t temporary;
       std::string extension;
+
+      const extension_map_t& member_extensions;
+      const extension_map_t& value_extensions;
 
       // Phase 2 Extensions
 
