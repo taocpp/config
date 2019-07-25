@@ -130,6 +130,7 @@ namespace tao::config::internal
                k.emplace_back( value_to_part( i ) );
             }
          }
+         assert( r.position );
          return phase2_access( *r.position, e, k );
       }
 

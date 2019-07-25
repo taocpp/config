@@ -52,7 +52,9 @@ namespace tao::config::internal
          default:
             break;
       }
-      r.set_position( *v.position );
+      if( v.position ) {
+         r.set_position( *v.position );  // TODO: Find out when it's missing and why.
+      }
    }
 
    inline void phase2_filter_temporaries( const std::vector< key >& temporaries, json::basic_value< value_traits >& v )
