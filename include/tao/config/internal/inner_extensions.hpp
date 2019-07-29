@@ -19,44 +19,93 @@ namespace tao::config::internal
 {
    inline void do_inner_extension( pegtl_input_t& in, state& st );
 
-   inline void binary_extension( pegtl_input_t& in, state& st )
+   template< typename R, typename A >
+   struct extension_wrapper
    {
-      const auto pos = in.position();
-
-      do_inner_extension( in, st );
-
-      if( st.temporary.is_string_type() ) {
-         const auto sv = st.temporary.as< std::string_view >();
-         const auto* const sp = reinterpret_cast< const std::byte* >( sv.data() );
-         st.temporary.assign( std::vector< std::byte >( sp, sp + sv.size() ), pos );
-         return;
+      static void wrap( const std::function< R( A ) >& f, pegtl_input_t& in, state& st )
+      {
+         const auto pos = in.position();
+         do_inner_extension( in, st );
+         const auto arg = st.temporary.as< std::decay_t< A > >();
+         st.temporary.assign( f( arg ), pos );
       }
-      throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to convert to binary", { st.temporary.type() } ), pos );
+   };
+
+   template< typename A >
+   struct extension_wrapper< json_t, A >
+   {
+      static void wrap( const std::function< json_t( A ) >& f, pegtl_input_t& in, state& st )
+      {
+         //  const auto pos = in.position();
+         do_inner_extension( in, st );
+         const auto arg = st.temporary.as< std::decay_t< A > >();
+         st.temporary = f( arg );  // TODO: Should top-level position be pos?
+      }
+   };
+
+   template< typename A >
+   struct extension_wrapper< std::string, A >
+   {
+      static void wrap( const std::function< std::string( A ) >& f, pegtl_input_t& in, state& st )
+      {
+         const auto pos = in.position();
+         do_inner_extension( in, st );
+         const auto arg = st.temporary.as< std::decay_t< A > >();
+         std::string res = f( arg );
+         if( !json::internal::validate_utf8_nothrow( res ) ) {
+            throw pegtl::parse_error( "invalid utf-8 in extension result", pos );  // TODO: Name of extension?
+         }
+         st.temporary.assign( std::move( res ), pos );
+      }
+   };
+
+   template< typename R, typename A >
+   extension_t make_extension( R( *f )( A ) )
+   {
+      static_assert( !std::is_reference_v< R > );
+
+      return [=]( pegtl_input_t& in, state& st ) {
+         extension_wrapper< R, A >::wrap( f, in, st );
+      };
    }
 
-   inline void cbor_extension( pegtl_input_t& in, state& st )
+   template< typename R, typename A >
+   extension_t make_extension( std::function< R( A ) > f )
    {
-      const auto pos = in.position();
+      static_assert( !std::is_reference_v< R > );
 
-      do_inner_extension( in, st );
+      return [=]( pegtl_input_t& in, state& st ) {
+         extension_wrapper< R, A >::wrap( f, in, st );
+      };
+   }
 
-      if( st.temporary.is_string_type() ) {
-         st.temporary = json::cbor::basic_from_string< value_traits >( st.temporary.as< std::string >() );
-         return;
-      }
-      throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse cbor", { st.temporary.type() } ), pos );
+   inline std::vector< std::byte > binary_function( const std::string_view sv )
+   {
+      const auto* const sp = reinterpret_cast< const std::byte* >( sv.data() );
+      return std::vector< std::byte >( sp, sp + sv.size() );
+   }
+
+   inline json_t cbor_function( const std::string_view sv )  // TODO: Or binary_view?
+   {
+      return json::cbor::basic_from_string< value_traits >( sv );  // TODO: Positions.
    }
 
    inline void env_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
-      const auto v = obtain_string( in );
 
-      st.temporary.assign( get_env_throws( pos, v ), pos );
+      do_inner_extension( in, st );
 
-      if( !json::internal::validate_utf8_nothrow( st.temporary.as< std::string >() ) ) {
-         throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid utf-8 in environment variable", { { "name", v } } ), pos );
+      if( st.temporary.is_string_type() ) {
+         const std::string n = st.temporary.as< std::string >();
+         std::string v = get_env_throws( pos, n );
+         if( !json::internal::validate_utf8_nothrow( v ) ) {
+            throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid utf-8 in environment variable", { { "name", n } } ), pos );
+         }
+         st.temporary.assign( std::move( v ), pos );
+         return;
       }
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to for environment variable lookup", { st.temporary.type() } ), pos );
    }
 
    inline void env_if_extension( pegtl_input_t& in, state& st )
@@ -77,43 +126,19 @@ namespace tao::config::internal
       st.temporary.assign( e, pos );
    }
 
-   inline void jaxn_extension( pegtl_input_t& in, state& st )
+   inline json_t jaxn_function( const std::string_view sv )
    {
-      const auto pos = in.position();
-
-      do_inner_extension( in, st );
-
-      if( st.temporary.is_string_type() ) {
-         st.temporary = json::jaxn::basic_from_string< value_traits >( st.temporary.as< std::string >() );
-         return;
-      }
-      throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse jaxn", { st.temporary.type() } ), pos );
+      return json::jaxn::basic_from_string< value_traits >( sv );  // TODO: Positions.
    }
 
-   inline void json_extension( pegtl_input_t& in, state& st )
+   inline json_t json_function( const std::string_view sv )
    {
-      const auto pos = in.position();
-
-      do_inner_extension( in, st );
-
-      if( st.temporary.is_string_type() ) {
-         st.temporary = json::basic_from_string< value_traits >( st.temporary.as< std::string >() );
-         return;
-      }
-      throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse json", { st.temporary.type() } ), pos );
+      return json::basic_from_string< value_traits >( sv );  // TODO: Positions.
    }
 
-   inline void msgpack_extension( pegtl_input_t& in, state& st )
+   inline json_t msgpack_function( const std::string_view sv )  // TODO: Or binary_view?
    {
-      const auto pos = in.position();
-
-      do_inner_extension( in, st );
-
-      if( st.temporary.is_string_type() ) {
-         st.temporary = json::msgpack::basic_from_string< value_traits >( st.temporary.as< std::string >() );
-         return;
-      }
-      throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse msgpack", { st.temporary.type() } ), pos );
+      return json::msgpack::basic_from_string< value_traits >( sv );  // TODO: Positions.
    }
 
    inline void parse_extension( pegtl_input_t& in, state& st )
@@ -204,36 +229,14 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to split", { st.temporary.type() } ), pos );
    }
 
-   inline void string_extension( pegtl_input_t& in, state& st )
+   inline std::string string_function( const tao::binary_view bv )
    {
-      const auto pos = in.position();
-
-      do_inner_extension( in, st );
-
-      if( st.temporary.is_binary_type() ) {
-         const auto bv = st.temporary.as< binary_view >();
-         std::string v( reinterpret_cast< const char* >( bv.data() ), bv.size() );
-
-         if( !json::internal::validate_utf8_nothrow( v ) ) {
-            throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid utf-8 in binary data", { { "command", v } } ), pos );
-         }
-         st.temporary.assign( std::move( v ), pos );
-         return;
-      }
-      throw pegtl::parse_error( format( __FILE__, __LINE__, "require binary to convert to string", { st.temporary.type() } ), pos );
+      return std::string( reinterpret_cast< const char* >( bv.data() ), bv.size() );
    }
 
-   inline void ubjson_extension( pegtl_input_t& in, state& st )
+   inline json_t ubjson_function( const std::string_view sv )  // TODO: binary_view?
    {
-      const auto pos = in.position();
-
-      do_inner_extension( in, st );
-
-      if( st.temporary.is_string_type() ) {
-         st.temporary = json::ubjson::basic_from_string< value_traits >( st.temporary.as< std::string >() );
-         return;
-      }
-      throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to parse ubjson", { st.temporary.type() } ), pos );
+      return json::ubjson::basic_from_string< value_traits >( sv );  // TODO: Positions.
    }
 
    inline void do_inner_extension( pegtl_input_t& in, state& st )

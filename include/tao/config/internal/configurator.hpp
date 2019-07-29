@@ -12,6 +12,7 @@
 #include "phase2.hpp"
 #include "state.hpp"
 
+#include "inner_extensions.hpp"
 #include "member_extensions.hpp"
 #include "value_extensions.hpp"
 
@@ -33,20 +34,21 @@ namespace tao::config::internal
          { "temporary", internal::temporary_extension }
       };
       extension_map_t value_extensions = {
-         { "cbor", internal::cbor_extension },
+         { "binary", internal::make_extension( internal::binary_function ) },
+         { "cbor", internal::make_extension( internal::cbor_function ) },
          // "copy" does not return a single value.
          { "debug", internal::debug_extension },
          { "env", internal::env_extension },
          { "env?", internal::env_if_extension },
-         { "jaxn", internal::jaxn_extension },
-         { "json", internal::json_extension },
-         { "msgpack", internal::msgpack_extension },
+         { "jaxn", internal::make_extension( internal::jaxn_function ) },
+         { "json", internal::make_extension( internal::json_function ) },
+         { "msgpack", internal::make_extension( internal::msgpack_function ) },
          // "parse" does not return a single value.
          { "read", internal::read_extension },
          { "shell", internal::shell_extension },
          { "split", internal::split_extension },
-         { "string", internal::string_extension },
-         { "ubjson", internal::ubjson_extension }
+         { "string", internal::make_extension( internal::string_function ) },
+         { "ubjson", internal::make_extension( internal::ubjson_function ) }
       };
       state st;
 
