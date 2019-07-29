@@ -8,11 +8,11 @@
 #include <system_error>
 
 #include "extension_t.hpp"
-#include "extension_obtain.hpp"
+#include "extension_utility.hpp"
 #include "format.hpp"
 #include "phase1_access.hpp"
 #include "phase1_erase.hpp"
-#include "value_extensions.hpp"
+#include "inner_extensions.hpp"
 
 namespace tao::config::internal
 {

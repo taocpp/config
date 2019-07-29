@@ -45,6 +45,7 @@ namespace tao::config::internal
          { "read", internal::read_extension },
          { "shell", internal::shell_extension },
          { "split", internal::split_extension },
+         { "string", internal::string_extension },
          { "ubjson", internal::ubjson_extension }
       };
       state st;

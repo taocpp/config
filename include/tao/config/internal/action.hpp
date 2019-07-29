@@ -96,7 +96,7 @@ namespace tao::config::internal
          assert( !st.rstack.empty() );
          assert( st.rstack.back()->is_array() );
 
-         st.rstack.back()->emplace_back( true, in.position() );  // See token_from_value() in utility.hpp -> true -> token::star.
+         st.rstack.back()->emplace_back( true, in.position() );  // See value_to_part() in key_utility.hpp -> true -> token::star.
       }
    };
 
@@ -109,7 +109,7 @@ namespace tao::config::internal
          assert( !st.rstack.empty() );
          assert( st.rstack.back()->is_array() );
 
-         st.rstack.back()->emplace_back( false, in.position() );  // See token_from_value() in utility.hpp -> false -> token::minus.
+         st.rstack.back()->emplace_back( false, in.position() );  // See value_to_part() in key_utility.hpp -> false -> token::minus.
       }
    };
 

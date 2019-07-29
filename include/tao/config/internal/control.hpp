@@ -7,10 +7,10 @@
 #include "entry.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
+#include "key_utility.hpp"
 #include "pegtl.hpp"
 #include "phase1_assign.hpp"
 #include "state.hpp"
-#include "utility.hpp"
 
 namespace tao::config::internal
 {

@@ -9,12 +9,12 @@
 #include "concat.hpp"
 #include "entry.hpp"
 #include "json.hpp"
+#include "key_utility.hpp"
 #include "phase2_access.hpp"
 #include "phase2_add.hpp"
 #include "phase2_guard.hpp"
 #include "to_stream.hpp"
 #include "value_traits.hpp"
-#include "utility.hpp"
 
 namespace tao::config::internal
 {
