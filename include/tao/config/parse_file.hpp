@@ -16,7 +16,7 @@ namespace tao::config
    template< template< typename... > class Traits >
    json::basic_value< Traits > basic_parse_file( const std::string& filename )
    {
-      return internal::configurator().parse_and_process< Traits >( pegtl::file_input( filename ) );
+      return internal::configurator().parse( filename ).process< Traits >();
    }
 
    inline value parse_file( const std::string& filename )

@@ -25,7 +25,14 @@ namespace tao::config::internal
       {
       }
 
-      extension_map_t member_extensions = {
+      configurator( configurator&& ) = delete;
+      configurator( const configurator& ) = delete;
+
+      void operator=( configurator&& ) = delete;
+      void operator=( const configurator& ) = delete;
+
+      // NOTE: This is probably NOT a customisation point.
+      const extension_map_t member_extensions = {
          { "delete", internal::erase_extension },
          { "delete?", internal::erase_if_extension },
          { "include", internal::include_extension },
@@ -33,6 +40,8 @@ namespace tao::config::internal
          { "stderr", internal::stderr_extension },
          { "temporary", internal::temporary_extension }
       };
+
+      // TODO: This is probably a future customisation point.
       extension_map_t value_extensions = {
          { "binary", internal::make_extension( internal::binary_function ) },
          { "cbor", internal::make_extension( internal::cbor_function ) },
@@ -50,24 +59,25 @@ namespace tao::config::internal
          { "string", internal::make_extension( internal::string_function ) },
          { "ubjson", internal::make_extension( internal::ubjson_function ) }
       };
+
       state st;
 
-      void parse_only( pegtl_input_t&& in )
+      configurator& parse( pegtl_input_t&& in )
       {
          pegtl::parse< rules::config_file, action, control >( in, st );
+         return *this;
+      }
+
+      configurator& parse( const std::string& filename )
+      {
+         parse( pegtl::file_input( filename ) );
+         return *this;
       }
 
       template< template< typename... > class Traits >
-      json::basic_value< Traits > process_only()
+      json::basic_value< Traits > process()
       {
          return internal::phase2< Traits >( st );
-      }
-
-      template< template< typename... > class Traits >
-      json::basic_value< Traits > parse_and_process( pegtl_input_t&& in )
-      {
-         parse_only( std::move( in ) );
-         return process_only< Traits >();
       }
    };
 

@@ -10,7 +10,7 @@ int main( int argc, char** argv )
    tao::config::internal::try_catch( [=]() {
       tao::config::internal::configurator c;
       for( int i = 1; i < argc; ++i ) {
-         c.parse_only( tao::json::pegtl::file_input( argv[ i ] ) );
+         c.parse( argv[ i ] );
       }
       tao::config::internal::to_stream( std::cout, c.st.root, 3 );
       std::cout << std::endl;

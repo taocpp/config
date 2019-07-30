@@ -15,7 +15,7 @@ namespace tao::config
    template< template< typename... > class Traits >
    json::basic_value< Traits > basic_parse_input( pegtl_input_t&& in )
    {
-      return internal::configurator().parse_and_process< Traits >( std::move( in ) );
+      return internal::configurator().parse( std::move( in ) ).process< Traits >();
    }
 
    inline value parse_input( pegtl_input_t&& in )

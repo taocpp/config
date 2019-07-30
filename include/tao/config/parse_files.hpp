@@ -19,9 +19,9 @@ namespace tao::config
    {
       internal::configurator c;
       for( const auto& filename : filenames ) {
-         c.parse_only( pegtl::file_input( filename ) );
+         c.parse( pegtl::file_input( filename ) );
       }
-      return c.process_only< Traits >();
+      return c.process< Traits >();
    }
 
    inline value parse_files( const std::vector< std::string >& filenames )
