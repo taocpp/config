@@ -99,7 +99,7 @@ namespace tao::config::internal
 
          for( auto& i : e.get_object().private_map() ) {
             if( const json_t* t = process_concat( i.second ) ) {
-               j.unsafe_emplace( i.first, *t );
+               j.unsafe_try_emplace( i.first, *t );
                continue;
             }
             done = false;

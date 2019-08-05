@@ -94,9 +94,9 @@ namespace tao::config::schema
 
          json::value error( const value& v, const char* message, json::value data = json::empty_object ) const
          {
-            data.unsafe_emplace( "_message", message );
-            data.unsafe_emplace( "_schema", pos() );
-            data.unsafe_emplace( "_value", internal::pos( v ) );
+            data.unsafe_try_emplace( "_message", message );
+            data.unsafe_try_emplace( "_schema", pos() );
+            data.unsafe_try_emplace( "_value", internal::pos( v ) );
             return data;
          }
       };
@@ -613,14 +613,14 @@ namespace tao::config::schema
          void add_required( const value& v, node_map& m, const std::string& path )
          {
             for( const auto& e : v.get_object() ) {
-               m_required.emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
+               m_required.try_emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
             }
          }
 
          void add_optional( const value& v, node_map& m, const std::string& path )
          {
             for( const auto& e : v.get_object() ) {
-               m_optional.emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
+               m_optional.try_emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
             }
          }
 
