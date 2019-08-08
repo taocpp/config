@@ -122,7 +122,7 @@ namespace tao::config::internal
          discard();
          new( &m_union.j ) json_t( v );
          m_type = atom;
-         m_union.j.clear = m_clear;
+         m_union.j.clear = m_clear;  // See comment below.
       }
 
       template< typename T >
@@ -132,7 +132,7 @@ namespace tao::config::internal
          new( &m_union.j ) json_t( json::uninitialized, pos );
          m_union.j.assign( std::forward< T >( t ) );
          m_type = atom;
-         m_union.j.clear = m_clear;
+         m_union.j.clear = m_clear;  // This is at least (?) for phase two reference substitution, when copying the atom from the target of the reference we want to keep our m_clear for the copied atom, because we don't care about whether the reference target was assigned with += or =, we want to use += or = according to how the reference itself was "added".
       }
 
       void set_array( const pegtl::position& pos )
