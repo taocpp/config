@@ -61,7 +61,12 @@ namespace tao::config::internal
          }
          if( l.entries().size() > 1 ) {
             for( auto i = std::next( l.private_entries().begin() ); i != l.private_entries().end(); ++i ) {
-               phase2_add( l.private_entries().front().get_atom(), std::move( i->get_atom() ) );
+               if( i->clear() ) {
+                  l.private_entries().front().copy_atom_from( *i );  // TODO: Is this necessary?
+               }
+               else {
+                  phase2_add( l.private_entries().front().get_atom(), std::move( i->get_atom() ) );
+               }
             }
             l.private_entries().erase( std::next( l.private_entries().begin() ), l.private_entries().end() );
          }
@@ -169,9 +174,20 @@ namespace tao::config::internal
    {
       assert( root.is_object() );
 
+      // std::cout << "INITIAL" << std::endl;
+      // tao::config::internal::to_stream( std::cout, root, 3 );
+      // std::cout << std::endl;
+
       for( phase2_processor p( root ); !p; p.process( root ) ) {
+         // std::cout << "ITERATION" << std::endl;
+         // tao::config::internal::to_stream( std::cout, root, 3 );
+         // std::cout << std::endl;
       }
       assert( root.is_atom() );
+
+      // std::cout << "FINAL" << std::endl;
+      // tao::config::internal::to_stream( std::cout, root, 3 );
+      // std::cout << std::endl;
 
       return root.get_atom();
    }

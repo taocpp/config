@@ -122,6 +122,7 @@ namespace tao::config::internal
          discard();
          new( &m_union.j ) json_t( v );
          m_type = atom;
+         m_union.j.clear = m_clear;
       }
 
       template< typename T >
@@ -131,6 +132,7 @@ namespace tao::config::internal
          new( &m_union.j ) json_t( json::uninitialized, pos );
          m_union.j.assign( std::forward< T >( t ) );
          m_type = atom;
+         m_union.j.clear = m_clear;
       }
 
       void set_array( const pegtl::position& pos )
@@ -232,7 +234,29 @@ namespace tao::config::internal
 
       void set_clear( const bool c = true ) noexcept
       {
+         switch( m_type ) {
+            case atom:
+            case reference:
+               m_union.j.clear = c;
+               break;
+            case array:
+            case object:
+            case nothing:
+               break;
+         }
          m_clear = c;
+      }
+
+      void copy_atom_from( const entry& e )
+      {
+         assert( e.clear() );
+         assert( is_atom() );
+         assert( e.is_atom() );
+         assert( m_parent == e.m_parent );
+
+         m_clear = e.m_clear;
+
+         embed( e );
       }
 
       const pegtl::position& position() const noexcept
