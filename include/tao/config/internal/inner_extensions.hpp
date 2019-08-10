@@ -164,13 +164,10 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         const auto v = st.temporary.as< std::string >();
-
-         st.temporary.assign( read_file_throws( v ), pos );
-
-         if( !json::internal::validate_utf8_nothrow( st.temporary.as< std::string >() ) ) {
-            throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid utf-8 in file", { { "filename", v } } ), pos );
-         }
+         const std::string v = st.temporary.as< std::string >();
+         const std::string f = read_file_throws( v );
+         const std::byte* p = reinterpret_cast< const std::byte* >( f.data() );
+         st.temporary.assign( std::vector< std::byte >( p, p + f.size() ), pos );
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string as filename", { st.temporary.type() } ), pos );
