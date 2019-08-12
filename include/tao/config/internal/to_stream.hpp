@@ -11,14 +11,14 @@
 namespace tao::config::internal
 {
    template< typename T >
-   inline void to_stream( std::ostream& os, const T& t )
+   void to_stream( std::ostream& os, const T& t )
    {
       json::jaxn::events::to_stream consumer( os );
       json::events::produce< format_traits >( consumer, t );
    }
 
    template< typename T >
-   inline void to_stream( std::ostream& os, const T& t, const std::size_t indent )
+   void to_stream( std::ostream& os, const T& t, const std::size_t indent )
    {
       json::jaxn::events::to_pretty_stream consumer( os, indent );
       json::events::produce< format_traits >( consumer, t );

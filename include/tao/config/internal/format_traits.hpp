@@ -207,6 +207,22 @@ namespace tao::config::internal
    {
    };
 
+   template<>
+   struct format_traits< const concat* >
+   {
+      template< template< typename... > class Traits >
+      static void assign( json::basic_value< Traits >& v, const concat* p )
+      {
+         v.unsafe_assign_opaque_ptr( p );
+      }
+   };
+
+   template<>
+   struct format_traits< concat* >
+      : format_traits< const concat* >
+   {
+   };
+
 }  // namespace tao::config::internal
 
 #endif

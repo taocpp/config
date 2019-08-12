@@ -15,7 +15,6 @@ namespace tao::config::internal
    struct annotation
    {
       bool clear = false;
-      bool temporary = false;
 
       std::optional< pegtl::position > position;
 

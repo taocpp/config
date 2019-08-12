@@ -55,22 +55,19 @@ namespace tao::config::internal
          for( auto& i : l.private_entries() ) {
             done &= process_entry( i );
          }
+         // TODO: Merge sub-trees of sub-objects with matching object keys?!
+
          if( !done ) {
             ++m_todo;
             return nullptr;
          }
          if( l.entries().size() > 1 ) {
             for( auto i = std::next( l.private_entries().begin() ); i != l.private_entries().end(); ++i ) {
-               if( i->clear() ) {
-                  l.private_entries().front().copy_atom_from( *i );  // TODO: Is this necessary?
-               }
-               else {
-                  phase2_add( l.private_entries().front().get_atom(), std::move( i->get_atom() ) );
-               }
+               phase2_add( l.private_entries().front().get_atom(), std::move( i->get_atom() ) );
             }
             l.private_entries().erase( std::next( l.private_entries().begin() ), l.private_entries().end() );
+            ++m_done;
          }
-         ++m_done;
          return &l.private_entries().front().get_atom();
       }
 
@@ -170,25 +167,25 @@ namespace tao::config::internal
       }
    };
 
-   inline json::basic_value< value_traits > phase2_process( entry& root )
-   {
-      assert( root.is_object() );
 
-      // std::cout << "INITIAL" << std::endl;
-      // tao::config::internal::to_stream( std::cout, root, 3 );
-      // std::cout << std::endl;
+   template< typename T >
+   void to_stream( std::ostream* os, const char* tag, const T& root, const std::size_t indent = 3 )
+   {
+      if( os ) {
+         ( *os ) << tag << std::endl;
+         to_stream( *os, root, indent );
+         ( *os ) << std::endl;
+      }
+   }
+
+   inline json::basic_value< value_traits > phase2_process( entry& root, std::ostream* os = nullptr )
+   {
+      to_stream( os, "INITIAL", root );
 
       for( phase2_processor p( root ); !p; p.process( root ) ) {
-         // std::cout << "ITERATION" << std::endl;
-         // tao::config::internal::to_stream( std::cout, root, 3 );
-         // std::cout << std::endl;
+         to_stream( os, "ITERATION", root );
       }
-      assert( root.is_atom() );
-
-      // std::cout << "FINAL" << std::endl;
-      // tao::config::internal::to_stream( std::cout, root, 3 );
-      // std::cout << std::endl;
-
+      to_stream( os, "FINAL", root );
       return root.get_atom();
    }
 
