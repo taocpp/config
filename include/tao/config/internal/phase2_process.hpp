@@ -4,10 +4,13 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE2_PROCESS_HPP
 #define TAO_CONFIG_INTERNAL_PHASE2_PROCESS_HPP
 
+#include <cassert>
+#include <vector>
 #include <numeric>
 
 #include "concat.hpp"
 #include "entry.hpp"
+#include "format.hpp"
 #include "json.hpp"
 #include "key_utility.hpp"
 #include "phase2_access.hpp"
@@ -21,30 +24,31 @@ namespace tao::config::internal
    struct phase2_processor
    {
       explicit phase2_processor( entry& e )
+         : m_root( e )
       {
-         process( e );
       }
 
-      void process( entry& e )
+      void process()
       {
          m_done = 0;
-         m_todo = 0;
+         m_todo.clear();
 
-         (void)process_object_entry( e );
+         (void)process_object_entry( m_root );
 
-         if( ( m_todo > 0 ) && ( m_done == 0 ) ) {
-            throw std::runtime_error( "phase2 processing deadlocked" );  // TODO: Find all not-done sub-values and print their position.
+         if( ( m_done == 0 ) && ( !finished() ) ) {
+            throw std::runtime_error( format( __FILE__, __LINE__, "phase2 processing deadlocked", { { "where", m_todo } } ) );
          }
       }
 
-      [[nodiscard]] explicit operator bool() const noexcept
+      [[nodiscard]] bool finished() const noexcept
       {
-         return m_todo == 0;
+         return m_root.is_atom();
       }
 
    private:
+      entry& m_root;
       std::size_t m_done = 0;
-      std::size_t m_todo = 0;
+      std::vector< std::pair< const json_t*, const pegtl::position* > > m_todo;
 
       [[nodiscard]] const json_t* process_concat( concat& l )
       {
@@ -55,10 +59,7 @@ namespace tao::config::internal
          for( auto& i : l.private_entries() ) {
             done &= process_entry( i );
          }
-         // TODO: Merge sub-trees of sub-objects with matching object keys?!
-
          if( !done ) {
-            ++m_todo;
             return nullptr;
          }
          if( l.entries().size() > 1 ) {
@@ -89,7 +90,6 @@ namespace tao::config::internal
             ++m_done;
             return true;
          }
-         ++m_todo;
          return false;
       }
 
@@ -111,7 +111,6 @@ namespace tao::config::internal
             ++m_done;
             return true;
          }
-         ++m_todo;
          return false;
       }
 
@@ -143,7 +142,7 @@ namespace tao::config::internal
             ++m_done;
             return true;
          }
-         ++m_todo;
+         m_todo.emplace_back( &e.get_reference(), &e.position() );
          return false;
       }
 
@@ -182,7 +181,7 @@ namespace tao::config::internal
    {
       to_stream( os, "INITIAL", root );
 
-      for( phase2_processor p( root ); !p; p.process( root ) ) {
+      for( phase2_processor p( root ); !p.finished(); p.process() ) {
          to_stream( os, "ITERATION", root );
       }
       to_stream( os, "FINAL", root );

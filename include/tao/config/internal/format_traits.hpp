@@ -9,6 +9,7 @@
 #include "concat.hpp"
 #include "entry.hpp"
 #include "json.hpp"
+#include "value_traits.hpp"
 
 namespace tao::config::internal
 {
@@ -88,12 +89,22 @@ namespace tao::config::internal
    };
 
    template<>
-   struct format_traits< json::value >
+   struct format_traits< json::basic_value< value_traits > >
    {
       template< template< typename... > class, typename Consumer >
-      static void produce( Consumer& c, const json::value& v )
+      static void produce( Consumer& c, const json::basic_value< value_traits >& v )
       {
          json::events::from_value( c, v );
+      }
+   };
+
+   template<>
+   struct format_traits< const json::basic_value< value_traits >* >
+   {
+      template< template< typename... > class Traits >
+      static void assign( json::basic_value< Traits >& v, const json::basic_value< value_traits >* e )
+      {
+         v.unsafe_assign_opaque_ptr( e );
       }
    };
 
