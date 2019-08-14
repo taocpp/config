@@ -21,11 +21,23 @@
 
 namespace tao::config::internal
 {
+   template< typename T >
+   void to_stream( std::ostream* os, const char* tag, const T& root, const std::size_t indent = 3 )
+   {
+      if( os ) {
+         ( *os ) << tag << std::endl;
+         to_stream( *os, root, indent );
+         ( *os ) << std::endl;
+      }
+   }
+
    struct phase2_processor
    {
-      explicit phase2_processor( entry& e )
-         : m_root( e )
+      phase2_processor( entry& root, std::ostream* debug )
+         : m_root( root ),
+           m_debug( debug )
       {
+         to_stream( m_debug, "BEGIN", m_root );
       }
 
       void process()
@@ -36,8 +48,10 @@ namespace tao::config::internal
          (void)process_object_entry( m_root );
 
          if( ( m_done == 0 ) && ( !finished() ) ) {
+            to_stream( m_debug, "ERROR", m_root );
             throw std::runtime_error( format( __FILE__, __LINE__, "phase2 processing deadlocked", { { "where", m_todo } } ) );
          }
+         to_stream( m_debug, "UPDATE", m_root );
       }
 
       [[nodiscard]] bool finished() const noexcept
@@ -47,6 +61,7 @@ namespace tao::config::internal
 
    private:
       entry& m_root;
+      std::ostream* m_debug;
       std::size_t m_done = 0;
       std::vector< std::pair< const json_t*, const pegtl::position* > > m_todo;
 
@@ -54,22 +69,74 @@ namespace tao::config::internal
       {
          assert( !l.entries().empty() );
 
-         bool done = true;
+         // TODO: ...
 
          for( auto& i : l.private_entries() ) {
-            done &= process_entry( i );
+            process_entry( i );
          }
-         if( !done ) {
-            return nullptr;
-         }
-         if( l.entries().size() > 1 ) {
-            for( auto i = std::next( l.private_entries().begin() ); i != l.private_entries().end(); ++i ) {
-               phase2_add( l.private_entries().front().get_atom(), std::move( i->get_atom() ) );
+         auto i = l.private_entries().begin();
+         auto j = l.private_entries().end();
+
+         while( ( i != l.private_entries().end() ) && ( ( j = std::next( i ) ) != l.private_entries().end() ) ) {
+            if( j->clear() ) {
+               i = l.private_entries().erase( i );
+               assert( i == j );
+               ++m_done;
             }
-            l.private_entries().erase( std::next( l.private_entries().begin() ), l.private_entries().end() );
-            ++m_done;
+            else if( i->is_atom() && j->is_atom() ) {
+               phase2_add( i->get_atom(), std::move( j->get_atom() ) );
+               l.private_entries().erase( j );
+               ++m_done;
+            }
+            else if( i->is_object() && j->is_object() ) {
+               auto& o = i->get_object().private_map();
+               auto& p = j->get_object().private_map();
+
+               while( !p.empty() ) {
+                  const auto& [ k, v ] = *p.begin();
+                  const auto [ a, b ] = o.try_emplace( k, &*i, v );
+                  if( !b ) {
+                     a->second.append( v );
+                  }
+                  p.erase( p.begin() );
+               }
+               l.private_entries().erase( j );
+               ++m_done;
+            }
+            else if( i->is_atom() && j->is_object() ) {
+               auto& o = i->get_atom().get_object();
+               auto& p = j->get_object().private_map();
+
+               while( !o.empty() ) {
+                  auto& [ k, v ] = *o.begin();
+                  const auto [ a, b ] = p.try_emplace( k, &*i, v.position.value_or( j->get_object().position() ) );  // TODO: Make sure that v.position is always set!
+                  a->second.emplace_front_atom( std::move( v ) );
+                  o.erase( o.begin() );
+               }
+               i = l.private_entries().erase( i );
+               ++m_done;
+            }
+            else if( i->is_object() && j->is_atom() && j->get_atom().is_object() ) {
+               auto& o = i->get_object().private_map();
+               auto& p = j->get_atom().get_object();
+
+               while( !p.empty() ) {
+                  auto& [ k, v ] = *p.begin();
+                  const auto [ a, b ] = o.try_emplace( k, &*i, v.position.value_or( i->get_object().position() ) );  // TODO: Make sure that v.position is always set!
+                  a->second.emplace_back_atom( std::move( v ) );
+                  p.erase( p.begin() );
+               }
+               l.private_entries().erase( j );
+               ++m_done;
+            }
+            else {
+               ++i;
+            }
          }
-         return &l.private_entries().front().get_atom();
+         if( ( l.entries().size() == 1 ) && l.entries().front().is_atom() ) {
+            return &l.private_entries().front().get_atom();
+         }
+         return nullptr;
       }
 
       [[nodiscard]] bool process_array_entry( entry& e )
@@ -146,7 +213,7 @@ namespace tao::config::internal
          return false;
       }
 
-      [[nodiscard]] bool process_entry( entry& e )
+      bool process_entry( entry& e )
       {
          const phase2_guard p2g( e );
 
@@ -166,25 +233,10 @@ namespace tao::config::internal
       }
    };
 
-
-   template< typename T >
-   void to_stream( std::ostream* os, const char* tag, const T& root, const std::size_t indent = 3 )
+   inline json::basic_value< value_traits > phase2_process( entry& root, std::ostream* debug = nullptr )
    {
-      if( os ) {
-         ( *os ) << tag << std::endl;
-         to_stream( *os, root, indent );
-         ( *os ) << std::endl;
+      for( phase2_processor p( root, debug ); !p.finished(); p.process() ) {
       }
-   }
-
-   inline json::basic_value< value_traits > phase2_process( entry& root, std::ostream* os = nullptr )
-   {
-      to_stream( os, "INITIAL", root );
-
-      for( phase2_processor p( root ); !p.finished(); p.process() ) {
-         to_stream( os, "ITERATION", root );
-      }
-      to_stream( os, "FINAL", root );
       return root.get_atom();
    }
 

@@ -64,7 +64,7 @@ namespace tao::config::internal
    inline const json_t& phase2_access_down( const pegtl::position& pos, const concat& l, const key& p )
    {
       if( l.size() == 1 ) {
-         auto& e = l.entries().front();
+         const entry& e = l.entries().front();
          switch( e.type() ) {
             case entry::atom:
                if( p.empty() ) {
@@ -87,7 +87,7 @@ namespace tao::config::internal
                assert( false );
          }
       }
-      throw temporary_non_local_return_hack();  // Unsuitable thing found -- abort search and try again next iteration.
+      throw temporary_non_local_return_hack();  // Unsuitable concat found -- abort search and try again next iteration.
    }
 
    inline const json_t* phase2_access_up( const pegtl::position& pos, const entry& e, const std::string& k, const key& p );
@@ -104,6 +104,9 @@ namespace tao::config::internal
                   if( const json_t* b = a.find( k ) ) {
                      j.emplace_back( b );
                   }
+                  if( i.clear() ) {
+                     break;
+                  }
                   continue;
                }
                throw pegtl::parse_error( format( __FILE__, __LINE__, "addition of object and json detected", { { "json", &i.get_atom().position }, { "type", i.get_atom().type() } } ), l.p );
@@ -113,6 +116,9 @@ namespace tao::config::internal
                if( const auto* j = i.get_object().find( k ) ) {
                   r.emplace_back( &( j->second ) );
                }
+               if( i.clear() ) {
+                  break;
+               }
                continue;
             case entry::reference:
                return nullptr;
@@ -120,6 +126,7 @@ namespace tao::config::internal
                assert( false );
                break;
          }
+         break;
       }
       if( j.size() + r.size() == 1 ) {
          if( j.empty() ) {
@@ -128,6 +135,7 @@ namespace tao::config::internal
          return &config::access( *j[ 0 ], p );
       }
       if( j.size() + r.size() >= 2 ) {
+         std::cerr << "222 " << k << " 222" << std::endl;  // DEBUG
          return nullptr;  // TODO - what?
       }
       // Nothing found, look further up the alternating entry-concat-tree.

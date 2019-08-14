@@ -167,26 +167,29 @@ namespace tao::config::internal
       static void produce( Consumer& c, const entry& v )
       {
          c.begin_object();
-         c.key( "type" );
-         json::events::produce< Traits >( c, v.type() );
-         c.member();
+         // c.key( "type" );
+         // json::events::produce< Traits >( c, v.type() );
+         // c.member();
          c.key( "clear" );
          c.boolean( v.clear() );
          c.member();
-         c.key( "union" );
          switch( v.type() ) {
             case entry::atom:
+               c.key( "atom" );
                json::events::produce< Traits >( c, v.get_atom() );
                break;
             case entry::array:
+               c.key( "array" );
                json::events::produce< Traits >( c, v.get_array() );
                break;
             case entry::object:
+               c.key( "object" );
                json::events::produce< Traits >( c, v.get_object() );
                break;
             case entry::nothing:
                assert( false );
             case entry::reference:
+               c.key( "reference" );
                json::events::produce< Traits >( c, v.get_reference() );
                break;
             default:
@@ -200,21 +203,21 @@ namespace tao::config::internal
    template<>
    struct format_traits< concat >
       : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
-                                      TAO_JSON_BIND_REQUIRED( "concat", &concat::entries ) >
+                                      TAO_JSON_BIND_REQUIRED( "concat_list", &concat::entries ) >
    {
    };
 
    template<>
    struct format_traits< entry_array >
       : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &entry_array::position ),
-                                      TAO_JSON_BIND_REQUIRED( "array", &entry_array::list ) >
+                                      TAO_JSON_BIND_REQUIRED( "array_data", &entry_array::list ) >
    {
    };
 
    template<>
    struct format_traits< entry_object >
       : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &entry_object::position ),
-                                      TAO_JSON_BIND_REQUIRED( "object", &entry_object::map ) >
+                                      TAO_JSON_BIND_REQUIRED( "object_data", &entry_object::map ) >
    {
    };
 

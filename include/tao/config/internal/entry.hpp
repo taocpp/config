@@ -159,6 +159,7 @@ namespace tao::config::internal
       json_t& get_atom() noexcept
       {
          assert( is_atom() );
+         //         assert( m_union.j.clear == m_clear );  // TODO: Where is this violated?
          return m_union.j;
       }
 
@@ -252,6 +253,8 @@ namespace tao::config::internal
          assert( e.clear() );
          assert( is_atom() );
          assert( e.is_atom() );
+         assert( m_union.j.clear == m_clear );
+         assert( e.m_union.j.clear == e.m_clear );
          assert( m_parent == e.m_parent );
 
          m_clear = e.m_clear;

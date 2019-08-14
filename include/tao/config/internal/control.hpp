@@ -134,7 +134,7 @@ namespace tao::config::internal
          const auto pos = in.position();
 
          st.lstack.emplace_back( &phase1_assign( pos, *st.ostack.back(), value_to_key( st.temporary ) ) );
-         st.lstack.back()->clear( st.clear );
+         st.lstack.back()->do_clear( st.clear );
       }
 
       template< typename Input >

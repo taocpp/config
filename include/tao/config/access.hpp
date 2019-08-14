@@ -22,7 +22,7 @@ namespace tao::config
    const json::basic_value< Traits >& access_name( const json::basic_value< Traits >& v, const std::string& k, const key& p )
    {
       if( !v.is_object() ) {
-         throw std::runtime_error( internal::format( __FILE__, __LINE__, "attempt to index non-object with string", { /*&v.key,*/ &v.position, { "string", k } } ) );
+         throw std::runtime_error( internal::format( __FILE__, __LINE__, "attempt to index non-object with string", { /*&v.key*/ &v.position, { "value", &v }, { "string", k }, { "remaining", &p } } ) );
       }
       const auto j = v.unsafe_get_object().find( k );
 

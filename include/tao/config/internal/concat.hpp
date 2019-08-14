@@ -50,7 +50,7 @@ namespace tao::config::internal
          return *m_parent;
       }
 
-      void clear( bool& c )
+      void do_clear( bool& c )
       {
          if( c ) {
             c = false;
@@ -94,6 +94,14 @@ namespace tao::config::internal
          auto& e = m_entries.emplace_back( this );
          e.set_atom( v );
          back_set_clear();
+      }
+
+      void emplace_front_atom( const json_t& v )
+      {
+         if( m_entries.empty() || ( !m_entries.front().clear() ) ) {
+            auto& e = m_entries.emplace_front( this );
+            e.set_atom( v );
+         }
       }
 
       template< typename T >
