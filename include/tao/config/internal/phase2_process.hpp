@@ -103,7 +103,7 @@ namespace tao::config::internal
                l.private_entries().erase( j );
                ++m_done;
             }
-            else if( i->is_atom() && j->is_object() ) {
+            else if( i->is_atom() && i->get_atom().is_object() && j->is_object() ) {
                auto& o = i->get_atom().get_object();
                auto& p = j->get_object().private_map();
 
