@@ -18,7 +18,8 @@
 
 namespace tao::config::internal
 {
-   struct temporary_non_local_return_hack {};  // TODO: Ensure this doesn't survive the first wave of refactoring after stabilising the semantics.
+   struct temporary_non_local_return_hack
+   {};  // TODO: Ensure this doesn't survive the first wave of refactoring after stabilising the semantics.
 
    inline const json_t& phase2_access_down( const pegtl::position& pos, const concat& l, const key& p );
 

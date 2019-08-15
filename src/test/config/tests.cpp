@@ -8,7 +8,8 @@ namespace tao
    int analyse()
    {
       if( const auto p = tao::json::pegtl::analyze< tao::config::internal::rules::config_file >( true ) ) {
-         std::cerr << std::endl << "PEGTL grammar analysis found " << p << " problems!" << std::endl;
+         std::cerr << std::endl
+                   << "PEGTL grammar analysis found " << p << " problems!" << std::endl;
          return p;
       }
       return 0;
@@ -29,7 +30,8 @@ namespace tao
 
       if( ccs != jjs ) {
          ++failed;
-         std::cerr << std::endl << "Testcase '" << name << "' failed config test!" << std::endl;
+         std::cerr << std::endl
+                   << "Testcase '" << name << "' failed config test!" << std::endl;
          std::cerr << "<<< Config parsed as config <<<" << std::endl;
          std::cerr << ccs << std::endl;
          std::cerr << ">>> Config parsed as config >>>" << std::endl;
@@ -39,7 +41,8 @@ namespace tao
       }
       if( ccs != cjs ) {
          ++failed;
-         std::cerr << std::endl << "Testcase '" << name << "' failed identity test!" << std::endl;
+         std::cerr << std::endl
+                   << "Testcase '" << name << "' failed identity test!" << std::endl;
          std::cerr << "<<< Config parsed as config <<<" << std::endl;
          std::cerr << ccs << std::endl;
          std::cerr << ">>> Config parsed as config >>>" << std::endl;

@@ -5,8 +5,8 @@
 #define TAO_CONFIG_INTERNAL_ENTRY_OBJECT_HPP
 
 #include <map>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 #include "concat.hpp"
 #include "forward.hpp"

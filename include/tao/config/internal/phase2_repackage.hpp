@@ -10,8 +10,8 @@
 
 #include "json.hpp"
 #include "key_utility.hpp"
-#include "value_traits.hpp"
 #include "type_traits.hpp"
+#include "value_traits.hpp"
 
 namespace tao::config::internal
 {

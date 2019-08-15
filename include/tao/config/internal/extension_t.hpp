@@ -5,8 +5,8 @@
 #define TAO_CONFIG_INTERNAL_EXTENSION_T_HPP
 
 #include <functional>
-#include <string>
 #include <map>
+#include <string>
 
 #include "pegtl.hpp"
 

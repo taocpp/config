@@ -60,7 +60,7 @@ namespace tao::config::internal
    };
 
    template< typename R, typename A >
-   extension_t make_extension( R( *f )( A ) )
+   extension_t make_extension( R ( *f )( A ) )
    {
       static_assert( !std::is_reference_v< R > );
 

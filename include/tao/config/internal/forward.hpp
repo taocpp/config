@@ -10,7 +10,8 @@ namespace tao::config::internal
    class entry_array;
    class entry_object;
 
-   template< typename T > struct value_traits;
+   template< typename T >
+   struct value_traits;
 
    using json_t = tao::json::basic_value< value_traits >;
 

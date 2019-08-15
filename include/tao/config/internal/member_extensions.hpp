@@ -10,9 +10,9 @@
 #include "extension_t.hpp"
 #include "extension_utility.hpp"
 #include "format.hpp"
+#include "inner_extensions.hpp"
 #include "phase1_access.hpp"
 #include "phase1_erase.hpp"
-#include "inner_extensions.hpp"
 
 namespace tao::config::internal
 {
@@ -128,7 +128,7 @@ namespace tao::config::internal
             for( const auto& i : haystack.get_array().list() ) {
                temporary_compute_current_prefix( i, needle, prefix + c++ );
             }
-         }  break;
+         } break;
          case entry::object:
             for( const auto& i : haystack.get_object().map() ) {
                temporary_compute_current_prefix( i.second, needle, prefix + i.first );

@@ -5,8 +5,8 @@
 #define TAO_CONFIG_INTERNAL_PHASE2_PROCESS_HPP
 
 #include <cassert>
-#include <vector>
 #include <numeric>
+#include <vector>
 
 #include "concat.hpp"
 #include "entry.hpp"
