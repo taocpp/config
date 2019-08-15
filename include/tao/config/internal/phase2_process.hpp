@@ -109,7 +109,7 @@ namespace tao::config::internal
 
                while( !o.empty() ) {
                   auto& [ k, v ] = *o.begin();
-                  const auto [ a, b ] = p.try_emplace( k, &*i, v.position.value_or( j->get_object().position() ) );  // TODO: Make sure that v.position is always set!
+                  const auto a = p.try_emplace( k, &*i, v.position.value_or( j->get_object().position() ) ).first;  // TODO: Make sure that v.position is always set!
                   a->second.emplace_front_atom( std::move( v ) );
                   o.erase( o.begin() );
                }
