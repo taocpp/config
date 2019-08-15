@@ -135,7 +135,6 @@ namespace tao::config::internal
          return &config::access( *j[ 0 ], p );
       }
       if( j.size() + r.size() >= 2 ) {
-         std::cerr << "222 " << k << " 222" << std::endl;  // DEBUG
          return nullptr;  // TODO - what?
       }
       // Nothing found, look further up the alternating entry-concat-tree.
