@@ -721,6 +721,56 @@ namespace tao::config::schema
          }
       };
 
+      struct switch_ : node
+      {
+         std::string m_key;
+         std::map< std::string, std::unique_ptr< node >, std::less<> > m_cases;
+         std::unique_ptr< node > m_default;
+
+         switch_( const value& v, node_map& m, const std::string& path )
+            : node( v )
+         {
+            const auto s = v.get_object().begin();
+            m_key = s->first;
+            if( const auto& c = internal::find( s->second, "case" ) ) {
+               for( const auto& p : c.get_object() ) {
+                  m_cases.emplace( p.first, std::make_unique< ref >( p.second, m, path ) );
+               }
+            }
+            if( const auto& d = internal::find( s->second, "default" ) ) {
+               m_default = std::make_unique< ref >( d, m, path );
+            }
+            else {
+               m_default = std::make_unique< trivial< false > >( s->second );
+            }
+         }
+
+         void resolve( const node_map& m ) override
+         {
+            for( const auto& p : m_cases ) {
+               p.second->resolve( m );
+            }
+            m_default->resolve( m );
+         }
+
+         json::value validate( const value& v ) const override
+         {
+            if( auto e = object( m_source ).validate( v ) ) {
+               return e;
+            }
+            const auto& o = v.unsafe_get_object();
+            const auto it = o.find( m_key );
+            if( it != o.end() ) {
+               const auto jt = m_cases.find( it->second.get_string_type() );
+               if( jt != m_cases.end() ) {
+                  return jt->second->validate( v );
+               }
+               return m_default->validate( v );
+            }
+            return error( v, "missing property", { { "key", m_key } } );
+         }
+      };
+
       template< typename T, typename E >
       struct list : T
       {
@@ -793,6 +843,7 @@ namespace tao::config::schema
             // string
             add< istring >( internal::find( v, "istring" ) );
             add< pattern >( internal::find( v, "pattern" ) );
+            add< switch_ >( internal::find( v, "switch" ), m, path );
 
             // number
             add< minimum >( internal::find( v, "minimum" ) );
@@ -1037,6 +1088,15 @@ namespace tao::config::schema
                   // string
                   istring: [ "string", { items: "string" } ]
                   pattern: "std.regex"
+                  switch
+                  {
+                      size: 1
+                      properties.additional.properties.optional
+                      {
+                          case.properties.additional: "ref"
+                          default: "ref"
+                      }
+                  }
 
                   // number
                   minimum: "number"
