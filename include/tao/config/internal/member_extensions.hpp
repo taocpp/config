@@ -93,6 +93,23 @@ namespace tao::config::internal
       }
    }
 
+   inline void schema_extension( pegtl_input_t& in, state& st )
+   {
+      const auto pos = in.position();
+
+      do_inner_extension( in, st );
+
+      if( st.temporary.is_null() ) {
+         st.schema.clear();
+         return;
+      }
+      if( st.temporary.is_string_type() ) {
+         st.schema = st.temporary.as< std::string >();
+         return;
+      }
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "schema requires string or null", { st.temporary.type() } ), pos );
+   }
+
    inline void stderr_extension( pegtl_input_t& in, state& st )
    {
       assert( !st.ostack.empty() );

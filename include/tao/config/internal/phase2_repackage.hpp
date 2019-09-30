@@ -69,10 +69,8 @@ namespace tao::config::internal
    }
 
    template< template< typename... > class Traits >
-   json::basic_value< Traits > phase2_repackage( const std::vector< key >& temporaries, json::basic_value< value_traits >&& v )
+   json::basic_value< Traits > phase2_repackage( const json::basic_value< value_traits >& v )
    {
-      phase2_filter_temporaries( temporaries, v );
-
       json::events::to_basic_value< Traits > consumer;
       json::events::from_value( consumer, v );
 

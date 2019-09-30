@@ -50,6 +50,8 @@ namespace tao::config::internal
 
       // Phase 2 Extensions
 
+      std::string schema;
+
       std::vector< key > temporaries;  // Delete from final result.
       std::vector< json_t* > rstack;   // Nested phase 2 references (and also phase 1 keys).
    };

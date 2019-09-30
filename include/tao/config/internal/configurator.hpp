@@ -37,6 +37,7 @@ namespace tao::config::internal
          { "delete?", internal::erase_if_extension },
          { "include", internal::include_extension },
          { "include?", internal::include_if_extension },
+         { "schema", internal::schema_extension },
          { "stderr", internal::stderr_extension },
          { "temporary", internal::temporary_extension }
       };

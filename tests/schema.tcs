@@ -14,15 +14,12 @@ definitions
         b: "string"
     }
 
-    baz.properties
+    baz.properties.required
     {
-        required
-        {
-            a.istring: "baZ"
-            b: "std.integer"
-            c: "null"
-            d: "std.net.ip_v4_cidr"
-        }
+        a.istring: "baZ"
+        b: "std.integer"
+        c: "null"
+        d: "std.net.ip_v4_cidr"
     }
 }
 
