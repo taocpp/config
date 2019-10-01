@@ -277,7 +277,7 @@ namespace tao::config::schema
             for( const auto& e : matched ) {
                data.unsafe_emplace_back( e->pos() );
             }
-            return error( v, "multiple matches found", { { "matched", data } } );
+            return error( v, "multiple matches found", { { "matched", std::move( data ) } } );
          }
       };
 
@@ -492,8 +492,8 @@ namespace tao::config::schema
                return e;
             }
             for( const auto& e : v.unsafe_get_array() ) {
-               if( ref::validate( e ) ) {
-                  return error( v, "invalid item" );
+               if( const auto t = ref::validate( e ) ) {
+                  return t;
                }
             }
             return ok();
@@ -512,7 +512,7 @@ namespace tao::config::schema
             std::set< value > s;
             for( const auto& e : v.unsafe_get_array() ) {
                if( !s.emplace( &e ).second ) {
-                  return error( v, "duplicate items detected" );
+                  return error( v, "duplicate items detected" );  // TODO: Add indices/positions/...?
                }
             }
             return ok();
@@ -762,7 +762,10 @@ namespace tao::config::schema
             const auto& o = v.unsafe_get_object();
             const auto it = o.find( m_key );
             if( it != o.end() ) {
-               const auto k = it->second.get_string_type();
+               if( auto e = string( m_source ).validate( it->second ) ) {
+                  return e;
+               }
+               const auto k = it->second.unsafe_get_string();
                const auto jt = m_cases.find( k );
                if( jt != m_cases.end() ) {
                   return jt->second->validate( v );
