@@ -738,10 +738,9 @@ namespace tao::config::schema
                }
             }
             if( const auto& d = internal::find( s->second, "default" ) ) {
-               m_default = std::make_unique< ref >( d, m, path );
-            }
-            else {
-               m_default = std::make_unique< trivial< false > >( s->second );
+               if( d != false ) {
+                  m_default = std::make_unique< ref >( d, m, path );
+               }
             }
          }
 
@@ -750,7 +749,9 @@ namespace tao::config::schema
             for( const auto& p : m_cases ) {
                p.second->resolve( m );
             }
-            m_default->resolve( m );
+            if( m_default ) {
+               m_default->resolve( m );
+            }
          }
 
          json::value validate( const value& v ) const override
@@ -761,11 +762,19 @@ namespace tao::config::schema
             const auto& o = v.unsafe_get_object();
             const auto it = o.find( m_key );
             if( it != o.end() ) {
-               const auto jt = m_cases.find( it->second.get_string_type() );
+               const auto k = it->second.get_string_type();
+               const auto jt = m_cases.find( k );
                if( jt != m_cases.end() ) {
                   return jt->second->validate( v );
                }
-               return m_default->validate( v );
+               if( m_default ) {
+                  return m_default->validate( v );
+               }
+               std::vector< std::string > keys;
+               for( const auto& e : m_cases ) {
+                  keys.push_back( e.first );
+               }
+               return error( it->second, "invalid property value", { { "value", k }, { "valid", keys } } );
             }
             return error( v, "missing property", { { "key", m_key } } );
          }
