@@ -1,20 +1,20 @@
 // Copyright (c) 2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_SCHEMA_INTERNAL_SWITCH_HPP
-#define TAO_CONFIG_SCHEMA_INTERNAL_SWITCH_HPP
+#ifndef TAO_CONFIG_SCHEMA_INTERNAL_SWITCH_CASE_HPP
+#define TAO_CONFIG_SCHEMA_INTERNAL_SWITCH_CASE_HPP
 
 #include "node.hpp"
 
 namespace tao::config::schema::internal
 {
-   struct switch_ : node
+   struct switch_case : node
    {
-      std::string m_key;
-      std::map< std::string, std::unique_ptr< node >, std::less<> > m_cases;
+      std::string_view m_key;
+      std::map< std::string_view, std::unique_ptr< node > > m_cases;
       std::unique_ptr< node > m_default;
 
-      switch_( const value& v, node_map& m, const std::string& path )
+      switch_case( const value& v, node_map& m, const std::string& path )
          : node( v )
       {
          const auto s = v.get_object().begin();
@@ -52,7 +52,7 @@ namespace tao::config::schema::internal
             if( auto e = string( m_source ).validate( it->second ) ) {
                return e;
             }
-            const auto k = it->second.unsafe_get_string();
+            const auto k = it->second.as< std::string_view >();
             const auto jt = m_cases.find( k );
             if( jt != m_cases.end() ) {
                return jt->second->validate( v );
@@ -60,7 +60,7 @@ namespace tao::config::schema::internal
             if( m_default ) {
                return m_default->validate( v );
             }
-            std::vector< std::string > keys;
+            std::vector< std::string_view > keys;
             for( const auto& e : m_cases ) {
                keys.push_back( e.first );
             }

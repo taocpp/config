@@ -17,12 +17,12 @@
 #include "not_ref.hpp"
 #include "one_of.hpp"
 #include "pattern.hpp"
+#include "properties.hpp"
 #include "property.hpp"
 #include "property_names.hpp"
-#include "properties.hpp"
 #include "ref.hpp"
 #include "size.hpp"
-#include "switch.hpp"
+#include "switch_case.hpp"
 #include "unique_items.hpp"
 
 namespace tao::config::schema::internal
@@ -86,7 +86,7 @@ namespace tao::config::schema::internal
          // string
          add< istring >( internal::find( v, "istring" ) );
          add< pattern >( internal::find( v, "pattern" ) );
-         add< switch_ >( internal::find( v, "switch" ), m, path );
+         add< switch_case >( internal::find( v, "switch" ), m, path );
 
          // number
          add< minimum >( internal::find( v, "minimum" ) );
