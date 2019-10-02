@@ -8,19 +8,21 @@
 
 #include "value.hpp"
 
+#include "schema/builtin.hpp"
+
 #include "internal/configurator.hpp"
 
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   json::basic_value< Traits > basic_parse_input( pegtl_input_t&& in )
+   json::basic_value< Traits > basic_parse_input( pegtl_input_t&& in, schema::builtin b = schema::builtin() )
    {
-      return internal::configurator().parse( std::move( in ) ).process< Traits >();
+      return internal::configurator().parse( std::move( in ) ).process< Traits >( std::move( b ) );
    }
 
-   inline value parse_input( pegtl_input_t&& in )
+   inline value parse_input( pegtl_input_t&& in, schema::builtin b = schema::builtin() )
    {
-      return basic_parse_input< traits >( std::move( in ) );
+      return basic_parse_input< traits >( std::move( in ), std::move( b ) );
    }
 
 }  // namespace tao::config

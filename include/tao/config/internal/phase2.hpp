@@ -12,10 +12,12 @@
 #include "phase2_repackage.hpp"
 #include "state.hpp"
 
+#include "../schema/builtin.hpp"
+
 namespace tao::config::internal
 {
    template< template< typename... > class Traits >
-   json::basic_value< Traits > phase2( state& st )
+   json::basic_value< Traits > phase2( state& st, schema::builtin b )
    {
       assert( st.astack.empty() );
       assert( st.lstack.empty() );
@@ -31,7 +33,7 @@ namespace tao::config::internal
       }
       const auto t2 = phase2_repackage< config::traits >( t1 );
 
-      if( const auto error = schema::parse_and_validate( st.schema, t2 ) ) {
+      if( const auto error = schema::internal::phase2_parse_file_and_validate( st.schema, std::move( b ), t2 ) ) {
          throw std::runtime_error( json::to_string( error ) );
       }
       if constexpr( std::is_same_v< Traits< void >, config::traits< void > > ) {

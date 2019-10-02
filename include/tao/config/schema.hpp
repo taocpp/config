@@ -4,16 +4,18 @@
 #ifndef TAO_CONFIG_SCHEMA_HPP
 #define TAO_CONFIG_SCHEMA_HPP
 
+#include <utility>
+
 #include "schema/parse_file.hpp"
 #include "schema/parse_input.hpp"
 
-namespace tao::config::schema
+namespace tao::config::schema::internal
 {
-   inline json::value parse_and_validate( const std::string& schema_filename, const value& config_value )
+   inline json::value phase2_parse_file_and_validate( const std::string& schema_filename, builtin b, const value& config_value )
    {
-      return parse_file( schema_filename ).validate( config_value );
+      return parse_file( schema_filename, std::move( b ) ).validate( config_value );
    }
 
-}  // namespace tao::config::schema
+}  // namespace tao::config::schema::internal
 
 #endif

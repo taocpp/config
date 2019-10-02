@@ -16,6 +16,8 @@
 #include "member_extensions.hpp"
 #include "value_extensions.hpp"
 
+#include "../schema/builtin.hpp"
+
 namespace tao::config::internal
 {
    struct configurator
@@ -76,9 +78,9 @@ namespace tao::config::internal
       }
 
       template< template< typename... > class Traits >
-      json::basic_value< Traits > process()
+      json::basic_value< Traits > process( schema::builtin b )
       {
-         return internal::phase2< Traits >( st );
+         return internal::phase2< Traits >( st, std::move( b ) );
       }
    };
 
