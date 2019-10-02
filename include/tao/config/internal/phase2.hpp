@@ -5,17 +5,12 @@
 #define TAO_CONFIG_INTERNAL_PHASE2_HPP
 
 #include <stdexcept>
+#include <type_traits>
 
 #include "json.hpp"
 #include "phase2_process.hpp"
 #include "phase2_repackage.hpp"
 #include "state.hpp"
-
-namespace tao::config::schema
-{
-   inline json::value read_and_validate( const std::string& filename, const value& v );
-
-}  // namespace tao::config::schema
 
 namespace tao::config::internal
 {
@@ -27,18 +22,24 @@ namespace tao::config::internal
       assert( st.rstack.empty() );
       assert( st.ostack.size() == 1 );
 
-      auto tmp = phase2_process( st.root );
+      auto t1 = phase2_process( st.root );
 
-      phase2_filter_temporaries( st.temporaries, tmp );
+      phase2_filter_temporaries( st.temporaries, t1 );
 
-      if( !st.schema.empty() ) {
-         const auto error = schema::read_and_validate( st.schema, phase2_repackage< config::traits >( tmp ) );
-
-         if( error ) {
-            throw std::runtime_error( json::to_string( error ) );
-         }
+      if( st.schema.empty() ) {
+         return phase2_repackage< Traits >( t1 );
       }
-      return phase2_repackage< Traits >( tmp );  // TODO: Don't repackage twice when result uses config::traits, too.
+      const auto t2 = phase2_repackage< config::traits >( t1 );
+
+      if( const auto error = schema::parse_and_validate( st.schema, t2 ) ) {
+         throw std::runtime_error( json::to_string( error ) );
+      }
+      if constexpr( std::is_same_v< Traits< void >, config::traits< void > > ) {
+         return t2;
+      }
+      else {
+         return phase2_repackage< Traits >( t1 );
+      }
    }
 
 }  // namespace tao::config::internal

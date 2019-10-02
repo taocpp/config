@@ -5,7 +5,6 @@
 #define TAO_CONFIG_PARSE_FILE_HPP
 
 #include <string>
-#include <utility>
 
 #include "value.hpp"
 

@@ -4,25 +4,14 @@
 #ifndef TAO_CONFIG_SCHEMA_HPP
 #define TAO_CONFIG_SCHEMA_HPP
 
-#include "parse_file.hpp"
-#include "schema_validator.hpp"
-#include "value.hpp"
+#include "schema/parse_file.hpp"
+#include "schema/parse_input.hpp"
 
 namespace tao::config::schema
 {
-   inline validator read( const std::string& filename, builtin b = builtin() )
+   inline json::value parse_and_validate( const std::string& schema_filename, const value& config_value )
    {
-      const value data = config::parse_file( filename );
-      if( const auto error = schema_validator.validate( data ) ) {
-         std::cerr << std::setw( 2 ) << error << std::endl;
-         throw std::runtime_error( "invalid schema file '" + filename + "'" );  // TODO: store error in exception
-      }
-      return validator( data, std::move( b ) );
-   }
-
-   inline json::value read_and_validate( const std::string& filename, const value& v )
-   {
-      return read( filename ).validate( v );
+      return parse_file( schema_filename ).validate( config_value );
    }
 
 }  // namespace tao::config::schema
