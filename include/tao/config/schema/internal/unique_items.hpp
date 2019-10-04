@@ -22,7 +22,7 @@ namespace tao::config::schema::internal
             if( !s.emplace( &e ).second ) {
                return error( v, "duplicate items detected" );  // TODO: Add indices/positions/...?
             }
-            }
+         }
          return ok();
       }
    };

@@ -19,6 +19,30 @@ namespace tao::config::schema::internal
           ref: [ "boolean", "std.key", "ref_list", "schema" ]
           ref_list: { min_size: 1, items: "ref" }
 
+          type_cases
+          {
+              properties.optional
+              {
+                  case.property_names.enum: [ "null", "boolean", "string", "binary", "number", "array", "object" ]
+                  case.properties.additional: "ref"
+                  default: "ref"
+              }
+          }
+
+          string_cases
+          {
+              size: 1
+              properties.additional
+              {
+                  properties.optional
+                  {
+                      case.properties.additional: "ref"
+                      default: "ref"
+                  }
+              }
+          }
+
+
           schema
           {
               properties.optional
@@ -53,15 +77,6 @@ namespace tao::config::schema::internal
                   // string
                   istring: [ "string", { items: "string" } ]
                   pattern: "std.regex"
-                  switch
-                  {
-                      size: 1
-                      properties.additional.properties.optional
-                      {
-                          case.properties.additional: "ref"
-                          default: "ref"
-                      }
-                  }
 
                   // number
                   minimum: "number"
@@ -87,6 +102,17 @@ namespace tao::config::schema::internal
                       required.properties.additional: "ref"
                       optional.properties.additional: "ref"
                       additional: "ref"
+                  }
+
+                  // special
+                  switch {
+                      size: 1
+                      one_of
+                      [
+                          { if.has_property: "type" then.property.type: "type_cases" else: false }
+                          { if.has_property: "string" then.property.string: "string_cases" else: false }
+                          { if.has_property: "istring" then.property.istring: "string_cases" else: false }
+                      ]
                   }
               }
 
@@ -143,6 +169,6 @@ namespace tao::config::schema::internal
    )", "schema" ) ) );
    // clang-format on
 
-}  // namespace tao::config::schema
+}  // namespace tao::config::schema::internal
 
 #endif

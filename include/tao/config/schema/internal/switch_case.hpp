@@ -4,20 +4,23 @@
 #ifndef TAO_CONFIG_SCHEMA_INTERNAL_SWITCH_CASE_HPP
 #define TAO_CONFIG_SCHEMA_INTERNAL_SWITCH_CASE_HPP
 
+#include "iless.hpp"
 #include "node.hpp"
+#include "ref.hpp"
 
 namespace tao::config::schema::internal
 {
-   struct switch_case : node
+   template< typename Compare >
+   struct switch_string : node
    {
       std::string_view m_key;
-      std::map< std::string_view, std::unique_ptr< node > > m_cases;
+      std::map< std::string_view, std::unique_ptr< node >, Compare > m_cases;
       std::unique_ptr< node > m_default;
 
-      switch_case( const value& v, node_map& m, const std::string& path )
+      switch_string( const value& v, node_map& m, const std::string& path )
          : node( v )
       {
-         const auto s = v.get_object().begin();
+         const auto s = m_source.get_object().begin();
          m_key = s->first;
          if( const auto& c = internal::find( s->second, "case" ) ) {
             for( const auto& p : c.get_object() ) {
@@ -67,6 +70,46 @@ namespace tao::config::schema::internal
             return error( it->second, "invalid property value", { { "value", k }, { "valid", keys } } );
          }
          return error( v, "missing property", { { "key", m_key } } );
+      }
+   };
+
+   struct switch_case : node
+   {
+      std::unique_ptr< node > m_impl;
+
+      switch_case( const value& v, node_map& m, const std::string& path )
+         : node( v )
+      {
+         const auto s = m_source.get_object().begin();
+         if( s->first == "type" ) {
+            // TODO: Implement me!
+            throw 42;
+         }
+         else if( s->first == "string" ) {
+            m_impl = std::make_unique< switch_string< std::less< std::string_view > > >( s->second, m, path );
+         }
+         else if( s->first == "istring" ) {
+            m_impl = std::make_unique< switch_string< iless > >( s->second, m, path );
+         }
+         else {
+            // TODO: Throw proper exception
+            throw 42;
+         }
+      }
+
+      void resolve( const node_map& m ) override
+      {
+         m_impl->resolve( m );
+      }
+
+      json::value validate( const value& v ) const override
+      {
+         return m_impl->validate( v );
+      }
+
+      json::value pos() const override
+      {
+         return m_impl->pos();
       }
    };
 
