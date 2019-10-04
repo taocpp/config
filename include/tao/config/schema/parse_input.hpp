@@ -21,7 +21,7 @@ namespace tao::config::schema
       const config::value s = config::parse_input( std::move( in ) );
 
       if( const auto error = tao::config::schema::internal::validator.validate( s ) ) {
-         std::cerr << std::setw( 2 ) << error << std::endl;  // TODO: Remove this line...
+         std::cerr << std::setw( 2 ) << error << std::endl;                                       // TODO: Remove this line...
          throw std::runtime_error( std::string( "invalid schema from '" ) + in.source() + "'" );  // TODO: ...and store error in exception.
       }
       return validator( s, std::move( b ) );

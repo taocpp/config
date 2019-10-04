@@ -4,8 +4,8 @@
 #ifndef TAO_CONFIG_SCHEMA_VALIDATOR_HPP
 #define TAO_CONFIG_SCHEMA_VALIDATOR_HPP
 
-#include "internal/schema.hpp"
 #include "internal/node.hpp"
+#include "internal/schema.hpp"
 
 #include "builtin.hpp"
 
