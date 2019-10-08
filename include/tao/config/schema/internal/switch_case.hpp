@@ -10,6 +10,79 @@
 
 namespace tao::config::schema::internal
 {
+   struct switch_type : node
+   {
+      std::map< std::string_view, std::unique_ptr< node > > m_cases;
+      std::unique_ptr< node > m_default;
+
+      switch_type( const value& v, node_map& m, const std::string& path )
+         : node( v )
+      {
+         if( const auto& c = internal::find( m_source, "case" ) ) {
+            for( const auto& p : c.get_object() ) {
+               m_cases.emplace( p.first, std::make_unique< ref >( p.second, m, path ) );
+            }
+         }
+         if( const auto& d = internal::find( m_source, "default" ) ) {
+            if( d != false ) {
+               m_default = std::make_unique< ref >( d, m, path );
+            }
+         }
+      }
+
+      void resolve( const node_map& m ) override
+      {
+         for( const auto& p : m_cases ) {
+            p.second->resolve( m );
+         }
+         if( m_default ) {
+            m_default->resolve( m );
+         }
+      }
+
+      json::value validate( const value& v ) const override
+      {
+         std::string_view key;
+         switch( v.skip_value_ptr().type() ) {
+            case json::type::NULL_:
+               key = "null";
+               break;
+            case json::type::BOOLEAN:
+               key = "boolean";
+               break;
+            case json::type::SIGNED:
+            case json::type::UNSIGNED:
+            case json::type::DOUBLE:
+               key = "number";
+               break;
+            case json::type::STRING:
+            case json::type::STRING_VIEW:
+               key = "string";
+               break;
+            case json::type::BINARY:
+            case json::type::BINARY_VIEW:
+               key = "binary";
+               break;
+            case json::type::ARRAY:
+               key = "array";
+               break;
+            case json::type::OBJECT:
+               key = "object";
+               break;
+            default:
+               return error( v, "invalid type", { { "type", json::to_string( v.type() ) } } );
+         }
+         const auto it = m_cases.find( key );
+         if( it != m_cases.end() ) {
+            return it->second->validate( v );
+         }
+         if( m_default ) {
+            return m_default->validate( v );
+         }
+         return error( v, "invalid type", { { "type", json::to_string( v.type() ) } } );
+      }
+   };
+
    template< typename Compare >
    struct switch_string : node
    {
@@ -55,7 +128,7 @@ namespace tao::config::schema::internal
             if( auto e = string( m_source ).validate( it->second ) ) {
                return e;
             }
-            const auto k = it->second.as< std::string_view >();
+            const auto k = it->second.template as< std::string_view >();
             const auto jt = m_cases.find( k );
             if( jt != m_cases.end() ) {
                return jt->second->validate( v );
@@ -82,8 +155,7 @@ namespace tao::config::schema::internal
       {
          const auto s = m_source.get_object().begin();
          if( s->first == "type" ) {
-            // TODO: Implement me!
-            throw 42;
+            m_impl = std::make_unique< switch_type >( s->second, m, path );
          }
          else if( s->first == "string" ) {
             m_impl = std::make_unique< switch_string< std::less< std::string_view > > >( s->second, m, path );

@@ -16,7 +16,14 @@ namespace tao::config::schema::internal
 
       definitions
       {
-          ref: [ "boolean", "std.key", "ref_list", "schema" ]
+          ref.switch.type
+          {
+              case.boolean: true
+              case.string: "std.key"
+              case.array: "ref_list"
+              case.object: "schema"
+          }
+
           ref_list: { min_size: 1, items: "ref" }
 
           type_cases
@@ -75,7 +82,11 @@ namespace tao::config::schema::internal
                   max_size: "std.unsigned"
 
                   // string
-                  istring: [ "string", { items: "string" } ]
+                  istring.switch.type
+                  {
+                      case.string: true
+                      case.array.items: "string"
+                  }
                   pattern: "std.regex"
 
                   // number
@@ -91,7 +102,11 @@ namespace tao::config::schema::internal
 
                   // object
                   property_names: "ref"
-                  has_property: [ "string", { items: "string" } ]
+                  has_property
+                  {
+                      case.string: true
+                      case.array.items: "string"
+                  }
                   property
                   {
                       size: 1
