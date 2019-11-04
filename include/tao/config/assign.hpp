@@ -24,7 +24,7 @@ namespace tao::config
       if( !v.is_object() ) {
          throw std::runtime_error( internal::format( __FILE__, __LINE__, "attempt to index non-object with string", { &v.key, &v.position, { "string", k } } ) );
       }
-      const auto t = v.unsafe_get_object().try_emplace( k, json::empty_object );
+      const auto t = v.get_object().try_emplace( k, json::empty_object );
       return assign( t.first->second, p );
    }
 
@@ -34,10 +34,10 @@ namespace tao::config
       if( !v.is_array() ) {
          throw std::runtime_error( internal::format( __FILE__, __LINE__, "attempt to index non-array with integer", { &v.key, &v.position, { "integer", n } } ) );
       }
-      if( v.unsafe_get_array().size() <= n ) {
+      if( v.get_array().size() <= n ) {
          throw std::runtime_error( internal::format( __FILE__, __LINE__, "array index out of bounds", { &v.key, &v.position, { "integer", n } } ) );
       }
-      return assign( v.unsafe_get_array()[ n ], p );
+      return assign( v.get_array()[ n ], p );
    }
 
    template< template< typename... > class Traits >

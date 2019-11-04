@@ -67,9 +67,7 @@ namespace tao::config::internal
 
       if( i != map.end() ) {
          i->second( in, st );
-         assert( !st.temporary.is_discarded() );
          st.lstack.back()->emplace_back_atom( std::move( st.temporary ) );
-         st.temporary.discard();
          return true;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "unknown value extension", { { "name", ext } } ), pos );

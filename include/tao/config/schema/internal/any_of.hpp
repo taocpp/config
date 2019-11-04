@@ -19,7 +19,7 @@ namespace tao::config::schema::internal
          json::value errors = json::empty_array;
          for( const auto& p : m_properties ) {
             if( auto e = p->validate( vs ) ) {
-               errors.unsafe_emplace_back( std::move( e ) );
+               errors.emplace_back( std::move( e ) );
             }
             else {
                // short-circuit

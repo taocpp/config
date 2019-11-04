@@ -27,10 +27,10 @@ namespace tao::config::schema::internal
             return T()( m_size, v.as< tao::binary_view >().size() ) ? ok() : error( v, "size did not match" );
          }
          if( v.is_array() ) {
-            return T()( m_size, v.unsafe_get_array().size() ) ? ok() : error( v, "size did not match" );
+            return T()( m_size, v.get_array().size() ) ? ok() : error( v, "size did not match" );
          }
          if( v.is_object() ) {
-            return T()( m_size, v.unsafe_get_object().size() ) ? ok() : error( v, "size did not match" );
+            return T()( m_size, v.get_object().size() ) ? ok() : error( v, "size did not match" );
          }
          return error( v, "invalid type for size comparison" );
       }

@@ -17,7 +17,7 @@ namespace tao::config::internal
    {
       switch( v.type() ) {
          case json::type::BOOLEAN:
-            return v.unsafe_get_boolean() ? part( part::star_t() ) : part( part::minus_t() );
+            return v.get_boolean() ? part( part::star_t() ) : part( part::minus_t() );
          case json::type::STRING:
          case json::type::STRING_VIEW:
             return part( v.template as< std::string >() );
@@ -34,16 +34,16 @@ namespace tao::config::internal
       key p;
 
       if( v.is_string() ) {
-         p.emplace_back( part( v.unsafe_get_string() ) );
+         p.emplace_back( part( v.get_string() ) );
          return p;
       }
       if( !v.is_array() ) {
          throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid json for key -- expected array", { v.type() } ), *v.position );
       }
-      for( const auto& t : v.unsafe_get_array() ) {
+      for( const auto& t : v.get_array() ) {
          p.emplace_back( value_to_part( t ) );
       }
-      v.discard();
+      v.reset();
       return p;
    }
 

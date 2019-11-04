@@ -18,7 +18,7 @@ namespace tao::config::schema::internal
          if( auto e = array( m_source ).validate( v ) ) {
             return e;
          }
-         for( const auto& e : v.unsafe_get_array() ) {
+         for( const auto& e : v.get_array() ) {
             if( const auto t = ref::validate( e ) ) {
                return t;
             }

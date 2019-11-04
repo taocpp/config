@@ -20,12 +20,12 @@ namespace tao::config::internal
    {
       switch( r.type() ) {
          case json::type::ARRAY:
-            for( std::size_t i = 0; i < r.unsafe_get_array().size(); ++i ) {
+            for( std::size_t i = 0; i < r.get_array().size(); ++i ) {
                phase2_set_keys( r[ i ], k + i );
             }
             break;
          case json::type::OBJECT:
-            for( auto& i : r.unsafe_get_object() ) {
+            for( auto& i : r.get_object() ) {
                phase2_set_keys( i.second, k + i.first );
             }
             break;
@@ -40,12 +40,12 @@ namespace tao::config::internal
    {
       switch( r.type() ) {
          case json::type::ARRAY:
-            for( std::size_t i = 0; i < r.unsafe_get_array().size(); ++i ) {
+            for( std::size_t i = 0; i < r.get_array().size(); ++i ) {
                phase2_set_positions( r[ i ], v.at( i ) );
             }
             break;
          case json::type::OBJECT:
-            for( auto& i : r.unsafe_get_object() ) {
+            for( auto& i : r.get_object() ) {
                phase2_set_positions( i.second, v.at( i.first ) );
             }
             break;

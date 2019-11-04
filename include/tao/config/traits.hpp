@@ -68,7 +68,7 @@ namespace tao::config
       template< template< typename... > class Traits >
       static void assign( json::basic_value< Traits >& v, const key* p )
       {
-         v.unsafe_assign_opaque_ptr( p );
+         v.assign_opaque_ptr( p );
       }
    };
 
@@ -96,7 +96,7 @@ namespace tao::config
       template< template< typename... > class Traits >
       static void assign( json::basic_value< Traits >& v, const json::position* p )
       {
-         v.unsafe_assign_opaque_ptr( p );
+         v.assign_opaque_ptr( p );
       }
    };
 

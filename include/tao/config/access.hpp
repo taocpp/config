@@ -24,9 +24,9 @@ namespace tao::config
       if( !v.is_object() ) {
          throw std::runtime_error( internal::format( __FILE__, __LINE__, "attempt to index non-object with string", { /*&v.key*/ &v.position, { "value", &v }, { "string", k }, { "remaining", &p } } ) );
       }
-      const auto j = v.unsafe_get_object().find( k );
+      const auto j = v.get_object().find( k );
 
-      if( j == v.unsafe_get_object().end() ) {
+      if( j == v.get_object().end() ) {
          throw std::runtime_error( internal::format( __FILE__, __LINE__, "object string index not found", { /*&v.key,*/ &v.position, { "string", k } } ) );
       }
       return access( j->second, p );
@@ -38,10 +38,10 @@ namespace tao::config
       if( !v.is_array() ) {
          throw std::runtime_error( internal::format( __FILE__, __LINE__, "attempt to index non-array with integer", { /*&v.key,*/ &v.position, { "integer", n } } ) );
       }
-      if( v.unsafe_get_array().size() <= n ) {
+      if( v.get_array().size() <= n ) {
          throw std::runtime_error( internal::format( __FILE__, __LINE__, "array index out of bounds", { /*&v.key,*/ &v.position, { "integer", n } } ) );
       }
-      return access( v.unsafe_get_array()[ n ], p );
+      return access( v.get_array()[ n ], p );
    }
 
    template< template< typename... > class Traits >
@@ -50,10 +50,10 @@ namespace tao::config
       if( !v.is_array() ) {
          throw std::runtime_error( internal::format( __FILE__, __LINE__, "attempt to access last element in non-array", { /*&v.key,*/ &v.position } ) );
       }
-      if( v.unsafe_get_array().empty() ) {
+      if( v.get_array().empty() ) {
          throw std::runtime_error( internal::format( __FILE__, __LINE__, "array is empty", { /*&v.key,*/ &v.position } ) );
       }
-      return access( v.unsafe_get_array().back(), p );
+      return access( v.get_array().back(), p );
    }
 
    template< template< typename... > class Traits >

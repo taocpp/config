@@ -31,7 +31,7 @@ namespace tao::config::schema::internal
          if( auto e = object( m_source ).validate( v ) ) {
             return e;
          }
-         const auto& o = v.unsafe_get_object();
+         const auto& o = v.get_object();
          for( const auto& k : m_keys ) {
             if( o.find( k ) != o.end() ) {
                return ok();

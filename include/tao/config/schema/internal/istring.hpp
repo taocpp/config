@@ -20,7 +20,7 @@ namespace tao::config::schema::internal
          : node( v )
       {
          if( m_source.is_array() ) {
-            for( const auto& e : m_source.unsafe_get_array() ) {
+            for( const auto& e : m_source.get_array() ) {
                m_values.emplace( e.as< std::string_view >() );
             }
          }
@@ -38,7 +38,7 @@ namespace tao::config::schema::internal
 
          json::value candidates = json::empty_array;
          for( const auto sv : m_values ) {
-            candidates.unsafe_emplace_back( sv );
+            candidates.emplace_back( sv );
          }
          return error( v, "value did not match", { { "value", s }, { "candidates", std::move( candidates ) } } );
       }

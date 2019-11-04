@@ -17,7 +17,7 @@ namespace tao::config::schema::internal
          if( auto e = object( m_source ).validate( v ) ) {
             return e;
          }
-         for( const auto& e : v.unsafe_get_object() ) {
+         for( const auto& e : v.get_object() ) {
             if( ref::validate( value( e.first ) ) ) {
                return error( v.at( e.first ), "invalid key" );
             }

@@ -50,17 +50,17 @@ namespace tao::config::schema::internal
          }
 
          json::value errors = json::empty_array;
-         const auto& o = v.unsafe_get_object();
+         const auto& o = v.get_object();
 
          for( const auto& e : m_required ) {
             const auto it = o.find( e.first );
             if( it != o.end() ) {
                if( auto r = e.second->validate( it->second ) ) {
-                  errors.unsafe_emplace_back( std::move( r ) );
+                  errors.emplace_back( std::move( r ) );
                }
             }
             else {
-               errors.unsafe_emplace_back( error( v, "missing property", { { "key", e.first } } ) );
+               errors.emplace_back( error( v, "missing property", { { "key", e.first } } ) );
             }
          }
 
@@ -68,22 +68,24 @@ namespace tao::config::schema::internal
             const auto it = m_optional.find( e.first );
             if( it != m_optional.end() ) {
                if( auto r = it->second->validate( e.second ) ) {
-                  errors.unsafe_emplace_back( std::move( r ) );
+                  errors.emplace_back( std::move( r ) );
                }
             }
             else if( m_required.find( e.first ) == m_required.end() ) {
                if( m_default ) {
                   if( auto r = m_default->validate( e.second ) ) {
-                     errors.unsafe_emplace_back( std::move( r ) );
+                     errors.emplace_back( std::move( r ) );
                   }
                }
                else {
-                  errors.unsafe_emplace_back( error( v, "unexpected property", { { "key", e.first } } ) );
+                  // TODO: The position will point to the value of the key/value-pair,
+                  // but it should point to the key itself.
+                  errors.emplace_back( error( e.second, "unexpected property" ) );
                }
             }
          }
 
-         auto& a = errors.unsafe_get_array();
+         auto& a = errors.get_array();
          if( a.empty() ) {
             return ok();
          }

@@ -38,9 +38,8 @@ namespace tao::config::schema::internal
 
       json::value error( const value& v, const char* message, json::value data = json::empty_object ) const
       {
-         data.unsafe_try_emplace( "_message", message );
-         data.unsafe_try_emplace( "_schema", pos() );
-         data.unsafe_try_emplace( "_value", internal::pos( v ) );
+         data.try_emplace( "_message", message );
+         data.try_emplace( "_value", internal::pos( v ) );
          return data;
       }
    };

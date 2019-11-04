@@ -43,7 +43,7 @@ namespace tao::config::internal
       template< template< typename... > class Traits >
       static void assign( json::basic_value< Traits >& v, const pegtl::position* p )
       {
-         v.unsafe_assign_opaque_ptr( p );
+         v.assign_opaque_ptr( p );
       }
    };
 
@@ -62,10 +62,10 @@ namespace tao::config::internal
       static void assign( json::basic_value< Traits >& v, const std::optional< pegtl::position >* p )
       {
          if( *p ) {
-            v.unsafe_assign_opaque_ptr( &**p );
+            v.assign_opaque_ptr( &**p );
          }
          else {
-            v.unsafe_assign_null();
+            v.assign_null();
          }
       }
    };
@@ -84,7 +84,7 @@ namespace tao::config::internal
       template< template< typename... > class Traits >
       static void assign( json::basic_value< Traits >& v, const json::type t )
       {
-         v.unsafe_assign_string( std::string( json::to_string( t ) ) );
+         v.assign_string( std::string( json::to_string( t ) ) );
       }
    };
 
@@ -104,7 +104,7 @@ namespace tao::config::internal
       template< template< typename... > class Traits >
       static void assign( json::basic_value< Traits >& v, const json::basic_value< value_traits >* e )
       {
-         v.unsafe_assign_opaque_ptr( e );
+         v.assign_opaque_ptr( e );
       }
    };
 
@@ -118,19 +118,19 @@ namespace tao::config::internal
       {
          switch( k ) {
             case entry::atom:
-               v.unsafe_assign_string( "atom" );
+               v.assign_string( "atom" );
                return;
             case entry::array:
-               v.unsafe_assign_string( "array" );
+               v.assign_string( "array" );
                return;
             case entry::object:
-               v.unsafe_assign_string( "object" );
+               v.assign_string( "object" );
                return;
             case entry::nothing:
-               v.unsafe_assign_string( "nothing" );
+               v.assign_string( "nothing" );
                return;
             case entry::reference:
-               v.unsafe_assign_string( "reference" );
+               v.assign_string( "reference" );
                return;
          }
          assert( false );
@@ -227,7 +227,7 @@ namespace tao::config::internal
       template< template< typename... > class Traits >
       static void assign( json::basic_value< Traits >& v, const concat* p )
       {
-         v.unsafe_assign_opaque_ptr( p );
+         v.assign_opaque_ptr( p );
       }
    };
 

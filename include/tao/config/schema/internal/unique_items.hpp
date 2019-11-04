@@ -18,7 +18,7 @@ namespace tao::config::schema::internal
             return e;
          }
          std::set< value > s;
-         for( const auto& e : v.unsafe_get_array() ) {
+         for( const auto& e : v.get_array() ) {
             if( !s.emplace( &e ).second ) {
                return error( v, "duplicate items detected" );  // TODO: Add indices/positions/...?
             }

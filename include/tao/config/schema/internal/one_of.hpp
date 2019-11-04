@@ -20,7 +20,7 @@ namespace tao::config::schema::internal
          std::vector< node* > matched;
          for( const auto& p : m_properties ) {
             if( auto e = p->validate( vs ) ) {
-               errors.unsafe_emplace_back( std::move( e ) );
+               errors.emplace_back( std::move( e ) );
             }
             else {
                matched.emplace_back( p.get() );
@@ -35,7 +35,7 @@ namespace tao::config::schema::internal
          }
          json::value data = json::empty_array;
          for( const auto& e : matched ) {
-            data.unsafe_emplace_back( e->pos() );
+            data.emplace_back( e->pos() );
          }
          return error( v, "multiple matches found", { { "matched", std::move( data ) } } );
       }

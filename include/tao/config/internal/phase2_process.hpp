@@ -147,7 +147,7 @@ namespace tao::config::internal
 
          for( auto& i : e.get_array().private_list() ) {
             if( const json_t* t = process_concat( i ) ) {
-               j.unsafe_emplace_back( *t );
+               j.emplace_back( *t );
                continue;
             }
             done = false;
@@ -168,7 +168,7 @@ namespace tao::config::internal
 
          for( auto& i : e.get_object().private_map() ) {
             if( const json_t* t = process_concat( i.second ) ) {
-               j.unsafe_try_emplace( i.first, *t );
+               j.try_emplace( i.first, *t );
                continue;
             }
             done = false;
