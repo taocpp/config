@@ -11,7 +11,7 @@ namespace tao::config::schema
 
    namespace internal
    {
-      inline json::value phase2_parse_file_and_validate( const std::string& schema_filename, builtin b, const value& config_value );
+      inline json::value phase2_from_file_and_validate( const std::string& schema_filename, builtin b, const value& config_value );
 
    }  // namespace internal
 

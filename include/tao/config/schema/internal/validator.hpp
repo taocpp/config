@@ -4,13 +4,13 @@
 #ifndef TAO_CONFIG_SCHEMA_INTERNAL_VALIDATOR_HPP
 #define TAO_CONFIG_SCHEMA_INTERNAL_VALIDATOR_HPP
 
-#include "../../parse_input.hpp"
+#include "../../from_input.hpp"
 #include "../validator.hpp"
 
 namespace tao::config::schema::internal
 {
    // clang-format off
-   const tao::config::schema::validator validator( config::parse_input( pegtl_input_t( R"(
+   const tao::config::schema::validator validator( config::from_input( pegtl_input_t( R"(
 
       // the schema for schemas:
 

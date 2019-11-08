@@ -1,8 +1,8 @@
 // Copyright (c) 2018-2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_PARSE_FILES_HPP
-#define TAO_CONFIG_PARSE_FILES_HPP
+#ifndef TAO_CONFIG_FROM_FILES_HPP
+#define TAO_CONFIG_FROM_FILES_HPP
 
 #include <string>
 #include <utility>
@@ -17,7 +17,7 @@
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   json::basic_value< Traits > basic_parse_files( const std::vector< std::string >& filenames, schema::builtin b = schema::builtin() )
+   json::basic_value< Traits > basic_from_files( const std::vector< std::string >& filenames, schema::builtin b = schema::builtin() )
    {
       internal::configurator c;
       for( const auto& filename : filenames ) {
@@ -26,9 +26,9 @@ namespace tao::config
       return c.process< Traits >( std::move( b ) );
    }
 
-   inline value parse_files( const std::vector< std::string >& filenames, schema::builtin b = schema::builtin() )
+   inline value from_files( const std::vector< std::string >& filenames, schema::builtin b = schema::builtin() )
    {
-      return basic_parse_files< traits >( filenames, std::move( b ) );
+      return basic_from_files< traits >( filenames, std::move( b ) );
    }
 
 }  // namespace tao::config

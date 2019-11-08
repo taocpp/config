@@ -6,8 +6,8 @@
 
 int main()
 {
-   const auto tcs = tao::config::schema::parse_file( "tests/schema.tcs" );
-   const auto data = tao::config::parse_file( "tests/schema.jaxn" );
+   const auto tcs = tao::config::schema::from_file( "tests/schema.tcs" );
+   const auto data = tao::config::from_file( "tests/schema.jaxn" );
    const auto error = tcs.validate( data );
 
    if( error ) {

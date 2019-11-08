@@ -6,14 +6,14 @@
 
 #include <utility>
 
-#include "schema/parse_file.hpp"
-#include "schema/parse_input.hpp"
+#include "schema/from_file.hpp"
+#include "schema/from_input.hpp"
 
 namespace tao::config::schema::internal
 {
-   inline json::value phase2_parse_file_and_validate( const std::string& schema_filename, builtin b, const value& config_value )
+   inline json::value phase2_from_file_and_validate( const std::string& schema_filename, builtin b, const value& config_value )
    {
-      return parse_file( schema_filename, std::move( b ) ).validate( config_value );
+      return from_file( schema_filename, std::move( b ) ).validate( config_value );
    }
 
 }  // namespace tao::config::schema::internal

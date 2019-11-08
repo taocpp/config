@@ -1,13 +1,13 @@
 // Copyright (c) 2019 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_SCHEMA_PARSE_INPUT_HPP
-#define TAO_CONFIG_SCHEMA_PARSE_INPUT_HPP
+#ifndef TAO_CONFIG_SCHEMA_FROM_INPUT_HPP
+#define TAO_CONFIG_SCHEMA_FROM_INPUT_HPP
 
 #include <iostream>
 #include <stdexcept>
 
-#include "../parse_input.hpp"
+#include "../from_input.hpp"
 
 #include "builtin.hpp"
 #include "validator.hpp"
@@ -16,9 +16,9 @@
 
 namespace tao::config::schema
 {
-   inline validator parse_input( pegtl_input_t&& in, builtin b = builtin() )
+   inline validator from_input( pegtl_input_t&& in, builtin b = builtin() )
    {
-      const config::value s = config::parse_input( std::move( in ) );
+      const config::value s = config::from_input( std::move( in ) );
 
       if( const auto error = tao::config::schema::internal::validator.validate( s ) ) {
          std::cerr << std::setw( 2 ) << error << std::endl;                                       // TODO: Remove this line...

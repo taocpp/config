@@ -20,9 +20,9 @@ namespace tao
    template< template< typename... > class Traits >
    void unit_test( const std::string& name )
    {
-      const auto cc = config::basic_parse_file< Traits >( name + ".config" );
-      const auto cj = config::basic_parse_file< Traits >( name + "_only_data.jaxn" );
-      const auto jj = json::jaxn::basic_parse_file< Traits >( name + "_only_data.jaxn" );
+      const auto cc = config::basic_from_file< Traits >( name + ".config" );
+      const auto cj = config::basic_from_file< Traits >( name + "_only_data.jaxn" );
+      const auto jj = json::jaxn::basic_from_file< Traits >( name + "_only_data.jaxn" );
 
       const auto ccs = json::jaxn::to_string( cc );
       const auto cjs = json::jaxn::to_string( cj );
