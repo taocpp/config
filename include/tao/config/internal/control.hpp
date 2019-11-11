@@ -46,7 +46,7 @@ namespace tao::config::internal
       {
          assert( !st.rstack.empty() );
 
-         st.temporary.reset();
+         st.temporary.set_uninitialized();
          st.rstack.pop_back();
       }
    };

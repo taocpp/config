@@ -34,7 +34,8 @@ namespace tao::config::internal
       key p;
 
       if( v.is_string() ) {
-         p.emplace_back( part( v.get_string() ) );
+         p.emplace_back( v.get_string() );
+         v.set_uninitialized();
          return p;
       }
       if( !v.is_array() ) {
@@ -43,7 +44,7 @@ namespace tao::config::internal
       for( const auto& t : v.get_array() ) {
          p.emplace_back( value_to_part( t ) );
       }
-      v.reset();
+      v.set_uninitialized();
       return p;
    }
 

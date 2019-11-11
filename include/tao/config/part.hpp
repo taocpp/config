@@ -32,23 +32,23 @@ namespace tao::config
 
       explicit part( const star_t t )
          : m_data( t )
-      {
-      }
+      {}
 
       explicit part( const minus_t t )
          : m_data( t )
-      {
-      }
+      {}
 
       explicit part( const std::uint64_t i )
          : m_data( i )
-      {
-      }
+      {}
 
       explicit part( const std::string& n )
          : m_data( n )
-      {
-      }
+      {}
+
+      explicit part( std::string&& n )
+         : m_data( std::move( n ) )
+      {}
 
       kind type() const noexcept
       {

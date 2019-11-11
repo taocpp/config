@@ -52,7 +52,7 @@ namespace tao::config::internal
       try {
          pegtl::file_input i2( f );
          pegtl::parse< rules::config_file, action, control >( static_cast< pegtl_input_t& >( i2 ), st );
-         st.temporary.reset();
+         st.temporary.set_uninitialized();
       }
       catch( const std::system_error& e ) {
          throw pegtl::parse_error( format( __FILE__, __LINE__, "include failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
@@ -80,7 +80,7 @@ namespace tao::config::internal
       try {
          pegtl::file_input i2( f );
          pegtl::parse< rules::config_file, action, control >( static_cast< pegtl_input_t& >( i2 ), st );
-         st.temporary.reset();
+         st.temporary.set_uninitialized();
       }
       catch( const std::system_error& e ) {
          if( e.code().value() != ENOENT ) {
