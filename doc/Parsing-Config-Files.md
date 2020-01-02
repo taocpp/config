@@ -34,4 +34,4 @@ These methods need not be implemented if the pointer and position information is
 
 For further details please Use The Source, or contact us if you have any questions.
 
-Copyright (c) 2018-2019 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
