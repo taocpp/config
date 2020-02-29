@@ -12,7 +12,7 @@
 
 namespace tao::config::schema::internal
 {
-   inline const value& find( const value& v, const std::string& k )
+   inline const value& find( const value& v, const std::string_view k )
    {
       static const value nope;
       const auto& o = v.get_object();
