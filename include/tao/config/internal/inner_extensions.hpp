@@ -173,6 +173,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string as filename", { st.temporary.type() } ), pos );
    }
 
+#if !defined( _MSC_VER )
    inline void shell_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
@@ -191,6 +192,7 @@ namespace tao::config::internal
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string for shell command", { st.temporary.type() } ), pos );
    }
+#endif
 
    // clang-format off
    struct split_plus_ws : pegtl::plus< pegtl::space > {};
