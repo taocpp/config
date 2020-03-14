@@ -13,6 +13,12 @@
 
 namespace tao::config::internal
 {
+#if defined( __GNUC__ ) || defined( __clang__ )
+   using max_int_t = __int128_t;
+#else
+   using max_int_t = std::int64_t;
+#endif
+
    struct overflow_error
    {
    };
@@ -50,7 +56,7 @@ namespace tao::config::internal
          l.assign( l.template as< double >() + r.get_double() );
          return;
       }
-      __int128_t t = 0;
+      max_int_t t = 0;
 
       if( l.is_signed() ) {
          t += l.get_signed();
@@ -71,13 +77,13 @@ namespace tao::config::internal
          throw addition_error{ l.type(), r.type() };
       }
       if( t >= 0 ) {
-         if( t != __int128_t( std::uint64_t( t ) ) ) {
+         if( t != max_int_t( std::uint64_t( t ) ) ) {
             throw overflow_error();
          }
          l.assign( std::uint64_t( t ) );
       }
       else {
-         if( t != __int128_t( std::int64_t( t ) ) ) {
+         if( t != max_int_t( std::int64_t( t ) ) ) {
             throw overflow_error();
          }
          l.assign( std::int64_t( t ) );

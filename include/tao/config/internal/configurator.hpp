@@ -57,7 +57,9 @@ namespace tao::config::internal
          { "msgpack", internal::make_extension( internal::msgpack_function ) },
          // "parse" does not return a single value.
          { "read", internal::read_extension },
+#if !defined( _MSC_VER )
          { "shell", internal::shell_extension },
+#endif
          { "split", internal::split_extension },
          { "string", internal::make_extension( internal::string_function ) },
          { "ubjson", internal::make_extension( internal::ubjson_function ) }

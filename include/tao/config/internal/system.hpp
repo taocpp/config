@@ -48,6 +48,7 @@ namespace tao::config::internal
       return std::nullopt;
    }
 
+#if !defined( _MSC_VER )
    inline std::string shell_popen_throws( const pegtl::position& pos, const std::string& c )
    {
       errno = 0;
@@ -65,6 +66,7 @@ namespace tao::config::internal
       }
       return r;
    }
+#endif
 
 }  // namespace tao::config::internal
 
