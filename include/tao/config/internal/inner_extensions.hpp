@@ -173,7 +173,6 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string as filename", { st.temporary.type() } ), pos );
    }
 
-#if !defined( _MSC_VER )
    inline void shell_extension( pegtl_input_t& in, state& st )
    {
       const auto pos = in.position();
@@ -182,17 +181,19 @@ namespace tao::config::internal
 
       if( st.temporary.is_string_type() ) {
          const auto v = st.temporary.as< std::string >();
-
+#if defined( _MSC_VER )
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "shell not supported on this platform", { { "command", v } } ), pos );
+#else
          st.temporary.assign( shell_popen_throws( pos, st.temporary.as< std::string >() ), pos );
 
          if( !json::internal::validate_utf8_nothrow( v ) ) {
             throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid utf-8 in shell output", { { "command", v } } ), pos );
          }
+#endif
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string for shell command", { st.temporary.type() } ), pos );
    }
-#endif
 
    // clang-format off
    struct split_plus_ws : pegtl::plus< pegtl::space > {};
