@@ -79,6 +79,8 @@ commas = {
 addition1 = 1 + 2 + 3
 addition2 = true + false
 
+// Note that integers and doubles cannot be mixed in additions.
+
 concatenation1 = "Hello, " + "World"
 concatenation2 = [ 1 2 3 ] + [ 4 5 6 ]  // Yields [ 1 2 3 4 5 6 ]
 

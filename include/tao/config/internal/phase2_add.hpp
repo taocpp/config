@@ -13,16 +13,6 @@
 
 namespace tao::config::internal
 {
-#if defined( __GNUC__ ) || defined( __clang__ )
-   using max_int_t = __int128_t;
-#else
-   using max_int_t = std::int64_t;
-#endif
-
-   struct overflow_error
-   {
-   };
-
    struct addition_error
    {
       json::type l;
@@ -42,52 +32,33 @@ namespace tao::config::internal
 
    inline void phase2_number_add( json::basic_value< value_traits >& l, const json::basic_value< value_traits >& r )
    {
-      if( l.type() == json::type::DOUBLE ) {
-         if( !r.is_number() ) {
-            throw addition_error{ l.type(), r.type() };
+      if( l.is_double() || r.is_double() ) {
+         if( l.is_double() && r.is_double() ) {
+            l.assign( l.get_double() + r.get_double() );
+            return;
          }
-         l.assign( l.get_double() + r.template as< double >() );
-         return;
       }
-      if( r.type() == json::type::DOUBLE ) {
-         if( !l.is_number() ) {
-            assert( false );
+      else if( l.is_signed() ) {
+         if( r.is_signed() ) {
+            l.assign( l.get_signed() + r.get_signed() );
+            return;
          }
-         l.assign( l.template as< double >() + r.get_double() );
-         return;
-      }
-      max_int_t t = 0;
-
-      if( l.is_signed() ) {
-         t += l.get_signed();
+         if( r.is_unsigned() ) {
+            l.assign( l.get_signed() + std::int64_t( r.get_unsigned() ) );
+            return;
+         }
       }
       else if( l.is_unsigned() ) {
-         t += l.get_unsigned();
-      }
-      else {
-         assert( false );
-      }
-      if( r.is_signed() ) {
-         t += r.get_signed();
-      }
-      else if( r.is_unsigned() ) {
-         t += r.get_unsigned();
-      }
-      else {
-         throw addition_error{ l.type(), r.type() };
-      }
-      if( t >= 0 ) {
-         if( t != max_int_t( std::uint64_t( t ) ) ) {
-            throw overflow_error();
+         if( r.is_signed() ) {
+            l.assign( std::int64_t( l.get_unsigned() ) + r.get_signed() );
+            return;
          }
-         l.assign( std::uint64_t( t ) );
-      }
-      else {
-         if( t != max_int_t( std::int64_t( t ) ) ) {
-            throw overflow_error();
+         if( r.is_unsigned() ) {
+            l.assign( l.get_unsigned() + r.get_unsigned() );
+            return;
          }
-         l.assign( std::int64_t( t ) );
       }
+      throw addition_error{ l.type(), r.type() };
    }
 
    inline void phase2_string_add( json::basic_value< value_traits >& l, const json::basic_value< value_traits >& r )
@@ -196,10 +167,6 @@ namespace tao::config::internal
       catch( const addition_error& e ) {
          assert( r.position );
          throw pegtl::parse_error( format( __FILE__, __LINE__, "inconsistent types in addition", { { "left", e.l }, { "right", e.r } } ), *r.position );  // l.position?
-      }
-      catch( const overflow_error& ) {
-         assert( r.position );
-         throw pegtl::parse_error( "numeric overflow in addition", *r.position );  // l.position?
       }
    }
 
