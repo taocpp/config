@@ -1,0 +1,10 @@
+{
+   first: {
+      bar: true,
+      foo: 43
+   },
+   second: {
+      bar: false,
+      foo: 42
+   }
+}
