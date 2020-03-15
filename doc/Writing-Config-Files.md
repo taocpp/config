@@ -219,9 +219,10 @@ A single trailing comma is permitted after the last Array element or last Object
 #!/usr/local/bin/qs
 
 ip: "127.0.0.2",
-port: 27960
-maps: [ "ztn" "dm13", "t9", ]  // Add dm6 or t4?
-,
+port: 27960,
+maps: [ "ztn",
+        "dm13",
+        "t9", ],  // Add dm6 or t4?
 ```
 
 #### Resulting JSON Config Data
@@ -326,17 +327,25 @@ c = false
 }
 ```
 
+Note that `null`, `true` and `false` as Object keys are shortcuts for `"null"`, `"true"` and `"false"`, respectively.
+
 
 
 ## Number Values
+
+Numbers are like in [JAXN], i.e. [JSON] numbers with [extensions](https://github.com/stand-art/jaxn/blob/master/Specification.md#numbers).
 
 
 
 ## String Values
 
+Strings are like in [JAXN], i.e. [JSON] strings with [extensions](https://github.com/stand-art/jaxn/blob/master/Specification.md#strings).
+
 
 
 ## Binary Values
+
+Binary data is also like in [JAXN](https://github.com/stand-art/jaxn/blob/master/Specification.md#binary-data).
 
 
 
