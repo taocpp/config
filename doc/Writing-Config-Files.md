@@ -12,7 +12,7 @@ We assume that the reader is already somewhat familiar with [JSON].
 
 
 
-## General Syntax
+#### General Syntax
 
  * [Example](#example)
  * [Comments](#comments)
@@ -23,18 +23,18 @@ We assume that the reader is already somewhat familiar with [JSON].
  * [Equality Sign](#equality-sign)
  * [Overwriting](#overwriting)
 
-## Atomic Values
+#### Atomic Values
 
  * [Literal Names](#literal-names)
  * [Number Values](#number-values)
  * [String Values](#string-values)
  * [Binary Values](#binary-values)
 
-## Advanced Syntax
+#### Advanced Syntax
 
 * [Complex Keys](#complex-keys)
 
-## Advanced Features
+#### Advanced Features
 
  * [References](#references)
  * [Value Extensions](#value-extensions)
@@ -58,6 +58,8 @@ We assume that the reader is already somewhat familiar with [JSON].
    - [schema](#schema)
    - [stderr](#stderr)
    - [temporary](#temporary)
+
+#### Combined Features
 
 
 
@@ -270,7 +272,8 @@ maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 
 ## Overwriting
 
-The same Object key can be assigned to multiple times in which case the last assignments "wins".
+The same Object key can be assigned to multiple times.
+The last assignment "wins".
 
 #### Example taoCONFIG Input File
 
@@ -349,7 +352,25 @@ c = false
 
 Value extensions produce a single value and can be used wherever a single value was expected.
 
+
 ### binary
+
+The `binary` value extension transforms a string value into a binary value.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (binary "Hello, world!")
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   foo: $48656C6C6F2C20776F726C6421
+}
+```
+
 
 ### cbor
 
@@ -357,7 +378,48 @@ Value extensions produce a single value and can be used wherever a single value 
 
 ### debug
 
+This value extension is a debugging tool and is similar to the `stderr` member extension.
+
+It produces a single string value with the [JSON] representation of the library's internal intermediate data structure for the referenced part of the config data in its current state.
+
+#### Example taoCONFIG Input File
+
+```
+foo = 42
+bar = (debug foo)
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   bar: "{position:\"tests/doc_value_debug.config:1:6\",concat_list:[{clear:true,atom:42}]}",
+   foo: 42
+}
+```
+
+
 ### env
+
+The `env` value extensions obtains the value of an environment variable as string.
+It is an error when the environment variable does not exist unless the `env?` alternative form that also takes a default value is used.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (env "USER")
+bar = (env? "GRMBLFX" "default")
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   bar: "default",
+   foo: "colin"
+}
+```
+
 
 ### jaxn
 
@@ -377,6 +439,10 @@ Note that the `shell` value extension requires Unix or Linux or macOS.
 
 ### string
 
+The `string` value extension transforms a binary value into a string value.
+It validates that the binary data is valid UTF-8 and produces an error if not.
+
+
 ### ubjson
 
 
@@ -391,10 +457,12 @@ Member extensions use the same syntax as value extensions, however they take the
 
 ### schema
 
+
 ### stderr
 
-This member extension is a debugging tool.
-It prints a JSON representation of the library's internal intermediate data structure to the standard error channel.
+This member extension is a debugging tool and is similar to the `debug` value extension.
+
+It prints a JSON representation of the library's internal intermediate data structure for the referenced part of the config data in its current state to the standard error channel.
 The config value itself does not change through the presence or absence of "stderr members".
 
 #### Example taoCONFIG Input File
@@ -426,6 +494,7 @@ foo = 42
    foo: 42
 }
 ```
+
 
 ### temporary
 

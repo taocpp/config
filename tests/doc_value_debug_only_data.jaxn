@@ -1,0 +1,4 @@
+{
+   bar: "{position:\"tests/doc_value_debug.config:1:6\",concat_list:[{clear:true,atom:42}]}",
+   foo: 42
+}
