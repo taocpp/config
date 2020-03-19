@@ -14,34 +14,26 @@ It should be kept in mind that evaluating a config file to a [JSON] object is pe
 1. The first phase, which takes care of everything besides [references](#references) and addition/concatenation, is imperative in nature in that everything happens in the order it occurs in the config file(s).
 2. The second phase, which takes care of resolving [references](#references) and performing additions and concatenations, is more declarative in nature in that order is not important as long as there are no cycles.
 
-Please note that, for now, this document shows basic use cases for all features, but not the details and complexities of how all the features (can) interact with each other.
+Please note that, for now, this document shows basic use cases for all features, but not much else.
+It also does not go into the details and complexities of how all the features (can) interact with each other.
 
 
 
-#### [General Syntax](#general-syntax)
-
- * [Example](#example)
- * [Comments](#comments)
- * [Object Keys](#object-keys)
- * [Implicit Object](#implicit-object)
- * [Implicit Commas](#implicit-commas)
- * [Trailing Commas](#trailing-commas)
- * [Equality Sign](#equality-sign)
- * [Overwriting](#overwriting)
-
-#### Atomic Values
-
- * [Literal Names](#literal-names)
- * [Number Values](#number-values)
- * [String Values](#string-values)
- * [Binary Values](#binary-values)
-
-#### Advanced Syntax
-
-* [Complex Keys](#complex-keys)
-
-#### Advanced Features
-
+ * [General Syntax](#general-syntax)
+   - [Example](#example)
+   - [Comments](#comments)
+   - [Object Keys](#object-keys)
+   - [Implicit Object](#implicit-object)
+   - [Implicit Commas](#implicit-commas)
+   - [Trailing Commas](#trailing-commas)
+   - [Equality Sign](#equality-sign)
+   - [Overwriting](#overwriting)
+ * [Atomic Values](#atomic-values)
+   - [Literal Names](#literal-names)
+   - [Number Values](#number-values)
+   - [String Values](#string-values)
+   - [Binary Values](#binary-values)
+ * [Complex Keys](#complex-keys)
  * [References](#references)
  * [Value Extensions](#value-extensions)
    - [binary](#binary)
@@ -66,16 +58,12 @@ Please note that, for now, this document shows basic use cases for all features,
    - [stderr](#stderr)
    - [temporary](#temporary)
 
-#### Combining Features
- * [Two Phase Model](#two-phase-model)
 
----
 
 # General Syntax
 
 This section is in tutorial form.
 It takes a simple [JSON] compliant config file and introduces the general syntactic extensions featured by [taoCONFIG] one by one, and also shows how the example can be subsequently transformed to a more config-like style.
-
 
 
 ## Example
@@ -91,7 +79,6 @@ This very simple example [JSON] file will be transformed by using the syntactic 
    "maps": [ "ztn", "dm13", "t9" ]
 }
 ```
-
 
 
 ## Comments
@@ -128,7 +115,6 @@ All comments that are allowed in [JAXN] can be used in config files, namely
 ```
 
 
-
 ## Object Keys
 
 Object keys can use single quotation marks instead of the standard [JSON] double quotation marks.
@@ -161,7 +147,6 @@ Object keys that are C-style identifiers (non-empty sequences of ASCII character
 ```
 
 
-
 ## Implicit Object
 
 The curly braces for the top-level object are optional and can be omitted.
@@ -189,7 +174,6 @@ maps: [ "ztn", "dm13", "t9" ]  // Add dm6 or t4?
    "port": 27960
 }
 ```
-
 
 
 ## Implicit Commas
@@ -223,7 +207,6 @@ maps: [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 Note that every single separating comma is individually optional and can be included or omitted.
 
 
-
 ## Trailing Commas
 
 A single trailing comma is permitted after the last array element or last object member, including after the last member of the implicit top-level object.
@@ -255,7 +238,6 @@ maps: [ "ztn",
 ```
 
 
-
 ## Equality Sign
 
 The equality sign `=` can be used instead of the standard [JSON] colon `:` to separate the key and value of an object member.
@@ -283,7 +265,6 @@ maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
    "port": 27960
 }
 ```
-
 
 
 ## Overwriting
@@ -318,10 +299,9 @@ maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 
 Note that overwriting earlier values can be done on top-level or in any arbitrarily deeply nested part of the config.
 
----
+
 
 # Atomic Values
-
 
 
 ## Literal Names
@@ -349,11 +329,9 @@ c = false
 Note that `null`, `true` and `false` as object keys are shortcuts for `"null"`, `"true"` and `"false"`, respectively.
 
 
-
 ## Number Values
 
 Numbers are like in [JAXN], i.e. [JSON] numbers with [extensions](https://github.com/stand-art/jaxn/blob/master/Specification.md#numbers).
-
 
 
 ## String Values
@@ -361,27 +339,24 @@ Numbers are like in [JAXN], i.e. [JSON] numbers with [extensions](https://github
 Strings are like in [JAXN], i.e. [JSON] strings with [extensions](https://github.com/stand-art/jaxn/blob/master/Specification.md#strings).
 
 
-
 ## Binary Values
 
 [Binary data](https://github.com/stand-art/jaxn/blob/master/Specification.md#binary-data) is also like in [JAXN].
 
 
-
 ## Complex Keys
-
 
 
 ## References
 
 
 
-## Value Extensions
+# Value Extensions
 
 Value extensions produce a single value and can be used wherever a single value was expected.
 
 
-### binary
+## binary
 
 The `binary` value extension transforms a string value into a binary value.
 
@@ -400,11 +375,13 @@ foo = (binary "Hello, world!")
 ```
 
 
-### cbor
+## cbor
 
-### copy
 
-### debug
+## copy
+
+
+## debug
 
 This value extension is a debugging tool and is similar to the `stderr` member extension.
 
@@ -427,7 +404,7 @@ bar = (debug foo)
 ```
 
 
-### env
+## env
 
 The `env` value extensions obtain the value of an environment variable as string.
 For plain `env` it is an error when the environment variable does not exist, the `env?` alternative form returns a default value.
@@ -449,38 +426,59 @@ bar = (env? "GRMBLFX" "default")
 ```
 
 
-### jaxn
+## jaxn
 
-### json
 
-### msgpack
+## json
 
-### parse
 
-### read
+## msgpack
 
-### shell
+
+## parse
+
+
+## read
+
+
+## shell
 
 Note that the `shell` value extension requires Unix or Linux or macOS.
 
-### split
 
-### string
+## split
+
+
+## string
 
 The `string` value extension transforms a binary value into a string value.
 It validates that the binary data is valid UTF-8 and produces an error if not.
 
+#### Example taoCONFIG Input File
 
-### ubjson
+```
+foo = $48656C6C6F2C20776F726C6421
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   foo: "Hello, world!"
+}
+```
+
+
+## ubjson
 
 
 
-## Member Extensions
+# Member Extensions
 
 Member extensions use the same syntax as value extensions, however they take the place of JSON object members.
 
 
-### delete
+## delete
 
 The `delete` member extensions delete a value (and all of its sub-values) from the config.
 For plain `delete` it is an error if the value does not exist, the `delete?` alternative form is idempotent and never reports an error.
@@ -505,19 +503,18 @@ bar = "RL"
 ```
 
 
-### include
+## include
 
 
-### schema
+## schema
 
 
-### setenv
+## setenv
 
 *The `setenv` member extension only exists to make the examples self-contained and independent of the environment they run in.*
 
 
-
-### stderr
+## stderr
 
 This member extension is a debugging tool and is similar to the `debug` value extension.
 
@@ -555,7 +552,7 @@ foo = 42
 ```
 
 
-### temporary
+## temporary
 
 A part of the config can be marked as _temporary_ meaning that it will be removed from the final result after reading is complete.
 Marking a part of the config as _temporary_ can be done before or after the marked part of the config was (first) defined.
@@ -598,15 +595,6 @@ second = (template) +
 }
 
 ```
-
-
-
-## Two Phase Model
-
-Evaluating a config file is done in two phases.
-Resolving [references](#references) and performing additions/concatenations are delayed to the second phase, everything else happens immediately during the first phase.
-For more details see [Two Phase Evaluation](Two-Phase-Evaluation.md).
-
 
 
 
