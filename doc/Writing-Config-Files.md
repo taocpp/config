@@ -469,7 +469,7 @@ foo = (jaxn '[Infinity, $ff]')
 }
 ```
 
-Note that `jaxn` is frequently combined with `string` and `read` as in `foo = (jaxn (string (read "filename.cbor")))`.
+Note that `jaxn` is frequently combined with `string` and `read` as in `foo = (jaxn (string (read "filename.jaxn")))`.
 
 
 ## json
@@ -493,7 +493,7 @@ foo = (json '["a","b"]')
 }
 ```
 
-Note that `json` is frequently combined with `string` and `read` as in `foo = (json (string (read "filename.cbor")))`.
+Note that `json` is frequently combined with `string` and `read` as in `foo = (json (string (read "filename.json")))`.
 
 
 ## msgpack
