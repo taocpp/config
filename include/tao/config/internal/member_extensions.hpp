@@ -116,6 +116,7 @@ namespace tao::config::internal
       const auto pos = in.position();
 
       const auto n = obtain_string( in );
+      pegtl::parse< pegtl::must< rules::wsp > >( in );
       const auto v = obtain_string( in );
 
 #if defined( _MSC_VER )

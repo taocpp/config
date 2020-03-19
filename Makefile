@@ -13,11 +13,6 @@ BINARIES := $(SOURCES:%.cpp=build/%)
 TESTFILES := $(shell find tests -name '*.config')
 TESTCASES := $(TESTFILES:%.config=%)
 
-export VARIABLE := variable
-export TEXTFILE := tests/showcase.t
-export JSONFILE := tests/showcase.j
-export CONFIGFILE := tests/showcase.c
-
 .PHONY: all check clean
 
 all: check $(BINARIES)

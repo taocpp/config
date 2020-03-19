@@ -243,19 +243,34 @@ namespace tao::config::internal
    {
       const auto pos = in.position();
 
-      if( pegtl::parse< rules::inner, action, control >( in, st ) ) {
-         const auto ext = std::move( st.extension );
-         const auto& map = st.value_extensions;
-         const auto i = map.find( ext );
+      if( !in.empty() ) {
+         switch( in.peek_char() ) {
+            case '(':
+               if( pegtl::parse< rules::inner, action, control >( in, st ) ) {
+                  const auto ext = std::move( st.extension );
+                  const auto& map = st.value_extensions;
+                  const auto i = map.find( ext );
 
-         if( i != map.end() ) {
-            i->second( in, st );
-            pegtl::parse< pegtl::must< rules::round_z > >( in );
-            return;
+                  if( i != map.end() ) {
+                     i->second( in, st );
+                     pegtl::parse< pegtl::must< rules::round_z > >( in );
+                     return;
+                  }
+                  throw pegtl::parse_error( format( __FILE__, __LINE__, "unknown value extension", { { "name", ext } } ), pos );
+               }
+               break;
+            case '\'':
+            case '"':
+               st.temporary.assign( obtain_string( in ), pos );
+               return;
+            case '$':
+               st.temporary.assign( obtain_binary( in ), pos );
+               return;
+            default:
+               break;
          }
-         throw pegtl::parse_error( format( __FILE__, __LINE__, "unknown value extension", { { "name", ext } } ), pos );
       }
-      st.temporary.assign( obtain_string( in ), pos );
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid value extension", {} ), pos );
    }
 
 }  // namespace tao::config::internal
