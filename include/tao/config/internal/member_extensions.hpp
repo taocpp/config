@@ -13,6 +13,7 @@
 #include "inner_extensions.hpp"
 #include "phase1_access.hpp"
 #include "phase1_erase.hpp"
+#include "system.hpp"
 
 namespace tao::config::internal
 {
@@ -108,6 +109,20 @@ namespace tao::config::internal
          return;
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "schema requires string or null", { st.temporary.type() } ), pos );
+   }
+
+   inline void setenv_extension( pegtl_input_t& in, state& )
+   {
+      const auto pos = in.position();
+
+      const auto n = obtain_string( in );
+      const auto v = obtain_string( in );
+
+#if defined( _MSC_VER )
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "setenv not supported on this platform", { { "name", n }, { "value", v } } ), pos );
+#else
+      set_env_throws( pos, n, v );
+#endif
    }
 
    inline void stderr_extension( pegtl_input_t& in, state& st )

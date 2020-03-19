@@ -40,6 +40,7 @@ namespace tao::config::internal
          { "include", internal::include_extension },
          { "include?", internal::include_if_extension },
          { "schema", internal::schema_extension },
+         { "setenv", internal::setenv_extension },
          { "stderr", internal::stderr_extension },
          { "temporary", internal::temporary_extension }
       };

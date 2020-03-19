@@ -37,7 +37,7 @@ namespace tao::config::internal
       if( const char* r = std::getenv( e.c_str() ) ) {
          return std::string( r );
       }
-      throw pegtl::parse_error( format( __FILE__, __LINE__, "environment variable not found", { { "variable", e } } ), pos );
+      throw pegtl::parse_error( format( __FILE__, __LINE__, "environment variable not found", { { "name", e } } ), pos );
    }
 
    inline std::optional< std::string > get_env_nothrow( const std::string& e )
@@ -49,6 +49,15 @@ namespace tao::config::internal
    }
 
 #if !defined( _MSC_VER )
+   inline void set_env_throws( const pegtl::position& pos, const std::string& name, const std::string& value )
+   {
+      errno = 0;
+      if( ::setenv( name.c_str(), value.c_str(), 1 ) != 0 ) {
+         const auto e = errno;
+         throw pegtl::parse_error( format( __FILE__, __LINE__, "failed to set environment variable", { { "name", name }, { "value", value }, { "errno", e } } ), pos );
+      }
+   }
+
    inline std::string shell_popen_throws( const pegtl::position& pos, const std::string& c )
    {
       errno = 0;

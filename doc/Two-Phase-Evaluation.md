@@ -1,16 +1,16 @@
 # Two Phase Evaluation
 
-The evaluation of config files to produce a single JSON object as output is based on two phases.
+The evaluation of config files that produces a single JSON object as output is based on two phases.
 
 ## Phase One
 
 During parsing, all Phase One features are evaluated immediately as they are encountered in the config file.
 
-Most features are Phase One, i.e. everything except for references and, consequently, additions (or concatenations).
+Most features are Phase One, i.e. everything except for references and additions/concatenations.
 
-*References are the only reason that additions need to be stored in the intermediate data structure.
-Most additions are not performed until Phase Two; when an operand is a reference it is necessary to delay the addition to after the reference was resolved to a value.
-Otherwise additions could be performed while parsing like in JAXN.*
+*References are the only reason that additions/concatenations need to be stored in the intermediate data structure.
+Most additions/concatenations are not performed until Phase Two; when an operand is a reference it is necessary to delay the addition/concatenation to after the reference was resolved to a value.
+Otherwise additions/concatenations could be performed while parsing like they are in JAXN.*
 
 The resulting data structure can be conceptually imagined as JSON (actually JAXN) with two extensions:
 
@@ -23,9 +23,9 @@ A `concat` consists of a `std::list< entry >`.*
 
 ## Phase Two
 
-During Phase Two, all references are resolved, and all additions (concatenations) are performed.
+During Phase Two, all references are resolved, and all additions/concatenations are performed.
 
-In this phase the order in which references are resolved, and the additions performed, is irrelevant, as long as the references do not form a cycle, and the additions are performed when all operands that were references are resolved to values.
+In this phase the order in which references are resolved, and the additions/concatenations performed, is irrelevant, as long as the references do not form a cycle, and the additions/concatenations are only performed when all operands that were references are resolved to values.
 
 ## Rationale
 

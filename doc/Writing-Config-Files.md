@@ -2,17 +2,23 @@
 
 *Warning: The documentation is still work-in-progress and very incomplete.*
 
-The config file syntax is based on [JSON] and is completely backwards compatible:
+---
 
-**Every [JSON]** or [JAXN] **file** with a top-level Object **is a valid [taoCONFIG] file**.
+The config file syntax is based on [JSON] and is completely backwards compatible:
+**Every [JSON]** or [JAXN] **file** with a top-level [JSON] object **is a valid [taoCONFIG] file**.
 
 The data model is also based on [JSON] and corresponds exactly to the [JAXN] data model as implemented by the [taoJSON] library.
+We assume that the reader is at least somewhat familiar with [JSON].
 
-We assume that the reader is already somewhat familiar with [JSON].
+It should be kept in mind that evaluating a config file to a [JSON] object is performed in [two phases](Two-Phase-Evaluation.md).
+1. The first phase, which takes care of everything besides [references](#references) and addition/concatenation, is imperative in nature in that everything happens in the order it occurs in the config file(s).
+2. The second phase, which takes care of resolving [references](#references) and performing additions and concatenations, is more declarative in nature in that order is not important as long as there are no cycles.
+
+Please note that, for now, this document shows basic use cases for all features, but not the details and complexities of how all the features (can) interact with each other.
 
 
 
-#### General Syntax
+#### [General Syntax](#general-syntax)
 
  * [Example](#example)
  * [Comments](#comments)
@@ -56,10 +62,19 @@ We assume that the reader is already somewhat familiar with [JSON].
    - [delete](#delete)
    - [include](#include)
    - [schema](#schema)
+   - [setenv](#setenv)
    - [stderr](#stderr)
    - [temporary](#temporary)
 
-#### Combined Features
+#### Combining Features
+ * [Two Phase Model](#two-phase-model)
+
+---
+
+# General Syntax
+
+This section is in tutorial form.
+It takes a simple [JSON] compliant config file and introduces the general syntactic extensions featured by [taoCONFIG] one by one, and also shows how the example can be subsequently transformed to a more config-like style.
 
 
 
@@ -149,7 +164,7 @@ Object keys that are C-style identifiers (non-empty sequences of ASCII character
 
 ## Implicit Object
 
-The curly braces for the top-level Object are optional and can be omitted.
+The curly braces for the top-level object are optional and can be omitted.
 
 #### Example taoCONFIG Input File
 
@@ -179,7 +194,7 @@ maps: [ "ztn", "dm13", "t9" ]  // Add dm6 or t4?
 
 ## Implicit Commas
 
-The commas separating Array elements and Object members are also optional and can be omitted.
+The commas separating array elements and object members are also optional and can be omitted.
 
 #### Example taoCONFIG Input File
 
@@ -211,7 +226,7 @@ Note that every single separating comma is individually optional and can be incl
 
 ## Trailing Commas
 
-A single trailing comma is permitted after the last Array element or last Object member, including after the last member of the implicit top-level Object.
+A single trailing comma is permitted after the last array element or last object member, including after the last member of the implicit top-level object.
 
 #### Example taoCONFIG Input File
 
@@ -243,7 +258,7 @@ maps: [ "ztn",
 
 ## Equality Sign
 
-The equality sign `=` can be used instead of the standard [JSON] colon `:` to separate the key and value of an Object member.
+The equality sign `=` can be used instead of the standard [JSON] colon `:` to separate the key and value of an object member.
 
 #### Example taoCONFIG Input File
 
@@ -273,7 +288,7 @@ maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 
 ## Overwriting
 
-The same Object key can be assigned to multiple times.
+The same object key can be assigned to multiple times.
 The last assignment "wins".
 
 #### Example taoCONFIG Input File
@@ -281,7 +296,7 @@ The last assignment "wins".
 ```
 #!/usr/local/bin/qs
 
-port = 26000
+port = "TODO!"
 ip = "127.0.0.2"
 port = 27960
 maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
@@ -301,13 +316,17 @@ maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 }
 ```
 
-Note that overwriting earlier values can be done on top-level or in any arbitrarily deeply nested part of the config, and it does not need to preserve the type of the value.
+Note that overwriting earlier values can be done on top-level or in any arbitrarily deeply nested part of the config.
+
+---
+
+# Atomic Values
 
 
 
 ## Literal Names
 
-The three literal names `null`, `true` and `false` are copied over from [JSON].
+The three literal names `null`, `true` and `false` are carred over from [JSON].
 
 #### Example taoCONFIG Input File
 
@@ -327,7 +346,7 @@ c = false
 }
 ```
 
-Note that `null`, `true` and `false` as Object keys are shortcuts for `"null"`, `"true"` and `"false"`, respectively.
+Note that `null`, `true` and `false` as object keys are shortcuts for `"null"`, `"true"` and `"false"`, respectively.
 
 
 
@@ -345,7 +364,7 @@ Strings are like in [JAXN], i.e. [JSON] strings with [extensions](https://github
 
 ## Binary Values
 
-Binary data is also like in [JAXN](https://github.com/stand-art/jaxn/blob/master/Specification.md#binary-data).
+[Binary data](https://github.com/stand-art/jaxn/blob/master/Specification.md#binary-data) is also like in [JAXN].
 
 
 
@@ -410,8 +429,8 @@ bar = (debug foo)
 
 ### env
 
-The `env` value extensions obtains the value of an environment variable as string.
-It is an error when the environment variable does not exist unless the `env?` alternative form that also takes a default value is used.
+The `env` value extensions obtain the value of an environment variable as string.
+For plain `env` it is an error when the environment variable does not exist, the `env?` alternative form returns a default value.
 
 #### Example taoCONFIG Input File
 
@@ -458,13 +477,44 @@ It validates that the binary data is valid UTF-8 and produces an error if not.
 
 ## Member Extensions
 
-Member extensions use the same syntax as value extensions, however they take the place of JSON Object members.
+Member extensions use the same syntax as value extensions, however they take the place of JSON object members.
+
 
 ### delete
 
+The `delete` member extensions delete a value (and all of its sub-values) from the config.
+For plain `delete` it is an error if the value does not exist, the `delete?` alternative form is idempotent and never reports an error.
+Values that were deleted can be assigned to again later.
+
+#### Example taoCONFIG Input File
+
+```
+foo = "LG"
+bar = "RL"
+
+(delete foo)
+(delete? baz)
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   bar: "RL"
+}
+```
+
+
 ### include
 
+
 ### schema
+
+
+### setenv
+
+*The `setenv` member extension only exists to make the examples self-contained and independent of the environment they run in.*
+
 
 
 ### stderr
@@ -548,6 +598,17 @@ second = (template) +
 }
 
 ```
+
+
+
+## Two Phase Model
+
+Evaluating a config file is done in two phases.
+Resolving [references](#references) and performing additions/concatenations are delayed to the second phase, everything else happens immediately during the first phase.
+For more details see [Two Phase Evaluation](Two-Phase-Evaluation.md).
+
+
+
 
 Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
 
