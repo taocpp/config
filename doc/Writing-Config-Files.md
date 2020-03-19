@@ -457,7 +457,7 @@ It validates that the binary data is valid UTF-8 and produces an error if not.
 #### Example taoCONFIG Input File
 
 ```
-foo = $48656C6C6F2C20776F726C6421
+foo = (string $48656C6C6F2C20776F726C6421)
 ```
 
 #### Resulting JAXN Config Data
