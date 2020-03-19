@@ -353,7 +353,8 @@ Strings are like in [JAXN], i.e. [JSON] strings with [extensions](https://github
 
 # Value Extensions
 
-Value extensions produce a single value and can be used wherever a single value was expected.
+Value extensions produce a [JAXN] value and can be used wherever a value is expected.
+Note that whitespace is significant within value extensions, i.e. whitespace must be used as shown and comments are forbidden.
 
 
 ## binary
@@ -376,6 +377,27 @@ foo = (binary "Hello, world!")
 
 
 ## cbor
+
+The `cbor` value extension parses binary data as [CBOR] and returns the resulting value.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (cbor $82f5f4)
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   foo: [
+      true,
+      false
+   ]
+}
+```
+
+Note that `cbor` is frequently combined with `read` as in `foo = (cbor (read "filename.cbor"))`.
 
 
 ## copy
@@ -428,17 +450,100 @@ bar = (env? "GRMBLFX" "default")
 
 ## jaxn
 
+The `jaxn` value extension parses string data as [JAXN] and returns the resulting value.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (jaxn '[Infinity, $ff]')
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   foo: [
+      Infinity,
+      $FF
+   ]
+}
+```
+
+Note that `jaxn` is frequently combined with `string` and `read` as in `foo = (jaxn (string (read "filename.cbor")))`.
+
 
 ## json
 
+The `json` value extension parses string data as [JSON] and returns the resulting value.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (json '["a","b"]')
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   foo: [
+      "a",
+      "b"
+   ]
+}
+```
+
+Note that `json` is frequently combined with `string` and `read` as in `foo = (json (string (read "filename.cbor")))`.
+
 
 ## msgpack
+
+The `msgpack` value extension parses binary data as [MsgPack] and returns the resulting value.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (msgpack $82a161c3a162c2)
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   foo: {
+      a: true,
+      b: false
+   }
+}
+```
+
+Note that `msgpack` is frequently combined with `read` as in `foo = (msgpack (read "filename.msgpack"))`.
 
 
 ## parse
 
 
 ## read
+
+The `read` file extension reads the contents of a file and returns them as binary data.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (read "tests/doc_value_read.config")
+bar = (string (read "tests/doc_value_read.config"))
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   bar: "foo = (read \"tests/doc_value_read.config\")\nbar = (string (read \"tests/doc_value_read.config\"))\n",
+   foo: $666F6F203D202872656164202274657374732F646F635F76616C75655F726561642E636F6E66696722290A626172203D2028737472696E67202872656164202274657374732F646F635F76616C75655F726561642E636F6E6669672229290A
+}
+```
+
+Note that `read` must be combined with `string` in order to validate the data as UTF-8 and transform it into a string.
 
 
 ## shell
@@ -471,11 +576,30 @@ foo = (string $48656C6C6F2C20776F726C6421)
 
 ## ubjson
 
+The `ubjson` value extension parses binary data as [UBJSON] and returns the resulting value.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (ubjson $4344)
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   foo: "D"
+}
+```
+
+Note that `ubjson` is frequently combined with `read` as in `foo = (ubjson (read "filename.ubjson"))`.
+
 
 
 # Member Extensions
 
 Member extensions use the same syntax as value extensions, however they take the place of JSON object members.
+Note that whitespace is significant within member extensions, i.e. whitespace must be used as shown and comments are forbidden.
 
 
 ## delete
@@ -600,7 +724,10 @@ second = (template) +
 
 Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
 
+[CBOR]: http://cbor.io
 [JAXN]: https://github.com/stand-art/jaxn
 [JSON]: https://tools.ietf.org/html/rfc8259
+[MsgPack]: http://msgpack.org
 [taoCONFIG]: https://github.com/taocpp/config
 [taoJSON]: https://github.com/taocpp/json
+[UBJSON]: http://ubjson.org

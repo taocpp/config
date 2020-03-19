@@ -85,9 +85,9 @@ namespace tao::config::internal
       return std::vector< std::byte >( sp, sp + sv.size() );
    }
 
-   inline json_t cbor_function( const std::string_view sv )  // TODO: Or binary_view?
+   inline json_t cbor_function( const tao::binary_view bv )
    {
-      return json::cbor::basic_from_string< value_traits >( sv );  // TODO: Positions.
+      return json::cbor::basic_from_binary< value_traits >( bv );  // TODO: Positions.
    }
 
    inline void env_extension( pegtl_input_t& in, state& st )
@@ -136,9 +136,9 @@ namespace tao::config::internal
       return json::basic_from_string< value_traits >( sv );  // TODO: Positions.
    }
 
-   inline json_t msgpack_function( const std::string_view sv )  // TODO: Or binary_view?
+   inline json_t msgpack_function( const tao::binary_view bv )
    {
-      return json::msgpack::basic_from_string< value_traits >( sv );  // TODO: Positions.
+      return json::msgpack::basic_from_binary< value_traits >( bv );  // TODO: Positions.
    }
 
    inline void parse_extension( pegtl_input_t& in, state& st )
@@ -234,9 +234,9 @@ namespace tao::config::internal
       return std::string( reinterpret_cast< const char* >( bv.data() ), bv.size() );
    }
 
-   inline json_t ubjson_function( const std::string_view sv )  // TODO: binary_view?
+   inline json_t ubjson_function( const tao::binary_view bv )
    {
-      return json::ubjson::basic_from_string< value_traits >( sv );  // TODO: Positions.
+      return json::ubjson::basic_from_binary< value_traits >( bv );  // TODO: Positions.
    }
 
    inline void do_inner_extension( pegtl_input_t& in, state& st )
