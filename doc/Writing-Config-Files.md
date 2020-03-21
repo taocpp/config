@@ -14,7 +14,7 @@ It should be kept in mind that evaluating a config file to a [JSON] object is pe
 1. The first phase, which takes care of everything besides [references](#references) and addition/concatenation, is imperative in nature in that everything happens in the order it occurs in the config file(s).
 2. The second phase, which takes care of resolving [references](#references) and performing additions and concatenations, is more declarative in nature in that order is not important as long as there are no cycles.
 
-Please note that, for now, this document shows basic use cases for all features, but not much else.
+Please note that, for now, this document shows basic use cases for all features, but not much beyond that.
 It also does not go into the details and complexities of how all the features (can) interact with each other.
 
 
@@ -548,16 +548,53 @@ Note that `read` must be combined with `string` in order to validate the data as
 
 ## shell
 
-Note that the `shell` value extension requires Unix or Linux or macOS.
+The `shell` value extension execute the given string as shell script and returns its output.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (shell "uname -s")
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   foo: "Darwin\n"
+}
+```
+
+Note that availability and behaviour of the  `shell` value extension are inherently system dependent.
+Currently it is only supported on Unix-style operating system like Linux and macOS.
 
 
 ## split
+
+The `split` value extensions splits a string into its space-separated components and returns an array of them where "space" is a non-empty sequence of `' ', '\n', '\r', '\t', '\v' and/or '\f'` characters.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (split "a b c ")
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   foo: [
+      "a",
+      "b",
+      "c"
+   ]
+}
+```
 
 
 ## string
 
 The `string` value extension transforms a binary value into a string value.
-It validates that the binary data is valid UTF-8 and produces an error if not.
+It validates that the binary data is valid UTF-8 and produces an error if that is not the case.
 
 #### Example taoCONFIG Input File
 
@@ -632,10 +669,56 @@ bar = "RL"
 
 ## schema
 
+The `schema` member extension tells the config library which [schema file](Writing-Schema-Files.cfg) the config must adhere to.
+After reading the config file(s), the schema file from the last `schema` directive, if any, is read, and the config is checked against it.
+
+#### Example taoCONFIG Input File
+
+```
+ip = "127.0.0.1"
+port = 42
+
+(schema "tests/doc_member_schema.schema")
+```
+
+#### Example taoCONFIG Schema File
+
+```
+definitions
+{
+    port
+    {
+        type: "std.unsigned"
+        minimum: 1
+        maximum: 65535
+    }
+}
+
+properties
+{
+    required
+    {
+        ip: "std.net.ip_v4_address"
+        port: "port"
+    }
+}
+```
+
+#### Resulting Printed Debug Data
+
+```javascript
+{
+   ip: "127.0.0.1",
+   port: 42
+}
+```
+
+For more on schemas [please consult the page on how to write schema files](Writing-Schema-Files.md).
+
 
 ## setenv
 
-*The `setenv` member extension only exists to make the examples self-contained and independent of the environment they run in.*
+*The `setenv` member extension only exists to make the examples independent of their environment.*
 
 
 ## stderr
