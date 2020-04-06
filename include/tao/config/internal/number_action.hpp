@@ -40,20 +40,20 @@ namespace tao::config::internal
    };
 
    template<>
-   struct number_action< json::jaxn::internal::rules::nan >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::nan >
+   struct number_action< json::jaxn::internal::rules::kw_nan >
+      : public json::jaxn::internal::action< json::jaxn::internal::rules::kw_nan >
    {
    };
 
    template<>
-   struct number_action< json::jaxn::internal::rules::infinity< false > >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::infinity< false > >
+   struct number_action< json::jaxn::internal::rules::kw_infinity< false > >
+      : public json::jaxn::internal::action< json::jaxn::internal::rules::kw_infinity< false > >
    {
    };
 
    template<>
-   struct number_action< json::jaxn::internal::rules::infinity< true > >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::infinity< true > >
+   struct number_action< json::jaxn::internal::rules::kw_infinity< true > >
+      : public json::jaxn::internal::action< json::jaxn::internal::rules::kw_infinity< true > >
    {
    };
 
