@@ -15,10 +15,10 @@ namespace tao::config
       config::key key;
       json::position position;  // TODO: json::position, pegtl::position or TBD config::position?
 
-      annotation() noexcept = default;
+      annotation() = default;
 
-      annotation( annotation&& ) noexcept = default;
-      annotation& operator=( annotation&& ) noexcept = default;
+      annotation( annotation&& ) = default;
+      annotation& operator=( annotation&& ) = default;
 
       annotation( const annotation& ) = default;
       annotation& operator=( const annotation& ) = default;

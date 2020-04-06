@@ -64,10 +64,10 @@ namespace tao::config
    struct key
       : public std::vector< part >
    {
-      key() noexcept = default;
+      key() = default;
 
-      key( key&& ) noexcept = default;
-      key& operator=( key&& ) noexcept = default;
+      key( key&& ) = default;
+      key& operator=( key&& ) = default;
 
       key( const key& ) = default;
       key& operator=( const key& ) = default;

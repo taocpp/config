@@ -18,12 +18,12 @@ namespace tao::config::internal
 
       std::optional< pegtl::position > position;
 
-      annotation() noexcept = default;
+      annotation() = default;
 
-      annotation( annotation&& ) noexcept = default;
+      annotation( annotation&& ) = default;
       annotation( const annotation& ) = default;
 
-      annotation& operator=( annotation&& ) noexcept = default;
+      annotation& operator=( annotation&& ) = default;
       annotation& operator=( const annotation& ) = default;
 
       annotation( pegtl::position&& pos ) noexcept
