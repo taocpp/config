@@ -21,7 +21,7 @@ check: build/src/test/config/tests
 	build/src/test/config/tests $(TESTCASES)
 
 clean:
-	rm -rf build/src
+	rm -rf build/*
 
 build/%.d: %.cpp Makefile
 	@mkdir -p $(@D)
