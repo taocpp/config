@@ -4,7 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_TYPE_TRAITS_HPP
 #define TAO_CONFIG_INTERNAL_TYPE_TRAITS_HPP
 
-#include <type_traits>
+#include <utility>
 
 #include "../key.hpp"
 
@@ -14,28 +14,16 @@
 namespace tao::config::internal
 {
    template< typename V, typename = void >
-   struct has_set_key
-      : public std::false_type
-   {
-   };
+   inline constexpr bool has_set_key = false;
 
    template< typename V >
-   struct has_set_key< V, decltype( std::declval< V >().public_base().set_key( std::declval< const config::key& >() ), void() ) >
-      : public std::true_type
-   {
-   };
+   inline constexpr bool has_set_key< V, decltype( std::declval< V >().public_base().set_key( std::declval< const config::key& >() ), void() ) > = true;
 
    template< typename V, typename = void >
-   struct has_set_position
-      : public std::false_type
-   {
-   };
+   inline constexpr bool has_set_position = false;
 
    template< typename V >
-   struct has_set_position< V, decltype( std::declval< V >().public_base().set_position( std::declval< const pegtl::position& >() ), void() ) >
-      : public std::true_type
-   {
-   };
+   inline constexpr bool has_set_position< V, decltype( std::declval< V >().public_base().set_position( std::declval< const pegtl::position& >() ), void() ) > = true;
 
 }  // namespace tao::config::internal
 

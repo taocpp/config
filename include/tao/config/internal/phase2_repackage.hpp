@@ -74,10 +74,10 @@ namespace tao::config::internal
       json::events::to_basic_value< Traits > consumer;
       json::events::from_value( consumer, v );
 
-      if constexpr( has_set_key< json::basic_value< Traits > >::value ) {
+      if constexpr( has_set_key< json::basic_value< Traits > > ) {
          phase2_set_keys( consumer.value, config::key() );
       }
-      if constexpr( has_set_position< json::basic_value< Traits > >::value ) {
+      if constexpr( has_set_position< json::basic_value< Traits > > ) {
          phase2_set_positions( consumer.value, v );
          consumer.value.set_position( json::position( "(root)", 1, 0 ) );
       }
