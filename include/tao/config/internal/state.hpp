@@ -22,11 +22,11 @@ namespace tao::config::internal
    {
       state( const extension_map_t& m, const extension_map_t& v )
          : root( nullptr ),
-           temporary( json::uninitialized, pegtl::position( pegtl::internal::iterator(), "(temporary)" ) ),
+           temporary( json::uninitialized, pegtl::position( {}, "(temporary)" ) ),
            member_extensions( m ),
            value_extensions( v )
       {
-         root.set_object( pegtl::position( pegtl::internal::iterator(), "(root)" ) );
+         root.set_object( pegtl::position( {}, "(root)" ) );
          ostack.emplace_back( &root );
       }
 
