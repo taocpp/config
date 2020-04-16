@@ -13,12 +13,16 @@ BINARIES := $(SOURCES:%.cpp=build/%)
 TESTFILES := $(shell find tests -name '*.config')
 TESTCASES := $(TESTFILES:%.config=%)
 
+ERRORFILES := $(shell find tests -name '*.error')
+ERRORCASES := $(ERRORFILES:%.config=%)
+
 .PHONY: all check clean
 
 all: check $(BINARIES)
 
-check: build/src/test/config/tests
+check: build/src/test/config/tests build/src/test/config/errors
 	build/src/test/config/tests $(TESTCASES)
+	build/src/test/config/errors $(ERRORCASES)
 
 clean:
 	rm -rf build/*

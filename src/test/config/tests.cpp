@@ -1,6 +1,8 @@
 // Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
+#include <algorithm>
+
 #include <tao/config.hpp>
 
 namespace tao
@@ -63,5 +65,5 @@ int main( int argc, char** argv )
    if( !tao::failed ) {
       std::cerr << "All testcases passed." << std::endl;
    }
-   return tao::failed;
+   return std::min( tao::failed, 127 );
 }
