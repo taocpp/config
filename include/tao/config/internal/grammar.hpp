@@ -42,6 +42,7 @@ namespace tao::config::internal::rules
    struct null_s : pegtl::string< 'n', 'u', 'l', 'l' > {};
    struct true_s : pegtl::string< 't', 'r', 'u', 'e' > {};
    struct false_s : pegtl::string< 'f', 'a', 'l', 's', 'e' > {};
+   struct delete_s : pegtl::string< 'd', 'e', 'l', 'e', 't', 'e' > {};
 
    struct index : pegtl::plus< pegtl::digit > {};
 
@@ -107,7 +108,7 @@ namespace tao::config::internal::rules
    struct at_number : pegtl::at< pegtl::one< '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+', '.', 'I', 'N' > > {};
    struct number_value : pegtl::if_must< at_number, jaxn::sor_value > {};
 
-   struct value_part : pegtl::sor< null_s, true_s, false_s, array, object, special_value, string_value, binary_value, number_value > {};
+   struct value_part : pegtl::sor< null_s, true_s, false_s, delete_s, array, object, special_value, string_value, binary_value, number_value > {};
    struct array_part : pegtl::sor< null_s, array, special_value > {};
    struct object_part : pegtl::sor< null_s, object, special_value > {};
 

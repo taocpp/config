@@ -130,6 +130,8 @@ namespace tao::config::internal
          return;
       }
       switch( l.type() ) {
+         case json::type::UNINITIALIZED:
+            throw addition_error{ l.type(), r.type() };
          case json::type::NULL_:
             assert( false );
          case json::type::BOOLEAN:

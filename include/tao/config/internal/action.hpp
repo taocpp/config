@@ -62,6 +62,18 @@ namespace tao::config::internal
    };
 
    template<>
+   struct action< rules::delete_s >
+   {
+      template< typename Input >
+      static void apply( const Input& in, state& st )
+      {
+         assert( !st.lstack.empty() );
+
+         st.lstack.back()->emplace_back_atom( in.position(), tao::json::uninitialized );
+      }
+   };
+
+   template<>
    struct action< rules::identifier >
    {
       template< typename Input >
