@@ -126,7 +126,7 @@ namespace tao::config
 
       void parse( const std::string& s )
       {
-         using grammar = pegtl::must< internal::rules::pointer, pegtl::eof >;  // TODO: Relax restriction on first part here?
+         using grammar = pegtl::must< internal::rules::pointer, pegtl::eof >;
          pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl::eol::lf_crlf, const char* > in( s, __FUNCTION__ );
          pegtl::parse< grammar, internal::key_action >( in, vector() );
       }

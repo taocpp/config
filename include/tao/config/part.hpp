@@ -30,15 +30,15 @@ namespace tao::config
       struct minus_t
       {};
 
-      explicit part( const star_t t )
+      explicit part( const star_t t ) noexcept
          : m_data( t )
       {}
 
-      explicit part( const minus_t t )
+      explicit part( const minus_t t ) noexcept
          : m_data( t )
       {}
 
-      explicit part( const std::uint64_t i )
+      explicit part( const std::uint64_t i ) noexcept
          : m_data( i )
       {}
 
@@ -46,7 +46,7 @@ namespace tao::config
          : m_data( n )
       {}
 
-      explicit part( std::string&& n )
+      explicit part( std::string&& n ) noexcept
          : m_data( std::move( n ) )
       {}
 
@@ -70,16 +70,15 @@ namespace tao::config
       }
 
    private:
-      // TODO: Change index to signed type (change semantics of minus).
       std::variant< star_t, minus_t, std::string, std::uint64_t > m_data;
    };
 
-   inline bool is_alpha( const int c )
+   constexpr bool is_alpha( const int c ) noexcept
    {
       return ( ( 'a' <= c ) && ( c <= 'z' ) ) || ( ( 'A' <= c ) && ( c <= 'Z' ) );
    }
 
-   inline bool is_first( const int c )
+   constexpr bool is_first( const int c ) noexcept
    {
       return is_alpha( c ) || ( c == '_' );
    }
@@ -93,10 +92,7 @@ namespace tao::config
 
    inline std::string name_to_string( const std::string& n )
    {
-      if( is_identifier( n ) ) {
-         return n;
-      }
-      return '"' + json::internal::escape( n ) + '"';
+      return is_identifier( n ) ? n : ( '"' + json::internal::escape( n ) + '"' );
    }
 
    inline std::string to_string( const part& t )

@@ -159,7 +159,7 @@ namespace tao::config::internal
       json_t& get_atom() noexcept
       {
          assert( is_atom() );
-         //         assert( m_union.j.clear == m_clear );  // TODO: Where is this violated?
+         //  assert( m_union.j.clear == m_clear );  // TODO: Where, and why exactly, is this violated?
          return m_union.j;
       }
 

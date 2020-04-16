@@ -13,7 +13,7 @@ namespace tao::config::internal::rules
 
    // NOTE: Some rules are defined multiple times with different names in
    // order to provide anchor points for different PEGTL actions without
-   // using what we call "switching style" in the PEGTL documentation.
+   // having to use what the PEGTL documentation calls "switching style".
 
    using ws1 = jaxn::ws;  // Also handles comments.
 

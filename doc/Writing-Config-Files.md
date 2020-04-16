@@ -18,22 +18,21 @@ Please note that, for now, this document shows basic use cases for all features,
 It also does not go into the details and complexities of how all the features (can) interact with each other.
 
 
-
  * [General Syntax](#general-syntax)
    - [Example](#example)
    - [Comments](#comments)
-   - [Object Keys](#object-keys)
+   - [Member Names](#member-names)
    - [Implicit Object](#implicit-object)
    - [Implicit Commas](#implicit-commas)
    - [Trailing Commas](#trailing-commas)
    - [Equality Sign](#equality-sign)
+   - [Dotted Names](#dotted-names)
    - [Overwriting](#overwriting)
  * [Atomic Values](#atomic-values)
    - [Literal Names](#literal-names)
    - [Number Values](#number-values)
    - [String Values](#string-values)
    - [Binary Values](#binary-values)
- * [Complex Keys](#complex-keys)
  * [References](#references)
  * [Value Extensions](#value-extensions)
    - [binary](#binary)
@@ -115,11 +114,11 @@ All comments that are allowed in [JAXN] can be used in config files, namely
 ```
 
 
-## Object Keys
+## Member Names
 
-Object keys can use single quotation marks instead of the standard [JSON] double quotation marks.
+member names can use single quotation marks instead of the standard [JSON] double quotation marks.
 
-Object keys that are C-style identifiers (non-empty sequences of ASCII characters, digits and underscores that do not start with a digit) can be written without quotation marks.
+member names that are C-style identifiers (non-empty sequences of ASCII characters, digits and underscores that do not start with a digit) can be written without quotation marks.
 
 #### Example taoCONFIG Input File
 
@@ -240,7 +239,7 @@ maps: [ "ztn",
 
 ## Equality Sign
 
-The equality sign `=` can be used instead of the standard [JSON] colon `:` to separate the key and value of an object member.
+The equality sign `=` can be used instead of the standard [JSON] colon `:` to separate the name and value of an object member.
 
 #### Example taoCONFIG Input File
 
@@ -269,7 +268,7 @@ maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 
 ## Overwriting
 
-The same object key can be assigned to multiple times.
+The same member name can be assigned to multiple times.
 The last assignment "wins".
 
 #### Example taoCONFIG Input File
@@ -300,6 +299,22 @@ maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 Note that overwriting earlier values can be done on top-level or in any arbitrarily deeply nested part of the config.
 
 
+## Dotted Names
+
+In many (all?) places the name of an object member is used it is actually possible to use a name with multiple dot-separated components, similar but not identical to JSON Pointer.
+
+Dotted names can contain four different kinds of components.
+
+1.  Strings intended to index objects.
+2.  Unsigned integers intended to index arrays.
+3.  The character `-` that denotes the last array element.
+4.  The character `*` that indicates all sub-values.
+
+Unlike JSON Pointer, integers are never interpreted as the name of an object member.
+Just as for single-component names, Integers, and other strings that are not C-style identifiers can be used with (single or double) quotes.
+For example the dotted name `foo."1.2.3".bar` consists of three components, the strings `"foo"`, `"1.2.3"` and `"bar"`.
+Further, since dotted names are always resolved within an object, rather than an array, they must begin with some kind of string.
+
 
 # Atomic Values
 
@@ -326,7 +341,7 @@ c = false
 }
 ```
 
-Note that `null`, `true` and `false` as object keys are shortcuts for `"null"`, `"true"` and `"false"`, respectively.
+Note that `null`, `true` and `false` as member names are shortcuts for `"null"`, `"true"` and `"false"`, respectively.
 
 
 ## Number Values
@@ -344,10 +359,14 @@ Strings are like in [JAXN], i.e. [JSON] strings with [extensions](https://github
 [Binary data](https://github.com/stand-art/jaxn/blob/master/Specification.md#binary-data) is also like in [JAXN].
 
 
-## Complex Keys
+
+# Resolution
+
+Object member names always occur in the syntactical scope of an object, and the names are understood to refer to 
 
 
-## References
+
+# References
 
 
 
@@ -401,6 +420,19 @@ Note that `cbor` is frequently combined with `read` as in `foo = (cbor (read "fi
 
 
 ## copy
+
+The `copy` value extension copies a value
+
+#### Example taoCONFIG Input File
+
+```
+
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+```
 
 
 ## debug
@@ -521,6 +553,24 @@ Note that `msgpack` is frequently combined with `read` as in `foo = (msgpack (re
 
 
 ## parse
+
+The `parse` value extension parses the given string as a single config value just "as if" the config file contained the string instead of the invocation of `parse`.
+
+#### Example taoCONFIG Input File
+
+```
+foo = (parse "null")
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   foo: null
+}
+```
+
+Note that the value described in the string is *not* allowed to use addition/concatenation, however references and/or other value extensions are allowed.
 
 
 ## read

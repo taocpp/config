@@ -8,6 +8,7 @@
 
 #include "action.hpp"
 #include "control.hpp"
+#include "forward.hpp"
 #include "grammar.hpp"
 #include "key_utility.hpp"
 #include "pegtl.hpp"
@@ -15,12 +16,12 @@
 
 namespace tao::config::internal
 {
-   // inline json::value obtain_jaxn( pegtl_input_t& in )
-   // {
-   //    json::events::to_value consumer;
-   //    pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_value >, json::jaxn::internal::action, json::jaxn::internal::errors >( in, consumer );
-   //    return std::move( consumer.value );
-   // }
+   inline json_t obtain_jaxn( pegtl_input_t& in )
+   {
+      json::events::to_basic_value< value_traits > consumer;
+      pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_value >, json::jaxn::internal::action, json::jaxn::internal::errors >( in, consumer );
+      return std::move( consumer.value );
+   }
 
    inline std::string obtain_string( pegtl_input_t& in )
    {
