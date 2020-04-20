@@ -78,7 +78,8 @@ namespace tao::config::internal::rules
 
    struct ext_value_impl
    {
-      using analyze_t = pegtl::any::analyze_t;
+      using rule_t = ext_value_impl;
+      using subs_t = pegtl::empty_list;
 
       template< pegtl::apply_mode A,
                 pegtl::rewind_mode M,
@@ -124,7 +125,8 @@ namespace tao::config::internal::rules
 
    struct ext_member_impl
    {
-      using analyze_t = pegtl::any::analyze_t;
+      using rule_t = ext_member_impl;
+      using subs_t = pegtl::empty_list;
 
       template< pegtl::apply_mode A,
                 pegtl::rewind_mode M,

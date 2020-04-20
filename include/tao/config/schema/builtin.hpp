@@ -66,8 +66,8 @@ namespace tao::config::schema
             add< internal::grammar< IPv6address > >( "std.net.ip_v6_address" );
             add< internal::grammar< sor< IPv4address, IPv6address > > >( "std.net.ip_address" );
 
-            using ip_v4_cidr = seq< IPv4address, one< '/' >, integer::maximum_rule< std::uint8_t, 32 > >;
-            using ip_v6_cidr = seq< IPv6address, one< '/' >, integer::maximum_rule< std::uint8_t, 128 > >;
+            using ip_v4_cidr = seq< IPv4address, one< '/' >, maximum_rule< std::uint8_t, 32 > >;
+            using ip_v6_cidr = seq< IPv6address, one< '/' >, maximum_rule< std::uint8_t, 128 > >;
             add< internal::grammar< ip_v4_cidr > >( "std.net.ip_v4_cidr" );
             add< internal::grammar< ip_v6_cidr > >( "std.net.ip_v6_cidr" );
             add< internal::grammar< sor< ip_v4_cidr, ip_v6_cidr > > >( "std.net.ip_cidr" );
