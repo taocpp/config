@@ -6,6 +6,7 @@
 
 #include <cerrno>
 #include <system_error>
+#include <utility>
 
 #include "extension_t.hpp"
 #include "extension_utility.hpp"
@@ -41,7 +42,7 @@ namespace tao::config::internal
 
    inline void include_extension( pegtl_input_t& in, state& st )
    {
-      const auto pos = in.position();
+      auto pos = in.position();
 
       do_inner_extension( in, st );
 
@@ -59,14 +60,14 @@ namespace tao::config::internal
          throw pegtl::parse_error( format( __FILE__, __LINE__, "include failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
       }
       catch( pegtl::parse_error& e ) {
-         e.positions.emplace_back( pos );
+         e.add_position( std::move( pos ) );
          throw;
       }
    }
 
    inline void include_if_extension( pegtl_input_t& in, state& st )
    {
-      const auto pos = in.position();
+      auto pos = in.position();
 
       do_inner_extension( in, st );
 
@@ -89,7 +90,7 @@ namespace tao::config::internal
          }
       }
       catch( pegtl::parse_error& e ) {
-         e.positions.emplace_back( pos );
+         e.add_position( std::move( pos ) );
          throw;
       }
    }
