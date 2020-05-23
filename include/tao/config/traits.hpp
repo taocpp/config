@@ -84,7 +84,7 @@ namespace tao::config
       template< template< typename... > class Traits, typename Consumer >
       static void produce( Consumer& c, const json::position& p )
       {
-         c.string( p.source() + ':' + std::to_string( p.line() ) + ':' + std::to_string( p.byte_in_line() ) );
+         c.string( p.source() + ':' + std::to_string( p.line() ) + ':' + std::to_string( p.column() ) );
       }
    };
 

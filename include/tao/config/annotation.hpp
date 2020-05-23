@@ -28,9 +28,9 @@ namespace tao::config
          return position.line();
       }
 
-      std::size_t byte_in_line() const noexcept
+      std::size_t column() const noexcept
       {
-         return position.byte_in_line();
+         return position.column();
       }
 
       const std::string& source() const noexcept
