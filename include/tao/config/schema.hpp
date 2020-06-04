@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_SCHEMA_HPP
 #define TAO_CONFIG_SCHEMA_HPP
 
+#include <filesystem>
 #include <utility>
 
 #include "schema/from_file.hpp"
@@ -11,9 +12,9 @@
 
 namespace tao::config::schema::internal
 {
-   inline json::value phase2_from_file_and_validate( const std::string& schema_filename, builtin b, const value& config_value )
+   inline json::value phase2_from_file_and_validate( const std::filesystem::path& schema, builtin b, const value& config_value )
    {
-      return from_file( schema_filename, std::move( b ) ).validate( config_value );
+      return from_file( schema, std::move( b ) ).validate( config_value );
    }
 
 }  // namespace tao::config::schema::internal

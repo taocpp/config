@@ -4,7 +4,7 @@
 #ifndef TAO_CONFIG_FROM_FILE_HPP
 #define TAO_CONFIG_FROM_FILE_HPP
 
-#include <string>
+#include <filesystem>
 #include <utility>
 
 #include "value.hpp"
@@ -16,14 +16,14 @@
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   json::basic_value< Traits > basic_from_file( const std::string& filename, schema::builtin b = schema::builtin() )
+   json::basic_value< Traits > basic_from_file( const std::filesystem::path& path, schema::builtin b = schema::builtin() )
    {
-      return internal::configurator().parse( filename ).process< Traits >( std::move( b ) );
+      return internal::configurator().parse( path ).process< Traits >( std::move( b ) );
    }
 
-   inline value from_file( const std::string& filename, schema::builtin b = schema::builtin() )
+   inline value from_file( const std::filesystem::path& path, schema::builtin b = schema::builtin() )
    {
-      return basic_from_file< traits >( filename, std::move( b ) );
+      return basic_from_file< traits >( path, std::move( b ) );
    }
 
 }  // namespace tao::config

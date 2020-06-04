@@ -64,7 +64,7 @@ namespace tao::config::internal
    {
       static_assert( !std::is_reference_v< R > );
 
-      return [=]( pegtl_input_t& in, state& st ) {
+      return [ = ]( pegtl_input_t& in, state& st ) {
          extension_wrapper< R, A >::wrap( f, in, st );
       };
    }
@@ -74,7 +74,7 @@ namespace tao::config::internal
    {
       static_assert( !std::is_reference_v< R > );
 
-      return [=]( pegtl_input_t& in, state& st ) {
+      return [ = ]( pegtl_input_t& in, state& st ) {
          extension_wrapper< R, A >::wrap( f, in, st );
       };
    }
@@ -150,7 +150,7 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         pegtl::string_input< pegtl::tracking_mode::eager, pegtl_input_t::eol_t, const char* > i2( st.temporary.as< std::string >(), __FUNCTION__ );
+         pegtl::string_input< pegtl::tracking_mode::eager, pegtl_input_t::eol_t > i2( st.temporary.as< std::string >(), __FUNCTION__ );
          pegtl::parse_nested< rules::value, action, control >( in, static_cast< pegtl_input_t& >( i2 ), st );
          return;
       }
@@ -221,7 +221,7 @@ namespace tao::config::internal
       do_inner_extension( in, st );
 
       if( st.temporary.is_string_type() ) {
-         pegtl::string_input< pegtl::tracking_mode::eager, pegtl_input_t::eol_t, const char* > i2( st.temporary.as< std::string >(), __FUNCTION__ );
+         pegtl::string_input< pegtl::tracking_mode::eager, pegtl_input_t::eol_t > i2( st.temporary.as< std::string >(), __FUNCTION__ );
          st.temporary.assign( json::empty_array, pos );
          pegtl::parse_nested< split_grammar, split_action >( in, i2, st.temporary );
          return;

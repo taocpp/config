@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_CONFIGURATOR_HPP
 #define TAO_CONFIG_INTERNAL_CONFIGURATOR_HPP
 
+#include <filesystem>
+
 #include "action.hpp"
 #include "control.hpp"
 #include "grammar.hpp"
@@ -72,9 +74,9 @@ namespace tao::config::internal
          return *this;
       }
 
-      configurator& parse( const std::string& filename )
+      configurator& parse( const std::filesystem::path& path )
       {
-         parse( pegtl::file_input( filename ) );
+         parse( pegtl::file_input( path ) );
          return *this;
       }
 

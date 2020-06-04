@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_FORWARD_HPP
 #define TAO_CONFIG_INTERNAL_FORWARD_HPP
 
+#include <filesystem>
+
 namespace tao::config::schema
 {
    struct builtin;
@@ -11,7 +13,8 @@ namespace tao::config::schema
 
    namespace internal
    {
-      inline json::value phase2_from_file_and_validate( const std::string& schema_filename, builtin b, const value& config_value );
+      // TODO: Where are json::value and value coming from??
+      inline json::value phase2_from_file_and_validate( const std::filesystem::path& schema, builtin b, const value& config_value );
 
    }  // namespace internal
 
