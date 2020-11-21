@@ -21,8 +21,8 @@ ERRORCASES := $(ERRORFILES:%.config=%)
 all: check $(BINARIES)
 
 check: build/src/test/config/tests build/src/test/config/errors
-	build/src/test/config/tests $(TESTCASES)
-	build/src/test/config/errors $(ERRORCASES)
+	TAO_CONFIG_VAR=hello build/src/test/config/tests $(TESTCASES)
+	TAO_CONFIG_VAR=world build/src/test/config/errors $(ERRORCASES)
 
 clean:
 	rm -rf build/*
