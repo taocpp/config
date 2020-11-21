@@ -126,6 +126,11 @@ namespace tao::config::internal
       st.temporary.assign( e, pos );
    }
 
+   inline void identity_extension( pegtl_input_t& in, state& st )
+   {
+      do_inner_extension( in, st );
+   }
+
    inline json_t jaxn_function( const std::string_view sv )
    {
       return json::jaxn::basic_from_string< value_traits >( sv );  // TODO: Positions.
@@ -259,15 +264,10 @@ namespace tao::config::internal
                   throw pegtl::parse_error( format( __FILE__, __LINE__, "unknown value extension", { { "name", ext } } ), pos );
                }
                break;
-            case '\'':
-            case '"':
-               st.temporary.assign( obtain_string( in ), pos );
-               return;
-            case '$':
-               st.temporary.assign( obtain_binary( in ), pos );
-               return;
             default:
-               break;
+               st.temporary = obtain_jaxn( in );
+               st.temporary.position = pos;
+               return;
          }
       }
       throw pegtl::parse_error( format( __FILE__, __LINE__, "invalid value extension", {} ), pos );

@@ -1,0 +1,11 @@
+{
+   a: true,
+   b: false,
+   c: null,
+   d: 42,
+   e: "grmblfx",
+   f: "grmblfx",
+   g: "hello world",
+   h: $11223344,
+   i: $11223344
+}

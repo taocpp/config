@@ -55,6 +55,7 @@ namespace tao::config::internal
          { "debug", internal::debug_extension },
          { "env", internal::env_extension },
          { "env?", internal::env_if_extension },
+         { "identity", internal::identity_extension },
          { "jaxn", internal::make_extension( internal::jaxn_function ) },
          { "json", internal::make_extension( internal::json_function ) },
          { "msgpack", internal::make_extension( internal::msgpack_function ) },

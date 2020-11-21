@@ -30,13 +30,6 @@ namespace tao::config::internal
       return s2;
    }
 
-   inline std::vector< std::byte > obtain_binary( pegtl_input_t& in )
-   {
-      std::vector< std::byte > v2;
-      pegtl::parse< pegtl::must< json::jaxn::internal::rules::binary_fragment >, json::jaxn::internal::bunescape_action >( in, v2 );
-      return v2;
-   }
-
    inline key obtain_key( pegtl_input_t& in, state& st )
    {
       pegtl::parse< pegtl::must< rules::pointer >, action, control >( in, st );
