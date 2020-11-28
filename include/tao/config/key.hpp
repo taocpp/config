@@ -17,7 +17,7 @@ namespace tao::config
    {
       template< typename Rule >
       struct key_action
-         : public pegtl::nothing< Rule >
+         : pegtl::nothing< Rule >
       {};
 
       template<>

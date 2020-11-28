@@ -16,12 +16,12 @@ namespace tao::config::internal
 {
    template< typename Rule >
    struct control
-      : public pegtl::normal< Rule >
+      : pegtl::normal< Rule >
    {};
 
    template<>
    struct control< rules::pointer >
-      : public pegtl::normal< rules::pointer >
+      : pegtl::normal< rules::pointer >
    {
       template< typename Input >
       static void start( const Input& in, state& st )
@@ -52,7 +52,7 @@ namespace tao::config::internal
 
    template<>
    struct control< rules::ref_body >
-      : public pegtl::normal< rules::ref_body >
+      : pegtl::normal< rules::ref_body >
    {
       template< typename Input >
       static void start( const Input& in, state& st )
@@ -77,7 +77,7 @@ namespace tao::config::internal
 
    template<>
    struct control< rules::element_value_list >
-      : public pegtl::normal< rules::element_value_list >
+      : pegtl::normal< rules::element_value_list >
    {
       template< typename Input >
       static void start( const Input& in, state& st )
@@ -100,7 +100,7 @@ namespace tao::config::internal
 
    template<>
    struct control< rules::element_list >
-      : public pegtl::normal< rules::element_list >
+      : pegtl::normal< rules::element_list >
    {
       template< typename Input >
       static void start( const Input& in, state& st )
@@ -123,7 +123,7 @@ namespace tao::config::internal
 
    template<>
    struct control< rules::member_value_list >
-      : public pegtl::normal< rules::member_value_list >
+      : pegtl::normal< rules::member_value_list >
    {
       template< typename Input >
       static void start( const Input& in, state& st )
@@ -148,7 +148,7 @@ namespace tao::config::internal
 
    template<>
    struct control< rules::member_list >
-      : public pegtl::normal< rules::member_list >
+      : pegtl::normal< rules::member_list >
    {
       template< typename Input >
       static void start( const Input& in, state& st )
@@ -171,15 +171,13 @@ namespace tao::config::internal
 
    template<>
    struct control< rules::member_array_list >
-      : public control< rules::member_value_list >
-   {
-   };
+      : control< rules::member_value_list >
+   {};
 
    template<>
    struct control< rules::member_object_list >
-      : public control< rules::member_value_list >
-   {
-   };
+      : control< rules::member_value_list >
+   {};
 
 }  // namespace tao::config::internal
 

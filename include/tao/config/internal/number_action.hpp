@@ -11,67 +11,67 @@ namespace tao::config::internal
 {
    template< typename Rule >
    struct number_action
-      : public pegtl::nothing< Rule >
+      : pegtl::nothing< Rule >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::hexnum< false > >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::hexnum< false > >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::hexnum< false > >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::hexnum< true > >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::hexnum< true > >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::hexnum< true > >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::zero< false > >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::zero< false > >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::zero< false > >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::zero< true > >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::zero< true > >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::zero< true > >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::kw_nan >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::kw_nan >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::kw_nan >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::kw_infinity< false > >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::kw_infinity< false > >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::kw_infinity< false > >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::kw_infinity< true > >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::kw_infinity< true > >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::kw_infinity< true > >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::esign >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::esign >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::esign >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::idigits >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::idigits >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::idigits >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::fdigits >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::fdigits >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::fdigits >
    {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::edigits >
-      : public json::jaxn::internal::action< json::jaxn::internal::rules::edigits >
+      : json::jaxn::internal::action< json::jaxn::internal::rules::edigits >
    {};
 
    template< bool Neg >
    struct number_action< json::jaxn::internal::rules::number< Neg > >
-      : public pegtl::change_states< json::internal::number_state< Neg > >
+      : pegtl::change_states< json::internal::number_state< Neg > >
    {
       template< typename Input, typename Consumer >
       static void success( const Input& /*unused*/, json::internal::number_state< Neg >& state, Consumer& consumer )

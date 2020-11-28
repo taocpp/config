@@ -12,12 +12,12 @@ namespace tao::config
 {
    template< typename T >
    struct traits
-      : public json::traits< T >
+      : json::traits< T >
    {};
 
    template<>
    struct traits< void >
-      : public json::traits< void >
+      : json::traits< void >
    {
       static constexpr const bool enable_implicit_constructor = false;
 
@@ -73,7 +73,7 @@ namespace tao::config
 
    template<>
    struct traits< key* >
-      : public traits< const key* >
+      : traits< const key* >
    {};
 
    template<>
@@ -100,12 +100,12 @@ namespace tao::config
 
    template<>
    struct traits< json::position* >
-      : public traits< const json::position* >
+      : traits< const json::position* >
    {};
 
    template<>
    struct traits< annotation >
-      : public json::binding::object< TAO_JSON_BIND_REQUIRED( "key", &annotation::key ),
+      : json::binding::object< TAO_JSON_BIND_REQUIRED( "key", &annotation::key ),
                                       TAO_JSON_BIND_REQUIRED( "position", &annotation::position ) >
    {
       TAO_JSON_DEFAULT_KEY( "meta" );

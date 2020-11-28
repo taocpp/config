@@ -13,13 +13,12 @@ namespace tao::config::internal
 {
    template< typename T >
    struct value_traits
-      : public config::traits< T >
-   {
-   };
+      : config::traits< T >
+   {};
 
    template<>
    struct value_traits< void >
-      : public json::traits< void >
+      : json::traits< void >
    {
       static constexpr const bool enable_implicit_constructor = false;
 

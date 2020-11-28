@@ -21,7 +21,7 @@ namespace tao::config::internal
 {
    template< typename Rule >
    struct action
-      : public pegtl::nothing< Rule >
+      : pegtl::nothing< Rule >
    {};
 
    template<>
@@ -147,9 +147,8 @@ namespace tao::config::internal
 
    template<>
    struct action< json::jaxn::internal::rules::sor_value >
-      : public pegtl::change_action_and_state< number_action, number_state >
-   {
-   };
+      : pegtl::change_action_and_state< number_action, number_state >
+   {};
 
    struct kludge_state
    {
@@ -171,8 +170,7 @@ namespace tao::config::internal
 
       template< typename Input >
       void success( const Input& /*unused*/, state& /*unused*/ )
-      {
-      }
+      {}
 
       const pegtl::position pos;
       state& st;
@@ -180,13 +178,12 @@ namespace tao::config::internal
 
    template< typename Rule >
    struct kludge_action
-      : public pegtl::nothing< Rule >
-   {
-   };
+      : pegtl::nothing< Rule >
+   {};
 
    template<>
    struct kludge_action< rules::binary_choice >
-      : public pegtl::change_action_and_states< json::jaxn::internal::bunescape_action, std::vector< std::byte > >
+      : pegtl::change_action_and_states< json::jaxn::internal::bunescape_action, std::vector< std::byte > >
    {
       template< typename Input >
       static void success( const Input& /*unused*/, std::vector< std::byte >& value, kludge_state& state )
@@ -197,7 +194,7 @@ namespace tao::config::internal
 
    template<>
    struct kludge_action< rules::string_choice >
-      : public pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
+      : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
       template< typename Input >
       static void success( const Input& /*unused*/, std::string& value, kludge_state& state )
@@ -208,19 +205,17 @@ namespace tao::config::internal
 
    template<>
    struct action< rules::binary_choice >
-      : public pegtl::change_action_and_state< kludge_action, kludge_state >
-   {
-   };
+      : pegtl::change_action_and_state< kludge_action, kludge_state >
+   {};
 
    template<>
    struct action< rules::string_choice >
-      : public pegtl::change_action_and_state< kludge_action, kludge_state >
-   {
-   };
+      : pegtl::change_action_and_state< kludge_action, kludge_state >
+   {};
 
    template<>
    struct action< rules::quoted_choice >
-      : public pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
+      : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
       template< typename Input >
       static void success( const Input& in, std::string& unescaped, state& st )
