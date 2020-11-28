@@ -19,8 +19,7 @@ namespace tao::config::internal
    public:
       explicit entry_object( const pegtl::position& pos )
          : m_position( pos )
-      {
-      }
+      {}
 
       entry_object( entry_object&& ) = delete;
       entry_object( const entry_object& ) = delete;
@@ -28,12 +27,12 @@ namespace tao::config::internal
       void operator=( entry_object&& ) = delete;
       void operator=( const entry_object& ) = delete;
 
-      std::size_t size() const noexcept
+      [[nodiscard]] std::size_t size() const noexcept
       {
          return m_map.size();
       }
 
-      bool empty() const noexcept
+      [[nodiscard]] bool empty() const noexcept
       {
          return m_map.empty();
       }
@@ -48,13 +47,13 @@ namespace tao::config::internal
          return m_map.erase( k );
       }
 
-      std::pair< const std::string, concat >* find( const std::string& k ) noexcept
+      [[nodiscard]] std::pair< const std::string, concat >* find( const std::string& k ) noexcept
       {
          const auto i = m_map.find( k );
          return ( i == m_map.end() ) ? nullptr : ( &*i );
       }
 
-      const std::pair< const std::string, concat >* find( const std::string& k ) const noexcept
+      [[nodiscard]] const std::pair< const std::string, concat >* find( const std::string& k ) const noexcept
       {
          const auto i = m_map.find( k );
          return ( i == m_map.end() ) ? nullptr : ( &*i );
@@ -70,17 +69,17 @@ namespace tao::config::internal
          return m_map.try_emplace( k, e, pos );
       }
 
-      const pegtl::position& position() const noexcept
+      [[nodiscard]] const pegtl::position& position() const noexcept
       {
          return m_position;
       }
 
-      std::map< std::string, concat >& private_map() noexcept
+      [[nodiscard]] std::map< std::string, concat >& private_map() noexcept
       {
          return m_map;
       }
 
-      const std::map< std::string, concat >& map() const noexcept
+      [[nodiscard]] const std::map< std::string, concat >& map() const noexcept
       {
          return m_map;
       }
