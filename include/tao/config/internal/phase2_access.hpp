@@ -21,9 +21,9 @@ namespace tao::config::internal
    struct temporary_non_local_return_hack
    {};  // TODO: Ensure this doesn't survive the first wave of refactoring after stabilising the semantics.
 
-   inline const json_t& phase2_access_down( const pegtl::position& pos, const concat& l, const key& p );
+   [[nodiscard]] inline const json_t& phase2_access_down( const pegtl::position& pos, const concat& l, const key& p );
 
-   inline const json_t& phase2_access_down( const pegtl::position& pos, const entry_array& a, const part& t, const key& p )
+   [[nodiscard]] inline const json_t& phase2_access_down( const pegtl::position& pos, const entry_array& a, const part& t, const key& p )
    {
       switch( t.type() ) {
          case part::star:
@@ -44,7 +44,7 @@ namespace tao::config::internal
       assert( false );
    }
 
-   inline const json_t& phase2_access_down( const pegtl::position& pos, const entry_object& o, const part& t, const key& p )
+   [[nodiscard]] inline const json_t& phase2_access_down( const pegtl::position& pos, const entry_object& o, const part& t, const key& p )
    {
       switch( t.type() ) {
          case part::star:
@@ -62,7 +62,7 @@ namespace tao::config::internal
       assert( false );
    }
 
-   inline const json_t& phase2_access_down( const pegtl::position& pos, const concat& l, const key& p )
+   [[nodiscard]] inline const json_t& phase2_access_down( const pegtl::position& pos, const concat& l, const key& p )
    {
       if( l.size() == 1 ) {
          const entry& e = l.entries().front();
@@ -91,9 +91,9 @@ namespace tao::config::internal
       throw temporary_non_local_return_hack();  // Unsuitable concat found -- abort search and try again next iteration.
    }
 
-   inline const json_t* phase2_access_up( const pegtl::position& pos, const entry& e, const std::string& k, const key& p );
+   [[nodiscard]] inline const json_t* phase2_access_up( const pegtl::position& pos, const entry& e, const std::string& k, const key& p );
 
-   inline const json_t* phase2_access_up( const pegtl::position& pos, const concat& l, const std::string& k, const key& p )
+   [[nodiscard]] inline const json_t* phase2_access_up( const pegtl::position& pos, const concat& l, const std::string& k, const key& p )
    {
       std::vector< const json_t* > j;
       std::vector< const concat* > r;
@@ -142,7 +142,7 @@ namespace tao::config::internal
       return phase2_access_up( pos, l.parent(), k, p );
    }
 
-   inline const json_t* phase2_access_up( const pegtl::position& pos, const entry& e, const std::string& k, const key& p )
+   [[nodiscard]] inline const json_t* phase2_access_up( const pegtl::position& pos, const entry& e, const std::string& k, const key& p )
    {
       switch( e.type() ) {
          case entry::array:
@@ -174,7 +174,7 @@ namespace tao::config::internal
       return nullptr;
    }
 
-   inline const json_t* phase2_access( const pegtl::position& pos, const entry& e, const key& p )
+   [[nodiscard]] inline const json_t* phase2_access( const pegtl::position& pos, const entry& e, const key& p )
    {
       assert( !p.empty() );
 

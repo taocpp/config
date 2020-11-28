@@ -15,12 +15,14 @@
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   json::basic_value< Traits > basic_from_input( pegtl_input_t&& in, schema::builtin b = schema::builtin() )
+   [[nodiscard]] json::basic_value< Traits > basic_from_input( pegtl_input_t&& in, schema::builtin b = schema::builtin() )
    {
-      return internal::configurator().parse( std::move( in ) ).process< Traits >( std::move( b ) );
+      internal::configurator c;
+      c.parse( std::move( in ) );
+      return c.process< Traits >( std::move( b ) );
    }
 
-   inline value from_input( pegtl_input_t&& in, schema::builtin b = schema::builtin() )
+   [[nodiscard]] inline value from_input( pegtl_input_t&& in, schema::builtin b = schema::builtin() )
    {
       return basic_from_input< traits >( std::move( in ), std::move( b ) );
    }

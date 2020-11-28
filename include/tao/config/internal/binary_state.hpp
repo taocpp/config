@@ -18,8 +18,7 @@ namespace tao::config::internal
       template< typename Input >
       explicit binary_state( const Input& in, state& )
          : m_position( in.position() )
-      {
-      }
+      {}
 
       binary_state( const binary_state& ) = delete;
       binary_state( binary_state&& ) = delete;

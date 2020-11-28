@@ -20,11 +20,11 @@ namespace tao::config::internal
 {
    struct state
    {
-      state( const extension_map_t& m, const extension_map_t& v )
+      state( const extension_map_t& v, const extension_map_t& m )
          : root( nullptr ),
            temporary( json::uninitialized, pegtl::position( {}, "(temporary)" ) ),
-           member_extensions( m ),
-           value_extensions( v )
+           value_extensions( v ),
+           member_extensions( m )
       {
          root.set_object( pegtl::position( {}, "(root)" ) );
          ostack.emplace_back( &root );
@@ -45,8 +45,8 @@ namespace tao::config::internal
       json_t temporary;
       std::string extension;
 
-      const extension_map_t& member_extensions;
       const extension_map_t& value_extensions;
+      const extension_map_t& member_extensions;
 
       // Phase 2 Extensions
 

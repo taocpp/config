@@ -25,27 +25,14 @@ namespace tao::config::internal
    struct configurator
    {
       configurator()
-         : st( member_extensions, value_extensions )
-      {
-      }
+         : st( value_extensions, member_extensions )
+      {}
 
       configurator( configurator&& ) = delete;
       configurator( const configurator& ) = delete;
 
       void operator=( configurator&& ) = delete;
       void operator=( const configurator& ) = delete;
-
-      // NOTE: This is probably NOT a customisation point.
-      const extension_map_t member_extensions = {
-         { "delete", internal::erase_extension },
-         { "delete?", internal::erase_if_extension },
-         { "include", internal::include_extension },
-         { "include?", internal::include_if_extension },
-         { "schema", internal::schema_extension },
-         { "setenv", internal::setenv_extension },
-         { "stderr", internal::stderr_extension },
-         { "temporary", internal::temporary_extension }
-      };
 
       // TODO: This is probably a future customisation point.
       extension_map_t value_extensions = {
@@ -67,22 +54,32 @@ namespace tao::config::internal
          { "ubjson", internal::make_extension( internal::ubjson_function ) }
       };
 
+      // NOTE: This is probably NOT a customisation point.
+      const extension_map_t member_extensions = {
+         { "delete", internal::erase_extension },
+         { "delete?", internal::erase_if_extension },
+         { "include", internal::include_extension },
+         { "include?", internal::include_if_extension },
+         { "schema", internal::schema_extension },
+         { "setenv", internal::setenv_extension },
+         { "stderr", internal::stderr_extension },
+         { "temporary", internal::temporary_extension }
+      };
+
       state st;
 
-      configurator& parse( pegtl_input_t&& in )
+      void parse( pegtl_input_t&& in )
       {
          pegtl::parse< rules::config_file, action, control >( in, st );
-         return *this;
       }
 
-      configurator& parse( const std::filesystem::path& path )
+      void parse( const std::filesystem::path& path )
       {
          parse( pegtl::file_input( path ) );
-         return *this;
       }
 
       template< template< typename... > class Traits >
-      json::basic_value< Traits > process( schema::builtin b )
+      [[nodiscard]] json::basic_value< Traits > process( schema::builtin b )
       {
          return internal::phase2< Traits >( st, std::move( b ) );
       }

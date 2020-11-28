@@ -50,19 +50,19 @@ namespace tao::config
          : m_data( std::move( n ) )
       {}
 
-      kind type() const noexcept
+      [[nodiscard]] kind type() const noexcept
       {
          return kind( m_data.index() );
       }
 
-      std::uint64_t get_index() const noexcept
+      [[nodiscard]] std::uint64_t get_index() const noexcept
       {
          const std::uint64_t* s = std::get_if< std::uint64_t >( &m_data );
          assert( s != nullptr );
          return *s;
       }
 
-      const std::string& get_name() const noexcept
+      [[nodiscard]] const std::string& get_name() const noexcept
       {
          const std::string* s = std::get_if< std::string >( &m_data );
          assert( s != nullptr );
@@ -73,29 +73,29 @@ namespace tao::config
       std::variant< star_t, minus_t, std::string, std::uint64_t > m_data;
    };
 
-   constexpr bool is_alpha( const int c ) noexcept
+   [[nodiscard]] constexpr bool is_alpha( const int c ) noexcept
    {
       return ( ( 'a' <= c ) && ( c <= 'z' ) ) || ( ( 'A' <= c ) && ( c <= 'Z' ) );
    }
 
-   constexpr bool is_first( const int c ) noexcept
+   [[nodiscard]] constexpr bool is_first( const int c ) noexcept
    {
       return is_alpha( c ) || ( c == '_' );
    }
 
-   inline bool is_identifier( const std::string& n )
+   [[nodiscard]] inline bool is_identifier( const std::string& n )
    {
       using grammar = pegtl::seq< internal::rules::identifier, pegtl::eof >;
       pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl::eol::lf_crlf, const char* > in( n, __FUNCTION__ );
       return pegtl::parse< grammar >( in );
    }
 
-   inline std::string name_to_string( const std::string& n )
+   [[nodiscard]] inline std::string name_to_string( const std::string& n )
    {
       return is_identifier( n ) ? n : ( '"' + json::internal::escape( n ) + '"' );
    }
 
-   inline std::string to_string( const part& t )
+   [[nodiscard]] inline std::string to_string( const part& t )
    {
       switch( t.type() ) {
          case part::name:

@@ -18,8 +18,7 @@ namespace tao::config
       template< typename Rule >
       struct key_action
          : public pegtl::nothing< Rule >
-      {
-      };
+      {};
 
       template<>
       struct key_action< rules::identifier >
@@ -81,13 +80,11 @@ namespace tao::config
 
       key( const std::initializer_list< part >& l )
          : std::vector< part >( l )
-      {
-      }
+      {}
 
       key( const std::vector< part >::const_iterator& begin, const std::vector< part >::const_iterator& end )
          : std::vector< part >( begin, end )
-      {
-      }
+      {}
 
       key& operator=( const std::string& s )
       {
@@ -114,12 +111,12 @@ namespace tao::config
          pop_back();
       }
 
-      std::vector< part >& vector() noexcept
+      [[nodiscard]] std::vector< part >& vector() noexcept
       {
          return static_cast< std::vector< part >& >( *this );
       }
 
-      const std::vector< part >& vector() const noexcept
+      [[nodiscard]] const std::vector< part >& vector() const noexcept
       {
          return static_cast< const std::vector< part >& >( *this );
       }
@@ -174,42 +171,42 @@ namespace tao::config
       return l;
    }
 
-   inline key operator+( const key& l, const key& k )
+   [[nodiscard]] inline key operator+( const key& l, const key& k )
    {
       key r = l;
       r += k;
       return r;
    }
 
-   inline key operator+( const key& l, const part& p )
+   [[nodiscard]] inline key operator+( const key& l, const part& p )
    {
       key r = l;
       r += p;
       return r;
    }
 
-   inline key operator+( const key& l, const part::kind k )
+   [[nodiscard]] inline key operator+( const key& l, const part::kind k )
    {
       key r = l;
       r += k;
       return r;
    }
 
-   inline key operator+( const key& l, const std::size_t i )
+   [[nodiscard]] inline key operator+( const key& l, const std::size_t i )
    {
       key r = l;
       r += i;
       return r;
    }
 
-   inline key operator+( const key& l, const std::string& n )
+   [[nodiscard]] inline key operator+( const key& l, const std::string& n )
    {
       key r = l;
       r += n;
       return r;
    }
 
-   inline key operator+( const std::string& n, const key& l )  // TODO: Ensure this doesn't survive the first wave of refactoring after stabilising the semantics.
+   [[nodiscard]] inline key operator+( const std::string& n, const key& l )  // TODO: Ensure this doesn't survive the first wave of refactoring after stabilising the semantics.
    {
       key t = l + n;
       if( t.size() > 1 ) {
@@ -230,7 +227,7 @@ namespace tao::config
       }
    }
 
-   inline std::string to_string( const key& p )
+   [[nodiscard]] inline std::string to_string( const key& p )
    {
       std::ostringstream o;
       to_stream( o, p );

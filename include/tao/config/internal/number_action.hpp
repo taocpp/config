@@ -12,74 +12,62 @@ namespace tao::config::internal
    template< typename Rule >
    struct number_action
       : public pegtl::nothing< Rule >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::hexnum< false > >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::hexnum< false > >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::hexnum< true > >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::hexnum< true > >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::zero< false > >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::zero< false > >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::zero< true > >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::zero< true > >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::kw_nan >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::kw_nan >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::kw_infinity< false > >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::kw_infinity< false > >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::kw_infinity< true > >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::kw_infinity< true > >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::esign >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::esign >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::idigits >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::idigits >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::fdigits >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::fdigits >
-   {
-   };
+   {};
 
    template<>
    struct number_action< json::jaxn::internal::rules::edigits >
       : public json::jaxn::internal::action< json::jaxn::internal::rules::edigits >
-   {
-   };
+   {};
 
    template< bool Neg >
    struct number_action< json::jaxn::internal::rules::number< Neg > >

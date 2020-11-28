@@ -11,8 +11,7 @@ namespace tao::config::internal
    {
       explicit reverse( Container& l )
          : m_c( l )
-      {
-      }
+      {}
 
       reverse( reverse&& ) = delete;
       reverse( const reverse& ) = delete;

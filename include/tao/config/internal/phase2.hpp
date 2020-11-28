@@ -17,7 +17,7 @@
 namespace tao::config::internal
 {
    template< template< typename... > class Traits >
-   json::basic_value< Traits > phase2( state& st, schema::builtin b )
+   [[nodiscard]] json::basic_value< Traits > phase2( state& st, schema::builtin b )
    {
       assert( st.astack.empty() );
       assert( st.lstack.empty() );

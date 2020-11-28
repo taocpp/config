@@ -17,8 +17,7 @@ namespace tao::config::internal
    template< typename Rule >
    struct control
       : public pegtl::normal< Rule >
-   {
-   };
+   {};
 
    template<>
    struct control< rules::pointer >

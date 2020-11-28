@@ -18,8 +18,7 @@ namespace tao::config::internal
       template< typename Input >
       explicit string_state( const Input& in, state& )
          : m_position( in.position() )
-      {
-      }
+      {}
 
       string_state( const string_state& ) = delete;
       string_state( string_state&& ) = delete;

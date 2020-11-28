@@ -13,8 +13,7 @@ namespace tao::config
    template< typename T >
    struct traits
       : public json::traits< T >
-   {
-   };
+   {};
 
    template<>
    struct traits< void >
@@ -75,8 +74,7 @@ namespace tao::config
    template<>
    struct traits< key* >
       : public traits< const key* >
-   {
-   };
+   {};
 
    template<>
    struct traits< json::position >
@@ -103,8 +101,7 @@ namespace tao::config
    template<>
    struct traits< json::position* >
       : public traits< const json::position* >
-   {
-   };
+   {};
 
    template<>
    struct traits< annotation >

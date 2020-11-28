@@ -15,9 +15,9 @@
 
 namespace tao::config::internal
 {
-   inline concat& phase1_assign( const pegtl::position& pos, concat& l, const key& p );
+   [[nodiscard]] inline concat& phase1_assign( const pegtl::position& pos, concat& l, const key& p );
 
-   inline concat& phase1_assign_name( const pegtl::position& pos, concat& l, const std::string& k, const key& p )
+   [[nodiscard]] inline concat& phase1_assign_name( const pegtl::position& pos, concat& l, const std::string& k, const key& p )
    {
       for( auto& i : reverse( l.private_entries() ) ) {
          if( !i.is_object() ) {
@@ -35,7 +35,7 @@ namespace tao::config::internal
       return phase1_assign( pos, l.private_entries().back().emplace( k, pos ), p );
    }
 
-   inline concat& phase1_assign_minus( const pegtl::position& pos, concat& l, const key& p )
+   [[nodiscard]] inline concat& phase1_assign_minus( const pegtl::position& pos, concat& l, const key& p )
    {
       if( l.entries().empty() ) {
          l.emplace_back_array( pos );
@@ -49,7 +49,7 @@ namespace tao::config::internal
       return phase1_assign( pos, l.private_entries().back().emplace_back( pos ), p );
    }
 
-   inline concat& phase1_assign_index( const pegtl::position& pos, concat& l, const std::size_t m, const key& p )
+   [[nodiscard]] inline concat& phase1_assign_index( const pegtl::position& pos, concat& l, const std::size_t m, const key& p )
    {
       std::size_t n = m;
 
@@ -71,7 +71,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "array index out of range", { { "integer", m }, { "partial", n } } ), pos );
    }
 
-   inline concat& phase1_assign( const pegtl::position& pos, concat& l, const part& t, const key& p )
+   [[nodiscard]] inline concat& phase1_assign( const pegtl::position& pos, concat& l, const part& t, const key& p )
    {
       switch( t.type() ) {
          case part::name:
@@ -86,7 +86,7 @@ namespace tao::config::internal
       assert( false );
    }
 
-   inline concat& phase1_assign( const pegtl::position& pos, concat& l, const key& p )
+   [[nodiscard]] inline concat& phase1_assign( const pegtl::position& pos, concat& l, const key& p )
    {
       if( p.empty() ) {
          l.p = pos;
@@ -95,7 +95,7 @@ namespace tao::config::internal
       return phase1_assign( pos, l, p.front(), pop_front( p ) );
    }
 
-   inline concat& phase1_assign( const pegtl::position& pos, entry& e, const part& t, const key& p )
+   [[nodiscard]] inline concat& phase1_assign( const pegtl::position& pos, entry& e, const part& t, const key& p )
    {
       switch( t.type() ) {
          case part::name:
@@ -110,7 +110,7 @@ namespace tao::config::internal
       assert( false );
    }
 
-   inline concat& phase1_assign( const pegtl::position& pos, entry& e, const key& p )
+   [[nodiscard]] inline concat& phase1_assign( const pegtl::position& pos, entry& e, const key& p )
    {
       assert( !p.empty() );
 

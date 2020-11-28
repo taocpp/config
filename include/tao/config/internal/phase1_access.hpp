@@ -15,9 +15,9 @@
 
 namespace tao::config::internal
 {
-   inline const concat& phase1_access_impl( const pegtl::position& pos, const concat& l, const key& p );
+   [[nodiscard]] inline const concat& phase1_access_impl( const pegtl::position& pos, const concat& l, const key& p );
 
-   inline const concat& phase1_access_name( const pegtl::position& pos, const concat& l, const std::string& k, const key& p )
+   [[nodiscard]] inline const concat& phase1_access_name( const pegtl::position& pos, const concat& l, const std::string& k, const key& p )
    {
       for( const auto& i : reverse( l.entries() ) ) {
          if( !i.is_object() ) {
@@ -30,7 +30,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "object index not found", { { "string", k }, { "object", { &l.p } } } ), pos );
    }
 
-   inline const concat& phase1_access_index( const pegtl::position& pos, const concat& l, std::size_t n, const key& p )
+   [[nodiscard]] inline const concat& phase1_access_index( const pegtl::position& pos, const concat& l, std::size_t n, const key& p )
    {
       for( const auto& i : l.entries() ) {
          if( !i.is_array() ) {
@@ -47,7 +47,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "array index out of range", { { "integer", n }, { "array", { &l.p } } } ), pos );
    }
 
-   inline const concat& phase1_access_minus( const pegtl::position& pos, const concat& l, const key& p )
+   [[nodiscard]] inline const concat& phase1_access_minus( const pegtl::position& pos, const concat& l, const key& p )
    {
       for( const auto& i : reverse( l.entries() ) ) {
          if( !i.is_array() ) {
@@ -60,7 +60,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "array has no last element to access", { { "array", { &l.p } } } ), pos );
    }
 
-   inline const concat& phase1_access_impl( const pegtl::position& pos, const concat& l, const part& t, const key& p )
+   [[nodiscard]] inline const concat& phase1_access_impl( const pegtl::position& pos, const concat& l, const part& t, const key& p )
    {
       switch( t.type() ) {
          case part::name:
@@ -75,7 +75,7 @@ namespace tao::config::internal
       assert( false );
    }
 
-   inline const concat& phase1_access_impl( const pegtl::position& pos, const concat& l, const key& p )
+   [[nodiscard]] inline const concat& phase1_access_impl( const pegtl::position& pos, const concat& l, const key& p )
    {
       if( p.empty() ) {
          return l;
@@ -91,9 +91,9 @@ namespace tao::config::internal
       return nullptr;
    }
 
-   inline const concat& phase1_access( const pegtl::position& pos, const entry& e, const std::string& k, const key& p );
+   [[nodiscard]] inline const concat& phase1_access( const pegtl::position& pos, const entry& e, const std::string& k, const key& p );
 
-   inline const concat& phase1_access( const pegtl::position& pos, const concat& l, const std::string& k, const key& p )
+   [[nodiscard]] inline const concat& phase1_access( const pegtl::position& pos, const concat& l, const std::string& k, const key& p )
    {
       for( const auto& i : reverse( l.entries() ) ) {
          switch( i.type() ) {
@@ -117,7 +117,7 @@ namespace tao::config::internal
       return phase1_access( pos, l.parent(), k, p );
    }
 
-   inline const concat& phase1_access( const pegtl::position& pos, const entry& e, const std::string& k, const key& p )
+   [[nodiscard]] inline const concat& phase1_access( const pegtl::position& pos, const entry& e, const std::string& k, const key& p )
    {
       switch( e.type() ) {
          case entry::atom:
@@ -143,7 +143,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "object index not found", { { "string", k }, e.type() } ), pos );
    }
 
-   inline const concat& phase1_access( const pegtl::position& pos, const entry& e, const part& t, const key& p )
+   [[nodiscard]] inline const concat& phase1_access( const pegtl::position& pos, const entry& e, const part& t, const key& p )
    {
       switch( t.type() ) {
          case part::name:
@@ -161,7 +161,7 @@ namespace tao::config::internal
       assert( false );
    }
 
-   inline const concat& phase1_access( const pegtl::position& pos, const entry& e, const key& p )
+   [[nodiscard]] inline const concat& phase1_access( const pegtl::position& pos, const entry& e, const key& p )
    {
       assert( !p.empty() );
 

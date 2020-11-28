@@ -22,8 +22,7 @@ namespace tao::config::internal
    template< typename Rule >
    struct action
       : public pegtl::nothing< Rule >
-   {
-   };
+   {};
 
    template<>
    struct action< rules::null_s >

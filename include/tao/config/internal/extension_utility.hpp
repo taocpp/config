@@ -16,21 +16,21 @@
 
 namespace tao::config::internal
 {
-   inline json_t obtain_jaxn( pegtl_input_t& in )
+   [[nodiscard]] inline json_t obtain_jaxn( pegtl_input_t& in )
    {
       json::events::to_basic_value< value_traits > consumer;
       pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_value >, json::jaxn::internal::action, json::jaxn::internal::errors >( in, consumer );
       return std::move( consumer.value );
    }
 
-   inline std::string obtain_string( pegtl_input_t& in )
+   [[nodiscard]] inline std::string obtain_string( pegtl_input_t& in )
    {
       std::string s2;
       pegtl::parse< pegtl::must< json::jaxn::internal::rules::string_fragment >, json::jaxn::internal::unescape_action >( in, s2 );
       return s2;
    }
 
-   inline key obtain_key( pegtl_input_t& in, state& st )
+   [[nodiscard]] inline key obtain_key( pegtl_input_t& in, state& st )
    {
       pegtl::parse< pegtl::must< rules::pointer >, action, control >( in, st );
       return value_to_key( st.temporary );

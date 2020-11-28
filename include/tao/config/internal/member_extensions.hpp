@@ -171,7 +171,7 @@ namespace tao::config::internal
       }
    }
 
-   inline key temporary_compute_current_prefix( state& st )
+   [[nodiscard]] inline key temporary_compute_current_prefix( state& st )
    {
       try {
          temporary_compute_current_prefix( st.root, st.ostack.back(), key() );

@@ -18,8 +18,7 @@ namespace tao::config::internal
       template< typename Input, typename T >
       explicit number_state( const Input& in, const T& )
          : m_value( json::uninitialized, in.position() )
-      {
-      }
+      {}
 
       number_state( const number_state& ) = delete;
       number_state( number_state&& ) = delete;

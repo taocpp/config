@@ -19,8 +19,7 @@ namespace tao::config::internal
    public:
       explicit entry_array( const pegtl::position& pos )
          : m_position( pos )
-      {
-      }
+      {}
 
       entry_array( entry_array&& ) = delete;
       entry_array( const entry_array& ) = delete;
@@ -28,12 +27,12 @@ namespace tao::config::internal
       void operator=( entry_array&& ) = delete;
       void operator=( const entry_array& ) = delete;
 
-      std::size_t size() const noexcept
+      [[nodiscard]] std::size_t size() const noexcept
       {
          return m_list.size();
       }
 
-      bool empty() const noexcept
+      [[nodiscard]] bool empty() const noexcept
       {
          return m_list.empty();
       }
@@ -59,21 +58,21 @@ namespace tao::config::internal
          m_list.pop_back();
       }
 
-      concat& back() noexcept
+      [[nodiscard]] concat& back() noexcept
       {
          assert( !m_list.empty() );
 
          return m_list.back();
       }
 
-      const concat& back() const noexcept
+      [[nodiscard]] const concat& back() const noexcept
       {
          assert( !m_list.empty() );
 
          return m_list.back();
       }
 
-      concat& operator[]( const std::size_t n ) noexcept
+      [[nodiscard]] concat& operator[]( const std::size_t n ) noexcept
       {
          assert( n < m_list.size() );
 
@@ -82,7 +81,7 @@ namespace tao::config::internal
          return *i;
       }
 
-      const concat& operator[]( const std::size_t n ) const noexcept
+      [[nodiscard]] const concat& operator[]( const std::size_t n ) const noexcept
       {
          assert( n < m_list.size() );
 
@@ -101,17 +100,17 @@ namespace tao::config::internal
          return m_list.emplace_back( e, pos );
       }
 
-      const pegtl::position& position() const noexcept
+      [[nodiscard]] const pegtl::position& position() const noexcept
       {
          return m_position;
       }
 
-      std::list< concat >& private_list() noexcept
+      [[nodiscard]] std::list< concat >& private_list() noexcept
       {
          return m_list;
       }
 
-      const std::list< concat >& list() const noexcept
+      [[nodiscard]] const std::list< concat >& list() const noexcept
       {
          return m_list;
       }

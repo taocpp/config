@@ -45,7 +45,7 @@ namespace tao::config::internal
 
       ~basic_concat() = default;
 
-      E& parent() const noexcept
+      [[nodiscard]] E& parent() const noexcept
       {
          return *m_parent;
       }
@@ -59,12 +59,12 @@ namespace tao::config::internal
          }
       }
 
-      bool empty() const noexcept
+      [[nodiscard]] bool empty() const noexcept
       {
          return m_entries.empty();
       }
 
-      std::size_t size() const noexcept
+      [[nodiscard]] std::size_t size() const noexcept
       {
          return m_entries.size();
       }
@@ -84,7 +84,7 @@ namespace tao::config::internal
          m_clear = false;
       }
 
-      const std::list< E >& entries() const noexcept
+      [[nodiscard]] const std::list< E >& entries() const noexcept
       {
          return m_entries;
       }
@@ -138,7 +138,7 @@ namespace tao::config::internal
 
       pegtl::position p;
 
-      std::list< E >& private_entries() noexcept
+      [[nodiscard]] std::list< E >& private_entries() noexcept
       {
          return m_entries;
       }

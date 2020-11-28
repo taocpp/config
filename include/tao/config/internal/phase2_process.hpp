@@ -237,7 +237,7 @@ namespace tao::config::internal
       }
    };
 
-   inline json::basic_value< value_traits > phase2_process( entry& root, std::ostream* debug = nullptr )
+   [[nodiscard]] inline json::basic_value< value_traits > phase2_process( entry& root, std::ostream* debug = nullptr )
    {
       for( phase2_processor p( root, debug ); !p.finished(); p.process() ) {
       }

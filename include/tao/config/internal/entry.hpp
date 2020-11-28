@@ -20,8 +20,7 @@ namespace tao::config::internal
    union entry_union
    {
       entry_union() noexcept
-      {
-      }
+      {}
 
       entry_union( entry_union&& ) = delete;
       entry_union( const entry_union& ) = delete;
@@ -30,8 +29,7 @@ namespace tao::config::internal
       void operator=( const entry_union& ) = delete;
 
       ~entry_union() noexcept
-      {
-      }
+      {}
 
       json_t j;
 
@@ -54,8 +52,7 @@ namespace tao::config::internal
       explicit entry( concat* parent )
          : m_type( nothing ),
            m_parent( parent )
-      {
-      }
+      {}
 
       entry( concat* parent, const entry& r )
          : m_type( nothing ),

@@ -17,12 +17,12 @@
 
 namespace tao::config::internal
 {
-   inline std::string read_file_throws( const std::string& f )
+   [[nodiscard]] inline std::string read_file_throws( const std::string& f )
    {
       return pegtl::internal::file_reader( f.c_str() ).read();
    }
 
-   inline std::optional< std::string > read_file_nothrow( const std::string& f )
+   [[nodiscard]] inline std::optional< std::string > read_file_nothrow( const std::string& f )
    {
       try {
          return pegtl::internal::file_reader( f.c_str() ).read();
@@ -32,7 +32,7 @@ namespace tao::config::internal
       }
    }
 
-   inline std::string get_env_throws( const pegtl::position& pos, const std::string& e )
+   [[nodiscard]] inline std::string get_env_throws( const pegtl::position& pos, const std::string& e )
    {
       if( const char* r = std::getenv( e.c_str() ) ) {
          return std::string( r );
@@ -40,7 +40,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "environment variable not found", { { "name", e } } ), pos );
    }
 
-   inline std::optional< std::string > get_env_nothrow( const std::string& e )
+   [[nodiscard]] inline std::optional< std::string > get_env_nothrow( const std::string& e )
    {
       if( const char* r = std::getenv( e.c_str() ) ) {
          return std::string( r );
@@ -58,7 +58,7 @@ namespace tao::config::internal
       }
    }
 
-   inline std::string shell_popen_throws( const pegtl::position& pos, const std::string& c )
+   [[nodiscard]] inline std::string shell_popen_throws( const pegtl::position& pos, const std::string& c )
    {
       errno = 0;
 

@@ -87,7 +87,7 @@ namespace tao::config::internal::rules
                 template< typename... > class Control,
                 typename Input,
                 typename State >
-      static bool match( Input& in, State& st )
+      [[nodiscard]] static bool match( Input& in, State& st )
       {
          return do_value_extension( in, st );
       }
@@ -134,7 +134,7 @@ namespace tao::config::internal::rules
                 template< typename... > class Control,
                 typename Input,
                 typename State >
-      static bool match( Input& in, State& st )
+      [[nodiscard]] static bool match( Input& in, State& st )
       {
          return do_member_extension( in, st );
       }

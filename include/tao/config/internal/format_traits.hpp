@@ -16,14 +16,12 @@ namespace tao::config::internal
    template< typename T >
    struct format_traits
       : public config::traits< T >
-   {
-   };
+   {};
 
    template<>
    struct format_traits< void >
       : public json::traits< void >
-   {
-   };
+   {};
 
    template<>
    struct format_traits< pegtl::position >
@@ -50,8 +48,7 @@ namespace tao::config::internal
    template<>
    struct format_traits< pegtl::position* >
       : public format_traits< const pegtl::position* >
-   {
-   };
+   {};
 
    template<>
    struct format_traits< const std::optional< pegtl::position >* >
@@ -73,8 +70,7 @@ namespace tao::config::internal
    template<>
    struct format_traits< std::optional< pegtl::position >* >
       : public format_traits< const std::optional< pegtl::position >* >
-   {
-   };
+   {};
 
    template<>
    struct format_traits< json::type >
@@ -204,22 +200,19 @@ namespace tao::config::internal
    struct format_traits< concat >
       : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
                                       TAO_JSON_BIND_REQUIRED( "concat_list", &concat::entries ) >
-   {
-   };
+   {};
 
    template<>
    struct format_traits< entry_array >
       : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &entry_array::position ),
                                       TAO_JSON_BIND_REQUIRED( "array_data", &entry_array::list ) >
-   {
-   };
+   {};
 
    template<>
    struct format_traits< entry_object >
       : public json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &entry_object::position ),
                                       TAO_JSON_BIND_REQUIRED( "object_data", &entry_object::map ) >
-   {
-   };
+   {};
 
    template<>
    struct format_traits< const concat* >
@@ -234,8 +227,7 @@ namespace tao::config::internal
    template<>
    struct format_traits< concat* >
       : format_traits< const concat* >
-   {
-   };
+   {};
 
 }  // namespace tao::config::internal
 

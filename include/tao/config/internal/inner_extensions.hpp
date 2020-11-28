@@ -60,7 +60,7 @@ namespace tao::config::internal
    };
 
    template< typename R, typename A >
-   extension_t make_extension( R ( *f )( A ) )
+   [[nodiscard]] extension_t make_extension( R ( *f )( A ) )
    {
       static_assert( !std::is_reference_v< R > );
 
@@ -70,7 +70,7 @@ namespace tao::config::internal
    }
 
    template< typename R, typename A >
-   extension_t make_extension( std::function< R( A ) > f )
+   [[nodiscard]] extension_t make_extension( std::function< R( A ) > f )
    {
       static_assert( !std::is_reference_v< R > );
 
@@ -79,13 +79,13 @@ namespace tao::config::internal
       };
    }
 
-   inline std::vector< std::byte > binary_function( const std::string_view sv )
+   [[nodiscard]] inline std::vector< std::byte > binary_function( const std::string_view sv )
    {
       const auto* const sp = reinterpret_cast< const std::byte* >( sv.data() );
       return std::vector< std::byte >( sp, sp + sv.size() );
    }
 
-   inline json_t cbor_function( const tao::binary_view bv )
+   [[nodiscard]] inline json_t cbor_function( const tao::binary_view bv )
    {
       return json::cbor::basic_from_binary< value_traits >( bv );  // TODO: Positions.
    }
@@ -131,17 +131,17 @@ namespace tao::config::internal
       do_inner_extension( in, st );
    }
 
-   inline json_t jaxn_function( const std::string_view sv )
+   [[nodiscard]] inline json_t jaxn_function( const std::string_view sv )
    {
       return json::jaxn::basic_from_string< value_traits >( sv );  // TODO: Positions.
    }
 
-   inline json_t json_function( const std::string_view sv )
+   [[nodiscard]] inline json_t json_function( const std::string_view sv )
    {
       return json::basic_from_string< value_traits >( sv );  // TODO: Positions.
    }
 
-   inline json_t msgpack_function( const tao::binary_view bv )
+   [[nodiscard]] inline json_t msgpack_function( const tao::binary_view bv )
    {
       return json::msgpack::basic_from_binary< value_traits >( bv );  // TODO: Positions.
    }
@@ -234,12 +234,12 @@ namespace tao::config::internal
       throw pegtl::parse_error( format( __FILE__, __LINE__, "require string to split", { st.temporary.type() } ), pos );
    }
 
-   inline std::string string_function( const tao::binary_view bv )
+   [[nodiscard]] inline std::string string_function( const tao::binary_view bv )
    {
       return std::string( reinterpret_cast< const char* >( bv.data() ), bv.size() );
    }
 
-   inline json_t ubjson_function( const tao::binary_view bv )
+   [[nodiscard]] inline json_t ubjson_function( const tao::binary_view bv )
    {
       return json::ubjson::basic_from_binary< value_traits >( bv );  // TODO: Positions.
    }

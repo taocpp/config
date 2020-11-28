@@ -17,16 +17,16 @@
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   json::basic_value< Traits > basic_from_files( const std::vector< std::filesystem::path >& paths, schema::builtin b = schema::builtin() )
+   [[nodiscard]] json::basic_value< Traits > basic_from_files( const std::vector< std::filesystem::path >& paths, schema::builtin b = schema::builtin() )
    {
       internal::configurator c;
       for( const auto& path : paths ) {
-         c.parse( pegtl::file_input( path ) );
+         c.parse( path );
       }
       return c.process< Traits >( std::move( b ) );
    }
 
-   inline value from_files( const std::vector< std::filesystem::path >& paths, schema::builtin b = schema::builtin() )
+   [[nodiscard]] inline value from_files( const std::vector< std::filesystem::path >& paths, schema::builtin b = schema::builtin() )
    {
       return basic_from_files< traits >( paths, std::move( b ) );
    }
