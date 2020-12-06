@@ -1,7 +1,7 @@
-(include "tests/simple.config")
+(include "tests/simple.success")
 
 a = {
-   (include (shell "bash -c \"echo -n tests/simple.config\""))
+   (include (shell "bash -c \"echo -n tests/simple.success\""))
 }
 
 (setenv "CONFIGFILE" "tests/showcase.c")

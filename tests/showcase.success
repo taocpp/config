@@ -216,14 +216,14 @@ value13 = (env "VARIABLE") + (v.w.0)  // This kind of mixing is ok.
 
 // Including other (complete) config files.
 
-(include "tests/simple.config")  // Reads other file "as if" it were part of this one.
+(include "tests/simple.success")  // Reads other file "as if" it were part of this one.
 
 inc.nested.test = {
-   (include "tests/simple.config")  // Same as above, but parses into inc.nested.test.
+   (include "tests/simple.success")  // Same as above, but parses into inc.nested.test.
 }
 
 /*
-   With simple.config containing one assignment, simple = 42, we now have
+   With simple.success containing one assignment, simple = 42, we now have
    * simple = 42 at top-level from the first include, and
    * inc.nested.test.simple = 42 from the second include.
 */

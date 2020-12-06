@@ -2,6 +2,7 @@
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #include <algorithm>
+#include <filesystem>
 
 #include <tao/config.hpp>
 
@@ -10,14 +11,14 @@ namespace tao
    int failed = 0;
 
    template< template< typename... > class Traits >
-   void unit_test( const std::string& name )
+   void unit_test( const std::filesystem::path& path )
    {
       try {
-         const auto cc = config::basic_from_file< Traits >( name + ".error" );
+         const auto cc = config::basic_from_file< Traits >( path );
          const auto ccs = json::jaxn::to_string( cc );
          ++failed;
          std::cerr << std::endl
-                   << "Testcase '" << name << "' failed error test!" << std::endl;
+                   << "Testcase '" << path << "' failed error test!" << std::endl;
          std::cerr << "<<< Config parsed as config <<<" << std::endl;
          std::cerr << ccs << std::endl;
          std::cerr << ">>> Config parsed as config >>>" << std::endl;
@@ -28,14 +29,19 @@ namespace tao
 
 }  // namespace tao
 
-int main( int argc, char** argv )
+int main()
 {
-   for( int i = 1; i < argc; ++i ) {
-      tao::unit_test< tao::json::traits >( argv[ i ] );
-      tao::unit_test< tao::config::traits >( argv[ i ] );
+   unsigned count = 0;
+
+   for( const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator( "tests" ) ) {
+      if( const std::filesystem::path& path = entry.path(); path.extension() == ".failure" ) {
+         tao::unit_test< tao::json::traits >( path );
+         tao::unit_test< tao::config::traits >( path );
+         ++count;
+      }
    }
    if( !tao::failed ) {
-      std::cerr << "All testcases passed." << std::endl;
+      std::cerr << "All " << count << " testcases passed." << std::endl;
    }
    return std::min( tao::failed, 127 );
 }

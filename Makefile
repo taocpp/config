@@ -2,30 +2,35 @@
 # Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
 # Please see LICENSE for license or visit https://github.com/taocpp/config
 
-CXXSTD = -std=c++17
-CPPFLAGS = -pedantic -I../json/include -Iinclude
-CXXFLAGS = -Wall -Wextra -Werror -O3 -ftemplate-backtrace-limit=0
+.SUFFIXES:
+.SECONDARY:
 
+CXXSTD = -std=c++17
+CPPFLAGS ?= -pedantic -I../json/include -Iinclude
+CXXFLAGS ?= -Wall -Wextra -Werror -O3 -ftemplate-backtrace-limit=0
+
+HEADERS := $(shell find include -name "*.hpp")
 SOURCES := $(shell find src -name '*.cpp')
 DEPENDS := $(SOURCES:%.cpp=build/%.d)
 BINARIES := $(SOURCES:%.cpp=build/%)
 
-TESTFILES := $(shell find tests -name '*.config')
-TESTCASES := $(TESTFILES:%.config=%)
+UNIT_TESTS := $(filter build/src/test/%,$(BINARIES))
 
-ERRORFILES := $(shell find tests -name '*.error')
-ERRORCASES := $(ERRORFILES:%.config=%)
+.PHONY: all
+all: compile check
 
-.PHONY: all check clean
+.PHONY: compile
+compile: $(BINARIES)
 
-all: check $(BINARIES)
+.PHONY: check
+check: $(UNIT_TESTS)
+	echo $(UNIT_TESTS)
+	@set -e; for T in $(UNIT_TESTS); do echo $$T; TAO_CONFIG_VAR=hello $$T; done
 
-check: build/src/test/config/tests build/src/test/config/errors
-	TAO_CONFIG_VAR=hello build/src/test/config/tests $(TESTCASES)
-	TAO_CONFIG_VAR=world build/src/test/config/errors $(ERRORCASES)
-
+.PHONE: clean
 clean:
-	rm -rf build/*
+	@rm -rf build/*
+	@find . -name '*~' -delete
 
 build/%.d: %.cpp Makefile
 	@mkdir -p $(@D)

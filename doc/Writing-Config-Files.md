@@ -28,34 +28,14 @@ It also does not go into the details and complexities of how all the features (c
    - [Equality Sign](#equality-sign)
    - [Dotted Names](#dotted-names)
    - [Overwriting](#overwriting)
+   - [Deleting](#deleting)
  * [Atomic Values](#atomic-values)
    - [Literal Names](#literal-names)
    - [Number Values](#number-values)
    - [String Values](#string-values)
    - [Binary Values](#binary-values)
  * [References](#references)
- * [Value Extensions](#value-extensions)
-   - [binary](#binary)
-   - [cbor](#cbor)
-   - [copy](#copy)
-   - [debug](#debug)
-   - [env](#env)
-   - [jaxn](#jaxn)
-   - [json](#json)
-   - [msgpack](#msgpack)
-   - [parse](#parse)
-   - [read](#read)
-   - [shell](#shell)
-   - [split](#split)
-   - [string](#string)
-   - [ubjson](#ubjson)
- * [Member Extensions](#member-extensions)
-   - [delete](#delete)
-   - [include](#include)
-   - [schema](#schema)
-   - [setenv](#setenv)
-   - [stderr](#stderr)
-   - [temporary](#temporary)
+ * [Extensions](#extensions)
 
 
 
@@ -203,7 +183,7 @@ maps: [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 }
 ```
 
-Note that every single separating comma is individually optional and can be included or omitted.
+Note that every single separating comma is individually optional.
 
 
 ## Trailing Commas
@@ -299,6 +279,38 @@ maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 Note that overwriting earlier values can be done on top-level or in any arbitrarily deeply nested part of the config.
 
 
+## Deleting
+
+Previously defined values can be deleted with the special literal value `delete`.
+
+#### Example taoCONFIG Input File
+
+```
+#!/usr/local/bin/qs
+
+port = "TODO!"
+ip = "127.0.0.2"
+port = 27960
+maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
+```
+
+#### Resulting JSON Config Data
+
+```javascript
+{
+   "ip": "127.0.0.2",
+   "maps": [
+      "ztn",
+      "dm13",
+      "t9"
+   ],
+   "port": 27960
+}
+```
+
+TODO
+
+
 ## Dotted Names
 
 In many (all?) places the name of an object member is used it is actually possible to use a name with multiple dot-separated components, similar but not identical to JSON Pointer.
@@ -370,489 +382,9 @@ Object member names always occur in the syntactical scope of an object, and the 
 
 
 
-# Value Extensions
+# Extensions
 
-Value extensions produce a [JAXN] value and can be used wherever a value is expected.
-Note that whitespace is significant within value extensions, i.e. whitespace must be used as shown and comments are forbidden.
-
-
-## binary
-
-The `binary` value extension transforms a string value into a binary value.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (binary "Hello, world!")
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: $48656C6C6F2C20776F726C6421
-}
-```
-
-
-## cbor
-
-The `cbor` value extension parses binary data as [CBOR] and returns the resulting value.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (cbor $82f5f4)
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: [
-      true,
-      false
-   ]
-}
-```
-
-Note that `cbor` is frequently combined with `read` as in `foo = (cbor (read "filename.cbor"))`.
-
-
-## copy
-
-The `copy` value extension copies a value
-
-#### Example taoCONFIG Input File
-
-```
-
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-```
-
-
-## debug
-
-This value extension is a debugging tool and is similar to the `stderr` member extension.
-
-It produces a single string value with the [JSON] representation of the library's internal intermediate data structure for the referenced part of the config data in its current state.
-
-#### Example taoCONFIG Input File
-
-```
-foo = 42
-bar = (debug foo)
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   bar: "{position:\"tests/doc_value_debug.config:1:6\",concat_list:[{clear:true,atom:42}]}",
-   foo: 42
-}
-```
-
-
-## env
-
-The `env` value extensions obtain the value of an environment variable as string.
-For plain `env` it is an error when the environment variable does not exist, the `env?` alternative form returns a default value.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (env "USER")
-bar = (env? "GRMBLFX" "default")
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   bar: "default",
-   foo: "colin"
-}
-```
-
-
-## jaxn
-
-The `jaxn` value extension parses string data as [JAXN] and returns the resulting value.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (jaxn '[Infinity, $ff]')
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: [
-      Infinity,
-      $FF
-   ]
-}
-```
-
-Note that `jaxn` is frequently combined with `string` and `read` as in `foo = (jaxn (string (read "filename.jaxn")))`.
-
-
-## json
-
-The `json` value extension parses string data as [JSON] and returns the resulting value.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (json '["a","b"]')
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: [
-      "a",
-      "b"
-   ]
-}
-```
-
-Note that `json` is frequently combined with `string` and `read` as in `foo = (json (string (read "filename.json")))`.
-
-
-## msgpack
-
-The `msgpack` value extension parses binary data as [MsgPack] and returns the resulting value.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (msgpack $82a161c3a162c2)
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: {
-      a: true,
-      b: false
-   }
-}
-```
-
-Note that `msgpack` is frequently combined with `read` as in `foo = (msgpack (read "filename.msgpack"))`.
-
-
-## parse
-
-The `parse` value extension parses the given string as a single config value just "as if" the config file contained the string instead of the invocation of `parse`.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (parse "null")
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: null
-}
-```
-
-Note that the value described in the string is *not* allowed to use addition/concatenation, however references and/or other value extensions are allowed.
-
-
-## read
-
-The `read` file extension reads the contents of a file and returns them as binary data.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (read "tests/doc_value_read.config")
-bar = (string (read "tests/doc_value_read.config"))
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   bar: "foo = (read \"tests/doc_value_read.config\")\nbar = (string (read \"tests/doc_value_read.config\"))\n",
-   foo: $666F6F203D202872656164202274657374732F646F635F76616C75655F726561642E636F6E66696722290A626172203D2028737472696E67202872656164202274657374732F646F635F76616C75655F726561642E636F6E6669672229290A
-}
-```
-
-Note that `read` must be combined with `string` in order to validate the data as UTF-8 and transform it into a string.
-
-
-## shell
-
-The `shell` value extension execute the given string as shell script and returns its output.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (shell "uname -s")
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: "Darwin\n"
-}
-```
-
-Note that availability and behaviour of the  `shell` value extension are inherently system dependent.
-Currently it is only supported on Unix-style operating system like Linux and macOS.
-
-
-## split
-
-The `split` value extensions splits a string into its space-separated components and returns an array of them where "space" is a non-empty sequence of `' ', '\n', '\r', '\t', '\v' and/or '\f'` characters.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (split "a b c ")
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: [
-      "a",
-      "b",
-      "c"
-   ]
-}
-```
-
-
-## string
-
-The `string` value extension transforms a binary value into a string value.
-It validates that the binary data is valid UTF-8 and produces an error if that is not the case.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (string $48656C6C6F2C20776F726C6421)
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: "Hello, world!"
-}
-```
-
-
-## ubjson
-
-The `ubjson` value extension parses binary data as [UBJSON] and returns the resulting value.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (ubjson $4344)
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: "D"
-}
-```
-
-Note that `ubjson` is frequently combined with `read` as in `foo = (ubjson (read "filename.ubjson"))`.
-
-
-
-# Member Extensions
-
-Member extensions use the same syntax as value extensions, however they take the place of JSON object members.
-Note that whitespace is significant within member extensions, i.e. whitespace must be used as shown and comments are forbidden.
-
-
-## delete
-
-The `delete` member extensions delete a value (and all of its sub-values) from the config.
-For plain `delete` it is an error if the value does not exist, the `delete?` alternative form is idempotent and never reports an error.
-Values that were deleted can be assigned to again later.
-
-#### Example taoCONFIG Input File
-
-```
-foo = "LG"
-bar = "RL"
-
-(delete foo)
-(delete? baz)
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   bar: "RL"
-}
-```
-
-
-## include
-
-
-## schema
-
-The `schema` member extension tells the config library which [schema file](Writing-Schema-Files.cfg) the config must adhere to.
-After reading the config file(s), the schema file from the last `schema` directive, if any, is read, and the config is checked against it.
-
-#### Example taoCONFIG Input File
-
-```
-ip = "127.0.0.1"
-port = 42
-
-(schema "tests/doc_member_schema.schema")
-```
-
-#### Example taoCONFIG Schema File
-
-```
-definitions
-{
-    port
-    {
-        type: "std.unsigned"
-        minimum: 1
-        maximum: 65535
-    }
-}
-
-properties
-{
-    required
-    {
-        ip: "std.net.ip_v4_address"
-        port: "port"
-    }
-}
-```
-
-#### Resulting Printed Debug Data
-
-```javascript
-{
-   ip: "127.0.0.1",
-   port: 42
-}
-```
-
-For more on schemas [please consult the page on how to write schema files](Writing-Schema-Files.md).
-
-
-## setenv
-
-*The `setenv` member extension only exists to make the examples independent of their environment.*
-
-
-## stderr
-
-This member extension is a debugging tool and is similar to the `debug` value extension.
-
-It prints a JSON representation of the library's internal intermediate data structure for the referenced part of the config data in its current state to the standard error channel.
-The config value itself does not change through the presence or absence of "stderr members".
-
-#### Example taoCONFIG Input File
-
-```
-foo = 42
-
-(stderr foo)
-```
-
-#### Resulting Printed Debug Data
-
-```javascript
-{
-   position: "tests/doc_member_stderr.config:1:6",
-   concat_list: [
-      {
-         clear: true,
-         atom: 42
-      }
-   ]
-}
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: 42
-}
-```
-
-
-## temporary
-
-A part of the config can be marked as _temporary_ meaning that it will be removed from the final result after reading is complete.
-Marking a part of the config as _temporary_ can be done before or after the marked part of the config was (first) defined.
-Temporary parts of the config can still be referenced and copied normally.
-
-#### Example taoCONFIG Input File
-
-```
-template
-{
-   foo = 42
-   bar = true
-}
-
-(temporary template)
-
-first = (template) +
-{
-   foo = 43
-}
-
-second = (template) +
-{
-   bar = false
-}
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   first: {
-      bar: true,
-      foo: 43
-   },
-   second: {
-      bar: false,
-      foo: 42
-   }
-}
-
-```
-
+[value extensions](Value-Extenions.md) and [member extensions](Member-Extensions.md)
 
 
 Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey

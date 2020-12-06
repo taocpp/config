@@ -1,0 +1,2 @@
+foo = (read "tests/doc_value_read.success")
+bar = (string (read "tests/doc_value_read.success"))
