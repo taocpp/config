@@ -110,17 +110,13 @@ namespace tao::config::internal::rules
    struct number_value : pegtl::if_must< at_number, jaxn::sor_value > {};
 
    struct value_part : pegtl::sor< null_s, true_s, false_s, delete_s, array, object, special_value, string_value, binary_value, number_value > {};
-   struct array_part : pegtl::sor< null_s, array, special_value > {};
-   struct object_part : pegtl::sor< null_s, object, special_value > {};
 
    struct element_value_list : pegtl::list< value_part, plus, ws1 > {};
    struct member_value_list : pegtl::list< value_part, plus, ws1 > {};
-   struct member_array_list : pegtl::list< array_part, plus, ws1 > {};
-   struct member_object_list : pegtl::list< object_part, plus, ws1 > {};
    struct assign_member : pegtl::if_must< equals, wss, member_value_list > {};
    struct append_member : pegtl::if_must< plus_equals, wss, member_value_list > {};
-   struct array_member : pegtl::if_must< pegtl::at< square_a >, member_array_list > {};
-   struct object_member : pegtl::if_must< pegtl::at< curly_a >, member_object_list > {};
+   struct array_member : pegtl::if_must< pegtl::at< square_a >, member_value_list > {};
+   struct object_member : pegtl::if_must< pegtl::at< curly_a >, member_value_list > {};
    struct key_member : pegtl::must< pointer, wss, pegtl::sor< assign_member, append_member, array_member, object_member > > {};
 
    struct ext_member_impl

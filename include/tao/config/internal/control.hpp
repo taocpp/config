@@ -169,16 +169,6 @@ namespace tao::config::internal
       }
    };
 
-   template<>
-   struct control< rules::member_array_list >
-      : control< rules::member_value_list >
-   {};
-
-   template<>
-   struct control< rules::member_object_list >
-      : control< rules::member_value_list >
-   {};
-
 }  // namespace tao::config::internal
 
 #endif
