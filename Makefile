@@ -25,7 +25,7 @@ compile: $(BINARIES)
 .PHONY: check
 check: $(UNIT_TESTS)
 	echo $(UNIT_TESTS)
-	@set -e; for T in $(UNIT_TESTS); do echo $$T; TAO_CONFIG_VAR=hello $$T; done
+	@set -e; for T in $(UNIT_TESTS); do echo $$T; $$T; done
 
 .PHONE: clean
 clean:
