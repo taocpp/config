@@ -16,9 +16,9 @@ namespace tao::config::internal
    struct object;
 
    template< typename T >
-   struct value_traits;
+   struct json_traits;
 
-   using json_t = tao::json::basic_value< value_traits >;
+   using json_t = tao::json::basic_value< json_traits >;
 
 }  // namespace tao::config::internal
 
