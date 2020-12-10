@@ -1,4 +1,0 @@
-foo.n = 1
-bar = (foo)
-baz = 3
-bar.m = (baz)
