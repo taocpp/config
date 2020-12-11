@@ -21,25 +21,20 @@ namespace tao::config::internal
    {
       state()
          : root( pegtl::position( {}, "(root)" ) )
-      {
-         ostack.emplace_back( &root );
-      }
+      {}
 
       state( state&& ) = delete;
       state( const state& ) = delete;
 
+      ~state() = default;
+
       void operator=( state&& ) = delete;
       void operator=( const state&& ) = delete;
 
-      ~state() = default;
+      key1 prefix;
+      key1 suffix;
 
-      object root;
-
-      // Nested Structure
-
-      std::vector< array* > astack;   // Array contexts via '['.
-      std::vector< object* > ostack;   // Object contexts via '{'.
-      std::vector< concat* > lstack;  // Current rules::value_list.
+      object root;  // TODO: object or entry with object or concat with entry with object?
 
       // Phase 1 Extensions
 

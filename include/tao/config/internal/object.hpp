@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_OBJECT_HPP
 #define TAO_CONFIG_INTERNAL_OBJECT_HPP
 
+#include <cassert>
 #include <map>
 #include <string>
 

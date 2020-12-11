@@ -14,17 +14,17 @@
 namespace tao::config::internal
 {
    struct key1
-      : public std::vector< key1_part >
+      : std::vector< key1_part >
    {
       key1() = default;
 
       key1( key1&& ) = default;
       key1& operator=( key1&& ) = default;
 
+      ~key1() = default;
+
       key1( const key1& ) = default;
       key1& operator=( const key1& ) = default;
-
-      ~key1() = default;
 
       explicit key1( const std::string& s )
       {

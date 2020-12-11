@@ -47,6 +47,13 @@ namespace tao::config::internal
          return key1_kind( m_data.index() );
       }
 
+      void inc_index()
+      {
+         auto* s = std::get_if< std::uint64_t >( &m_data );
+         assert( s != nullptr );
+         ++*s;
+      }
+
       [[nodiscard]] std::uint64_t get_index() const noexcept
       {
          const auto* s = std::get_if< std::uint64_t >( &m_data );
@@ -61,56 +68,17 @@ namespace tao::config::internal
          return *s;
       }
 
+      [[nodiscard]] bool is_implicit() const noexcept
+      {
+         return ( position.line == 0 ) && ( position.column == 0 );
+      }
+
       pegtl::position position;
 
    private:
       std::variant< part_star_t, part_minus_t, std::string, std::uint64_t > m_data;
    };
 
-   // [[nodiscard]] inline std::string to_string( const key1_part& t )
-   // {
-   //    switch( t.type() ) {
-   //       case key1_part::star:
-   //          return "*";
-   //       case key1_part::minus:
-   //          return "-";
-   //       case key1_part::name:
-   //          return name_to_string( t.get_name() );
-   //       case key1_part::index:
-   //          return std::to_string( t.get_index() );
-   //    }
-   //    assert( false );
-   // }
-
-   // inline void name_to_stream( std::ostream& o, const std::string& name )
-   // {
-   //    if( is_ident( name ) ) {
-   //       o << name;
-   //    }
-   //    else {
-   //       o << '"' << json::internal::escape( name ) << '"';
-   //    }
-   // }
-
-   // inline void to_stream( std::ostream& o, const key1_part& t )
-   // {
-   //    switch( t.type() ) {
-   //       case key1_part::name:
-   //          name_to_stream( o, t.get_name() );
-   //          return;
-   //       case key1_part::index:
-   //          o << t.get_index();
-   //          return;
-   //       case key1_part::star:
-   //          o << '*';
-   //          return;
-   //       case key1_part::minus:
-   //          o << '-';
-   //          return;
-   //    }
-   //    assert( false );
-   // }
-
-}  // namespace tao::config
+}  // namespace tao::config::internal
 
 #endif

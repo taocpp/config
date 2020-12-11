@@ -6,8 +6,12 @@
 
 #include "forward.hpp"
 #include "json.hpp"
+#include "key1.hpp"
+#include "key1_guard.hpp"
+#include "key1_rules.hpp"
 #include "parse_utility.hpp"
 #include "pegtl.hpp"
+#include "ref2.hpp"
 
 namespace tao::config::internal::rules
 {
@@ -22,12 +26,11 @@ namespace tao::config::internal::rules
                 class Action,
                 template< typename... >
                 class Control,
-                typename State,
-                typename Concat >
-      [[nodiscard]] static bool match( pegtl_input_t& in, State& st, Concat& cc )
+                typename State >
+      [[nodiscard]] static bool match( pegtl_input_t& in, State& st )
       {
-         const auto p = in.position();
-         cc.concat.emplace_back( p, parse_ref2( in ) );
+         const ref2 r = parse_ref2( in );
+         st.append( r );
          return true;
       }
    };
@@ -43,12 +46,11 @@ namespace tao::config::internal::rules
                 class Action,
                 template< typename... >
                 class Control,
-                typename State,
-                typename Concat >
-      [[nodiscard]] static bool match( pegtl_input_t& in, State& st, Concat& cc )
+                typename State >
+      [[nodiscard]] static bool match( pegtl_input_t& in, State& st )
       {
-         const auto p = in.position();
-         cc.concat.emplace_back( p, parse_jaxn( in ) );
+         const json_t j = parse_jaxn( in );
+         st.append( j );
          return true;
       }
    };
@@ -77,8 +79,11 @@ namespace tao::config::internal::rules
    struct value_part : pegtl::sor< array, object, bra_value, jaxn_value > {};
    struct value_list : pegtl::list< value_part, pegtl::one< '+' >, jaxn::ws > {};
 
-   struct assign_member : pegtl::failure {};  // TODO -- :, = and erase etc.
-   struct append_member : pegtl::sor< pegtl::string< '+', '=' >, pegtl::at< pegtl::one< '{', '[' > > > {};
+   struct assign_head : pegtl::one< ':', '=' > {};
+   struct assign_member : pegtl::if_must< assign_head, wss, pegtl::sor< erase, value_list > > {};
+
+   struct append_head : pegtl::sor< pegtl::string< '+', '=' >, pegtl::at< pegtl::one< '{', '[' > > > {};
+   struct append_member : pegtl::if_must< append_head, wss, value_list > {};
 
    struct key_member : pegtl::sor< assign_member, append_member > {};
 
@@ -93,12 +98,12 @@ namespace tao::config::internal::rules
                 class Action,
                 template< typename... >
                 class Control,
-                typename State,
-                typename Object >
-      [[nodiscard]] static bool match( pegtl_input_t& in, State& st, Object& ob )
+                typename State >
+      [[nodiscard]] static bool match( pegtl_input_t& in, State& st )
       {
          const key1 k = parse_key1( in );
-         return Control< pegtl::must< wss, key_member > >::template match< A, M, Action, Control >( in, st, ob, k );
+         const key1_guard kg( st, k );
+         return Control< pegtl::must< wss, key_member > >::template match< A, M, Action, Control >( in, st );
       }
    };
 

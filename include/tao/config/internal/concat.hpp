@@ -4,12 +4,14 @@
 #ifndef TAO_CONFIG_INTERNAL_CONCAT_HPP
 #define TAO_CONFIG_INTERNAL_CONCAT_HPP
 
+#include <cassert>
 #include <list>
 
 #include "forward.hpp"
 #include "json.hpp"
+#include "key1.hpp"
 #include "pegtl.hpp"
-#include "ref2.hpp"
+#include "reverse.hpp"
 
 namespace tao::config::internal
 {
@@ -29,6 +31,22 @@ namespace tao::config::internal
 
       void operator=( basic_concat&& ) = delete;
       void operator=( const basic_concat& ) = delete;
+
+      array& ensure_array()
+      {
+         if( concat.empty() || ( !concat.back().is_array() ) ) {
+            concat.emplace_back( json::empty_array );
+         }
+         return concat.back().get_array();
+      }
+
+      object& ensure_object()
+      {
+         if( concat.empty() || ( !concat.back().is_object() ) ) {
+            concat.emplace_back( json::empty_object );
+         }
+         return concat.back().get_object();
+      }
 
       std::list< E > concat;
       pegtl::position position;

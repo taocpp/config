@@ -13,17 +13,17 @@
 namespace tao::config::internal
 {
    struct ref2
-      : public std::vector< ref2_part >
+      : std::vector< ref2_part >
    {
       ref2() = default;
 
       ref2( ref2&& ) = default;
       ref2& operator=( ref2&& ) = default;
 
+      ~ref2() = default;
+
       ref2( const ref2& ) = default;
       ref2& operator=( const ref2& ) = default;
-
-      ~ref2() = default;
 
       explicit ref2( const std::string& s )
       {
