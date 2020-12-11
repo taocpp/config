@@ -14,7 +14,7 @@ namespace tao::config::internal::rules
    struct ref_value
    {
       using rule_t = ref_value;
-      using subs_t = pegtl::empty_list;
+      using subs_t = pegtl::type_list< ref2_rest >;
 
       template< pegtl::apply_mode A,
                 pegtl::rewind_mode M,
@@ -35,7 +35,7 @@ namespace tao::config::internal::rules
    struct jaxn_value
    {
       using rule_t = jaxn_value;
-      using subs_t = pegtl::empty_list;
+      using subs_t = pegtl::type_list< json::jaxn::internal::rules::sor_single_value >;
 
       template< pegtl::apply_mode A,
                 pegtl::rewind_mode M,
@@ -60,7 +60,8 @@ namespace tao::config::internal::rules
    struct wsp : pegtl::plus< jaxn::ws > {};
 
    struct ext_name : pegtl::seq< ident, pegtl::opt< pegtl::one< '?' > > > {};
-   struct ext_value_func : pegtl::function< do_value_extension > {};
+   //   struct ext_value_func : pegtl::function< do_value_extension > {};
+   struct ext_value_func : pegtl::one< '%' > {};  // TODO: Remove this placeholder.
    struct ext_value : pegtl::must< ext_value_func, pegtl::one< ')' > > {};
 
    struct bra_value : pegtl::if_must< pegtl::one< '(' >, pegtl::if_must_else< pegtl::at< ref2_rest >, ref_value, ext_value > > {};
@@ -76,57 +77,15 @@ namespace tao::config::internal::rules
    struct value_part : pegtl::sor< array, object, bra_value, jaxn_value > {};
    struct value_list : pegtl::list< value_part, pegtl::one< '+' >, jaxn::ws > {};
 
-   struct key_member
-   {
-      using rule_t = key_member;
-      using subs_t = pegtl::type_list< pegtl::one< '=' >, wss, erase, value_list >;
+   struct assign_member : pegtl::failure {};  // TODO -- :, = and erase etc.
+   struct append_member : pegtl::sor< pegtl::string< '+', '=' >, pegtl::at< pegtl::one< '{', '[' > > > {};
 
-      template< pegtl::apply_mode A,
-                pegtl::rewind_mode M,
-                template< typename... >
-                class Action,
-                template< typename... >
-                class Control,
-                typename State,
-                typename Object >
-      [[nodiscard]] static bool match( pegtl_input_t& in, State& st, Object& ob, const key1& k )
-      {
-         if( in.empty() ) {
-            throw pegtl::parse_error( "expected key member value", in );
-         }
-         const auto p = in.position();
-         switch( in.peek_char() ) {
-            case ':':
-            case '=':
-               in.bump();
-               skip_ws( in );
-               if( pegtl::parse< erase >( in ) ) {
-
-
-                  return true;
-               }
-               break;
-            case '+':
-               in.bump();
-               Control< pegtl::must< pegtl::one< '=' >, wss, value_list > >::template match< A, M, Action, Control >( in, k, st );
-               return true;
-            case '[':
-            case '{':
-
-
-               break;
-            default:
-               throw pegtl::parse_error( "invalid key member continuation character", in );
-         }
-         Control< pegtl::must< value_list > >::template match< A, M, Action, Control >( in, k, st );
-         return true;
-      }
-   };
+   struct key_member : pegtl::sor< assign_member, append_member > {};
 
    struct member_key
    {
       using rule_t = member_key;
-      using subs_t = pegtl::type_list< pegtl::must< wss, key_member > >;
+      using subs_t = pegtl::type_list< key1_must, pegtl::must< wss, key_member > >;
 
       template< pegtl::apply_mode A,
                 pegtl::rewind_mode M,
@@ -143,7 +102,8 @@ namespace tao::config::internal::rules
       }
    };
 
-   struct ext_member_func : pegtl::function< do_member_extension > {};
+   //   struct ext_member_func : pegtl::function< do_member_extension > {};
+   struct ext_member_func : pegtl::one< '%' > {};  // TODO: Remove this placeholder.
    struct ext_member : pegtl::if_must< pegtl::one< '(' >, ext_member_func, pegtl::one< ')' > > {};
 
    struct member : pegtl::sor< ext_member, member_key > {};
