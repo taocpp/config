@@ -11,10 +11,6 @@
 
 namespace tao::config::internal
 {
-   class entry;
-   struct array;
-   struct object;
-
    template< typename T >
    struct json_traits;
 
