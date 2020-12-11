@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_PARSE_UTILITY_HPP
 #define TAO_CONFIG_INTERNAL_PARSE_UTILITY_HPP
 
+#include <optional>
 #include <string>
 
 #include "json.hpp"
@@ -14,6 +15,9 @@
 #include "key1_action.hpp"
 #include "key1_rules.hpp"
 #include "pegtl.hpp"
+#include "ref2.hpp"
+#include "ref2_action.hpp"
+#include "ref2_rules.hpp"
 
 namespace tao::config::internal
 {
@@ -26,6 +30,13 @@ namespace tao::config::internal
    {
       key1 result;
       pegtl::parse< pegtl::must< rules::key1_must >, key1_action >( in, result.vector() );
+      return result;
+   }
+
+   [[nodiscard]] inline std::optional< ref2 > parse_ref2( pegtl_input_t& in )
+   {
+      ref2 result;
+      pegtl::parse< pegtl::must< rules::ref2_rest >, ref2_action >( in, result.vector(), 0 );  // NOTE: Assumes that the opening bracket was already parsed!
       return result;
    }
 

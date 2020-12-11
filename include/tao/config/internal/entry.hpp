@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_ENTRY_HPP
 #define TAO_CONFIG_INTERNAL_ENTRY_HPP
 
+#include <cassert>
 #include <string>
 #include <variant>
 
@@ -21,9 +22,24 @@ namespace tao::config::internal
    {
       using data_t = std::variant< json_t, ref2, array, object >;
 
-      explicit entry( const pegtl::position& p, const json_t& j )
+      entry( const pegtl::position& p, const ref2& r )
+         : position( p ),
+           m_data( r )
+      {}
+
+      entry( const pegtl::position& p, const json_t& j )
          : position( p ),
            m_data( j )
+      {}
+
+      entry( const pegtl::position& p, const json::empty_array_t /*unused*/ )
+         : position( p ),
+           m_data( std::in_place_type_t< array >(), p )
+      {}
+
+      entry( const pegtl::position& p, const json::empty_object_t /*unused*/ )
+         : position( p ),
+           m_data( std::in_place_type_t< object >(), p )
       {}
 
       entry( entry&& ) = delete;
@@ -87,7 +103,6 @@ namespace tao::config::internal
       {
          const auto* s = std::get_if< json_t >( &m_data );
          assert( s );
-         //  assert( s->clear == m_clear );  // TODO: Where, and why exactly, is this violated?
          return *s;
       }
 
