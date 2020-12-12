@@ -18,14 +18,14 @@ namespace tao::config::internal
       key1_guard() = delete;
 
       template< typename State >
-      key1_guard( State& st, const std::size_t index )
+      key1_guard( const pegtl_input_t& /*unused*/, State& st )
          : m_prefix( st.prefix ),
            m_suffix( st.suffix ),
            m_size( m_prefix.size() )
       {
          m_prefix += m_suffix;
          m_suffix.clear();
-         m_suffix.emplace_back( index, pegtl::position( pegtl::internal::iterator( nullptr, 0, 0, 0 ), "implicit" ) );  // NOTE: For now the magic values 0 and 0 for line and column indicate an implicitly generated index.
+         m_suffix.emplace_back( 0, pegtl::position( pegtl::internal::iterator( nullptr, 0, 0, 0 ), "implicit" ) );  // NOTE: For now the magic values 0 and 0 for line and column indicate an implicitly generated index.
       }
 
       template< typename State >

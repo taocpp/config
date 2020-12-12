@@ -7,7 +7,8 @@
 
 CXXSTD = -std=c++17
 CPPFLAGS ?= -pedantic -I../json/include -Iinclude
-CXXFLAGS ?= -Wall -Wextra -Werror -O3 -ftemplate-backtrace-limit=0
+# CXXFLAGS ?= -Wall -Wextra -Werror -O3 -ftemplate-backtrace-limit=0
+CXXFLAGS ?= -Wall -Wextra -Werror -Wno-unused-parameter -O3 -ftemplate-backtrace-limit=0
 
 HEADERS := $(shell find include -name "*.hpp")
 SOURCES := $(shell find src -name '*.cpp')

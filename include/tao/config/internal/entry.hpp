@@ -6,9 +6,12 @@
 
 #include <cassert>
 #include <string>
+#include <utility>
 #include <variant>
 
 #include "array.hpp"
+#include "concat.hpp"
+#include "entry_kind.hpp"
 #include "forward.hpp"
 #include "json.hpp"
 #include "json_traits.hpp"
@@ -22,25 +25,35 @@ namespace tao::config::internal
    {
       using data_t = std::variant< json_t, ref2, array, object >;
 
-      entry( const pegtl::position& p, const ref2& r )
-         : position( p ),
-           m_data( r )
-      {}
+      static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( entry_kind::value ), data_t >, json_t > );
+      // TODO: All of these and everywhere?
 
-      entry( const pegtl::position& p, const json_t& j )
-         : position( p ),
-           m_data( j )
-      {}
+      explicit entry( const ref2& r )
+         : m_data( r )
+      {
+         assert( !r.empty() );
+      }
 
-      entry( const pegtl::position& p, const json::empty_array_t /*unused*/ )
-         : position( p ),
-           m_data( std::in_place_type_t< array >(), p )
-      {}
+      explicit entry( const json_t& j )
+         : m_data( j )
+      {
+         expand();
+      }
 
-      entry( const pegtl::position& p, const json::empty_object_t /*unused*/ )
-         : position( p ),
-           m_data( std::in_place_type_t< object >(), p )
-      {}
+      explicit entry( const entry_kind k )
+         : m_data( std::in_place_type_t< object >() )
+      {
+         switch( k ) {
+            case entry_kind::value:
+            case entry_kind::reference:
+               assert( false );  // TODO!
+            case entry_kind::array:
+               set_array();
+               break;
+            case entry_kind::object:
+               break;
+         }
+      }
 
       entry( entry&& ) = delete;
       entry( const entry& ) = delete;
@@ -49,6 +62,11 @@ namespace tao::config::internal
 
       void operator=( entry&& ) = delete;
       void operator=( const entry& ) = delete;
+
+      entry_kind kind() const noexcept
+      {
+         return entry_kind( m_data.index() );
+      }
 
       bool is_value() const noexcept
       {
@@ -68,6 +86,16 @@ namespace tao::config::internal
       bool is_object() const noexcept
       {
          return std::holds_alternative< object >( m_data );
+      }
+
+      void set_array()
+      {
+         m_data.emplace< std::size_t( entry_kind::array ) >();
+      }
+
+      void set_object()
+      {
+         m_data.emplace< std::size_t( entry_kind::array ) >();
       }
 
       json_t& get_value() noexcept
@@ -127,10 +155,30 @@ namespace tao::config::internal
          return *s;
       }
 
-      const pegtl::position position;
+      //      const pegtl::position position;
 
    private:
       std::variant< json_t, ref2, array, object > m_data;
+
+      void expand()
+      {
+         if( get_value().is_array() ) {
+            auto a = std::move( get_value().get_array() );
+            set_array();
+            for( auto& j : a ) {
+               get_array().array.emplace_back().concat.emplace_back( std::move( j ) );
+            }
+            return;
+         }
+         if( get_value().is_object() ) {
+            auto o = std::move( get_value().get_object() );
+            set_object();
+            for( auto& [ k, v ] : o ) {
+               get_object().object.try_emplace( std::move( k ) ).first->second.concat.emplace_back( std::move( v ) );
+            }
+            return;
+         }
+      }
    };
 
 }  // namespace tao::config::internal

@@ -17,11 +17,12 @@ namespace tao::config::internal
    {
       using data_t = std::list< C >;
 
-      basic_array() = delete;
+      basic_array() = default;
+      // basic_array() = delete;
 
-      explicit basic_array( const pegtl::position& pos )
-         : position( pos )
-      {}
+      // explicit basic_array( const pegtl::position& pos )
+      //    : position( pos )
+      // {}
 
       basic_array( basic_array&& ) = delete;
       basic_array( const basic_array& ) = delete;
@@ -80,7 +81,7 @@ namespace tao::config::internal
       }
 
       std::list< C > array;
-      pegtl::position position;
+      //      pegtl::position position;
    };
 
 }  // namespace tao::config::internal

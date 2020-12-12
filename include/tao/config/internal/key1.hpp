@@ -106,6 +106,20 @@ namespace tao::config::internal
       return l;
    }
 
+   [[nodiscard]] inline key1 operator+( const key1& l, const key1& r )
+   {
+      key1 t( l );
+      t += r;
+      return t;
+   }
+
+   [[nodiscard]] inline key1 operator+( const key1& l, const key1_part& r )
+   {
+      key1 t( l );
+      t += r;
+      return t;
+   }
+
 }  // namespace tao::config::internal
 
 #endif

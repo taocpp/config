@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE1_APPEND_HPP
 #define TAO_CONFIG_INTERNAL_PHASE1_APPEND_HPP
 
+#include <cassert>
 #include <string>
 
 #include "array.hpp"
@@ -17,72 +18,8 @@
 
 namespace tao::config::internal
 {
-   [[noreturn]] inline bool phase1_append( json_t& j, const key1& path, const ref1& value )
-   {
-      throw std::string( "assigning reference to json value" );
-   }
-
-   inline bool phase1_append( json_t& j, const key1& path, const json_t& value );
-
-   inline bool phase1_append_star( json_t& j, const key1& path, const json_t& value )
-   {
-      bool result = false;
-
-      switch( j.type() ) {
-         case json::type::ARRAY:
-            for( auto& v : j.get_array() ) {
-               result |= phase1_append( v, path, value );
-            }
-            return result;
-         case json::type::OBJECT:
-            for( auto& v : j.get_object() ) {
-               result |= phase1_append( v.second, path, value );
-            }
-            return result;
-         default:
-            throw std::string( "assigning to wrong json value type" );
-      }
-   }
-
-   inline bool phase1_append_minus( json_t& j, const key1& path, const json_t& value )
-   {
-      assert( false );  // TODO?
-      return true;
-   }
-
-   inline bool phase1_append_name( json_t& j, const std::string name, const key1& path, const json_t& value )
-   {
-      return phase1_append( j[ name ], path, value );
-   }
-
-   inline bool phase1_append_index( json_t& j, const std::size_t index, const key1& path, const json_t& value )
-   {
-      return phase1_append( j.at( index ), path, value );
-   }
-
-   inline bool phase1_append( json_t& j, const key1& path, const json_t& value )
-   {
-      if( path.empty() ) {
-         j = value;
-         return true;
-      }
-      switch( path.at( 0 ).kind() ) {
-         case key1_kind::star:
-            return phase1_append_star( j, pop_front( path ), value );
-         case key1_kind::minus:
-            return phase1_append_minus( j, pop_front( path ), value );
-         case key1_kind::name:
-            return phase1_append_name( j, path.at( 0 ).get_name(), pop_front( path ), value );
-         case key1_kind::index:
-            return phase1_append_index( j, path.at( 0 ).get_index(), pop_front( path ), value );
-      }
-      assert( false );
-   }
-
-   inline bool phase1_append( concat& c, const key1& path, const json_t& value );
-
    template< typename V >
-   void phase1_append_star( array& a, const key1& path, const T& value )
+   void phase1_append_star( array& a, const key1& path, const V& value )
    {
       for( auto& c : a.array ) {
          phase1_append( c, path, value );
@@ -90,12 +27,12 @@ namespace tao::config::internal
    }
 
    template< typename V >
-   bool phase1_append_star( concat& c, const key1& path, const T& value )
+   bool phase1_append_star( concat& c, const key1& path, const V& value )
    {
       for( auto& e : c.concat ) {
          switch( e.kind() ) {
             case entry_kind::value:
-               phase1_append( e.get_value(), path, value );
+               // TODO: Error or ignore?
                continue;
             case entry_kind::reference:
                // TODO: Error or ignore?
@@ -119,7 +56,8 @@ namespace tao::config::internal
    template< typename V >
    bool phase1_append_name( concat& c, const std::string& name, const key1& path, const V& value )
    {
-      return phase1_append( c.ensure_object().object[ name ], path, value );
+      c.back_ensure_kind( entry_kind::object );
+      return phase1_append( c.concat.back().get_object().object[ name ], path, value );
    }
 
    template< typename V >
@@ -128,32 +66,29 @@ namespace tao::config::internal
       assert( false );  // TODO
    }
 
-   inline void phase1_append( concat& c, const json_t& value )
+   inline bool phase1_append( concat& c, const json_t& value )
    {
       c.concat.emplace_back( value );
+      return true;
    }
 
-   inline void phase1_append( concat& c, const ref2& value )
+   inline bool phase1_append( concat& c, const ref2& value )
    {
       c.concat.emplace_back( value );
+      return true;
    }
 
-   inline void phase1_append( concat& c, const json::empty_array_t /*unused*/ )
+   inline bool phase1_append( concat& c, const entry_kind k )
    {
-      c.ensure_array();
-   }
-
-   inline void phase1_append( concat& c, const json::empty_array_t /*unused*/ )
-   {
-      c.ensure_object();
+      c.back_ensure_kind( k );
+      return true;
    }
 
    template< typename V >
-   bool phase1_append( concat& c, const key1& path, const T& value )
+   bool phase1_append( concat& c, const key1& path, const V& value )
    {
       if( path.empty() ) {
-         phase1_append( c, value );
-         return true;
+         return phase1_append( c, value );
       }
       switch( path.at( 0 ).kind() ) {
          case key1_kind::star:
@@ -166,6 +101,14 @@ namespace tao::config::internal
             return phase1_append_index( c, path.at( 0 ).get_index(), pop_front( path ), value );
       }
       assert( false );
+   }
+
+   template< typename V >
+   void phase1_append( object& o, const key1& path, const V& value )
+   {
+      assert( !path.empty() );
+
+      phase1_append( o.object[ path.front().get_name() ], pop_front( path ), value );
    }
 
 }  // namespace tao::config::internal

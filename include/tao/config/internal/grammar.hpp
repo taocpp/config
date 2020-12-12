@@ -11,6 +11,7 @@
 #include "key1_rules.hpp"
 #include "parse_utility.hpp"
 #include "pegtl.hpp"
+#include "phase1_append.hpp"
 #include "ref2.hpp"
 
 namespace tao::config::internal::rules
@@ -30,7 +31,7 @@ namespace tao::config::internal::rules
       [[nodiscard]] static bool match( pegtl_input_t& in, State& st )
       {
          const ref2 r = parse_ref2( in );
-         st.append( r );
+         phase1_append( st.root, st.prefix + st.suffix, r );
          return true;
       }
    };
@@ -50,7 +51,7 @@ namespace tao::config::internal::rules
       [[nodiscard]] static bool match( pegtl_input_t& in, State& st )
       {
          const json_t j = parse_jaxn( in );
-         st.append( j );
+         phase1_append( st.root, st.prefix + st.suffix, j );
          return true;
       }
    };

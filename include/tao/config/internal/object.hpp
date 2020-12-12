@@ -18,11 +18,12 @@ namespace tao::config::internal
    {
       using data_t = std::map< std::string, C >;
 
-      basic_object() = delete;
+      basic_object() = default;
+      // basic_object() = delete;
 
-      explicit basic_object( const pegtl::position& p )
-         : position( p )
-      {}
+      // explicit basic_object( const pegtl::position& p )
+      //    : position( p )
+      // {}
 
       basic_object( basic_object&& ) = delete;
       basic_object( const basic_object& ) = delete;
@@ -45,7 +46,7 @@ namespace tao::config::internal
       }
 
       std::map< std::string, C > object;
-      pegtl::position position;
+      //      pegtl::position position;
    };
 
 }  // namespace tao::config::internal

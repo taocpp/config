@@ -6,10 +6,12 @@
 
 #include <cassert>
 
+#include "entry_kind.hpp"
 #include "grammar.hpp"
 #include "json.hpp"
 #include "key1_guard.hpp"
 #include "pegtl.hpp"
+#include "phase1_append.hpp"
 
 namespace tao::config::internal
 {
@@ -19,12 +21,22 @@ namespace tao::config::internal
    {};
 
    template<>
+   struct action< rules::erase >
+   {
+      template< typename State >
+      static void apply0( State& st )
+      {
+         //         phase1_erase( st.root, st.prefix + st.suffix );
+      }
+   };
+
+   template<>
    struct action< json::jaxn::internal::rules::begin_array >
    {
       template< typename State >
       static void apply0( State& st )
       {
-         phase1_append( st.root, st.prefix + st.suffix, json::empty_array_t );
+         phase1_append( st.root, st.prefix + st.suffix, entry_kind::array );
       }
    };
 
@@ -34,7 +46,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st )
       {
-         phase1_append( st.root, st.prefix + st.suffix, json::empty_object_t );
+         phase1_append( st.root, st.prefix + st.suffix, entry_kind::object );
       }
    };
 
@@ -54,23 +66,8 @@ namespace tao::config::internal
 
    template<>
    struct action< rules::element_list >
-      : pegtl::nothing< rules::element_list >
-   {
-      template< typename Rule,
-                pegtl::apply_mode A,
-                pegtl::rewind_mode M,
-                template< typename... >
-                class Action,
-                template< typename... >
-                class Control,
-                typename Input,
-                typename State >
-      [[nodiscard]] static bool match( Input& in, State& st )
-      {
-         const key1_guard kg( st, 0 );
-         return pegtl::match< rules::element_list, A, M, Action, Control >( in, st );
-      }
-   };
+      : pegtl::instantiate< key1_guard >
+   {};
 
 }  // namespace tao::config::internal
 
