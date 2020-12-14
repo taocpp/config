@@ -50,6 +50,8 @@ namespace tao::config::internal
       }
    };
 
+   // Temporary (?) hack for arrays, during phase1 an implicit key1 index is interpreted as being relative to the last array of the target concat instead of an absolute index.
+
    template<>
    struct action< rules::value_list >
    {

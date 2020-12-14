@@ -18,6 +18,67 @@
 
 namespace tao::config::internal
 {
+   inline void phase1_erase( array& a, const key1_part& part )
+   {
+      switch( part.kind() ) {
+         case key1_kind::star:
+            a.array.clear();
+            return;
+         case key1_kind::minus:
+            assert( false );  // TODO -- determine correct index across concats etc.
+            if( a.array.empty() ) {
+               throw std::string( "delete last in empty array" );
+            }
+            a.array.pop_back();
+            return;
+         case key1_kind::name:
+            throw std::string( "delete name in array" );
+         case key1_kind::index:
+            assert( false );  // TODO -- determine correct index across concats etc.
+      }
+      assert( false );
+   }
+
+   inline void phase1_erase( object& o, const key1_part& part )
+   {
+      switch( part.kind() ) {
+         case key1_kind::star:
+            o.object.clear();
+            return;
+         case key1_kind::minus:
+            throw std::string( "delete minus in object" );
+         case key1_kind::name:
+            o.object.erase( part.get_name() );
+            return;
+         case key1_kind::index:
+            throw std::string( "delete index in object" );
+      }
+      assert( false );
+   }
+
+   inline void phase1_erase( entry& e, const key1_part& part )
+   {
+      switch( e.kind() ) {
+         case entry_kind::value:
+            throw std::string( "erase inside atomic value" );
+         case entry_kind::reference:
+            return;  // TODO: Error or ignore?
+         case entry_kind::array:
+            return phase1_erase( e.get_array(), part );
+         case entry_kind::object:
+            return phase1_erase( e.get_object(), part );
+      }
+      assert( false );
+   }
+
+   inline void phase1_erase( concat& c, const key1_part& part )
+   {
+      for( auto& e : c.concat ) {
+         phase1_erase( e, part );
+      }
+   }
+
+
    [[noreturn]] inline bool phase1_append( json_t& j, const key1& path, const ref1& value )
    {
       throw std::string( "assigning reference to json value" );
@@ -162,16 +223,26 @@ namespace tao::config::internal
          case key1_kind::name:
             return phase1_erase_name( c, path.at( 0 ).get_name(), pop_front( path ), part );
          case key1_kind::index:
+            if( path.at( 0 ).is_implicit() ) {
+               return phase1_erase_implicit( c, path.at( 0 ).get_index(), pop_front( path ), part );
+            }
             return phase1_erase_index( c, path.at( 0 ).get_index(), pop_front( path ), part );
       }
       assert( false );
    }
 
-   inline void phase1_erase( entry& e, const key1& path )
+   inline void phase1_erase( object& o, const key1& path )
    {
       assert( !path.empty() );
 
-      phase1_erase( e, pop_back( path ), path.back() );
+      if( path.size() == 1 ) {
+         o.object.erase( path.at( 0 ).get_name() );
+         return;
+      }
+      if( auto* p = o.find( path.at( 0 ).get_name() ) ) {
+         phase1_erase( p->second
+      const auto i = o.object.
+         phase1_erase( o.object., pop_back( path ), path.back() );
    }
 
 }  // namespace tao::config::internal

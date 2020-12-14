@@ -19,12 +19,7 @@
 namespace tao::config::internal
 {
    template< typename V >
-   void phase1_append_star( array& a, const key1& path, const V& value )
-   {
-      for( auto& c : a.array ) {
-         phase1_append( c, path, value );
-      }
-   }
+   bool phase1_append( concat& c, const key1& path, const V& value );
 
    template< typename V >
    bool phase1_append_star( concat& c, const key1& path, const V& value )
@@ -32,10 +27,10 @@ namespace tao::config::internal
       for( auto& e : c.concat ) {
          switch( e.kind() ) {
             case entry_kind::value:
-               // TODO: Error or ignore?
+               // TODO: Error or ignore? -- Probably error!
                continue;
             case entry_kind::reference:
-               // TODO: Error or ignore?
+               // TODO: Error or ignore? -- Possibly ignore!
                continue;
             case entry_kind::array:
                for( auto& c : e.get_array().array ) {
@@ -48,9 +43,16 @@ namespace tao::config::internal
                }
                continue;
          }
-         assert( false );
+         assert( false );  // UNREACHABLE
       }
       return true;
+   }
+
+   template< typename V >
+   bool phase1_append_minus( concat& c, const key1& path, const V& value )
+   {
+      c.back_ensure_kind( entry_kind::array );
+      assert( false );  // TODO
    }
 
    template< typename V >
@@ -63,7 +65,22 @@ namespace tao::config::internal
    template< typename V >
    bool phase1_append_index( concat& c, const std::size_t index, const key1& path, const V& value )
    {
-      assert( false );  // TODO
+      c.back_ensure_kind( entry_kind::array );
+      assert( false );  // TODO!
+   }
+
+   template< typename V >
+   bool phase1_append_implicit( concat& c, const std::size_t index, const key1& path, const V& value )
+   {
+      c.back_ensure_kind( entry_kind::array );
+      auto& a = c.concat.back().get_array();
+      if( index == a.array.size() ) {
+         return phase1_append( a.array.emplace_back(), path, value );
+      }
+      if( index + 1 == a.array.size() ) {
+         return phase1_append( a.array.back(), path, value );
+      }
+      assert( false );  // UNREACHABLE
    }
 
    inline bool phase1_append( concat& c, const json_t& value )
@@ -94,13 +111,16 @@ namespace tao::config::internal
          case key1_kind::star:
             return phase1_append_star( c, pop_front( path ), value );
          case key1_kind::minus:
-            assert( false );  // TODO
+            return phase1_append_minus( c, pop_front( path ), value );
          case key1_kind::name:
             return phase1_append_name( c, path.at( 0 ).get_name(), pop_front( path ), value );
          case key1_kind::index:
+            if( path.at( 0 ).is_implicit() ) {
+               return phase1_append_implicit( c, path.at( 0 ).get_index(), pop_front( path ), value );
+            }
             return phase1_append_index( c, path.at( 0 ).get_index(), pop_front( path ), value );
       }
-      assert( false );
+      assert( false );  // UNREACHABLE
    }
 
    template< typename V >
