@@ -24,8 +24,8 @@ namespace tao::config::internal
       //    : position( pos )
       // {}
 
-      basic_array( basic_array&& ) = delete;
-      basic_array( const basic_array& ) = delete;
+      basic_array( basic_array&& ) = default;
+      basic_array( const basic_array& ) = default;
 
       ~basic_array() = default;
 
@@ -81,7 +81,7 @@ namespace tao::config::internal
       }
 
       std::list< C > array;
-      //      pegtl::position position;
+      // pegtl::position position;
    };
 
 }  // namespace tao::config::internal

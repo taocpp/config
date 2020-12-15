@@ -12,6 +12,7 @@
 #include "key1_guard.hpp"
 #include "pegtl.hpp"
 #include "phase1_append.hpp"
+#include "phase1_remove.hpp"
 
 namespace tao::config::internal
 {
@@ -21,12 +22,12 @@ namespace tao::config::internal
    {};
 
    template<>
-   struct action< rules::erase >
+   struct action< rules::assign_head >
    {
       template< typename State >
       static void apply0( State& st )
       {
-         //         phase1_erase( st.root, st.prefix + st.suffix );
+         phase1_remove( st.root, st.prefix + st.suffix );
       }
    };
 

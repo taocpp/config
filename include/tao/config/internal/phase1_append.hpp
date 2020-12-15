@@ -18,6 +18,24 @@
 
 namespace tao::config::internal
 {
+   inline bool phase1_append( concat& c, const json_t& value )
+   {
+      c.concat.emplace_back( value );
+      return true;
+   }
+
+   inline bool phase1_append( concat& c, const ref2& value )
+   {
+      c.concat.emplace_back( value );
+      return true;
+   }
+
+   inline bool phase1_append( concat& c, const entry_kind k )
+   {
+      c.back_ensure_kind( k );
+      return true;
+   }
+
    template< typename V >
    bool phase1_append( concat& c, const key1& path, const V& value );
 
@@ -81,24 +99,6 @@ namespace tao::config::internal
          return phase1_append( a.array.back(), path, value );
       }
       assert( false );  // UNREACHABLE
-   }
-
-   inline bool phase1_append( concat& c, const json_t& value )
-   {
-      c.concat.emplace_back( value );
-      return true;
-   }
-
-   inline bool phase1_append( concat& c, const ref2& value )
-   {
-      c.concat.emplace_back( value );
-      return true;
-   }
-
-   inline bool phase1_append( concat& c, const entry_kind k )
-   {
-      c.back_ensure_kind( k );
-      return true;
    }
 
    template< typename V >

@@ -25,8 +25,8 @@ namespace tao::config::internal
       //    : position( p )
       // {}
 
-      basic_object( basic_object&& ) = delete;
-      basic_object( const basic_object& ) = delete;
+      basic_object( basic_object&& ) = default;
+      basic_object( const basic_object& ) = default;
 
       ~basic_object() = default;
 

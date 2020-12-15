@@ -55,8 +55,8 @@ namespace tao::config::internal
          }
       }
 
-      entry( entry&& ) = delete;
-      entry( const entry& ) = delete;
+      entry( entry&& ) = default;
+      entry( const entry& ) = default;
 
       ~entry() = default;
 

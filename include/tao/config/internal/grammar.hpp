@@ -75,13 +75,13 @@ namespace tao::config::internal::rules
    struct array;
    struct object;
 
-   struct erase : pegtl::string< 'd', 'e', 'l', 'e', 't', 'e' > {};
+   struct remove : pegtl::string< 'd', 'e', 'l', 'e', 't', 'e' > {};
 
    struct value_part : pegtl::sor< array, object, bra_value, jaxn_value > {};
    struct value_list : pegtl::list< value_part, pegtl::one< '+' >, jaxn::ws > {};
 
    struct assign_head : pegtl::one< ':', '=' > {};
-   struct assign_member : pegtl::if_must< assign_head, wss, pegtl::sor< erase, value_list > > {};
+   struct assign_member : pegtl::if_must< assign_head, wss, pegtl::sor< remove, value_list > > {};
 
    struct append_head : pegtl::sor< pegtl::string< '+', '=' >, pegtl::at< pegtl::one< '{', '[' > > > {};
    struct append_member : pegtl::if_must< append_head, wss, value_list > {};
