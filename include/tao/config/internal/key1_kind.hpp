@@ -9,7 +9,7 @@ namespace tao::config::internal
    enum class key1_kind : char
    {
       star = 0,
-      minus = 1,
+      minus = 1,  // TODO: Remove?
       name = 2,
       index = 3
    };

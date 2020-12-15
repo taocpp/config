@@ -15,17 +15,16 @@
 
 namespace tao::config::internal
 {
-   class key1_part
+   struct key1_part
    {
-   public:
       key1_part( const part_star_t t, const pegtl::position& p )
          : position( p ),
-           m_data( t )
+           data( t )
       {}
 
       key1_part( const part_minus_t t, const pegtl::position& p )
          : position( p ),
-           m_data( t )
+           data( t )
       {}
 
       // key1_part( const char, const pegtl::position& ) = delete;
@@ -34,36 +33,36 @@ namespace tao::config::internal
 
       key1_part( const std::uint64_t i, const pegtl::position& p )
          : position( p ),
-           m_data( i )
+           data( i )
       {}
 
       key1_part( const std::string& n, const pegtl::position& p )
          : position( p ),
-           m_data( n )
+           data( n )
       {}
 
       [[nodiscard]] key1_kind kind() const noexcept
       {
-         return key1_kind( m_data.index() );
+         return key1_kind( data.index() );
       }
 
       void inc_index()
       {
-         auto* s = std::get_if< std::uint64_t >( &m_data );
+         auto* s = std::get_if< std::uint64_t >( &data );
          assert( s != nullptr );
          ++*s;
       }
 
       [[nodiscard]] std::uint64_t get_index() const noexcept
       {
-         const auto* s = std::get_if< std::uint64_t >( &m_data );
+         const auto* s = std::get_if< std::uint64_t >( &data );
          assert( s != nullptr );
          return *s;
       }
 
       [[nodiscard]] const std::string& get_name() const noexcept
       {
-         const auto* s = std::get_if< std::string >( &m_data );
+         const auto* s = std::get_if< std::string >( &data );
          assert( s != nullptr );
          return *s;
       }
@@ -74,9 +73,7 @@ namespace tao::config::internal
       }
 
       pegtl::position position;
-
-   private:
-      std::variant< part_star_t, part_minus_t, std::string, std::uint64_t > m_data;
+      std::variant< part_star_t, part_minus_t, std::string, std::uint64_t > data;
    };
 
 }  // namespace tao::config::internal

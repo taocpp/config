@@ -8,7 +8,7 @@ namespace tao::config::internal
 {
    enum class ref2_kind : char
    {
-      minus = 1,
+      minus = 1,  // TODO: Remove?
       name = 2,
       index = 3,
       vector = 4
