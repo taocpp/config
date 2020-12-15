@@ -25,7 +25,7 @@ namespace tao::config::internal
       {
          m_prefix += m_suffix;
          m_suffix.clear();
-         m_suffix.emplace_back( 0, pegtl::position( pegtl::internal::iterator( nullptr, 0, 0, 0 ), "implicit" ) );  // NOTE: For now the magic values 0 and 0 for line and column indicate an implicitly generated index.
+         m_suffix.emplace_back( 0, pegtl::position( pegtl::internal::iterator( nullptr, std::size_t( -1 ), std::size_t( -1 ), std::size_t( -1 ) ), "implicit" ) );  // NOTE: For now the magic values 0 and 0 for line and column indicate an implicitly generated index.
       }
 
       template< typename State >

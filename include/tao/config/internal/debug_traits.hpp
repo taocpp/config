@@ -92,14 +92,17 @@ namespace tao::config::internal
       template< template< typename... > class Traits, typename Consumer >
       static void produce( Consumer& c, const key1_part& p )
       {
-         c.begin_object( 2 );
+         c.begin_object( 3 );
          c.key( "key1_kind" );
          json::events::produce< Traits >( c, p.kind() );
          c.member();
          c.key( "key1_data" );
          json::events::produce< Traits >( c, p.data );
          c.member();
-         c.end_object( 2 );
+         c.key( "position" );
+         json::events::produce< Traits >( c, p.position );
+         c.member();
+         c.end_object( 3 );
       }
    };
 
@@ -144,14 +147,17 @@ namespace tao::config::internal
       template< template< typename... > class Traits, typename Consumer >
       static void produce( Consumer& c, const ref2_part& p )
       {
-         c.begin_object( 2 );
+         c.begin_object( 3 );
          c.key( "ref2_kind" );
          json::events::produce< Traits >( c, p.kind() );
          c.member();
          c.key( "ref2_data" );
          json::events::produce< Traits >( c, p.data );
          c.member();
-         c.end_object( 2 );
+         c.key( "position" );
+         json::events::produce< Traits >( c, p.position );
+         c.member();
+         c.end_object( 3 );
       }
    };
 

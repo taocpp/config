@@ -69,7 +69,7 @@ namespace tao::config::internal
 
       [[nodiscard]] bool is_implicit() const noexcept
       {
-         return ( position.line == 0 ) && ( position.column == 0 );
+         return position.byte == std::size_t( -1 );
       }
 
       pegtl::position position;
