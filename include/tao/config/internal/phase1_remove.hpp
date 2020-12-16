@@ -77,7 +77,7 @@ namespace tao::config::internal
 
    inline void phase1_remove_index( concat& c, const std::size_t n )
    {
-      assert( false );  // UNREACHABLE
+      assert( false );  // TODO
    }
 
    inline void phase1_remove_append( concat& c, const bool r )

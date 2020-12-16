@@ -7,6 +7,7 @@
 namespace tao::config::internal
 {
    struct entry;
+   struct state;
 
    template< typename E > struct basic_concat;
 
