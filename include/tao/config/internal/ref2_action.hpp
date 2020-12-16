@@ -22,7 +22,7 @@ namespace tao::config::internal
    struct ref2_action< rules::ident >
    {
       template< typename Input >
-      static void apply( const Input& in, std::vector< ref2_part >& st, const unsigned /*unused*/ )
+      static void apply( const Input& in, std::vector< ref2_part >& st )
       {
          st.emplace_back( in.string(), in.position() );
       }
@@ -32,7 +32,7 @@ namespace tao::config::internal
    struct ref2_action< rules::index >
    {
       template< typename Input >
-      static void apply( const Input& in, std::vector< ref2_part >& st, const unsigned /*unused*/ )
+      static void apply( const Input& in, std::vector< ref2_part >& st )
       {
          st.emplace_back( std::stoul( in.string() ), in.position() );
       }
@@ -42,7 +42,7 @@ namespace tao::config::internal
    struct ref2_action< rules::minus >
    {
       template< typename Input >
-      static void apply( const Input& in, std::vector< ref2_part >& st, const unsigned /*unused*/ )
+      static void apply( const Input& in, std::vector< ref2_part >& st )
       {
          st.emplace_back( part_minus, in.position() );
       }
@@ -53,15 +53,15 @@ namespace tao::config::internal
       : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
       template< typename Input >
-      static void success( const Input& in, std::string& unescaped, std::vector< ref2_part >& st, const unsigned /*unused*/ )
+      static void success( const Input& in, std::string& unescaped, std::vector< ref2_part >& st )
       {
          st.emplace_back( std::move( unescaped ), in.position() );  // TODO: Position from beginning of quoted string instead of end.
       }
    };
 
    template<>
-   struct ref2_action< rules::ref2_list >
-      : pegtl::nothing< rules::ref2_list >
+   struct ref2_action< rules::ref2_must >
+      : pegtl::nothing< rules::ref2_must >
    {
       template< typename Rule,
                 pegtl::apply_mode A,
@@ -71,13 +71,10 @@ namespace tao::config::internal
                 template< typename... >
                 class Control,
                 typename ParseInput >
-      [[nodiscard]] static bool match( ParseInput& in, std::vector< ref2_part >& st, const unsigned nest )
+      [[nodiscard]] static bool match( ParseInput& in, std::vector< ref2_part >& st )
       {
-         if( nest == 0 ) {
-            return pegtl::match< Rule, A, M, Action, Control >( in, st, nest + 1 );
-         }
          st.emplace_back( part_vector, in.position() );
-         return pegtl::match< Rule, A, M, Action, Control >( in, st.back().get_vector(), nest + 1 );
+         return pegtl::match< Rule, A, M, Action, Control >( in, st.back().get_vector() );
       }
    };
 

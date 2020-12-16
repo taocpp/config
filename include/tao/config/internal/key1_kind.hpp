@@ -11,7 +11,8 @@ namespace tao::config::internal
       star = 0,
       minus = 1,  // TODO: Remove?
       name = 2,
-      index = 3
+      index = 3,
+      append = 4
    };
 
 }  // namespace tao::config::internal

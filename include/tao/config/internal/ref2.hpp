@@ -75,9 +75,9 @@ namespace tao::config::internal
 
       void assign( const std::string& s )
       {
-         using grammar = pegtl::must< rules::ref2_must, pegtl::eof >;
+         using grammar = pegtl::must< rules::ref2_rule, pegtl::eof >;
          pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl::eol::lf_crlf, const char* > in( s, __FUNCTION__ );
-         pegtl::parse< grammar, ref2_action >( in, vector(), 0 );
+         pegtl::parse< grammar, ref2_action >( in, vector() );
       }
    };
 

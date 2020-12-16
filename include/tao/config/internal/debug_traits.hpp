@@ -79,6 +79,9 @@ namespace tao::config::internal
             case key1_kind::index:
                c.string( "index" );
                return;
+            case key1_kind::append:
+               c.string( "append" );
+               return;
          }
          assert( false );  // UNREACHABLE
       }

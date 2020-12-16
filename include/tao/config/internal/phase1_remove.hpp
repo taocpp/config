@@ -77,6 +77,8 @@ namespace tao::config::internal
          case key1_kind::index:
             phase1_remove_index( c, part.get_index() );
             return;
+         case key1_kind::append:
+            throw std::string( "TODO -- What?" );
       }
       assert( false );  // UNREACHABLE
    }
@@ -89,9 +91,9 @@ namespace tao::config::internal
       for( auto& e : c.concat ) {
          switch( e.kind() ) {
             case entry_kind::value:
-               throw std::string( "TODO" );
+               continue;  // TODO: Error or ignore? -- Probably ignore!
             case entry_kind::reference:
-               continue;  // TODO: Error or ignore?
+               continue;  // TODO: Error or ignore? -- Probably ignore!
             case entry_kind::array:
                for( auto& d : e.get_array().array ) {
                   phase1_remove( d, path );
@@ -154,6 +156,8 @@ namespace tao::config::internal
          case key1_kind::index:
             phase1_remove_index( c, part.get_index(), path );
             return;
+         case key1_kind::append:
+            throw std::string( "TODO -- What?" );
       }
       assert( false );  // UNREACHABLE
    }

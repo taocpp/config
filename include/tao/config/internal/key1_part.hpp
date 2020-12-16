@@ -5,6 +5,7 @@
 #define TAO_CONFIG_INTERNAL_KEY1_PART_HPP
 
 #include <cassert>
+#include <memory>
 #include <ostream>
 #include <string>
 #include <variant>
@@ -36,6 +37,11 @@ namespace tao::config::internal
            data( i )
       {}
 
+      key1_part( const bool b, const pegtl::position& p )
+         : position( p ),
+           data( std::make_shared< bool >( b ) )
+      {}
+
       key1_part( const std::string& n, const pegtl::position& p )
          : position( p ),
            data( n )
@@ -46,11 +52,23 @@ namespace tao::config::internal
          return key1_kind( data.index() );
       }
 
-      void inc_index()
+      bool value_append_hook() const noexcept
       {
-         auto* s = std::get_if< std::uint64_t >( &data );
+         auto* s = std::get_if< std::shared_ptr< bool > >( &data );
          assert( s != nullptr );
-         ++*s;
+         assert( s->get() != nullptr );
+         const bool r = **s;
+         **s = false;
+         return r;
+      }
+
+      void value_list_append_hook() const noexcept
+      {
+         if( auto* s = std::get_if< std::shared_ptr< bool > >( &data ) ) {
+            assert( s != nullptr );
+            assert( s->get() != nullptr );
+            **s = true;
+         }
       }
 
       [[nodiscard]] std::uint64_t get_index() const noexcept
@@ -67,13 +85,8 @@ namespace tao::config::internal
          return *s;
       }
 
-      [[nodiscard]] bool is_implicit() const noexcept
-      {
-         return position.byte == std::size_t( -1 );
-      }
-
       pegtl::position position;
-      std::variant< part_star_t, part_minus_t, std::string, std::uint64_t > data;
+      std::variant< part_star_t, part_minus_t, std::string, std::uint64_t, std::shared_ptr< bool > > data;
    };
 
 }  // namespace tao::config::internal

@@ -45,7 +45,7 @@ namespace tao::config::internal
       for( auto& e : c.concat ) {
          switch( e.kind() ) {
             case entry_kind::value:
-               // TODO: Error or ignore? -- Probably error!
+               // TODO: Error or ignore? -- Possibly ignore!
                continue;
             case entry_kind::reference:
                // TODO: Error or ignore? -- Possibly ignore!
@@ -88,17 +88,16 @@ namespace tao::config::internal
    }
 
    template< typename V >
-   bool phase1_append_implicit( concat& c, const std::size_t index, const key1& path, const V& value )
+   bool phase1_append_append( concat& c, const bool r, const key1& path, const V& value )
    {
       c.back_ensure_kind( entry_kind::array );
       auto& a = c.concat.back().get_array();
-      if( index == a.array.size() ) {
+      if( r ) {
          return phase1_append( a.array.emplace_back(), path, value );
       }
-      if( index + 1 == a.array.size() ) {
-         return phase1_append( a.array.back(), path, value );
-      }
-      assert( false );  // UNREACHABLE
+      assert( !a.array.empty() );
+
+      return phase1_append( a.array.back(), path, value );
    }
 
    template< typename V >
@@ -115,10 +114,9 @@ namespace tao::config::internal
          case key1_kind::name:
             return phase1_append_name( c, path.at( 0 ).get_name(), pop_front( path ), value );
          case key1_kind::index:
-            if( path.at( 0 ).is_implicit() ) {
-               return phase1_append_implicit( c, path.at( 0 ).get_index(), pop_front( path ), value );
-            }
             return phase1_append_index( c, path.at( 0 ).get_index(), pop_front( path ), value );
+         case key1_kind::append:
+            return phase1_append_append( c, path.at( 0 ).value_append_hook(), pop_front( path ), value );
       }
       assert( false );  // UNREACHABLE
    }

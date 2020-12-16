@@ -91,7 +91,7 @@ namespace tao::config::internal::rules
    struct member_key
    {
       using rule_t = member_key;
-      using subs_t = pegtl::type_list< key1_must, pegtl::must< wss, key_member > >;
+      using subs_t = pegtl::type_list< key1_rule, pegtl::must< wss, key_member > >;
 
       template< pegtl::apply_mode A,
                 pegtl::rewind_mode M,

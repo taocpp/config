@@ -46,7 +46,7 @@ namespace tao::config::internal
          switch( k ) {
             case entry_kind::value:
             case entry_kind::reference:
-               assert( false );  // TODO!
+               throw std::string( "this should never happen" );
             case entry_kind::array:
                set_array();
                break;

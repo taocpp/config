@@ -59,11 +59,9 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st )
       {
-         if( st.suffix.back().is_implicit() ) {
-            assert( st.suffix.size() == 1 );
+         assert( !st.suffix.empty() );
 
-            st.suffix.back().inc_index();
-         }
+         st.suffix.back().value_list_append_hook();  // TODO: Update st.suffix.back().position, too???
       }
    };
 
