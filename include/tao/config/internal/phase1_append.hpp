@@ -116,7 +116,7 @@ namespace tao::config::internal
          case key1_kind::index:
             return phase1_append_index( c, path.at( 0 ).get_index(), pop_front( path ), value );
          case key1_kind::append:
-            return phase1_append_append( c, path.at( 0 ).value_append_hook(), pop_front( path ), value );
+            return phase1_append_append( c, path.at( 0 ).clear_append_flag(), pop_front( path ), value );
       }
       assert( false );  // UNREACHABLE
    }

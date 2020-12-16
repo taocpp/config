@@ -61,7 +61,9 @@ namespace tao::config::internal
       {
          assert( !st.suffix.empty() );
 
-         st.suffix.back().value_list_append_hook();  // TODO: Update st.suffix.back().position, too???
+         if( st.suffix.back().kind() == key1_kind::append ) {
+            st.suffix.back().set_append_flag();  // TODO: Update st.suffix.back().position, too???
+         }
       }
    };
 

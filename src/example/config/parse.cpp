@@ -2,6 +2,8 @@
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
 #include <tao/config/internal/action.hpp>
 #include <tao/config/internal/grammar.hpp>
@@ -27,7 +29,15 @@ namespace tao::config
 int main( int argc, char** argv )
 {
    for( int i = 1; i < argc; ++i ) {
-      tao::config::test_parse_file( argv[ i ] );
+      try {
+         tao::config::test_parse_file( argv[ i ] );
+      }
+      catch( const std::exception& e ) {
+         std::cerr << "ERROR " << e.what() << std::endl;
+      }
+      catch( const std::string& e ) {
+         std::cerr << "STRING " << e << std::endl;
+      }
    }
    return 0;
 }

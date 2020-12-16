@@ -52,7 +52,15 @@ namespace tao::config::internal
          return key1_kind( data.index() );
       }
 
-      bool value_append_hook() const noexcept
+      void set_append_flag() const noexcept
+      {
+         auto* s = std::get_if< std::shared_ptr< bool > >( &data );
+         assert( s != nullptr );
+         assert( s->get() != nullptr );
+         **s = true;
+      }
+
+      bool clear_append_flag() const noexcept
       {
          auto* s = std::get_if< std::shared_ptr< bool > >( &data );
          assert( s != nullptr );
@@ -62,13 +70,12 @@ namespace tao::config::internal
          return r;
       }
 
-      void value_list_append_hook() const noexcept
+      bool get_append_flag() const noexcept
       {
-         if( auto* s = std::get_if< std::shared_ptr< bool > >( &data ) ) {
-            assert( s != nullptr );
-            assert( s->get() != nullptr );
-            **s = true;
-         }
+         auto* s = std::get_if< std::shared_ptr< bool > >( &data );
+         assert( s != nullptr );
+         assert( s->get() != nullptr );
+         return **s;
       }
 
       [[nodiscard]] std::uint64_t get_index() const noexcept

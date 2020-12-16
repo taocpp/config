@@ -12,6 +12,7 @@
 #include "entry.hpp"
 #include "key1.hpp"
 #include "object.hpp"
+#include "reverse.hpp"
 
 namespace tao::config::internal
 {
@@ -36,7 +37,24 @@ namespace tao::config::internal
 
    inline void phase1_remove_minus( concat& c )
    {
-      assert( false );  // UNREACHABLE
+      for( auto& e : reverse( c.concat ) ) {
+         switch( e.kind() ) {
+            case entry_kind::value:
+               throw std::string( "type error" );
+            case entry_kind::reference:
+               continue;  // TODO: Error or ignore?
+            case entry_kind::array:
+               if( !e.get_array().array.empty() ) {
+                  e.get_array().array.pop_back();
+                  return;
+               }
+               continue;
+            case entry_kind::object:
+               throw std::string( "type error" );
+         }
+         assert( false );  // UNREACHABLE
+      }
+      throw std::string( "could not delete last element" );
    }
 
    inline void phase1_remove_name( concat& c, const std::string& k )
@@ -62,6 +80,13 @@ namespace tao::config::internal
       assert( false );  // UNREACHABLE
    }
 
+   inline void phase1_remove_append( concat& c, const bool r )
+   {
+      if( !r ) {
+         phase1_remove_minus( c );
+      }
+   }
+
    inline void phase1_remove( concat& c, const key1_part& part )
    {
       switch( part.kind() ) {
@@ -78,7 +103,8 @@ namespace tao::config::internal
             phase1_remove_index( c, part.get_index() );
             return;
          case key1_kind::append:
-            throw std::string( "TODO -- What?" );
+            phase1_remove_append( c, part.get_append_flag() );
+            return;
       }
       assert( false );  // UNREACHABLE
    }
@@ -111,7 +137,24 @@ namespace tao::config::internal
 
    inline void phase1_remove_minus( concat& c, const key1& path )
    {
-      assert( false );
+      for( auto& e : reverse( c.concat ) ) {
+         switch( e.kind() ) {
+            case entry_kind::value:
+               throw std::string( "type error" );
+            case entry_kind::reference:
+               continue;  // TODO: Error or ignore?
+            case entry_kind::array:
+               if( !e.get_array().array.empty() ) {
+                  phase1_remove( e.get_array().array.back(), path );
+                  return;
+               }
+               continue;
+            case entry_kind::object:
+               throw std::string( "type error" );
+         }
+         assert( false );  // UNREACHABLE
+      }
+      throw std::string( "could not delete last element" );
    }
 
    inline void phase1_remove_name( concat& c, const std::string& k, const key1& path )
@@ -119,11 +162,11 @@ namespace tao::config::internal
       for( auto& e : c.concat ) {
          switch( e.kind() ) {
             case entry_kind::value:
-               throw std::string( "TODO" );
+               throw std::string( "type error" );
             case entry_kind::reference:
                continue;  // TODO: Error or ignore?
             case entry_kind::array:
-               throw std::string( "TODO" );
+               throw std::string( "type error" );
             case entry_kind::object:
                if( auto* p = e.get_object().find( k ) ) {
                   phase1_remove( p->second, path );
@@ -136,7 +179,14 @@ namespace tao::config::internal
 
    inline void phase1_remove_index( concat& c, const std::size_t n, const key1& path )
    {
-      assert( false );
+      assert( false );  // TODO
+   }
+
+   inline void phase1_remove_append( concat& c, const bool r, const key1& path )
+   {
+      if( !r ) {
+         phase1_remove_minus( c, path );
+      }
    }
 
    inline void phase1_remove( concat& c, const key1_part& part, const key1& path )
@@ -157,7 +207,8 @@ namespace tao::config::internal
             phase1_remove_index( c, part.get_index(), path );
             return;
          case key1_kind::append:
-            throw std::string( "TODO -- What?" );
+            phase1_remove_append( c, part.get_append_flag(), path );
+            return;
       }
       assert( false );  // UNREACHABLE
    }
