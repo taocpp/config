@@ -12,35 +12,35 @@
 
 #include "constants.hpp"
 #include "pegtl.hpp"
-#include "ref2_kind.hpp"
+#include "reference2_kind.hpp"
 
 namespace tao::config::internal
 {
-   struct ref2_part
+   struct reference2_part
    {
-      ref2_part( const part_minus_t t, const pegtl::position& p )
+      reference2_part( const part_minus_t t, const pegtl::position& p )
          : position( p ),
            data( t )
       {}
 
-      ref2_part( const part_vector_t /*unused*/, const pegtl::position& p )
+      reference2_part( const part_vector_t /*unused*/, const pegtl::position& p )
          : position( p ),
-           data( std::vector< ref2_part >() )
+           data( std::vector< reference2_part >() )
       {}
 
-      ref2_part( const std::uint64_t i, const pegtl::position& p )
+      reference2_part( const std::uint64_t i, const pegtl::position& p )
          : position( p ),
            data( i )
       {}
 
-      ref2_part( const std::string& n, const pegtl::position& p )
+      reference2_part( const std::string& n, const pegtl::position& p )
          : position( p ),
            data( n )
       {}
 
-      [[nodiscard]] ref2_kind kind() const noexcept
+      [[nodiscard]] reference2_kind kind() const noexcept
       {
-         return ref2_kind( data.index() + 1 );
+         return reference2_kind( data.index() + 1 );
       }
 
       [[nodiscard]] std::uint64_t get_index() const noexcept
@@ -57,24 +57,24 @@ namespace tao::config::internal
          return *s;
       }
 
-      [[nodiscard]] std::vector< ref2_part >& get_vector() noexcept
+      [[nodiscard]] std::vector< reference2_part >& get_vector() noexcept
       {
-         auto* s = std::get_if< std::vector< ref2_part > >( &data );
+         auto* s = std::get_if< std::vector< reference2_part > >( &data );
          assert( s != nullptr );
          return *s;
       }
 
-      [[nodiscard]] const std::vector< ref2_part >& get_vector() const noexcept
+      [[nodiscard]] const std::vector< reference2_part >& get_vector() const noexcept
       {
-         const auto* s = std::get_if< std::vector< ref2_part > >( &data );
+         const auto* s = std::get_if< std::vector< reference2_part > >( &data );
          assert( s != nullptr );
          return *s;
       }
 
       pegtl::position position;
-      std::variant< part_minus_t, std::string, std::uint64_t, std::vector< ref2_part > > data;
+      std::variant< part_minus_t, std::string, std::uint64_t, std::vector< reference2_part > > data;
    };
 
-}  // namespace tao::config
+}  // namespace tao::config::internal
 
 #endif

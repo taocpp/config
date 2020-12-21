@@ -34,7 +34,7 @@ namespace tao::config::internal
    };
 
    template< typename T >
-   reverse( T& )->reverse< T >;
+   reverse( T& ) -> reverse< T >;
 
 }  // namespace tao::config::internal
 

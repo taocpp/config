@@ -11,6 +11,7 @@ namespace tao::config::internal::rules
 {
    namespace jaxn = tao::json::jaxn::internal::rules;
 
+   // clang-format off
    struct dot : pegtl::one< '.' > {};
    struct minus : pegtl::one< '-' > {};
 
@@ -29,6 +30,7 @@ namespace tao::config::internal::rules
    struct key_first : pegtl::sor< ident, quoted > {};
 
    struct key : pegtl::seq< key_first, pegtl::star_must< dot, key_other > > {};
+   // clang-format on
 
 }  // namespace tao::config::internal::rules
 

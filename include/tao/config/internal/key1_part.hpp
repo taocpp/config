@@ -96,6 +96,11 @@ namespace tao::config::internal
       std::variant< part_star_t, part_minus_t, std::string, std::uint64_t, std::shared_ptr< bool > > data;
    };
 
+   inline bool operator<( const key1_part& l, const key1_part& r ) noexcept
+   {
+      return l.data < r.data;
+   }
+
 }  // namespace tao::config::internal
 
 #endif

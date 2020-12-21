@@ -17,18 +17,18 @@
 #include "json_traits.hpp"
 #include "object.hpp"
 #include "pegtl.hpp"
-#include "ref2.hpp"
+#include "reference2.hpp"
 
 namespace tao::config::internal
 {
    struct entry
    {
-      using data_t = std::variant< json_t, ref2, array, object >;
+      using data_t = std::variant< json_t, reference2, array, object >;
 
       static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( entry_kind::value ), data_t >, json_t > );
       // TODO: All of these and everywhere?
 
-      explicit entry( const ref2& r )
+      explicit entry( const reference2& r )
          : m_data( r )
       {
          assert( !r.empty() );
@@ -75,7 +75,7 @@ namespace tao::config::internal
 
       bool is_reference() const noexcept
       {
-         return std::holds_alternative< ref2 >( m_data );
+         return std::holds_alternative< reference2 >( m_data );
       }
 
       bool is_array() const noexcept
@@ -106,9 +106,9 @@ namespace tao::config::internal
          return *s;
       }
 
-      ref2& get_reference() noexcept
+      reference2& get_reference() noexcept
       {
-         auto* s = std::get_if< ref2 >( &m_data );
+         auto* s = std::get_if< reference2 >( &m_data );
          assert( s );
          return *s;
       }
@@ -134,9 +134,9 @@ namespace tao::config::internal
          return *s;
       }
 
-      const ref2& get_reference() const noexcept
+      const reference2& get_reference() const noexcept
       {
-         const auto* s = std::get_if< ref2 >( &m_data );
+         const auto* s = std::get_if< reference2 >( &m_data );
          assert( s );
          return *s;
       }
@@ -158,7 +158,7 @@ namespace tao::config::internal
       //      const pegtl::position position;
 
    private:
-      std::variant< json_t, ref2, array, object > m_data;
+      std::variant< json_t, reference2, array, object > m_data;
 
       void expand()
       {

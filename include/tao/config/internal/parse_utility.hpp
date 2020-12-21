@@ -4,8 +4,11 @@
 #ifndef TAO_CONFIG_INTERNAL_PARSE_UTILITY_HPP
 #define TAO_CONFIG_INTERNAL_PARSE_UTILITY_HPP
 
+#include <optional>
 #include <string>
 
+#include "extension_action.hpp"
+#include "extension_rules.hpp"
 #include "json.hpp"
 #include "json_action.hpp"
 #include "json_to_value.hpp"
@@ -14,15 +17,25 @@
 #include "key1_action.hpp"
 #include "key1_rules.hpp"
 #include "pegtl.hpp"
-#include "ref2.hpp"
-#include "ref2_action.hpp"
-#include "ref2_rules.hpp"
+#include "reference2.hpp"
+#include "reference2_action.hpp"
+#include "reference2_rules.hpp"
 
 namespace tao::config::internal
 {
    inline void skip_ws( pegtl_input_t& in )
    {
       pegtl::parse< pegtl::star< json::jaxn::internal::rules::ws > >( in );
+   }
+
+   [[nodiscard]] inline bool parse_open( pegtl_input_t& in )
+   {
+      return pegtl::parse< pegtl::one< '(' > >( in );
+   }
+
+   inline void parse_close( pegtl_input_t& in )
+   {
+      pegtl::parse< pegtl::must< pegtl::one< ')' > > >( in );
    }
 
    [[nodiscard]] inline key1 parse_key1( pegtl_input_t& in )
@@ -32,10 +45,10 @@ namespace tao::config::internal
       return result;
    }
 
-   [[nodiscard]] inline ref2 parse_ref2( pegtl_input_t& in )
+   [[nodiscard]] inline reference2 parse_reference2( pegtl_input_t& in )
    {
-      ref2 result;
-      pegtl::parse< pegtl::must< rules::ref2_rest >, ref2_action >( in, result.vector() );  // NOTE: Assumes that the opening bracket was already parsed!
+      reference2 result;
+      pegtl::parse< pegtl::must< rules::reference2_rest >, reference2_action >( in, result.vector() );  // NOTE: Assumes that the opening bracket was already parsed!
       return result;
    }
 
@@ -50,6 +63,13 @@ namespace tao::config::internal
    {
       std::string result;
       pegtl::parse< pegtl::must< json::jaxn::internal::rules::string_fragment >, json::jaxn::internal::unescape_action >( in, result );
+      return result;
+   }
+
+   [[nodiscard]] inline std::string parse_extension( pegtl_input_t& in )
+   {
+      std::string result;
+      pegtl::parse< rules::extension_rule, extension_action >( in, result );
       return result;
    }
 

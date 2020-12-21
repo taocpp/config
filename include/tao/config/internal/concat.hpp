@@ -58,12 +58,12 @@ namespace tao::config::internal
                      concat.pop_back();  // Invalidates f.
                      return;
                   case entry_kind::object:
-                     for( std::pair< std::string, basic_concat >& n : f.get_object().object ) {
+                     for( std::pair< const std::string, basic_concat >& n : f.get_object().object ) {
                         const auto p = e.get_object().object.try_emplace( std::move( n.first ), std::move( n.second ) );
                         if( !p.second ) {
                            for( entry& m : n.second.concat ) {
                               p.first->second.concat.emplace_back( m );
-                              p.first->second.concat.post_aggregate_merge();
+                              p.first->second.back_aggregate_merge();
                            }
                         }
                      }

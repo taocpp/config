@@ -5,26 +5,26 @@
 #include <stdexcept>
 #include <string>
 
-#include <tao/config/internal/action.hpp>
-#include <tao/config/internal/grammar.hpp>
+#include <tao/config/internal/config_action.hpp>
+#include <tao/config/internal/config_rules.hpp>
+#include <tao/config/internal/configurator.hpp>
 #include <tao/config/internal/pegtl.hpp>
-#include <tao/config/internal/state.hpp>
 #include <tao/config/internal/to_stream.hpp>
 
 namespace tao::config
 {
    void test_parse_file( const std::filesystem::path& file )
    {
-      internal::state st;
+      internal::configurator cfg;
       std::cerr << file << std::endl;
       json::pegtl::file_input in( file );
-      const bool result = internal::pegtl::parse< internal::rules::config_file, internal::action >( in, st );
+      const bool result = internal::pegtl::parse< internal::rules::config_file, internal::config_action >( in, cfg.st, cfg.em );
       std::cerr << result << std::endl;
-      internal::to_stream( std::cerr, st.root, 3 );
+      internal::to_stream( std::cerr, cfg.st.root, 3 );
       std::cerr << std::endl;
    }
 
-}  // tao::config
+}  // namespace tao::config
 
 int main( int argc, char** argv )
 {

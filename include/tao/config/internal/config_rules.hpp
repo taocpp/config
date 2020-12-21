@@ -1,25 +1,28 @@
 // Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_GRAMMAR_HPP
-#define TAO_CONFIG_INTERNAL_GRAMMAR_HPP
+#ifndef TAO_CONFIG_INTERNAL_CONFIG_RULES_HPP
+#define TAO_CONFIG_INTERNAL_CONFIG_RULES_HPP
 
+#include "extension_maps.hpp"
 #include "forward.hpp"
 #include "json.hpp"
 #include "key1.hpp"
 #include "key1_guard.hpp"
 #include "key1_rules.hpp"
+#include "member_extensions.hpp"
 #include "parse_utility.hpp"
 #include "pegtl.hpp"
 #include "phase1_append.hpp"
-#include "ref2.hpp"
+#include "reference2.hpp"
+#include "value_extensions.hpp"
 
 namespace tao::config::internal::rules
 {
-   struct ref_value
+   struct reference_value
    {
-      using rule_t = ref_value;
-      using subs_t = pegtl::type_list< ref2_rest >;
+      using rule_t = reference_value;
+      using subs_t = pegtl::type_list< reference2_rest >;
 
       template< pegtl::apply_mode A,
                 pegtl::rewind_mode M,
@@ -28,10 +31,9 @@ namespace tao::config::internal::rules
                 template< typename... >
                 class Control,
                 typename State >
-      [[nodiscard]] static bool match( pegtl_input_t& in, State& st )
+      [[nodiscard]] static bool match( pegtl_input_t& in, State& st, const extension_maps& )
       {
-         const ref2 r = parse_ref2( in );
-         phase1_append( st.root, st.prefix + st.suffix, r );
+         phase1_append( st.root, st.prefix + st.suffix, parse_reference2( in ) );
          return true;
       }
    };
@@ -48,10 +50,9 @@ namespace tao::config::internal::rules
                 template< typename... >
                 class Control,
                 typename State >
-      [[nodiscard]] static bool match( pegtl_input_t& in, State& st )
+      [[nodiscard]] static bool match( pegtl_input_t& in, State& st, const extension_maps& )
       {
-         const json_t j = parse_jaxn( in );
-         phase1_append( st.root, st.prefix + st.suffix, j );
+         phase1_append( st.root, st.prefix + st.suffix, parse_jaxn( in ) );
          return true;
       }
    };
@@ -60,24 +61,17 @@ namespace tao::config::internal::rules
 
    // clang-format off
    struct wss : pegtl::star< jaxn::ws > {};
-   struct wsp : pegtl::plus< jaxn::ws > {};
 
-   struct ext_name : pegtl::seq< ident, pegtl::opt< pegtl::one< '?' > > > {};
-   //   struct ext_value_func : pegtl::function< do_value_extension > {};
-   struct ext_value_func : pegtl::one< '%' > {};  // TODO: Remove this placeholder.
-   struct ext_value : pegtl::must< ext_value_func, pegtl::one< ')' > > {};
+   struct extension_value : pegtl::must< pegtl::function< do_value_extension >, pegtl::one< ')' > > {};
 
-   struct bra_value : pegtl::if_must< pegtl::one< '(' >, pegtl::if_must_else< pegtl::at< ref2_rest >, ref_value, ext_value > > {};
-
-   struct inner_ext : pegtl::if_must< pegtl::one< '(' >, ext_name, wsp > {};
-   struct outer_ext : pegtl::must< ext_name, wsp > {};
+   struct bracketed_value : pegtl::if_must< pegtl::one< '(' >, pegtl::if_must_else< pegtl::at< reference2_rest >, reference_value, extension_value > > {};
 
    struct array;
    struct object;
 
    struct remove : pegtl::string< 'd', 'e', 'l', 'e', 't', 'e' > {};
 
-   struct value_part : pegtl::sor< array, object, bra_value, jaxn_value > {};
+   struct value_part : pegtl::sor< array, object, bracketed_value, jaxn_value > {};
    struct value_list : pegtl::list< value_part, pegtl::one< '+' >, jaxn::ws > {};
 
    struct assign_head : pegtl::one< ':', '=' > {};
@@ -100,19 +94,16 @@ namespace tao::config::internal::rules
                 template< typename... >
                 class Control,
                 typename State >
-      [[nodiscard]] static bool match( pegtl_input_t& in, State& st )
+      [[nodiscard]] static bool match( pegtl_input_t& in, State& st, const extension_maps& em )
       {
-         const key1 k = parse_key1( in );
-         const key1_guard kg( st, k );
-         return Control< pegtl::must< wss, key_member > >::template match< A, M, Action, Control >( in, st );
+         const key1_guard kg( st, parse_key1( in ) );
+         return Control< pegtl::must< wss, key_member > >::template match< A, M, Action, Control >( in, st, em );
       }
    };
 
-   //   struct ext_member_func : pegtl::function< do_member_extension > {};
-   struct ext_member_func : pegtl::one< '%' > {};  // TODO: Remove this placeholder.
-   struct ext_member : pegtl::if_must< pegtl::one< '(' >, ext_member_func, pegtl::one< ')' > > {};
+   struct extension_member : pegtl::if_must< pegtl::one< '(' >, pegtl::function< do_member_extension >, pegtl::one< ')' > > {};
 
-   struct member : pegtl::sor< ext_member, member_key > {};
+   struct member : pegtl::sor< extension_member, member_key > {};
 
    struct opt_comma : pegtl::opt< pegtl::one< ',' >, wss > {};
 
@@ -125,6 +116,7 @@ namespace tao::config::internal::rules
    struct compat_file : pegtl::must< member_list, wss, pegtl::eof > {};
    struct config_list : member_list_impl< pegtl::eof > {};
    struct config_file : pegtl::must< wss, pegtl::if_must_else< jaxn::begin_object, compat_file, config_list > > {};
+   struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};
    // clang-format on
 
 }  // namespace tao::config::internal::rules

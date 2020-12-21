@@ -21,38 +21,38 @@ namespace tao::config
 #define TAO_CONFIG_TEST_UNWRAP( ... ) __VA_ARGS__
 
 #define TAO_CONFIG_TEST_FAILED( MeSSaGe )            \
-   do {                                             \
+   do {                                              \
       std::cerr << "config: unit test failed for [ " \
-                << tao::demangle< Rule >()          \
-                << " ] "                            \
+                << tao::demangle< Rule >()           \
+                << " ] "                             \
                 << TAO_CONFIG_TEST_UNWRAP( MeSSaGe ) \
-                << " in line [ "                    \
-                << line                             \
-                << " ] file [ "                     \
-                << file << " ]"                     \
-                << std::endl;                       \
-      ++failed;                                     \
+                << " in line [ "                     \
+                << line                              \
+                << " ] file [ "                      \
+                << file << " ]"                      \
+                << std::endl;                        \
+      ++failed;                                      \
    } while( false )
 
 #define TAO_CONFIG_TEST_ASSERT( ... )               \
-   do {                                            \
-      if( !( __VA_ARGS__ ) ) {                     \
+   do {                                             \
+      if( !( __VA_ARGS__ ) ) {                      \
          std::cerr << "config: unit test assert [ " \
-                   << ( #__VA_ARGS__ )             \
-                   << " ] failed in line [ "       \
-                   << __LINE__                     \
-                   << " ] file [ "                 \
-                   << __FILE__ << " ]"             \
-                   << std::endl;                   \
-         ++failed;                                 \
-      }                                            \
+                   << ( #__VA_ARGS__ )              \
+                   << " ] failed in line [ "        \
+                   << __LINE__                      \
+                   << " ] file [ "                  \
+                   << __FILE__ << " ]"              \
+                   << std::endl;                    \
+         ++failed;                                  \
+      }                                             \
    } while( false )
 
-#define TAO_CONFIG_TEST_THROWS( ... )                \
+#define TAO_CONFIG_TEST_THROWS( ... )               \
    do {                                             \
       try {                                         \
          __VA_ARGS__;                               \
-         std::cerr << "config: unit test [ "         \
+         std::cerr << "config: unit test [ "        \
                    << ( #__VA_ARGS__ )              \
                    << " ] did not throw in line [ " \
                    << __LINE__                      \
@@ -65,7 +65,7 @@ namespace tao::config
       }                                             \
    } while( false )
 
-#define TAO_CONFIG_TEST_UNREACHABLE                                                                                              \
+#define TAO_CONFIG_TEST_UNREACHABLE                                                                                             \
    do {                                                                                                                         \
       std::cerr << "Code should be unreachable in " << __FUNCTION__ << " (" << __FILE__ << ':' << __LINE__ << ')' << std::endl; \
       std::abort();                                                                                                             \

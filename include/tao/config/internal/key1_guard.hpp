@@ -18,7 +18,17 @@ namespace tao::config::internal
       key1_guard() = delete;
 
       template< typename State >
-      key1_guard( const pegtl_input_t& in, State& st )
+      key1_guard( State& st, key1&& suffix )
+         : m_prefix( st.prefix ),
+           m_suffix( st.suffix ),
+           m_size( m_prefix.size() )
+      {
+         m_prefix += m_suffix;
+         m_suffix = std::move( suffix );
+      }
+
+      template< typename State, typename Arg >
+      key1_guard( const pegtl_input_t& in, State& st, const Arg& /*unused*/ )
          : m_prefix( st.prefix ),
            m_suffix( st.suffix ),
            m_size( m_prefix.size() )
@@ -26,16 +36,6 @@ namespace tao::config::internal
          m_prefix += m_suffix;
          m_suffix.clear();
          m_suffix.emplace_back( true, in.position() );
-      }
-
-      template< typename State >
-      key1_guard( State& st, const key1& suffix )
-         : m_prefix( st.prefix ),
-           m_suffix( st.suffix ),
-           m_size( m_prefix.size() )
-      {
-         m_prefix += m_suffix;
-         m_suffix = suffix;
       }
 
       key1_guard( key1_guard&& ) = delete;

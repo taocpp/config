@@ -14,17 +14,26 @@
 #include "json_traits.hpp"
 #include "key1.hpp"
 #include "object.hpp"
-#include "ref2.hpp"
+#include "reference2.hpp"
 
 namespace tao::config::internal
 {
+   inline bool phase1_append( concat& c, const concat& d )
+   {
+      for( const entry& e : d.concat ) {
+         c.concat.emplace_back( e );
+         c.back_aggregate_merge();
+      }
+      return true;
+   }
+
    inline bool phase1_append( concat& c, const json_t& value )
    {
       c.concat.emplace_back( value );
       return true;
    }
 
-   inline bool phase1_append( concat& c, const ref2& value )
+   inline bool phase1_append( concat& c, const reference2& value )
    {
       c.concat.emplace_back( value );
       return true;

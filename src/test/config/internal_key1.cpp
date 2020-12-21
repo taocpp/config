@@ -21,6 +21,6 @@ namespace tao::config
       TAO_CONFIG_TEST_ASSERT( k[ 4 ].kind() == internal::key1_kind::star );
    }
 
-}  // tao::config
+}  // namespace tao::config
 
 #include "main.hpp"

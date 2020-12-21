@@ -15,7 +15,10 @@ namespace tao::config::internal
    {
       pegtl::position position;
 
-      json_base() = delete;
+      json_base()
+         : position( pegtl::internal::iterator{ nullptr, 1, 1, 1 }, "TODO: Delete the default c'tor!" )
+      {}
+      //      json_base() = delete;
 
       json_base( json_base&& ) = default;
       json_base( const json_base& ) = default;

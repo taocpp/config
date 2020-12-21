@@ -117,24 +117,24 @@ namespace tao::config::internal
    };
 
    template<>
-   struct debug_traits< ref2_kind >
+   struct debug_traits< reference2_kind >
    {
-      TAO_JSON_DEFAULT_KEY( "ref2_kind" );
+      TAO_JSON_DEFAULT_KEY( "reference2_kind" );
 
       template< template< typename... > class Traits, typename Consumer >
-      static void produce( Consumer& c, const ref2_kind k )
+      static void produce( Consumer& c, const reference2_kind k )
       {
          switch( k ) {
-            case ref2_kind::minus:
+            case reference2_kind::minus:
                c.string( "minus" );
                return;
-            case ref2_kind::name:
+            case reference2_kind::name:
                c.string( "name" );
                return;
-            case ref2_kind::index:
+            case reference2_kind::index:
                c.string( "index" );
                return;
-            case ref2_kind::vector:
+            case reference2_kind::vector:
                c.string( "reference" );
                return;
          }
@@ -143,18 +143,18 @@ namespace tao::config::internal
    };
 
    template<>
-   struct debug_traits< ref2_part >
+   struct debug_traits< reference2_part >
    {
-      TAO_JSON_DEFAULT_KEY( "ref2_part" );
+      TAO_JSON_DEFAULT_KEY( "reference2_part" );
 
       template< template< typename... > class Traits, typename Consumer >
-      static void produce( Consumer& c, const ref2_part& p )
+      static void produce( Consumer& c, const reference2_part& p )
       {
          c.begin_object( 3 );
-         c.key( "ref2_kind" );
+         c.key( "reference2_kind" );
          json::events::produce< Traits >( c, p.kind() );
          c.member();
-         c.key( "ref2_data" );
+         c.key( "reference2_data" );
          json::events::produce< Traits >( c, p.data );
          c.member();
          c.key( "position" );
@@ -165,10 +165,10 @@ namespace tao::config::internal
    };
 
    template<>
-   struct debug_traits< ref2 >
-      : json::traits< std::vector< ref2_part > >
+   struct debug_traits< reference2 >
+      : json::traits< std::vector< reference2_part > >
    {
-      TAO_JSON_DEFAULT_KEY( "ref2" );
+      TAO_JSON_DEFAULT_KEY( "reference2" );
    };
 
    template<>
@@ -244,20 +244,20 @@ namespace tao::config::internal
 
    template<>
    struct debug_traits< concat >
-      : json::binding::object< // TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
-                               TAO_JSON_BIND_REQUIRED( "concat_list", &concat::concat ) >
+      : json::binding::object<  // TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
+           TAO_JSON_BIND_REQUIRED( "concat_list", &concat::concat ) >
    {};
 
    template<>
    struct debug_traits< array >
-      : json::binding::object< // TAO_JSON_BIND_REQUIRED( "position", &array::position ),
-                               TAO_JSON_BIND_REQUIRED( "array_data", &array::array ) >
+      : json::binding::object<  // TAO_JSON_BIND_REQUIRED( "position", &array::position ),
+           TAO_JSON_BIND_REQUIRED( "array_data", &array::array ) >
    {};
 
    template<>
    struct debug_traits< object >
-      : json::binding::object< // TAO_JSON_BIND_REQUIRED( "position", &object::position ),
-                               TAO_JSON_BIND_REQUIRED( "object_data", &object::object ) >
+      : json::binding::object<  // TAO_JSON_BIND_REQUIRED( "position", &object::position ),
+           TAO_JSON_BIND_REQUIRED( "object_data", &object::object ) >
    {};
 
    template< typename T >

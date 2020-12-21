@@ -16,11 +16,6 @@ namespace tao::config::internal
       explicit constexpr part_minus_t( int /*unused*/ ) {}
    };
 
-   struct part_append_t
-   {
-      explicit constexpr part_append_t( int /*unused*/ ) {}
-   };
-
    struct part_vector_t
    {
       explicit constexpr part_vector_t( int /*unused*/ ) {}
@@ -28,8 +23,17 @@ namespace tao::config::internal
 
    constexpr part_star_t part_star{ 0 };
    constexpr part_minus_t part_minus{ 0 };
-   constexpr part_append_t part_append{ 0 };
    constexpr part_vector_t part_vector{ 0 };
+
+   constexpr bool operator<( const part_star_t, const part_star_t ) noexcept
+   {
+      return false;
+   }
+
+   constexpr bool operator<( const part_minus_t, const part_minus_t ) noexcept
+   {
+      return false;
+   }
 
 }  // namespace tao::config::internal
 
