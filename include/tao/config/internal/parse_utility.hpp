@@ -8,18 +8,18 @@
 #include <string>
 
 #include "extension_action.hpp"
-#include "extension_rules.hpp"
+#include "extension_grammar.hpp"
 #include "json.hpp"
 #include "json_action.hpp"
 #include "json_to_value.hpp"
 #include "json_traits.hpp"
 #include "key1.hpp"
 #include "key1_action.hpp"
-#include "key1_rules.hpp"
+#include "key1_grammar.hpp"
 #include "pegtl.hpp"
 #include "reference2.hpp"
 #include "reference2_action.hpp"
-#include "reference2_rules.hpp"
+#include "reference2_grammar.hpp"
 
 namespace tao::config::internal
 {

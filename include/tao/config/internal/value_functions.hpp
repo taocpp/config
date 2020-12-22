@@ -5,7 +5,7 @@
 #define TAO_CONFIG_INTERNAL_VALUE_FUNCTIONS_HPP
 
 #include "config_action.hpp"
-#include "config_rules.hpp"
+#include "config_grammar.hpp"
 #include "extension_maps.hpp"
 // #include "phase1_access.hpp"
 #include "phase1_append.hpp"

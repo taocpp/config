@@ -8,7 +8,7 @@
 
 #include "key1_action.hpp"
 #include "key1_part.hpp"
-#include "key1_rules.hpp"
+#include "key1_grammar.hpp"
 #include "pegtl.hpp"
 
 namespace tao::config::internal

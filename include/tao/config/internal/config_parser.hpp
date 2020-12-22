@@ -1,13 +1,13 @@
 // Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_CONFIGURATOR_HPP
-#define TAO_CONFIG_INTERNAL_CONFIGURATOR_HPP
+#ifndef TAO_CONFIG_INTERNAL_CONFIG_PARSER_HPP
+#define TAO_CONFIG_INTERNAL_CONFIG_PARSER_HPP
 
 #include <filesystem>
 
 #include "config_action.hpp"
-#include "config_rules.hpp"
+#include "config_grammar.hpp"
 #include "extension_maps.hpp"
 #include "inner_functions.hpp"
 #include "json.hpp"
@@ -21,9 +21,9 @@
 
 namespace tao::config::internal
 {
-   struct configurator
+   struct config_parser
    {
-      configurator()
+      config_parser()
          : em( { { "binary", wrap( binary_function ) },
                  { "cbor", wrap( cbor_function ) },
                  { "default", wrap( default_function ) },
@@ -48,11 +48,11 @@ namespace tao::config::internal
                  { "parse", wrap( parse_function ) } } )
       {}
 
-      configurator( configurator&& ) = delete;
-      configurator( const configurator& ) = delete;
+      config_parser( config_parser&& ) = delete;
+      config_parser( const config_parser& ) = delete;
 
-      void operator=( configurator&& ) = delete;
-      void operator=( const configurator& ) = delete;
+      void operator=( config_parser&& ) = delete;
+      void operator=( const config_parser& ) = delete;
 
       state st;
       extension_maps em;

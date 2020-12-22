@@ -9,7 +9,7 @@
 #include "json.hpp"
 #include "pegtl.hpp"
 #include "reference2_part.hpp"
-#include "reference2_rules.hpp"
+#include "reference2_grammar.hpp"
 
 namespace tao::config::internal
 {

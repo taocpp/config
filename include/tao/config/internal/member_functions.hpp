@@ -9,7 +9,7 @@
 #include <system_error>
 
 #include "config_action.hpp"
-#include "config_rules.hpp"
+#include "config_grammar.hpp"
 #include "extension_maps.hpp"
 #include "key1.hpp"
 #include "pegtl.hpp"

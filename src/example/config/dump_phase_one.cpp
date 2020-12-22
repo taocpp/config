@@ -6,8 +6,8 @@
 #include <string>
 
 #include <tao/config/internal/config_action.hpp>
-#include <tao/config/internal/config_rules.hpp>
-#include <tao/config/internal/configurator.hpp>
+#include <tao/config/internal/config_grammar.hpp>
+#include <tao/config/internal/config_parser.hpp>
 #include <tao/config/internal/pegtl.hpp>
 #include <tao/config/internal/to_stream.hpp>
 
@@ -15,7 +15,7 @@ namespace tao::config
 {
    void test_parse_file( const std::filesystem::path& file )
    {
-      internal::configurator cfg;
+      internal::config_parser cfg;
       std::cerr << file << std::endl;
       json::pegtl::file_input in( file );
       const bool result = internal::pegtl::parse< internal::rules::config_file, internal::config_action >( in, cfg.st, cfg.em );

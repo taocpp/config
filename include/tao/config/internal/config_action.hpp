@@ -6,7 +6,7 @@
 
 #include <cassert>
 
-#include "config_rules.hpp"
+#include "config_grammar.hpp"
 #include "entry_kind.hpp"
 #include "extension_maps.hpp"
 #include "json.hpp"

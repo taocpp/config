@@ -1,8 +1,8 @@
 // Copyright (c) 2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_KEY_RULES_HPP
-#define TAO_CONFIG_INTERNAL_KEY_RULES_HPP
+#ifndef TAO_CONFIG_INTERNAL_KEY_GRAMMAR_HPP
+#define TAO_CONFIG_INTERNAL_KEY_GRAMMAR_HPP
 
 #include "json.hpp"
 #include "pegtl.hpp"

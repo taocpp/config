@@ -4,7 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_EXTENSION_ACTION_HPP
 #define TAO_CONFIG_INTERNAL_EXTENSION_ACTION_HPP
 
-#include "extension_rules.hpp"
+#include "extension_grammar.hpp"
 #include "pegtl.hpp"
 
 namespace tao::config::internal

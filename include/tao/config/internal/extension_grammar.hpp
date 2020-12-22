@@ -1,10 +1,10 @@
 // Copyright (c) 2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_EXTENSION_RULES_HPP
-#define TAO_CONFIG_INTERNAL_EXTENSION_RULES_HPP
+#ifndef TAO_CONFIG_INTERNAL_EXTENSION_GRAMMAR_HPP
+#define TAO_CONFIG_INTERNAL_EXTENSION_GRAMMAR_HPP
 
-#include "key_rules.hpp"
+#include "key_grammar.hpp"
 #include "pegtl.hpp"
 
 namespace tao::config::internal::rules

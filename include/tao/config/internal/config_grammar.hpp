@@ -1,15 +1,15 @@
 // Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_CONFIG_RULES_HPP
-#define TAO_CONFIG_INTERNAL_CONFIG_RULES_HPP
+#ifndef TAO_CONFIG_INTERNAL_CONFIG_GRAMMAR_HPP
+#define TAO_CONFIG_INTERNAL_CONFIG_GRAMMAR_HPP
 
 #include "extension_maps.hpp"
 #include "forward.hpp"
 #include "json.hpp"
 #include "key1.hpp"
 #include "key1_guard.hpp"
-#include "key1_rules.hpp"
+#include "key1_grammar.hpp"
 #include "member_extensions.hpp"
 #include "parse_utility.hpp"
 #include "pegtl.hpp"
