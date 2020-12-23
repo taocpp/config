@@ -13,7 +13,7 @@
 #include "extension_maps.hpp"
 #include "key1.hpp"
 #include "pegtl.hpp"
-#include "phase1_delete.hpp"
+#include "phase1_remove.hpp"
 #include "state.hpp"
 #include "system_utility.hpp"
 
@@ -21,7 +21,7 @@ namespace tao::config::internal
 {
    inline void delete_function( state& st, const key1& k )
    {
-      phase1_delete( st.root, st.prefix + k );
+      phase1_remove( st.root, st.prefix + k );
    }
 
    inline void include_function( state& st, const extension_maps& em, const pegtl::position& p, const std::string& f )

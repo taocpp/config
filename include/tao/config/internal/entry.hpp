@@ -11,6 +11,7 @@
 
 #include "array.hpp"
 #include "concat.hpp"
+#include "constants.hpp"
 #include "entry_kind.hpp"
 #include "forward.hpp"
 #include "json.hpp"
@@ -23,7 +24,7 @@ namespace tao::config::internal
 {
    struct entry
    {
-      using data_t = std::variant< json_t, reference2, array, object >;
+      using data_t = std::variant< json_t, reference2, array, object, entry_remove_t >;
 
       static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( entry_kind::value ), data_t >, json_t > );
       // TODO: All of these and everywhere?
@@ -41,7 +42,7 @@ namespace tao::config::internal
       }
 
       explicit entry( const entry_kind k )
-         : m_data( std::in_place_type_t< object >() )
+         : m_data( std::in_place_type_t< entry_remove_t >(), 42 )
       {
          switch( k ) {
             case entry_kind::value:
@@ -49,10 +50,14 @@ namespace tao::config::internal
                throw std::string( "this should never happen" );
             case entry_kind::array:
                set_array();
-               break;
+               return;
             case entry_kind::object:
-               break;
+               set_object();
+               return;
+            case entry_kind::remove:
+               return;
          }
+         assert( false );  // UNREACHABLE
       }
 
       entry( entry&& ) = default;
@@ -95,7 +100,12 @@ namespace tao::config::internal
 
       void set_object()
       {
-         m_data.emplace< std::size_t( entry_kind::array ) >();
+         m_data.emplace< std::size_t( entry_kind::object ) >();
+      }
+
+      void set_remove()
+      {
+         m_data.emplace< std::size_t( entry_kind::remove ) >( 42 );
       }
 
       json_t& get_value() noexcept
@@ -157,7 +167,7 @@ namespace tao::config::internal
       //      const pegtl::position position;
 
    private:
-      std::variant< json_t, reference2, array, object > m_data;
+      std::variant< json_t, reference2, array, object, entry_remove_t > m_data;
 
       void expand()
       {

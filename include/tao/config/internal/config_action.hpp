@@ -13,7 +13,7 @@
 #include "key1_guard.hpp"
 #include "pegtl.hpp"
 #include "phase1_append.hpp"
-#include "phase1_delete.hpp"
+#include "phase1_remove.hpp"
 
 namespace tao::config::internal
 {
@@ -28,7 +28,8 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_delete( st.root, st.prefix + st.suffix );
+         phase1_remove( st.root, st.prefix + st.suffix );
+         phase1_append( st.root, st.prefix + st.suffix, entry_kind::remove );
       }
    };
 

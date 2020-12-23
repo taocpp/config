@@ -18,14 +18,16 @@
 
 namespace tao::config::internal
 {
-   inline bool phase1_append( concat& c, const concat& d )
-   {
-      for( const entry& e : d.concat ) {
-         c.concat.emplace_back( e );
-         c.back_aggregate_merge();
-      }
-      return true;
-   }
+   // TODO: Move to phase2 wherever it is needed.
+
+   // inline bool phase1_append( concat& c, const concat& d )
+   // {
+   //    for( const entry& e : d.concat ) {
+   //       c.concat.emplace_back( e );
+   //       c.back_aggregate_merge();
+   //    }
+   //    return true;
+   // }
 
    inline bool phase1_append( concat& c, const json_t& value )
    {
@@ -54,11 +56,9 @@ namespace tao::config::internal
       for( auto& e : c.concat ) {
          switch( e.kind() ) {
             case entry_kind::value:
-               // TODO: Error or ignore? -- Possibly ignore!
-               continue;
+               continue;  // TODO: Error or ignore? -- Possibly ignore!
             case entry_kind::reference:
-               // TODO: Error or ignore? -- Possibly ignore!
-               continue;
+               continue;  // TODO: Error or ignore? -- Possibly ignore!
             case entry_kind::array:
                for( auto& c : e.get_array().array ) {
                   phase1_append( c, path, value );
@@ -69,6 +69,8 @@ namespace tao::config::internal
                   phase1_append( c.second, path, value );
                }
                continue;
+            case entry_kind::remove:
+               continue;  // TODO: Or iterate over reverse( c.concat ) and return true because we are doing useless work?
          }
          assert( false );  // UNREACHABLE
       }

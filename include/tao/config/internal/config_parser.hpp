@@ -44,8 +44,7 @@ namespace tao::config::internal
                  { "schema", wrap( schema_function ) },
                  { "setenv", wrap( setenv_function ) },
                  { "temporary", wrap( temporary_function ) } },
-               { { "copy", wrap( copy_function ) },
-                 { "parse", wrap( parse_function ) } } )
+               { { "parse", wrap( parse_function ) } } )
       {}
 
       config_parser( config_parser&& ) = delete;

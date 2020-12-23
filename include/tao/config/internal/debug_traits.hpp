@@ -192,6 +192,9 @@ namespace tao::config::internal
             case entry_kind::object:
                c.string( "object" );
                return;
+            case entry_kind::remove:
+               c.string( "delete" );
+               return;
          }
          assert( false );  // UNREACHABLE
       }
@@ -234,8 +237,10 @@ namespace tao::config::internal
                c.key( "object" );
                json::events::produce< Traits >( c, v.get_object() );
                break;
-            default:
-               assert( false );  // UNREACHABLE
+            case entry_kind::remove:
+               c.key( "remove" );
+               c.null();
+               break;
          }
          c.member();
          c.end_object();
