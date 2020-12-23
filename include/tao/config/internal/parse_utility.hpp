@@ -25,17 +25,17 @@ namespace tao::config::internal
 {
    inline void skip_ws( pegtl_input_t& in )
    {
-      pegtl::parse< pegtl::star< json::jaxn::internal::rules::ws > >( in );
+      pegtl::parse< rules::wss >( in );
    }
 
    [[nodiscard]] inline bool parse_open( pegtl_input_t& in )
    {
-      return pegtl::parse< pegtl::one< '(' > >( in );
+      return pegtl::parse< pegtl::seq< pegtl::one< '(' >, rules::wss > >( in );
    }
 
    inline void parse_close( pegtl_input_t& in )
    {
-      pegtl::parse< pegtl::must< pegtl::one< ')' > > >( in );
+      pegtl::parse< pegtl::must< pegtl::one< ')' >, rules::wss > >( in );
    }
 
    [[nodiscard]] inline key1 parse_key1( pegtl_input_t& in )
@@ -69,7 +69,7 @@ namespace tao::config::internal
    [[nodiscard]] inline std::string parse_extension( pegtl_input_t& in )
    {
       std::string result;
-      pegtl::parse< rules::extension_rule, extension_action >( in, result );
+      pegtl::parse< pegtl::seq< rules::wss, rules::extension_rule, rules::wss >, extension_action >( in, result );
       return result;
    }
 

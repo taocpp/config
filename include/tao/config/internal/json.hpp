@@ -9,6 +9,8 @@
 #include <tao/json/contrib/position.hpp>
 #include <tao/json/contrib/traits.hpp>  // TODO: This might be a problem...
 
+#include "pegtl.hpp"
+
 namespace tao::config::internal
 {
    template< typename T >
@@ -17,5 +19,14 @@ namespace tao::config::internal
    using json_t = tao::json::basic_value< json_traits >;
 
 }  // namespace tao::config::internal
+
+namespace tao::config::internal::rules
+{
+   namespace jaxn = tao::json::jaxn::internal::rules;
+
+   struct wss : pegtl::star< jaxn::ws > {};
+   struct wsp : pegtl::plus< jaxn::ws > {};
+
+}  // namespace tao::config::internal::rules
 
 #endif

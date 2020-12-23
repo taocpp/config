@@ -33,7 +33,9 @@ namespace tao::config::internal
          }
          throw pegtl::parse_error( "unknown inner extension " + name, in.position() );
       }
-      return parse_jaxn( in );
+      json_t result = parse_jaxn( in );
+      skip_ws( in );
+      return result;
    }
 
 }  // namespace tao::config::internal

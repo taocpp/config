@@ -57,13 +57,8 @@ namespace tao::config::internal::rules
       }
    };
 
-   namespace jaxn = tao::json::jaxn::internal::rules;
-
    // clang-format off
-   struct wss : pegtl::star< jaxn::ws > {};
-
    struct extension_value : pegtl::must< pegtl::function< do_value_extension >, pegtl::one< ')' > > {};
-
    struct bracketed_value : pegtl::if_must< pegtl::one< '(' >, pegtl::if_must_else< pegtl::at< reference2_rest >, reference_value, extension_value > > {};
 
    struct array;

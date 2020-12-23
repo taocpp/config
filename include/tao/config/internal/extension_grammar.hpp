@@ -4,16 +4,13 @@
 #ifndef TAO_CONFIG_INTERNAL_EXTENSION_GRAMMAR_HPP
 #define TAO_CONFIG_INTERNAL_EXTENSION_GRAMMAR_HPP
 
+#include "json.hpp"
 #include "key_grammar.hpp"
 #include "pegtl.hpp"
 
 namespace tao::config::internal::rules
 {
-   namespace jaxn = tao::json::jaxn::internal::rules;
-
    // clang-format off
-   struct wsp : pegtl::plus< jaxn::ws > {};
-
    struct extension_name : pegtl::seq< ident, pegtl::opt< pegtl::one< '?' > > > {};
    struct extension_rule : pegtl::must< extension_name, wsp > {};
    // clang-format on
