@@ -19,7 +19,7 @@
 
 namespace tao::config::internal
 {
-   inline void delete_function( state& st, const key1& k )
+   inline void remove_function( state& st, const key1& k )
    {
       phase1_remove( st.root, st.prefix + k );
    }

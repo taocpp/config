@@ -38,7 +38,7 @@ namespace tao::config::internal
                  { "split", wrap( split_function ) },
                  { "string", wrap( string_function ) },
                  { "ubjson", wrap( ubjson_function ) } },
-               { { "delete", wrap( delete_function ) },
+               { { "delete", wrap( remove_function ) },
                  { "include", wrap( include_function ) },
                  { "include?", wrap( include_if_function ) },
                  { "schema", wrap( schema_function ) },
