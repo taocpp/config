@@ -41,10 +41,11 @@ namespace tao::config::internal
                { { "delete", wrap( remove_function ) },
                  { "include", wrap( include_function ) },
                  { "include?", wrap( include_if_function ) },
+                 { "parse", wrap( member_function ) },
                  { "schema", wrap( schema_function ) },
                  { "setenv", wrap( setenv_function ) },
                  { "temporary", wrap( temporary_function ) } },
-               { { "parse", wrap( parse_function ) } } )
+               { { "parse", wrap( value_function ) } } )
       {}
 
       config_parser( config_parser&& ) = delete;

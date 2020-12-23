@@ -50,6 +50,12 @@ namespace tao::config::internal
       }
    }
 
+   inline void member_function( state& st, const extension_maps& em, const pegtl::position& p, const std::string& c )
+   {
+      pegtl::memory_input in( c, __FUNCTION__ );
+      pegtl::parse_nested< rules::config_file, config_action >( p, static_cast< pegtl_input_t& >( in ), st, em );
+   }
+
    inline void schema_function( state& st, const std::optional< std::string >& sc )
    {
       if( sc ) {

@@ -11,7 +11,7 @@
 
 namespace tao::config::internal
 {
-   inline void parse_function( const pegtl::position& p, state& st, const extension_maps& em, const std::string& s )
+   inline void value_function( const pegtl::position& p, state& st, const extension_maps& em, const std::string& s )
    {
       pegtl::string_input< pegtl::tracking_mode::eager, pegtl_input_t::eol_t > in( s, __FUNCTION__ );
       pegtl::parse_nested< rules::value, config_action >( p, static_cast< pegtl_input_t& >( in ), st, em );
