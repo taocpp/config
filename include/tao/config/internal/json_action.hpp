@@ -1,5 +1,5 @@
 // Copyright (c) 2017-2020 Dr. Colin Hirsch and Daniel Frey
-// Please see LICENSE for license or visit https://github.com/taocpp/json/
+// Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_INTERNAL_JSON_ACTION_HPP
 #define TAO_CONFIG_INTERNAL_JSON_ACTION_HPP
@@ -35,7 +35,7 @@ namespace tao::config::internal
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
       {
-         consumer.boolean( in.position(), true );
+         consumer.boolean( true, in.position() );
       }
    };
 
@@ -45,7 +45,7 @@ namespace tao::config::internal
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
       {
-         consumer.boolean( in.position(), false );
+         consumer.boolean( false, in.position() );
       }
    };
 
@@ -55,7 +55,7 @@ namespace tao::config::internal
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
       {
-         consumer.key( in.position(), std::string_view( in.begin(), in.size() ) );
+         consumer.key( std::string_view( in.begin(), in.size() ), in.position() );
       }
    };
 
@@ -318,7 +318,7 @@ namespace tao::config::internal
       template< typename Input, typename Consumer >
       static void success( const Input& in, std::string& unescaped, Consumer& consumer )
       {
-         consumer.string( in.position(), std::move( unescaped ) );  // TODO: Position from start of string!
+         consumer.string( std::move( unescaped ), in.position() );  // TODO: Position from start of string!
       }
    };
 
@@ -329,7 +329,7 @@ namespace tao::config::internal
       template< typename Input, typename Consumer >
       static void success( const Input& in, std::string& unescaped, Consumer& consumer )
       {
-         consumer.string( in.position(), std::move( unescaped ) );  // TODO: Position from start of string!
+         consumer.string( std::move( unescaped ), in.position() );  // TODO: Position from start of string!
       }
    };
 
@@ -340,7 +340,7 @@ namespace tao::config::internal
       template< typename Input, typename Consumer >
       static void success( const Input& in, std::string& unescaped, Consumer& consumer )
       {
-         consumer.key( in.position(), std::move( unescaped ) );  // TODO: Position from start of string!
+         consumer.key( std::move( unescaped ), in.position() );  // TODO: Position from start of string!
       }
    };
 
@@ -351,7 +351,7 @@ namespace tao::config::internal
       template< typename Input, typename Consumer >
       static void success( const Input& in, std::vector< std::byte >& value, Consumer& consumer )
       {
-         consumer.binary( in.position(), std::move( value ) );  // TODO: Position from start of binary!
+         consumer.binary( std::move( value ), in.position() );  // TODO: Position from start of binary!
       }
    };
 
@@ -362,7 +362,7 @@ namespace tao::config::internal
       template< typename Input, typename Consumer >
       static void success( const Input& in, std::vector< std::byte >& value, Consumer& consumer )
       {
-         consumer.binary( in.position(), std::move( value ) );  // TODO: Position from start of binary!
+         consumer.binary( std::move( value ), in.position() );  // TODO: Position from start of binary!
       }
    };
 

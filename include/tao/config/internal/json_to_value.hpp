@@ -1,5 +1,5 @@
 // Copyright (c) 2016-2020 Dr. Colin Hirsch and Daniel Frey
-// Please see LICENSE for license or visit https://github.com/taocpp/json/
+// Please see LICENSE for license or visit https://github.com/taocpp/config
 
 #ifndef TAO_CONFIG_INTERNAL_TO_VALUE_HPP
 #define TAO_CONFIG_INTERNAL_TO_VALUE_HPP
@@ -33,7 +33,7 @@ namespace tao::config::internal
          value.public_base().position = p;
       }
 
-      void boolean( const pegtl::position& p, const bool v )
+      void boolean( const bool v, const pegtl::position& p )
       {
          value.set_boolean( v );
          value.public_base().position = p;
@@ -57,31 +57,31 @@ namespace tao::config::internal
          value.public_base().position = p;
       }
 
-      void string( const pegtl::position& p, const std::string_view v )
+      void string( const std::string_view v, const pegtl::position& p )
       {
          value.emplace_string( v );
          value.public_base().position = p;
       }
 
-      void string( const pegtl::position& p, const char* v )
+      void string( const char* v, const pegtl::position& p )
       {
          value.emplace_string( v );
          value.public_base().position = p;
       }
 
-      void string( const pegtl::position& p, std::string&& v )
+      void string( std::string&& v, const pegtl::position& p )
       {
          value.emplace_string( std::move( v ) );
          value.public_base().position = p;
       }
 
-      void binary( const pegtl::position& p, const tao::binary_view v )
+      void binary( const tao::binary_view v, const pegtl::position& p )
       {
          value.emplace_binary( v.begin(), v.end() );
          value.public_base().position = p;
       }
 
-      void binary( const pegtl::position& p, std::vector< std::byte >&& v )
+      void binary(  std::vector< std::byte >&& v, const pegtl::position& p )
       {
          value.emplace_binary( std::move( v ) );
          value.public_base().position = p;
@@ -92,7 +92,7 @@ namespace tao::config::internal
          stack_.emplace_back( json::empty_array, p );
       }
 
-      void begin_array( const pegtl::position& p, const std::size_t size )
+      void begin_array( const std::size_t size, const pegtl::position& p )
       {
          begin_array( p );
          stack_.back().get_array().reserve( size );
@@ -103,28 +103,38 @@ namespace tao::config::internal
          stack_.back().emplace_back( std::move( value ) );
       }
 
-      void end_array( const pegtl::position& /*unused*/, const std::size_t /*unused*/ = 0 )
+      void end_array( const pegtl::position& /*unused*/ )
       {
          value = std::move( stack_.back() );
          stack_.pop_back();
       }
 
-      void begin_object( const pegtl::position& p, const std::size_t /*unused*/ = 0 )
+      void end_array( const std::size_t /*unused*/, const pegtl::position& p )
+      {
+         end_array( p );
+      }
+
+      void begin_object( const pegtl::position& p )
       {
          stack_.emplace_back( json::empty_object, p );
       }
 
-      void key( const pegtl::position& /*unused*/, const std::string_view v )
+      void begin_object( const std::size_t /*unused*/, const pegtl::position& p )
+      {
+         begin_object( p );
+      }
+
+      void key( const std::string_view v, const pegtl::position& /*unused*/ )
       {
          keys_.emplace_back( v );
       }
 
-      void key( const pegtl::position& /*unused*/, const char* v )
+      void key( const char* v, const pegtl::position& /*unused*/ )
       {
          keys_.emplace_back( v );
       }
 
-      void key( const pegtl::position& /*unused*/, std::string&& v )
+      void key( std::string&& v, const pegtl::position& /*unused*/ )
       {
          keys_.emplace_back( std::move( v ) );
       }
@@ -135,10 +145,15 @@ namespace tao::config::internal
          keys_.pop_back();
       }
 
-      void end_object( const pegtl::position& /*unused*/, const std::size_t /*unused*/ = 0 )
+      void end_object( const pegtl::position& /*unused*/ )
       {
          value = std::move( stack_.back() );
          stack_.pop_back();
+      }
+
+      void end_object( const std::size_t /*unused*/, const pegtl::position& p )
+      {
+         end_object( p );
       }
    };
 
