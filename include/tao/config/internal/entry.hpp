@@ -102,7 +102,6 @@ namespace tao::config::internal
       {
          auto* s = std::get_if< json_t >( &m_data );
          assert( s );
-         //  assert( s->clear == m_clear );  // TODO: Where, and why exactly, is this violated?
          return *s;
       }
 

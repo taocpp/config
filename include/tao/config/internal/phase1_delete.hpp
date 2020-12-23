@@ -77,7 +77,7 @@ namespace tao::config::internal
 
    inline void phase1_delete_index( concat& c, const std::size_t n )
    {
-      assert( false );  // TODO
+      throw std::string( "TODO: " ) + __FUNCTION__;
    }
 
    inline void phase1_delete_append( concat& c, const bool r )
@@ -179,7 +179,7 @@ namespace tao::config::internal
 
    inline void phase1_delete_index( concat& c, const std::size_t n, const key1& path )
    {
-      assert( false );  // TODO
+      throw std::string( "TODO: " ) + __FUNCTION__;
    }
 
    inline void phase1_delete_append( concat& c, const bool r, const key1& path )

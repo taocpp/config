@@ -7,7 +7,7 @@
 #include "config_action.hpp"
 #include "config_grammar.hpp"
 #include "extension_maps.hpp"
-// #include "phase1_access.hpp"
+#include "phase1_access.hpp"
 #include "phase1_append.hpp"
 #include "state.hpp"
 
@@ -15,8 +15,8 @@ namespace tao::config::internal
 {
    inline void copy_function( state& st, const key1& k )
    {
-      //      const concat c = phase1_access( st.prefix, k );
-      //      phase1_append( st.root, st.prefix + st.suffix, c );
+      const concat d = phase1_access( st.root, st.prefix, k );
+      phase1_append( st.root, st.prefix + st.suffix, d );
    }
 
    inline void parse_function( const pegtl::position& p, state& st, const extension_maps& em, const std::string& s )

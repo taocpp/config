@@ -79,7 +79,7 @@ namespace tao::config::internal
    bool phase1_append_minus( concat& c, const key1& path, const V& value )
    {
       c.back_ensure_kind( entry_kind::array );
-      assert( false );  // TODO
+      throw std::string( "TODO: " ) + __FUNCTION__;
    }
 
    template< typename V >
@@ -93,7 +93,7 @@ namespace tao::config::internal
    bool phase1_append_index( concat& c, const std::size_t index, const key1& path, const V& value )
    {
       c.back_ensure_kind( entry_kind::array );
-      assert( false );  // TODO!
+      throw std::string( "TODO: " ) + __FUNCTION__;
    }
 
    template< typename V >
