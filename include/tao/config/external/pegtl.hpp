@@ -4,9 +4,9 @@
 #ifndef TAO_CONFIG_EXTERNAL_PEGTL_HPP
 #define TAO_CONFIG_EXTERNAL_PEGTL_HPP
 
-#include <tao/json/external/pegtl.hpp>
-#include <tao/json/external/pegtl/change_action_and_state.hpp>
-#include <tao/json/external/pegtl/change_state.hpp>
-#include <tao/json/external/pegtl/contrib/analyze.hpp>
+#include <tao/pegtl.hpp>
+#include <tao/pegtl/change_action_and_state.hpp>
+#include <tao/pegtl/change_state.hpp>
+#include <tao/pegtl/contrib/analyze.hpp>
 
 #endif

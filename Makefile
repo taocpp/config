@@ -6,7 +6,7 @@
 .SECONDARY:
 
 CXXSTD = -std=c++17
-CPPFLAGS ?= -pedantic -I../json/include -Iinclude
+CPPFLAGS ?= -pedantic -Iinclude -Iexternal/json/include -Iexternal/json/external/PEGTL/include
 CXXFLAGS ?= -Wall -Wextra -Werror -O3 -ftemplate-backtrace-limit=0
 
 HEADERS := $(shell find include -name "*.hpp")

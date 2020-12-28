@@ -4,9 +4,9 @@
 #ifndef TAO_CONFIG_SCHEMA_BUILTIN_HPP
 #define TAO_CONFIG_SCHEMA_BUILTIN_HPP
 
-#include <tao/json/external/pegtl/contrib/integer.hpp>
-#include <tao/json/external/pegtl/contrib/json_pointer.hpp>
-#include <tao/json/external/pegtl/contrib/uri.hpp>
+#include <tao/pegtl/contrib/integer.hpp>
+#include <tao/pegtl/contrib/json_pointer.hpp>
+#include <tao/pegtl/contrib/uri.hpp>
 
 #include "internal/array.hpp"
 #include "internal/binary.hpp"
