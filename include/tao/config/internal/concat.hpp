@@ -20,13 +20,13 @@ namespace tao::config::internal
    struct basic_concat
    {
       using data_t = std::list< E >;
+      using iterator_t = typename std::list< E >::iterator;
 
-      basic_concat() = default;
-      // basic_concat() = delete;
+      basic_concat() = delete;
 
-      // explicit basic_concat( const pegtl::position& p )
-      //    : position( p )
-      // {}
+      explicit basic_concat( const pegtl::position& p )
+         : position( p )
+      {}
 
       basic_concat( basic_concat&& ) = default;
       basic_concat( const basic_concat& ) = default;
@@ -36,47 +36,106 @@ namespace tao::config::internal
       void operator=( basic_concat&& ) = delete;
       void operator=( const basic_concat& ) = delete;
 
-      void back_ensure_kind( const entry_kind k )
+      [[nodiscard]] bool is_simple() const noexcept
+      {
+         return ( concat.size() == 1 ) && concat.back.is_value();
+      }
+
+      [[nodiscard]] std::size_t all_references() const noexcept
+      {
+         std::size_t result = 0;
+
+         for( const auto& e : concat ) {
+            result += e.all_references();
+         }
+         return result;
+      }
+
+      [[nodiscard]] const json_t* get_value() const
+      {
+         const json_t* result = nullptr;
+
+         for( const auto& e : reverse( concat ) ) {
+            switch( e.kind() ) {
+               case entry_kind::value:
+                  if( result != nullptr ) {
+                     return nullptr;
+                  }
+                  result = &e.get_value();
+                  continue;
+               case entry_kind::reference:
+                  assert( false );  // UNREACHABLE
+               case entry_kind::array:
+                  throw std::string( "array in reference" );
+               case entry_kind::object:
+                  throw std::string( "object in reference" );
+               case entry_kind::remove:
+                  return result;
+            }
+            assert( false );  // UNREACHABLE
+         }
+         return result;
+      }
+
+      void back_ensure_kind( const entry_kind k, const pegtl::position& p )
       {
          if( concat.empty() || ( concat.back().kind() != k ) ) {
-            concat.emplace_back( k );
+            concat.emplace_back( k, p );
          }
       }
 
-      void back_aggregate_merge()
+      void post_insert_merge( const iterator_t& i )
+      {
+         if( i != concat.begin() ) {
+            auto j = i;
+            post_function_merge( --j, i );
+         }
+      }
+
+      void post_append_merge()
       {
          if( concat.size() >= 2 ) {
-            E& e = *----concat.end();
-            E& f = *--concat.end();
-            if( e.kind() == f.kind() ) {
-               switch( e.kind() ) {
-                  case entry_kind::value:
-                  case entry_kind::reference:
-                     return;
-                  case entry_kind::array:
-                     e.get_array().array.splice( e.get_array().array.end(), f.get_array().array );
-                     concat.pop_back();  // Invalidates f.
-                     return;
-                  case entry_kind::object:
-                     for( std::pair< const std::string, basic_concat >& n : f.get_object().object ) {
-                        const auto p = e.get_object().object.try_emplace( std::move( n.first ), std::move( n.second ) );
-                        if( !p.second ) {
-                           for( entry& m : n.second.concat ) {
-                              p.first->second.concat.emplace_back( m );
-                              p.first->second.back_aggregate_merge();
-                           }
-                        }
-                     }
-                     concat.pop_back();  // Invalidates f.
-                     return;
-               }
-               assert( false );  // UNREACHABLE
-            }
+            post_function_merge( ----concat.end(), --concat.end() );
          }
       }
 
       std::list< E > concat;
-      //      pegtl::position position;
+      pegtl::position position;
+
+   private:
+      void post_function_merge( const typename std::list< E >::iterator& e, const typename std::list< E >::iterator& f )
+      {
+         if( f->kind() == entry_kind::remove ) {
+            concat.erase( concat.begin(), f );
+            return;
+         }
+         if( e->kind() == f->kind() ) {
+            switch( e->kind() ) {
+               case entry_kind::value:
+               case entry_kind::reference:
+                  return;
+               case entry_kind::array:
+                  e->get_array().array.splice( e->get_array().array.end(), f->get_array().array );
+                  concat.erase( f );
+                  return;
+               case entry_kind::object:
+                  for( std::pair< const std::string, basic_concat >& n : f->get_object().object ) {
+                     const auto p = e->get_object().object.try_emplace( std::move( n.first ), std::move( n.second ) );
+                     if( !p.second ) {
+                        for( entry& m : n.second.concat ) {
+                           p.first->second.concat.emplace_back( m );
+                           p.first->second.post_append_merge();
+                        }
+                     }
+                  }
+                  concat.erase( f );
+                  return;
+               case entry_kind::remove:
+                  assert( false );  // UNREACHABLE
+            }
+            assert( false );  // UNREACHABLE
+         }
+      }
    };
 
 }  // namespace tao::config::internal

@@ -18,17 +18,6 @@
 
 namespace tao::config::internal
 {
-   // TODO: Move to phase2 wherever it is needed.
-
-   // inline bool phase1_append( concat& c, const concat& d )
-   // {
-   //    for( const entry& e : d.concat ) {
-   //       c.concat.emplace_back( e );
-   //       c.back_aggregate_merge();
-   //    }
-   //    return true;
-   // }
-
    inline bool phase1_append( concat& c, const json_t& value )
    {
       c.concat.emplace_back( value );
@@ -43,7 +32,7 @@ namespace tao::config::internal
 
    inline bool phase1_append( concat& c, const entry_kind k )
    {
-      c.back_ensure_kind( k );
+      c.back_ensure_kind( k, pegtl::position( 1, 1, 1, "TODO" ) );
       return true;
    }
 
@@ -78,33 +67,34 @@ namespace tao::config::internal
    }
 
    template< typename V >
-   bool phase1_append_minus( concat& c, const key1& path, const V& value )
+   bool phase1_append_minus( concat& c, const pegtl::position& p, const key1& path, const V& value )
    {
-      c.back_ensure_kind( entry_kind::array );
+      c.back_ensure_kind( entry_kind::array, p );
       throw std::string( "TODO: " ) + __FUNCTION__;
    }
 
    template< typename V >
-   bool phase1_append_name( concat& c, const std::string& name, const key1& path, const V& value )
+   bool phase1_append_name( concat& c, const pegtl::position& p, const std::string& name, const key1& path, const V& value )
    {
-      c.back_ensure_kind( entry_kind::object );
-      return phase1_append( c.concat.back().get_object().object[ name ], path, value );
+      c.back_ensure_kind( entry_kind::object, p );
+      const auto pair = c.concat.back().get_object().object.try_emplace( name, p );
+      return phase1_append( pair.first->second, path, value );
    }
 
    template< typename V >
-   bool phase1_append_index( concat& c, const std::size_t index, const key1& path, const V& value )
+   bool phase1_append_index( concat& c, const pegtl::position& p, const std::size_t index, const key1& path, const V& value )
    {
-      c.back_ensure_kind( entry_kind::array );
+      c.back_ensure_kind( entry_kind::array, p );
       throw std::string( "TODO: " ) + __FUNCTION__;
    }
 
    template< typename V >
-   bool phase1_append_append( concat& c, const bool r, const key1& path, const V& value )
+   bool phase1_append_append( concat& c, const pegtl::position& p, const bool r, const key1& path, const V& value )
    {
-      c.back_ensure_kind( entry_kind::array );
+      c.back_ensure_kind( entry_kind::array, p );
       auto& a = c.concat.back().get_array();
       if( r ) {
-         return phase1_append( a.array.emplace_back(), path, value );
+         return phase1_append( a.array.emplace_back( p ), path, value );
       }
       assert( !a.array.empty() );
 
@@ -117,17 +107,19 @@ namespace tao::config::internal
       if( path.empty() ) {
          return phase1_append( c, value );
       }
-      switch( path.at( 0 ).kind() ) {
+      const auto& part = path.at( 0 );
+
+      switch( part.kind() ) {
          case key1_kind::star:
             return phase1_append_star( c, pop_front( path ), value );
          case key1_kind::minus:
-            return phase1_append_minus( c, pop_front( path ), value );
+            return phase1_append_minus( c, part.position, pop_front( path ), value );
          case key1_kind::name:
-            return phase1_append_name( c, path.at( 0 ).get_name(), pop_front( path ), value );
+            return phase1_append_name( c, part.position, part.get_name(), pop_front( path ), value );
          case key1_kind::index:
-            return phase1_append_index( c, path.at( 0 ).get_index(), pop_front( path ), value );
+            return phase1_append_index( c, part.position, part.get_index(), pop_front( path ), value );
          case key1_kind::append:
-            return phase1_append_append( c, path.at( 0 ).clear_append_flag(), pop_front( path ), value );
+            return phase1_append_append( c, part.position, part.clear_append_flag(), pop_front( path ), value );
       }
       assert( false );  // UNREACHABLE
    }
@@ -137,7 +129,9 @@ namespace tao::config::internal
    {
       assert( !path.empty() );
 
-      phase1_append( o.object[ path.front().get_name() ], pop_front( path ), value );
+      const std::string& name = path.front().get_name();  // TODO: Error message if other type.
+      const auto pair = o.object.try_emplace( name, path.front().position );
+      phase1_append( pair.first->second, pop_front( path ), value );
    }
 
 }  // namespace tao::config::internal

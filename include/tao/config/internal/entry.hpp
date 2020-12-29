@@ -41,7 +41,7 @@ namespace tao::config::internal
          expand();
       }
 
-      explicit entry( const entry_kind k )
+      entry( const entry_kind k, const pegtl::position& p )
          : m_data( std::in_place_type_t< entry_remove_t >(), 42 )
       {
          switch( k ) {
@@ -49,10 +49,10 @@ namespace tao::config::internal
             case entry_kind::reference:
                throw std::string( "this should never happen" );
             case entry_kind::array:
-               set_array();
+               set_array( p );
                return;
             case entry_kind::object:
-               set_object();
+               set_object( p );
                return;
             case entry_kind::remove:
                return;
@@ -93,14 +93,14 @@ namespace tao::config::internal
          return std::holds_alternative< object >( m_data );
       }
 
-      void set_array()
+      void set_array( const pegtl::position& p )
       {
-         m_data.emplace< std::size_t( entry_kind::array ) >();
+         m_data.emplace< std::size_t( entry_kind::array ) >( p );
       }
 
-      void set_object()
+      void set_object( const pegtl::position& p )
       {
-         m_data.emplace< std::size_t( entry_kind::object ) >();
+         m_data.emplace< std::size_t( entry_kind::object ) >( p );
       }
 
       void set_remove()
@@ -164,6 +164,23 @@ namespace tao::config::internal
          return *s;
       }
 
+      [[nodiscard]] std::size_t all_references() const noexcept
+      {
+         switch( kind() ) {
+            case entry_kind::value:
+               return 0;
+            case entry_kind::reference:
+               return 1;
+            case entry_kind::array:
+               return get_array().all_references();
+            case entry_kind::object:
+               return get_object().all_references();
+            case entry_kind::remove:
+               return 0;  // TODO: Do we need to exclude or eliminate things in a concat before a remove?
+         }
+         assert( false );  // UNREACHABLE
+      }
+
       //      const pegtl::position position;
 
    private:
@@ -173,17 +190,17 @@ namespace tao::config::internal
       {
          if( get_value().is_array() ) {
             auto a = std::move( get_value().get_array() );
-            set_array();
+            set_array( get_value().position );
             for( auto& j : a ) {
-               get_array().array.emplace_back().concat.emplace_back( std::move( j ) );
+               get_array().array.emplace_back( j.position ).concat.emplace_back( std::move( j ) );
             }
             return;
          }
          if( get_value().is_object() ) {
             auto o = std::move( get_value().get_object() );
-            set_object();
+            set_object( get_value().position );
             for( auto& [ k, v ] : o ) {
-               get_object().object.try_emplace( std::move( k ) ).first->second.concat.emplace_back( std::move( v ) );
+               get_object().object.try_emplace( std::move( k ), v.position ).first->second.concat.emplace_back( std::move( v ) );
             }
             return;
          }

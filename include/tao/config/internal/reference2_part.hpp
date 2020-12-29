@@ -28,7 +28,7 @@ namespace tao::config::internal
            data( std::vector< reference2_part >() )
       {}
 
-      reference2_part( const std::uint64_t i, const pegtl::position& p )
+      reference2_part( const std::size_t i, const pegtl::position& p )
          : position( p ),
            data( i )
       {}
@@ -43,9 +43,9 @@ namespace tao::config::internal
          return reference2_kind( data.index() + 1 );
       }
 
-      [[nodiscard]] std::uint64_t get_index() const noexcept
+      [[nodiscard]] std::size_t get_index() const noexcept
       {
-         const auto* s = std::get_if< std::uint64_t >( &data );
+         const auto* s = std::get_if< std::size_t >( &data );
          assert( s != nullptr );
          return *s;
       }
@@ -72,7 +72,7 @@ namespace tao::config::internal
       }
 
       pegtl::position position;
-      std::variant< part_minus_t, std::string, std::uint64_t, std::vector< reference2_part > > data;
+      std::variant< part_minus_t, std::string, std::size_t, std::vector< reference2_part > > data;
    };
 
 }  // namespace tao::config::internal

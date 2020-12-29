@@ -14,7 +14,10 @@
 #include "json_traits.hpp"
 #include "member_functions.hpp"
 #include "pegtl.hpp"
+#include "phase2_combine.hpp"
+#include "phase2_resolve.hpp"
 #include "state.hpp"
+#include "to_stream.hpp"
 #include "value_functions.hpp"
 
 // #include "../schema/builtin.hpp"
@@ -67,10 +70,28 @@ namespace tao::config::internal
          parse( pegtl::file_input( path ) );
       }
 
+      void finalize()
+      {
+         unsigned iteration = 0;
+
+         std::cerr << "BEGIN" << std::endl;
+         to_stream( std::cerr, st.root, 3 );
+         std::cerr << std::endl;
+
+         while( ( phase2_combine( st.root ) > 0 ) || ( phase2_resolve( st.root ) > 0 ) ) {
+            std::cerr << "ITERATION " << iteration++ << std::endl;
+            to_stream( std::cerr, st.root, 3 );
+         std::cerr << std::endl;
+         }
+         std::cerr << "END" << std::endl;
+         to_stream( std::cerr, st.root, 3 );
+         std::cerr << std::endl;
+      }
+
       // template< template< typename... > class Traits >
-      // [[nodiscard]] json::basic_value< Traits > process( schema::builtin b )
+      // [[nodiscard]] json::basic_value< Traits > process()  // schema::builtin b )
       // {
-      //    return internal::phase2< Traits >( st, std::move( b ) );
+      //    return internal::phase2< Traits >( st )  // , std::move( b ) );
       // }
    };
 

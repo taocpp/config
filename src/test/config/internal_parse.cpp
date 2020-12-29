@@ -15,7 +15,7 @@ namespace tao::config
       const std::string data = "foo = 1, bar = [ 0, 1, 2 ]";
       internal::config_parser cfg;
       internal::pegtl_input_t in( data, __FUNCTION__ );
-      const bool result = internal::pegtl::parse< internal::rules::config_file, internal::config_action >( in, cfg.st, cfg.em );
+      const bool result = pegtl::parse< internal::rules::config_file, internal::config_action >( in, cfg.st, cfg.em );
       TAO_CONFIG_TEST_ASSERT( result );
    }
 

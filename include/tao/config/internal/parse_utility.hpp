@@ -69,7 +69,7 @@ namespace tao::config::internal
    [[nodiscard]] inline std::string parse_extension( pegtl_input_t& in )
    {
       std::string result;
-      pegtl::parse< pegtl::seq< rules::wss, rules::extension_rule, rules::wss >, extension_action >( in, result );
+      pegtl::parse< pegtl::must< rules::wss, rules::extension_rule, rules::wss >, extension_action >( in, result );
       return result;
    }
 

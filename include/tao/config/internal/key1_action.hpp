@@ -34,7 +34,7 @@ namespace tao::config::internal
       template< typename Input >
       static void apply( const Input& in, std::vector< key1_part >& st )
       {
-         st.emplace_back( std::uint64_t( std::stoul( in.string() ) ), in.position() );
+         st.emplace_back( std::size_t( std::stoul( in.string() ) ), in.position() );
       }
    };
 

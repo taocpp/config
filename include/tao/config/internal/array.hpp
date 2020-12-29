@@ -17,12 +17,11 @@ namespace tao::config::internal
    {
       using data_t = std::list< C >;
 
-      basic_array() = default;
-      // basic_array() = delete;
+      basic_array() = delete;
 
-      // explicit basic_array( const pegtl::position& pos )
-      //    : position( pos )
-      // {}
+      explicit basic_array( const pegtl::position& pos )
+         : position( pos )
+      {}
 
       basic_array( basic_array&& ) = default;
       basic_array( const basic_array& ) = default;
@@ -80,8 +79,28 @@ namespace tao::config::internal
          return *i;
       }
 
+      [[nodiscard]] bool is_simple() const noexcept
+      {
+         for( const auto& c : array ) {
+            if( !c.is_simple() ) {
+               return false;
+            }
+         }
+         return true;
+      }
+
+      [[nodiscard]] std::size_t all_references() const noexcept
+      {
+         std::size_t result = 0;
+
+         for( const auto& c : array ) {
+            result += c.all_references();
+         }
+         return result;
+      }
+
       std::list< C > array;
-      // pegtl::position position;
+      pegtl::position position;
    };
 
 }  // namespace tao::config::internal

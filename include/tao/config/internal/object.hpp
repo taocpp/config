@@ -18,12 +18,11 @@ namespace tao::config::internal
    {
       using data_t = std::map< std::string, C >;
 
-      basic_object() = default;
-      // basic_object() = delete;
+      basic_object() = delete;
 
-      // explicit basic_object( const pegtl::position& p )
-      //    : position( p )
-      // {}
+      explicit basic_object( const pegtl::position& p )
+         : position( p )
+      {}
 
       basic_object( basic_object&& ) = default;
       basic_object( const basic_object& ) = default;
@@ -45,8 +44,28 @@ namespace tao::config::internal
          return ( i == object.end() ) ? nullptr : ( &*i );
       }
 
+      [[nodiscard]] bool is_simple() const noexcept
+      {
+         for( const auto& p : object ) {
+            if( !p.second.is_simple() ) {
+               return false;
+            }
+         }
+         return true;
+      }
+
+      [[nodiscard]] std::size_t all_references() const noexcept
+      {
+         std::size_t result = 0;
+
+         for( const auto& p : object ) {
+            result += p.second.all_references();
+         }
+         return result;
+      }
+
       std::map< std::string, C > object;
-      //      pegtl::position position;
+      pegtl::position position;
    };
 
 }  // namespace tao::config::internal

@@ -19,7 +19,9 @@ namespace tao::config::internal
 {
    struct state
    {
-      state() = default;
+      state()
+         : root( pegtl::position( 1, 1, 1, "(root)" ) )
+      {}
 
       state( state&& ) = delete;
       state( const state& ) = delete;

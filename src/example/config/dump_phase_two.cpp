@@ -20,8 +20,7 @@ namespace tao::config
       pegtl::file_input in( file );
       const bool result = pegtl::parse< internal::rules::config_file, internal::config_action >( in, cfg.st, cfg.em );
       std::cerr << result << std::endl;
-      internal::to_stream( std::cerr, cfg.st.root, 3 );
-      std::cerr << std::endl;
+      cfg.finalize();
    }
 
 }  // namespace tao::config

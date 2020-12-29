@@ -32,7 +32,7 @@ namespace tao::config::internal
       // key1_part( const signed char, const pegtl::position& ) = delete;
       // key1_part( const unsigned char, const pegtl::position& ) = delete;
 
-      key1_part( const std::uint64_t i, const pegtl::position& p )
+      key1_part( const std::size_t i, const pegtl::position& p )
          : position( p ),
            data( i )
       {}
@@ -78,9 +78,9 @@ namespace tao::config::internal
          return **s;
       }
 
-      [[nodiscard]] std::uint64_t get_index() const noexcept
+      [[nodiscard]] std::size_t get_index() const noexcept
       {
-         const auto* s = std::get_if< std::uint64_t >( &data );
+         const auto* s = std::get_if< std::size_t >( &data );
          assert( s != nullptr );
          return *s;
       }
@@ -93,7 +93,7 @@ namespace tao::config::internal
       }
 
       pegtl::position position;
-      std::variant< part_star_t, part_minus_t, std::string, std::uint64_t, std::shared_ptr< bool > > data;
+      std::variant< part_star_t, part_minus_t, std::string, std::size_t, std::shared_ptr< bool > > data;
    };
 
    inline bool operator<( const key1_part& l, const key1_part& r ) noexcept

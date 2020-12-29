@@ -26,10 +26,16 @@ namespace tao::config::internal
       explicit constexpr entry_remove_t( int /*unused*/ ) {}
    };
 
+   struct better_luck_next_time_t
+   {
+      explicit constexpr better_luck_next_time_t( int /*unused*/ ) {}
+   };
+
    constexpr part_star_t part_star{ 0 };
    constexpr part_minus_t part_minus{ 0 };
    constexpr part_vector_t part_vector{ 0 };
    constexpr entry_remove_t entry_remove{ 0 };
+   constexpr better_luck_next_time_t better_luck_next_time{ 0 };
 
    constexpr bool operator<( const part_star_t, const part_star_t ) noexcept
    {

@@ -249,20 +249,20 @@ namespace tao::config::internal
 
    template<>
    struct debug_traits< concat >
-      : json::binding::object<  // TAO_JSON_BIND_REQUIRED( "position", &concat::p ),
-           TAO_JSON_BIND_REQUIRED( "concat_list", &concat::concat ) >
+      : json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::position ),
+                               TAO_JSON_BIND_REQUIRED( "concat_list", &concat::concat ) >
    {};
 
    template<>
    struct debug_traits< array >
-      : json::binding::object<  // TAO_JSON_BIND_REQUIRED( "position", &array::position ),
-           TAO_JSON_BIND_REQUIRED( "array_data", &array::array ) >
+      : json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &array::position ),
+                               TAO_JSON_BIND_REQUIRED( "array_data", &array::array ) >
    {};
 
    template<>
    struct debug_traits< object >
-      : json::binding::object<  // TAO_JSON_BIND_REQUIRED( "position", &object::position ),
-           TAO_JSON_BIND_REQUIRED( "object_data", &object::object ) >
+      : json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &object::position ),
+                               TAO_JSON_BIND_REQUIRED( "object_data", &object::object ) >
    {};
 
    template< typename T >
