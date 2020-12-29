@@ -6,12 +6,11 @@
 
 #include <utility>
 
-#include "../key.hpp"
-
 #include "json.hpp"
-#include "key_utility.hpp"
-#include "type_traits.hpp"
-#include "value_traits.hpp"
+#include "json_traits.hpp"
+#include "phase2_traits.hpp"
+
+#include "../key.hpp"
 
 namespace tao::config::internal
 {

@@ -15,7 +15,9 @@
 #include "member_functions.hpp"
 #include "pegtl.hpp"
 #include "phase2_combine.hpp"
+// #include "phase2_repack.hpp"
 #include "phase2_resolve.hpp"
+#include "phase2_remove.hpp"
 #include "state.hpp"
 #include "to_stream.hpp"
 #include "value_functions.hpp"
@@ -81,8 +83,14 @@ namespace tao::config::internal
          while( ( phase2_combine( st.root ) > 0 ) || ( phase2_resolve( st.root ) > 0 ) ) {
             std::cerr << "ITERATION " << iteration++ << std::endl;
             to_stream( std::cerr, st.root, 3 );
-         std::cerr << std::endl;
+            std::cerr << std::endl;
          }
+         std::cerr << "REMOVE" << std::endl;
+         to_stream( std::cerr, st.root, 3 );
+         std::cerr << std::endl;
+
+         phase2_remove( st.root );
+
          std::cerr << "END" << std::endl;
          to_stream( std::cerr, st.root, 3 );
          std::cerr << std::endl;

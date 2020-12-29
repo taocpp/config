@@ -29,7 +29,7 @@ namespace tao::config::internal::rules
    struct key_other : pegtl::sor< ident, quoted, index, minus > {};
    struct key_first : pegtl::sor< ident, quoted > {};
 
-   struct key : pegtl::seq< key_first, pegtl::star_must< dot, key_other > > {};
+   struct key_rule : pegtl::seq< key_first, pegtl::star_must< dot, key_other > > {};
    // clang-format on
 
 }  // namespace tao::config::internal::rules
