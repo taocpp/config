@@ -105,8 +105,11 @@ namespace tao::config::internal
       return result;
    }
 
-   [[nodiscard]] inline std::string string_function( const tao::binary_view bv )
+   [[nodiscard]] inline std::string string_function( const pegtl::position& p, const tao::binary_view bv )
    {
+      if( !json::internal::validate_utf8_nothrow( std::string_view( reinterpret_cast< const char* >( bv.data() ), bv.size() ) ) ) {
+         throw pegtl::parse_error( "invalid utf8 in binary data", p );
+      }
       return std::string( reinterpret_cast< const char* >( bv.data() ), bv.size() );
    }
 

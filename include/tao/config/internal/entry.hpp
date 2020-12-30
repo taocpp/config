@@ -192,7 +192,7 @@ namespace tao::config::internal
             auto a = std::move( get_value().get_array() );
             set_array( get_value().position );
             for( auto& j : a ) {
-               get_array().array.emplace_back( j.position ).concat.emplace_back( std::move( j ) );
+               get_array().array.emplace_back( j.position ).concat.emplace_back( std::move( j ) );  // TODO: Add remove entry in front of every data entry?
             }
             return;
          }
@@ -200,7 +200,7 @@ namespace tao::config::internal
             auto o = std::move( get_value().get_object() );
             set_object( get_value().position );
             for( auto& [ k, v ] : o ) {
-               get_object().object.try_emplace( std::move( k ), v.position ).first->second.concat.emplace_back( std::move( v ) );
+               get_object().object.try_emplace( std::move( k ), v.position ).first->second.concat.emplace_back( std::move( v ) );  // TODO: Add remove entry in front of every data entry?
             }
             return;
          }
