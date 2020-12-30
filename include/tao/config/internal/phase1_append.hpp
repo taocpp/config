@@ -32,6 +32,9 @@ namespace tao::config::internal
 
    inline bool phase1_append( concat& c, const entry_kind k )
    {
+      if( k == entry_kind::remove ) {
+         c.concat.clear();
+      }
       c.back_ensure_kind( k, pegtl::position( 1, 1, 1, "TODO" ) );
       return true;
    }
