@@ -80,37 +80,37 @@ namespace tao::config::internal
       }
    }
 
-   inline void phase2_array_concat( json_t& l, json_t&& r )
-   {
-      switch( r.type() ) {
-         case json::type::ARRAY:
-            l.get_array().reserve( l.get_array().size() + r.get_array().size() );
-            for( auto&& i : r.get_array() ) {
-               l.emplace_back( std::move( i ) );
-            }
-            break;
-         default:
-            throw concat_error{ l.type(), r.type() };
-      }
-   }
+   // inline void phase2_array_concat( json_t& l, json_t&& r )
+   // {
+   //    switch( r.type() ) {
+   //       case json::type::ARRAY:
+   //          l.get_array().reserve( l.get_array().size() + r.get_array().size() );
+   //          for( auto&& i : r.get_array() ) {
+   //             l.emplace_back( std::move( i ) );
+   //          }
+   //          break;
+   //       default:
+   //          throw concat_error{ l.type(), r.type() };
+   //    }
+   // }
 
-   inline void phase2_value_concat( json_t& l, json_t&& r );
+   // inline void phase2_value_concat( json_t& l, json_t&& r );
 
-   inline void phase2_object_concat( json_t& l, json_t&& r )
-   {
-      switch( r.type() ) {
-         case json::type::OBJECT:
-            for( auto&& i : r.get_object() ) {
-               const auto p = l.get_object().try_emplace( i.first, std::move( i.second ) );
-               if( !p.second ) {
-                  phase2_value_concat( p.first->second, std::move( i.second ) );  // TODO: Is this recursive call still correct for the intended semantics???
-               }
-            }
-            break;
-         default:
-            throw concat_error{ l.type(), r.type() };
-      }
-   }
+   // inline void phase2_object_concat( json_t& l, json_t&& r )
+   // {
+   //    switch( r.type() ) {
+   //       case json::type::OBJECT:
+   //          for( auto&& i : r.get_object() ) {
+   //             const auto p = l.get_object().try_emplace( i.first, std::move( i.second ) );
+   //             if( !p.second ) {
+   //                phase2_value_concat( p.first->second, std::move( i.second ) );  // TODO: Is this recursive call still correct for the intended semantics???
+   //             }
+   //          }
+   //          break;
+   //       default:
+   //          throw concat_error{ l.type(), r.type() };
+   //    }
+   // }
 
    inline void phase2_value_concat( json_t& l, json_t&& r )
    {
@@ -129,26 +129,32 @@ namespace tao::config::internal
          case json::type::UNSIGNED:
          case json::type::DOUBLE:
             phase2_number_concat( l, r );
-            break;
+            return;
          case json::type::STRING:
             phase2_string_concat( l, r );
-            break;
+            return;
          case json::type::STRING_VIEW:
             assert( false );  // UNREACHABLE
          case json::type::BINARY:
             phase2_binary_concat( l, r );
-            break;
+            return;
          case json::type::BINARY_VIEW:
             assert( false );  // UNREACHABLE
          case json::type::ARRAY:
-            phase2_array_concat( l, std::move( r ) );
-            break;
+            assert( false );  // UNREACHABLE
+            //            phase2_array_concat( l, std::move( r ) );
+            //            return;
          case json::type::OBJECT:
-            phase2_object_concat( l, std::move( r ) );
-            break;
-         default:
-            assert( false );
+            assert( false );  // UNREACHABLE
+            //            phase2_object_concat( l, std::move( r ) );
+            //            return;
+         case json::type::VALUE_PTR:
+         case json::type::OPAQUE_PTR:
+            assert( false );  // UNREACHABLE
+         case json::type::VALUELESS_BY_EXCEPTION:
+            throw std::string( "something went wrong -- including the quality of this temporary error message -- TODO: improve it" );
       }
+      assert( false );  // UNREACHABLE
    }
 
    inline void phase2_concat( json_t& l, json_t&& r )

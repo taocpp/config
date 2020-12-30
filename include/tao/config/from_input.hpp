@@ -19,7 +19,7 @@ namespace tao::config
    {
       internal::config_parser c;
       c.parse( std::move( in ) );
-      return c.process< Traits >( /*std::move( b )*/ );
+      return c.finish< Traits >( /*std::move( b )*/ );
    }
 
    [[nodiscard]] inline value from_input( pegtl_input_t&& in )  // , schema::builtin b = schema::builtin() )

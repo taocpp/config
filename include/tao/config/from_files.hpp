@@ -23,12 +23,12 @@ namespace tao::config
       for( const auto& path : paths ) {
          c.parse( path );
       }
-      return c.process< Traits >( /*std::move( b )*/ );
+      return c.finish< Traits >( /*std::move( b )*/ );
    }
 
    [[nodiscard]] inline value from_files( const std::vector< std::filesystem::path >& paths )  // , schema::builtin b = schema::builtin() )
    {
-      return basic_from_files< traits >( paths )  // , std::move( b ) );
+      return basic_from_files< traits >( paths );  // , std::move( b ) );
    }
 
 }  // namespace tao::config

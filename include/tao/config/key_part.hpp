@@ -5,10 +5,15 @@
 #define TAO_CONFIG_KEY_PART_HPP
 
 #include <cassert>
+#include <ostream>
 #include <string>
+#include <utility>
 #include <variant>
 
 #include "internal/constants.hpp"
+#include "internal/json.hpp"
+#include "internal/key_grammar.hpp"
+#include "internal/pegtl.hpp"
 
 #include "key_kind.hpp"
 
@@ -22,6 +27,10 @@ namespace tao::config
 
       explicit key_part( const std::size_t i )
          : data( i )
+      {}
+
+      explicit key_part( std::string&& n )
+         : data( std::move( n ) )
       {}
 
       explicit key_part( const std::string& n )
@@ -50,9 +59,70 @@ namespace tao::config
       std::variant< internal::part_minus_t, std::string, std::size_t > data;
    };
 
-   inline bool operator<( const key_part& l, const key_part& r ) noexcept
+   [[nodiscard]] inline bool operator<( const key_part& l, const key_part& r ) noexcept
    {
       return l.data < r.data;
+   }
+
+   [[nodiscard]] constexpr bool is_alpha( const int c ) noexcept
+   {
+      return ( ( 'a' <= c ) && ( c <= 'z' ) ) || ( ( 'A' <= c ) && ( c <= 'Z' ) );
+   }
+
+   [[nodiscard]] constexpr bool is_first( const int c ) noexcept
+   {
+      return is_alpha( c ) || ( c == '_' );
+   }
+
+   [[nodiscard]] inline bool is_identifier( const std::string& n )
+   {
+      using grammar = pegtl::seq< internal::rules::ident, pegtl::eof >;
+      pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl::eol::lf_crlf, const char* > in( n, __FUNCTION__ );
+      return pegtl::parse< grammar >( in );
+   }
+
+   [[nodiscard]] inline std::string name_to_string( const std::string& n )
+   {
+      return is_identifier( n ) ? n : ( '"' + json::internal::escape( n ) + '"' );
+   }
+
+   [[nodiscard]] inline std::string to_string( const key_part& t )
+   {
+      switch( t.kind() ) {
+         case key_kind::name:
+            return name_to_string( t.get_name() );
+         case key_kind::index:
+            return std::to_string( t.get_index() );
+         case key_kind::minus:
+            return "-";
+      }
+      assert( false );
+   }
+
+   inline void name_to_stream( std::ostream& o, const std::string& n )
+   {
+      if( is_identifier( n ) ) {
+         o << n;
+      }
+      else {
+         o << '"' << json::internal::escape( n ) << '"';
+      }
+   }
+
+   inline void to_stream( std::ostream& o, const key_part& t )
+   {
+      switch( t.kind() ) {
+         case key_kind::minus:
+            o << '-';
+            return;
+         case key_kind::name:
+            name_to_stream( o, t.get_name() );
+            return;
+         case key_kind::index:
+            o << t.get_index();
+            return;
+      }
+      assert( false );
    }
 
 }  // namespace tao::config

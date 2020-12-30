@@ -11,16 +11,16 @@
 
 // #include "schema/builtin.hpp"
 
-#include "internal/configurator.hpp"
+#include "internal/config_parser.hpp"
 
 namespace tao::config
 {
    template< template< typename... > class Traits >
    [[nodiscard]] json::basic_value< Traits > basic_from_file( const std::filesystem::path& path )  // , schema::builtin b = schema::builtin() )
    {
-      internal::configurator c;
+      internal::config_parser c;
       c.parse( path );
-      return c.process< Traits >( /*std::move( b )*/ );
+      return c.finish< Traits >( /*std::move( b )*/ );
    }
 
    [[nodiscard]] inline value from_file( const std::filesystem::path& path )  // , schema::builtin b = schema::builtin() )

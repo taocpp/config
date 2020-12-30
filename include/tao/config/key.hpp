@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_KEY_HPP
 #define TAO_CONFIG_INTERNAL_KEY_HPP
 
+#include <sstream>
 #include <vector>
 
 #include "internal/key_action.hpp"
@@ -107,6 +108,24 @@ namespace tao::config
       return l;
    }
 
+   inline key& operator+=( key& l, const std::size_t i )
+   {
+      l.emplace_back( i );
+      return l;
+   }
+
+   inline key& operator+=( key& l, std::string&& n )
+   {
+      l.emplace_back( std::move( n ) );
+      return l;
+   }
+
+   inline key& operator+=( key& l, const std::string& n )
+   {
+      l.emplace_back( n );
+      return l;
+   }
+
    [[nodiscard]] inline key operator+( const key& l, const key& r )
    {
       key t( l );
@@ -119,6 +138,46 @@ namespace tao::config
       key t( l );
       t += r;
       return t;
+   }
+
+   [[nodiscard]] inline key operator+( const key& l, const std::size_t i )
+   {
+      key t( l );
+      t += i;
+      return t;
+   }
+
+   [[nodiscard]] inline key operator+( const key& l, std::string&& n )
+   {
+      key t( l );
+      t += std::move( n );
+      return t;
+   }
+
+   [[nodiscard]] inline key operator+( const key& l, const std::string& n )
+   {
+      key t( l );
+      t += n;
+      return t;
+   }
+
+   inline void to_stream( std::ostream& o, const key& p )
+   {
+      if( !p.empty() ) {
+         to_stream( o, p[ 0 ] );
+
+         for( std::size_t i = 1; i < p.size(); ++i ) {
+            o << '.';
+            to_stream( o, p[ i ] );
+         }
+      }
+   }
+
+   [[nodiscard]] inline std::string to_string( const key& p )
+   {
+      std::ostringstream o;
+      to_stream( o, p );
+      return o.str();
    }
 
 }  // namespace tao::config

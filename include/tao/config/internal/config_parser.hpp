@@ -5,6 +5,7 @@
 #define TAO_CONFIG_INTERNAL_CONFIG_PARSER_HPP
 
 #include <filesystem>
+#include <ostream>
 
 #include "config_action.hpp"
 #include "config_grammar.hpp"
@@ -15,9 +16,9 @@
 #include "member_functions.hpp"
 #include "pegtl.hpp"
 #include "phase2_combine.hpp"
-// #include "phase2_repack.hpp"
 #include "phase2_resolve.hpp"
 #include "phase2_remove.hpp"
+#include "phase3_repack.hpp"
 #include "state.hpp"
 #include "to_stream.hpp"
 #include "value_functions.hpp"
@@ -72,35 +73,48 @@ namespace tao::config::internal
          parse( pegtl::file_input( path ) );
       }
 
-      void finalize()
+      void parse( const std::string& data, const std::string& source )
+      {
+         parse( pegtl::memory_input( data, source ) );
+      }
+
+      void phase2( std::ostream* debug = nullptr )
       {
          unsigned iteration = 0;
 
-         std::cerr << "BEGIN" << std::endl;
-         to_stream( std::cerr, st.root, 3 );
-         std::cerr << std::endl;
-
-         while( ( phase2_combine( st.root ) > 0 ) || ( phase2_resolve( st.root ) > 0 ) ) {
-            std::cerr << "ITERATION " << iteration++ << std::endl;
-            to_stream( std::cerr, st.root, 3 );
-            std::cerr << std::endl;
+         if( debug != nullptr ) {
+            ( *debug ) << "BEGIN" << std::endl;
+            to_stream( *debug, st.root, 3 );
+            ( *debug ) << std::endl;
          }
-         std::cerr << "REMOVE" << std::endl;
-         to_stream( std::cerr, st.root, 3 );
-         std::cerr << std::endl;
-
+         while( ( phase2_combine( st.root ) > 0 ) || ( phase2_resolve( st.root ) > 0 ) ) {
+            if( debug != nullptr ) {
+               ( *debug ) << "ITERATION " << iteration++ << std::endl;
+               to_stream( *debug, st.root, 3 );
+               ( *debug ) << std::endl;
+            }
+         }
+         if( debug != nullptr ) {
+            ( *debug ) << "REMOVE" << std::endl;
+            to_stream( *debug, st.root, 3 );
+            ( *debug ) << std::endl;
+         }
          phase2_remove( st.root );
-
-         std::cerr << "END" << std::endl;
-         to_stream( std::cerr, st.root, 3 );
-         std::cerr << std::endl;
+         if( debug != nullptr ) {
+            ( *debug ) << "END" << std::endl;
+            to_stream( *debug, st.root, 3 );
+            ( *debug ) << std::endl;
+         }
       }
 
-      // template< template< typename... > class Traits >
-      // [[nodiscard]] json::basic_value< Traits > process()  // schema::builtin b )
-      // {
-      //    return internal::phase2< Traits >( st )  // , std::move( b ) );
-      // }
+      template< template< typename... > class Traits >
+      [[nodiscard]] json::basic_value< Traits > finish()
+      {
+         phase2();  // This is idempotent and not excessively expensive (for a config libary) if called redundantly.
+         // TODO: Delete temporaries.
+         // TODO: Check config schema(s).
+         return phase3_repack< Traits >( st.root );
+      }
    };
 
 }  // namespace tao::config::internal

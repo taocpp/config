@@ -4,6 +4,9 @@
 #ifndef TAO_CONFIG_INTERNAL_DEBUG_TRAITS_HPP
 #define TAO_CONFIG_INTERNAL_DEBUG_TRAITS_HPP
 
+#include <string>
+#include <vector>
+
 #include <tao/json/contrib/variant_traits.hpp>
 
 #include "array.hpp"
@@ -11,8 +14,13 @@
 #include "entry.hpp"
 #include "json.hpp"
 #include "json_traits.hpp"
+#include "key1.hpp"
 #include "object.hpp"
 #include "pegtl.hpp"
+#include "reference2.hpp"
+
+#include "../annotation.hpp"
+#include "../key.hpp"
 
 namespace tao::config::internal
 {
@@ -25,6 +33,75 @@ namespace tao::config::internal
    struct debug_traits< void >
       : json::traits< void >
    {};
+
+   template<>
+   struct debug_traits< key_kind >
+   {
+      TAO_JSON_DEFAULT_KEY( "key_kind" );
+
+      template< template< typename... > class Traits, typename Consumer >
+      static void produce( Consumer& c, const key_kind k )
+      {
+         switch( k ) {
+            case key_kind::minus:
+               c.string( "minus" );
+               return;
+            case key_kind::name:
+               c.string( "name" );
+               return;
+            case key_kind::index:
+               c.string( "index" );
+               return;
+         }
+         assert( false );  // UNREACHABLE
+      }
+   };
+
+   template<>
+   struct debug_traits< key_part >
+   {
+      TAO_JSON_DEFAULT_KEY( "key_part" );
+
+      template< template< typename... > class Traits, typename Consumer >
+      static void produce( Consumer& c, const key_part& p )
+      {
+         c.begin_object( 2 );
+         c.key( "key_kind" );
+         json::events::produce< Traits >( c, p.kind() );
+         c.member();
+         c.key( "key_data" );
+         json::events::produce< Traits >( c, p.data );
+         c.member();
+         c.end_object( 2 );
+      }
+   };
+
+   template<>
+   struct debug_traits< key >
+      : json::traits< std::vector< key_part > >
+   {
+      TAO_JSON_DEFAULT_KEY( "key" );
+   };
+
+   template<>
+   struct debug_traits< annotation >
+      : json::binding::object< TAO_JSON_BIND_REQUIRED( "key", &annotation::key ),
+                               TAO_JSON_BIND_REQUIRED( "position", &annotation::position ) >
+   {
+      TAO_JSON_DEFAULT_KEY( "annotation" );
+   };
+
+   template<>
+   struct debug_traits< json::position >
+   {
+      TAO_JSON_DEFAULT_KEY( "position" );
+
+      template< template< typename... > class Traits, typename Consumer >
+      static void produce( Consumer& c, const json::position& p )
+      {
+         c.string( p.source() + ':' + std::to_string( p.line() ) + ':' + std::to_string( p.column() ) );
+      }
+   };
 
    template<>
    struct debug_traits< pegtl::position >

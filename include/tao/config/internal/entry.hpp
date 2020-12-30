@@ -29,16 +29,16 @@ namespace tao::config::internal
       static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( entry_kind::value ), data_t >, json_t > );
       // TODO: All of these and everywhere?
 
+      explicit entry( const json_t& j )
+         : m_data( j )
+      {
+         expand();  // Recursively convert JSON Value class arrays and objects into config::internal arrays and objects with alternating concat/entry structure.
+      }
+
       explicit entry( const reference2& r )
          : m_data( r )
       {
          assert( !r.empty() );
-      }
-
-      explicit entry( const json_t& j )
-         : m_data( j )
-      {
-         expand();
       }
 
       entry( const entry_kind k, const pegtl::position& p )
