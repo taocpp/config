@@ -85,12 +85,14 @@ namespace tao::config::internal
    inline key1 pop_front( const key1& p )
    {
       assert( !p.empty() );
+
       return key1( p.begin() + 1, p.end() );
    }
 
    inline key1 pop_back( const key1& p )
    {
       assert( !p.empty() );
+
       return key1( p.begin(), p.end() - 1 );
    }
 

@@ -29,6 +29,10 @@ namespace tao::config::internal
          std::cerr << "*** config error ***" << std::endl;
          std::cerr << e.what() << std::endl;
       }
+      catch( const std::string& s ) {
+         std::cerr << "*** config error ***" << std::endl;
+         std::cerr << s << std::endl;
+      }
    }
 
 }  // namespace tao::config::internal

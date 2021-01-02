@@ -17,16 +17,14 @@
 
 namespace tao::config::internal
 {
-   // Suffix access phase, back-tracking allowed for first part.
+   [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1& suffix, const int down );
 
-   [[nodiscard]] inline const concat* phase2_suffix_access( const concat& c, const key1& suffix, const bool first );
-
-   [[nodiscard]] inline const concat* phase2_suffix_access_minus( const concat& c, const key1& suffix )
+   [[nodiscard]] inline const concat* phase2_access_minus( const concat& c, const key1& suffix )
    {
       throw std::string( "TODO: " ) + __FUNCTION__;
    }
 
-   [[nodiscard]] inline const concat* phase2_suffix_access_name( const concat& c, const std::string& name, const key1& suffix, const bool first )
+   [[nodiscard]] inline const concat* phase2_access_name( const concat& c, const std::string& name, const key1& suffix, const int down )
    {
       bool done = false;  // TODO: Refactor this away.
       const concat* found = nullptr;
@@ -57,16 +55,16 @@ namespace tao::config::internal
          assert( false );  // UNREACHABLE
       }
       if( found == nullptr ) {
-         if( first ) {
+         if( down >= 0 ) {
             return nullptr;
          }
          throw std::string( "name not found" );  // NOTE: Just like all other throw std::string( ... ) this is just a temporary placeholder during refactoring.
       }
-      return phase2_suffix_access( *found, suffix, false );
+      return phase2_access( *found, suffix, down - 1 );
    }
 
 
-   [[nodiscard]] inline const concat* phase2_suffix_access_index( const concat& c, const std::size_t index, const key1& suffix, const bool first )
+   [[nodiscard]] inline const concat* phase2_access_index( const concat& c, const std::size_t index, const key1& suffix, const int down )
    {
       std::size_t n = index;
 
@@ -80,7 +78,7 @@ namespace tao::config::internal
                if( e.get_array().array.size() > n ) {
                   auto i = e.get_array().array.begin();
                   std::advance( i, n );
-                  return &*i;
+                  return phase2_access( *i, suffix, down - 1 );
                }
                n -= e.get_array().array.size();
                continue;
@@ -94,24 +92,24 @@ namespace tao::config::internal
       throw std::string( "index out of range" );
    }
 
-   [[nodiscard]] inline const concat* phase2_suffix_access( const concat& c, const key1_part& p, const key1& suffix, const bool first )
+   [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1_part& p, const key1& suffix, const int down )
    {
       switch( p.kind() ) {
          case key1_kind::star:
             throw pegtl::parse_error( "unable to access star", p.position );
          case key1_kind::minus:
-            return phase2_suffix_access_minus( c, suffix );
+            return phase2_access_minus( c, suffix );
          case key1_kind::name:
-            return phase2_suffix_access_name( c, p.get_name(), suffix, first );
+            return phase2_access_name( c, p.get_name(), suffix, down );
          case key1_kind::index:
-            return phase2_suffix_access_index( c, p.get_index(), suffix, first );
+            return phase2_access_index( c, p.get_index(), suffix, down );
          case key1_kind::append:
             throw pegtl::parse_error( "this should be impossible", p.position );
       }
       assert( false );  // UNREACHABLE
    }
 
-   [[nodiscard]] inline const concat* phase2_suffix_access( const concat& c, const key1& suffix, const bool first )
+   [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1& suffix, const int down )
    {
       if( suffix.empty() ) {
          if( c.all_references() == 0 ) {
@@ -119,108 +117,7 @@ namespace tao::config::internal
          }
          throw better_luck_next_time;
       }
-      return phase2_suffix_access( c, suffix.at( 0 ), pop_front( suffix ), first );
-   }
-
-   // Prefix access phase, back-tracking allowed.
-
-   [[nodiscard]] inline const concat* phase2_prefix_access( const concat& c, const key1& prefix, const key1& suffix );
-
-   [[nodiscard]] inline const concat* phase2_prefix_access_minus( const concat& c, const key1& prefix, const key1& suffix )
-   {
-      throw std::string( "TODO: " ) + __FUNCTION__;
-   }
-
-   [[nodiscard]] inline const concat* phase2_prefix_access_name( const concat& c, const std::string& name, const key1& prefix, const key1& suffix )
-   {
-      bool done = false;  // TODO: Refactor this away.
-      const concat* found = nullptr;
-
-      for( const auto& e : reverse( c.concat ) ) {
-         if( done ) {
-            break;
-         }
-         switch( e.kind() ) {
-            case entry_kind::value:
-               throw std::string( "access name in value" );
-            case entry_kind::reference:
-               throw better_luck_next_time;
-            case entry_kind::array:
-               throw std::string( "access name in array" );
-            case entry_kind::object:
-               if( const auto i = e.get_object().object.find( name ); i != e.get_object().object.end() ) {
-                  if( found != nullptr ) {
-                     throw better_luck_next_time;
-                  }
-                  found = &i->second;
-               }
-               continue;
-            case entry_kind::remove:
-               done = true;
-               continue;
-         }
-         assert( false );  // UNREACHABLE
-      }
-      if( found == nullptr ) {
-         throw std::string( "name not found" );
-      }
-      return phase2_prefix_access( *found, prefix, suffix );
-   }
-
-   [[nodiscard]] inline const concat* phase2_prefix_access_index( const concat& c, const std::size_t index, const key1& prefix, const key1& suffix )
-   {
-      std::size_t n = index;
-
-      for( auto& e : c.concat ) {
-         switch( e.kind() ) {
-            case entry_kind::value:
-               throw std::string( "cannot index (across) value" );
-            case entry_kind::reference:
-               throw std::string( "cannot index (across) reference" );
-            case entry_kind::array:
-               if( e.get_array().array.size() > n ) {
-                  auto i = e.get_array().array.begin();
-                  std::advance( i, n );
-                  return phase2_prefix_access( *i, prefix, suffix );
-               }
-               n -= e.get_array().array.size();
-               continue;
-            case entry_kind::object:
-               throw std::string( "cannot index (across) object" );
-            case entry_kind::remove:
-               n = index;
-               continue;  // TODO: Skip to after the remove before iterating...
-         }
-      }
-      throw std::string( "index out of range" );
-   }
-
-   [[nodiscard]] inline const concat* phase2_prefix_access( const concat& c, const key1_part& p, const key1& prefix, const key1& suffix )
-   {
-      switch( p.kind() ) {
-         case key1_kind::star:
-            throw pegtl::parse_error( "unable to access star", p.position );
-         case key1_kind::minus:
-            return phase2_prefix_access_minus( c, prefix, suffix );
-         case key1_kind::name:
-            return phase2_prefix_access_name( c, p.get_name(), prefix, suffix );
-         case key1_kind::index:
-            return phase2_prefix_access_index( c, p.get_index(), prefix, suffix );
-         case key1_kind::append:
-            throw pegtl::parse_error( "this should be impossible", p.position );
-      }
-      assert( false );  // UNREACHABLE
-   }
-
-   [[nodiscard]] inline const concat* phase2_prefix_access( const concat& c, const key1& prefix, const key1& suffix )
-   {
-      if( prefix.empty() ) {
-         return phase2_suffix_access( c, suffix, true );
-      }
-      if( const concat* d =  phase2_prefix_access( c, prefix.at( 0 ), pop_front( prefix ), suffix ) ) {
-         return d;
-      }
-      return phase2_suffix_access( c, suffix, true );
+      return phase2_access( c, suffix.at( 0 ), pop_front( suffix ), down );
    }
 
    [[nodiscard]] inline const concat* phase2_access( const object& o, const key1& prefix, const key1& suffix )
@@ -228,10 +125,17 @@ namespace tao::config::internal
       assert( !suffix.empty() );
 
       try {
-         if( prefix.empty() ) {
-            return phase2_suffix_access( o.object.at( suffix.front().get_name() ), pop_front( suffix ), false );
+         for( std::size_t i = 0; i <= prefix.size(); ++i ) {
+            const int down = int( prefix.size() ) - int( i );
+            const key1 path = key1( prefix.begin(), prefix.end() - i ) + suffix;
+            const auto j = o.object.find( path.front().get_name() );
+            if( j != o.object.end() ) {
+               if( const concat* c = phase2_access( j->second, pop_front( path ), down - 1 ) ) {
+                  return c;
+               }
+            }
          }
-         return phase2_prefix_access( o.object.at( prefix.front().get_name() ), pop_front( prefix ), suffix );
+         return nullptr;
       }
       catch( const better_luck_next_time_t& /*unused*/ ) {
          return nullptr;
