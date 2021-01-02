@@ -109,7 +109,6 @@ namespace tao::config::internal
       [[nodiscard]] json::basic_value< Traits > finish()
       {
          phase2();  // This is idempotent and not excessively expensive (for a config libary) if called redundantly.
-         // TODO: Delete temporaries.
          // TODO: Check config schema(s).
          return phase3_repack< Traits >( st.root );
       }
