@@ -32,7 +32,8 @@ namespace tao::config::internal
          const std::size_t references = m_root.all_references();
 
          for( auto& p : m_root.object ) {
-            process_concat( key1{ key1_part( p.first, m_root.position ) }, p.second );
+            process_concat( key1(), p.second );
+            //            process_concat( key1{ key1_part( p.first, m_root.position ) }, p.second );
          }
          assert( m_stack.empty() );
 
