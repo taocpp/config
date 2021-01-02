@@ -326,7 +326,8 @@ namespace tao::config::internal
 
    template<>
    struct debug_traits< concat >
-      : json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &concat::position ),
+      : json::binding::object< TAO_JSON_BIND_REQUIRED( "temporary", &concat::temporary ),
+                               TAO_JSON_BIND_REQUIRED( "position", &concat::position ),
                                TAO_JSON_BIND_REQUIRED( "concat_list", &concat::concat ) >
    {};
 

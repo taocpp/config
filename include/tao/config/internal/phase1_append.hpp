@@ -9,6 +9,7 @@
 
 #include "array.hpp"
 #include "concat.hpp"
+#include "constants.hpp"
 #include "entry.hpp"
 #include "json.hpp"
 #include "json_traits.hpp"
@@ -18,6 +19,12 @@
 
 namespace tao::config::internal
 {
+   inline bool phase1_append( concat& c, const temporary_t )
+   {
+      c.temporary = true;
+      return true;
+   }
+
    inline bool phase1_append( concat& c, const json_t& value )
    {
       c.concat.emplace_back( value );
@@ -34,14 +41,9 @@ namespace tao::config::internal
    {
       if( k == entry_kind::remove ) {
          c.concat.clear();
-      // c.temporary = false;
+         c.temporary = false;
       }
-      // if( k == entry_kind::temporary ) {
-      //    c.temporary = true;
-      // }
-      // else {
-         c.back_ensure_kind( k, pegtl::position( 1, 1, 1, "TODO" ) );
-      // }
+      c.back_ensure_kind( k, pegtl::position( 1, 1, 1, "TODO" ) );
       return true;
    }
 

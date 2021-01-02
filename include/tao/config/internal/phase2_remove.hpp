@@ -15,7 +15,10 @@
 
 namespace tao::config::internal
 {
-   void phase2_concat_remove( concat& c )
+   inline void phase2_remove( array& a );
+   inline void phase2_remove( object& o );
+
+   inline void phase2_remove( concat& c )
    {
       auto i = c.concat.begin();
 
@@ -27,15 +30,11 @@ namespace tao::config::internal
             case entry_kind::reference:
                throw pegtl::parse_error( "unresolved reference", i->get_reference().at( 0 ).position );
             case entry_kind::array:
-               for( auto& d : i->get_array().array ) {
-                  phase2_concat_remove( d );
-               }
+               phase2_remove( i->get_array() );
                ++i;
                continue;
             case entry_kind::object:
-               for( auto& p : i->get_object().object ) {
-                  phase2_concat_remove( p.second );
-               }
+               phase2_remove( i->get_object() );
                ++i;
                continue;
             case entry_kind::remove:
@@ -49,10 +48,33 @@ namespace tao::config::internal
       }
    }
 
-   void phase2_remove( object& o )
+   inline void phase2_remove( array& a )
    {
-      for( auto& p : o.object ) {
-         phase2_concat_remove( p.second );
+      auto i = a.array.begin();
+
+      while( i != a.array.end() ) {
+         if( i->temporary || i->concat.empty() ) {
+            i = a.array.erase( i );
+         }
+         else {
+            phase2_remove( *i );
+            ++i;
+         }
+      }
+   }
+
+   inline void phase2_remove( object& o )
+   {
+      auto i = o.object.begin();
+
+      while( i != o.object.end() ) {
+         if( i->second.temporary || i->second.concat.empty() ) {
+            i = o.object.erase( i );
+         }
+         else {
+            phase2_remove( i->second );
+            ++i;
+         }
       }
    }
 

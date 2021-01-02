@@ -7,6 +7,7 @@
 #include <cassert>
 
 #include "config_grammar.hpp"
+#include "constants.hpp"
 #include "entry_kind.hpp"
 #include "extension_maps.hpp"
 #include "json.hpp"
@@ -27,7 +28,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         //         phase1_append( st.root, st.prefix + st.suffix, entry_kind::temporary );
+         phase1_append( st.root, st.prefix + st.suffix, temporary );
       }
    };
 
