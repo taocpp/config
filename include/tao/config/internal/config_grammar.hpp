@@ -65,6 +65,7 @@ namespace tao::config::internal::rules
    struct object;
 
    struct remove : pegtl::string< 'd', 'e', 'l', 'e', 't', 'e' > {};
+   struct temporary : pegtl::string< 't', 'e', 'm', 'p', 'o', 'r', 'a', 'r', 'y' > {};
 
    struct value_part : pegtl::sor< array, object, bracketed_value, jaxn_value > {};
    struct value_list : pegtl::list< value_part, pegtl::one< '+' >, jaxn::ws > {};

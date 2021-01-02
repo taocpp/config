@@ -5,7 +5,6 @@
 #define TAO_CONFIG_INTERNAL_KEY1_PART_HPP
 
 #include <cassert>
-#include <memory>
 #include <string>
 #include <variant>
 
@@ -36,9 +35,9 @@ namespace tao::config::internal
            data( i )
       {}
 
-      key1_part( const bool b, const pegtl::position& p )
+      key1_part( const pegtl::position& p, const std::uint64_t g )
          : position( p ),
-           data( std::make_shared< bool >( b ) )
+           data( std::make_shared< std::uint64_t >( g ) )
       {}
 
       key1_part( const std::string& n, const pegtl::position& p )
@@ -49,32 +48,6 @@ namespace tao::config::internal
       [[nodiscard]] key1_kind kind() const noexcept
       {
          return key1_kind( data.index() );
-      }
-
-      void set_append_flag() const noexcept
-      {
-         auto* s = std::get_if< std::shared_ptr< bool > >( &data );
-         assert( s != nullptr );
-         assert( s->get() != nullptr );
-         **s = true;
-      }
-
-      bool clear_append_flag() const noexcept
-      {
-         auto* s = std::get_if< std::shared_ptr< bool > >( &data );
-         assert( s != nullptr );
-         assert( s->get() != nullptr );
-         const bool r = **s;
-         **s = false;
-         return r;
-      }
-
-      bool get_append_flag() const noexcept
-      {
-         auto* s = std::get_if< std::shared_ptr< bool > >( &data );
-         assert( s != nullptr );
-         assert( s->get() != nullptr );
-         return **s;
       }
 
       [[nodiscard]] std::size_t get_index() const noexcept
@@ -91,14 +64,30 @@ namespace tao::config::internal
          return *s;
       }
 
-      pegtl::position position;
-      std::variant< part_star_t, part_minus_t, std::string, std::size_t, std::shared_ptr< bool > > data;
-   };
+      void set_generation( const std::uint64_t g ) noexcept
+      {
+         assert( g > 0 );
 
-   inline bool operator<( const key1_part& l, const key1_part& r ) noexcept
-   {
-      return l.data < r.data;
-   }
+         if( const auto* s = std::get_if< std::shared_ptr< std::uint64_t > >( &data ) ) {
+            assert( s != nullptr );
+            assert( s->get() != nullptr );
+            assert( g > **s );
+            **s = g;
+         }
+      }
+
+      [[nodiscard]] std::uint64_t get_generation() const noexcept
+      {
+         const auto* s = std::get_if< std::shared_ptr< std::uint64_t > >( &data );
+         assert( s != nullptr );
+         assert( s->get() != nullptr );
+         assert( **s > 0 );
+         return **s;
+      }
+
+      pegtl::position position;
+      std::variant< part_star_t, part_minus_t, std::string, std::size_t, std::shared_ptr< std::uint64_t > > data;
+   };
 
 }  // namespace tao::config::internal
 

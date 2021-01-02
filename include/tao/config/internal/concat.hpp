@@ -101,6 +101,7 @@ namespace tao::config::internal
 
       std::list< E > concat;
       pegtl::position position;
+      std::uint64_t generation = 0;
 
    private:
       void post_function_merge( const typename std::list< E >::iterator& e, const typename std::list< E >::iterator& f )

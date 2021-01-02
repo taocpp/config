@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_STATE_HPP
 #define TAO_CONFIG_INTERNAL_STATE_HPP
 
+#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
@@ -36,8 +37,9 @@ namespace tao::config::internal
 
       object root;
 
-      std::vector< key1 > temporaries;        // Delete from final result.
-      std::map< key1, std::string > schemas;  // Check against final result.
+      std::uint64_t generation = 1;
+
+      //      std::map< key1, std::string > schemas;  // Check against final result.
    };
 
 }  // namespace tao::config::internal

@@ -52,12 +52,12 @@ namespace tao::config::internal
 
    inline void schema_function( state& st, const std::optional< std::string >& sc )
    {
-      if( sc ) {
-         st.schemas[ st.prefix ] = *sc;
-      }
-      else {
-         st.schemas.erase( st.prefix );
-      }
+      // if( sc ) {
+      //    st.schemas[ st.prefix ] = *sc;
+      // }
+      // else {
+      //    st.schemas.erase( st.prefix );
+      // }
    }
 
    inline void setenv_function( const pegtl::position& p, const std::string& name, const std::string& value )
@@ -67,13 +67,6 @@ namespace tao::config::internal
 #else
       set_env_throws( p, name, value );
 #endif
-   }
-
-   inline void temporary_function( state& st, const key1& k )
-   {
-      assert( st.prefix.empty() );  // TODO: Can we fix the temporary handling to work not just on top-level? Actually it's just minus and index that create issues, name and star are fine.
-
-      st.temporaries.emplace_back( st.prefix + k );
    }
 
 }  // namespace tao::config::internal

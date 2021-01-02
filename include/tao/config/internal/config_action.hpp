@@ -22,6 +22,16 @@ namespace tao::config::internal
    {};
 
    template<>
+   struct config_action< rules::temporary >
+   {
+      template< typename State >
+      static void apply0( State& st, const extension_maps& )
+      {
+         //         phase1_append( st.root, st.prefix + st.suffix, entry_kind::temporary );
+      }
+   };
+
+   template<>
    struct config_action< rules::assign_head >
    {
       template< typename State >
@@ -59,9 +69,7 @@ namespace tao::config::internal
       {
          assert( !st.suffix.empty() );
 
-         if( st.suffix.back().kind() == key1_kind::append ) {
-            st.suffix.back().set_append_flag();  // TODO: Update st.suffix.back().position, too???
-         }
+         st.suffix.back().set_generation( ++st.generation );
       }
    };
 

@@ -34,8 +34,14 @@ namespace tao::config::internal
    {
       if( k == entry_kind::remove ) {
          c.concat.clear();
+      // c.temporary = false;
       }
-      c.back_ensure_kind( k, pegtl::position( 1, 1, 1, "TODO" ) );
+      // if( k == entry_kind::temporary ) {
+      //    c.temporary = true;
+      // }
+      // else {
+         c.back_ensure_kind( k, pegtl::position( 1, 1, 1, "TODO" ) );
+      // }
       return true;
    }
 
@@ -92,11 +98,12 @@ namespace tao::config::internal
    }
 
    template< typename V >
-   bool phase1_append_append( concat& c, const pegtl::position& p, const bool r, const key1& path, const V& value )
+   bool phase1_append_append( concat& c, const pegtl::position& p, const std::uint64_t g, const key1& path, const V& value )
    {
       c.back_ensure_kind( entry_kind::array, p );
       auto& a = c.concat.back().get_array();
-      if( r ) {
+      if( g > c.generation ) {
+         c.generation = g;
          return phase1_append( a.array.emplace_back( p ), path, value );
       }
       assert( !a.array.empty() );
@@ -122,7 +129,7 @@ namespace tao::config::internal
          case key1_kind::index:
             return phase1_append_index( c, part.position, part.get_index(), pop_front( path ), value );
          case key1_kind::append:
-            return phase1_append_append( c, part.position, part.clear_append_flag(), pop_front( path ), value );
+            return phase1_append_append( c, part.position, part.get_generation(), pop_front( path ), value );
       }
       assert( false );  // UNREACHABLE
    }

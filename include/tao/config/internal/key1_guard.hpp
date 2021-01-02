@@ -35,7 +35,7 @@ namespace tao::config::internal
       {
          m_prefix += m_suffix;
          m_suffix.clear();
-         m_suffix.emplace_back( true, in.position() );
+         m_suffix.emplace_back( in.position(), ++st.generation );
       }
 
       key1_guard( key1_guard&& ) = delete;

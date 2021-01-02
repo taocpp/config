@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_CONSTANTS_HPP
 #define TAO_CONFIG_INTERNAL_CONSTANTS_HPP
 
+#include <cstdint>
+
 namespace tao::config::internal
 {
    struct part_star_t
