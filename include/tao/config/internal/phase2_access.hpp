@@ -68,7 +68,30 @@ namespace tao::config::internal
 
    [[nodiscard]] inline const concat* phase2_suffix_access_index( const concat& c, const std::size_t index, const key1& suffix, const bool first )
    {
-      throw std::string( "TODO: " ) + __FUNCTION__;
+      std::size_t n = index;
+
+      for( auto& e : c.concat ) {
+         switch( e.kind() ) {
+            case entry_kind::value:
+               throw std::string( "cannot index (across) value" );
+            case entry_kind::reference:
+               throw std::string( "cannot index (across) reference" );
+            case entry_kind::array:
+               if( e.get_array().array.size() > n ) {
+                  auto i = e.get_array().array.begin();
+                  std::advance( i, n );
+                  return &*i;
+               }
+               n -= e.get_array().array.size();
+               continue;
+            case entry_kind::object:
+               throw std::string( "cannot index (across) object" );
+            case entry_kind::remove:
+               n = index;
+               continue;  // TODO: Skip to after the remove before iterating...
+         }
+      }
+      throw std::string( "index out of range" );
    }
 
    [[nodiscard]] inline const concat* phase2_suffix_access( const concat& c, const key1_part& p, const key1& suffix, const bool first )
@@ -146,7 +169,30 @@ namespace tao::config::internal
 
    [[nodiscard]] inline const concat* phase2_prefix_access_index( const concat& c, const std::size_t index, const key1& prefix, const key1& suffix )
    {
-      throw std::string( "TODO: " ) + __FUNCTION__;
+      std::size_t n = index;
+
+      for( auto& e : c.concat ) {
+         switch( e.kind() ) {
+            case entry_kind::value:
+               throw std::string( "cannot index (across) value" );
+            case entry_kind::reference:
+               throw std::string( "cannot index (across) reference" );
+            case entry_kind::array:
+               if( e.get_array().array.size() > n ) {
+                  auto i = e.get_array().array.begin();
+                  std::advance( i, n );
+                  return phase2_prefix_access( *i, prefix, suffix );
+               }
+               n -= e.get_array().array.size();
+               continue;
+            case entry_kind::object:
+               throw std::string( "cannot index (across) object" );
+            case entry_kind::remove:
+               n = index;
+               continue;  // TODO: Skip to after the remove before iterating...
+         }
+      }
+      throw std::string( "index out of range" );
    }
 
    [[nodiscard]] inline const concat* phase2_prefix_access( const concat& c, const key1_part& p, const key1& prefix, const key1& suffix )
