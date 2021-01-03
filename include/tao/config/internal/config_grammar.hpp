@@ -113,7 +113,8 @@ namespace tao::config::internal::rules
    struct object : pegtl::if_must< jaxn::begin_object, member_list > {};
    struct compat_file : pegtl::must< member_list, wss, pegtl::eof > {};
    struct config_list : member_list_impl< pegtl::eof > {};
-   struct config_file : pegtl::must< wss, pegtl::if_must_else< pegtl::disable< jaxn::begin_object >, compat_file, config_list > > {};
+   struct begin_compat : pegtl::disable< jaxn::begin_object > {};
+   struct config_file : pegtl::must< wss, pegtl::if_must_else< begin_compat, compat_file, config_list > > {};
    struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};
    // clang-format on
 

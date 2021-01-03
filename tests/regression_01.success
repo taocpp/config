@@ -1,0 +1,19 @@
+tmp = temporary +
+{
+    ip = "127.0.0.1"
+}
+
+foo
+{
+    interface
+    {
+        ip = (tmp.ip)
+    }
+}
+
+foo
+{
+    interface
+    {
+    }
+}

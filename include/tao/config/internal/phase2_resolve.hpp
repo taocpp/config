@@ -58,7 +58,9 @@ namespace tao::config::internal
                }
                i = c.concat.erase( i );
                if( ( i != c.concat.end() ) && ( i != c.concat.begin() ) ) {
-                  c.post_insert_merge( i );
+                  auto j = i;
+                  ++i;
+                  c.post_insert_merge( j );
                }
                continue;
             }
