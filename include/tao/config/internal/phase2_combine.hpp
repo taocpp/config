@@ -44,7 +44,9 @@ namespace tao::config::internal
          if( c.concat.size() < 2 ) {
             return;
          }
-         for( auto r = ++c.concat.begin(); r != c.concat.end(); ++r ) {
+         auto r = ++c.concat.begin();
+
+         while( r != c.concat.end() ) {
             auto l = r;
             --l;
             switch( r->kind() ) {
@@ -52,22 +54,26 @@ namespace tao::config::internal
                   if( l->kind() == entry_kind::value ) {
                      phase2_concat( l->get_value(), std::move( r->get_value() ) );
                      r = c.concat.erase( r );
-                     --r;
                      ++m_changes;
                      continue;
                   }
+                  ++r;
                   continue;
                case entry_kind::reference:
+                  ++r;
                   continue;
                case entry_kind::array:
                   assert( l->kind() != entry_kind::array );  // Should already be merged.
+                  ++r;
                   continue;
                case entry_kind::object:
                   assert( l->kind() != entry_kind::object );  // Should already be merged.
+                  ++r;
                   continue;
                case entry_kind::remove:
                   c.concat.erase( c.concat.begin(), r );
                   ++m_changes;
+                  ++r;
                   continue;
             }
             assert( false );  // UNREACHABLE

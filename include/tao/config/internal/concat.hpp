@@ -41,6 +41,15 @@ namespace tao::config::internal
          return ( concat.size() == 1 ) && concat.back.is_value();
       }
 
+      void set_permanent()
+      {
+         temporary = false;
+
+         for( auto& e : concat ) {
+            e.set_permanent();
+         }
+      }
+
       [[nodiscard]] std::size_t all_references() const noexcept
       {
          std::size_t result = 0;

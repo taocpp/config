@@ -45,8 +45,6 @@ namespace tao::config::internal
 
       void process_concat( const key1& prefix, concat& c )
       {
-         assert( !c.concat.empty() );
-
          const phase2_guard dog( m_stack, c );
 
          auto i = c.concat.begin();
@@ -54,7 +52,9 @@ namespace tao::config::internal
          while( i != c.concat.end() ) {
             if( const concat* d = process_entry( prefix, *i ) ) {
                for( const entry& e : d->concat ) {
-                  c.post_insert_merge( c.concat.emplace( i, e ) );
+                  auto j = c.concat.emplace( i, e );
+                  j->set_permanent();
+                  c.post_insert_merge( j );
                }
                i = c.concat.erase( i );
                if( ( i != c.concat.end() ) && ( i != c.concat.begin() ) ) {
