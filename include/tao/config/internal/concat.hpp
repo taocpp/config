@@ -41,12 +41,12 @@ namespace tao::config::internal
          return ( concat.size() == 1 ) && concat.back.is_value();
       }
 
-      void set_permanent()
+      void make_permanent()
       {
          temporary = false;
 
          for( auto& e : concat ) {
-            e.set_permanent();
+            e.make_permanent();
          }
       }
 

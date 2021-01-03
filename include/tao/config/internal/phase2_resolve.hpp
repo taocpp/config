@@ -53,7 +53,7 @@ namespace tao::config::internal
             if( const concat* d = process_entry( prefix, *i ) ) {
                for( const entry& e : d->concat ) {
                   auto j = c.concat.emplace( i, e );
-                  j->set_permanent();
+                  j->make_permanent();
                   c.post_insert_merge( j );
                }
                i = c.concat.erase( i );

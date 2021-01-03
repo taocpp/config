@@ -108,7 +108,7 @@ namespace tao::config::internal
          m_data.emplace< std::size_t( entry_kind::remove ) >( 42 );
       }
 
-      void set_permanent()
+      void make_permanent()
       {
          switch( kind() ) {
             case entry_kind::value:
@@ -117,12 +117,12 @@ namespace tao::config::internal
                return;
             case entry_kind::array:
                for( auto& c : get_array().array ) {
-                  c.set_permanent();
+                  c.make_permanent();
                }
                return;
             case entry_kind::object:
                for( auto& p : get_object().object ) {
-                  p.second.set_permanent();
+                  p.second.make_permanent();
                }
                return;
             case entry_kind::remove:
