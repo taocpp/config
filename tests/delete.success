@@ -1,0 +1,4 @@
+a = 1
+a = delete
+
+// a.b.c = delete

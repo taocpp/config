@@ -43,8 +43,8 @@ namespace tao::config::internal
          }
          assert( false );  // UNREACHABLE
       }
-      if( c.concat.size() != 1 ) {
-         throw pegtl::parse_error( "concat size not one", c.position );
+      if( c.concat.size() > 1 ) {
+         throw pegtl::parse_error( "concat size greater than one", c.position );
       }
    }
 
@@ -53,11 +53,11 @@ namespace tao::config::internal
       auto i = a.array.begin();
 
       while( i != a.array.end() ) {
+         phase2_remove( *i );
          if( i->temporary || i->concat.empty() ) {
             i = a.array.erase( i );
          }
          else {
-            phase2_remove( *i );
             ++i;
          }
       }
@@ -68,11 +68,11 @@ namespace tao::config::internal
       auto i = o.object.begin();
 
       while( i != o.object.end() ) {
+         phase2_remove( i->second );
          if( i->second.temporary || i->second.concat.empty() ) {
             i = o.object.erase( i );
          }
          else {
-            phase2_remove( i->second );
             ++i;
          }
       }
