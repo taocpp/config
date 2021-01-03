@@ -25,7 +25,7 @@ namespace tao::config
 
    [[nodiscard]] inline value from_file( const std::filesystem::path& path )  // , schema::builtin b = schema::builtin() )
    {
-      return basic_from_file< traits >( path )  // , std::move( b ) );
+      return basic_from_file< traits >( path );  // , std::move( b ) );
    }
 
 }  // namespace tao::config

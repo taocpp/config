@@ -1,0 +1,21 @@
+#!/bin/grmblfx
+
+# This is a comment.
+
+// This is another comment.
+
+/* And another one. */
+
+/* These comments /* don't nest */
+
+a = 1
+b = 2 # foo
+c = 3 // foo
+
+/* foo */ d /* foo */ = /* foo */ 4 /* foo */
+
+e /* foo */ { /* foo */ f = 6 /* foo */ , /* foo */ } /* foo */
+
+g /* foo */ [ /* foo */ 7 /* foo */ , /* foo */ ] /* foo */
+
+h /* foo */ += /* foo */ "h" /* foo */ + /* foo */ "H" /* foo */

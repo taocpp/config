@@ -114,7 +114,7 @@ namespace tao::config::internal
    template< template< typename... > class Traits >
    void phase3_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const concat& c )
    {
-      assert( c.concat.size() == 1 );  // This should be ensured by phase2.
+      assert( c.concat.size() == 1 );  // This should be ensured by phase2_remove().
 
       phase3_repack( k, consumer, c.concat.front() );
    }

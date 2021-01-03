@@ -23,6 +23,16 @@ namespace tao::config::internal
    {};
 
    template<>
+   struct config_action< rules::permanent >
+   {
+      template< typename State >
+      static void apply0( State& st, const extension_maps& )
+      {
+         phase1_append( st.root, st.prefix + st.suffix, permanent );
+      }
+   };
+
+   template<>
    struct config_action< rules::temporary >
    {
       template< typename State >

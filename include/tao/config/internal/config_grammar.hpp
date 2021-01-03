@@ -64,10 +64,12 @@ namespace tao::config::internal::rules
    struct array;
    struct object;
 
-   struct remove : pegtl::string< 'd', 'e', 'l', 'e', 't', 'e' > {};
-   struct temporary : pegtl::string< 't', 'e', 'm', 'p', 'o', 'r', 'a', 'r', 'y' > {};
+   struct remove : pegtl::keyword< 'd', 'e', 'l', 'e', 't', 'e' > {};
 
-   struct value_part : pegtl::sor< array, object, temporary, bracketed_value, jaxn_value > {};
+   struct permanent : pegtl::keyword< 'p', 'e', 'r', 'm', 'a', 'n', 'e', 'n', 't' > {};
+   struct temporary : pegtl::keyword< 't', 'e', 'm', 'p', 'o', 'r', 'a', 'r', 'y' > {};
+
+   struct value_part : pegtl::sor< array, object, permanent, temporary, bracketed_value, jaxn_value > {};
    struct value_list : pegtl::list< value_part, pegtl::one< '+' >, jaxn::ws > {};
 
    struct assign_head : pegtl::one< ':', '=' > {};
@@ -111,7 +113,7 @@ namespace tao::config::internal::rules
    struct object : pegtl::if_must< jaxn::begin_object, member_list > {};
    struct compat_file : pegtl::must< member_list, wss, pegtl::eof > {};
    struct config_list : member_list_impl< pegtl::eof > {};
-   struct config_file : pegtl::must< wss, pegtl::if_must_else< jaxn::begin_object, compat_file, config_list > > {};
+   struct config_file : pegtl::must< wss, pegtl::if_must_else< pegtl::disable< jaxn::begin_object >, compat_file, config_list > > {};
    struct value : pegtl::must< wss, value_part, wss, pegtl::eof > {};
    // clang-format on
 

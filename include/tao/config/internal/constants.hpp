@@ -10,7 +10,11 @@ namespace tao::config::internal
 {
    struct temporary_t
    {
-      explicit constexpr temporary_t( int /*unused*/ ) {}
+      explicit constexpr temporary_t( const bool t ) noexcept
+         : temporary( t )
+      {}
+
+      const bool temporary;
    };
 
    struct part_star_t
@@ -38,7 +42,8 @@ namespace tao::config::internal
       explicit constexpr better_luck_next_time_t( int /*unused*/ ) {}
    };
 
-   constexpr temporary_t temporary{ 0 };
+   constexpr temporary_t permanent{ false };
+   constexpr temporary_t temporary{ true };
    constexpr part_star_t part_star{ 0 };
    constexpr part_minus_t part_minus{ 0 };
    constexpr part_vector_t part_vector{ 0 };

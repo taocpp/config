@@ -19,9 +19,9 @@
 
 namespace tao::config::internal
 {
-   inline bool phase1_append( concat& c, const temporary_t )
+   inline bool phase1_append( concat& c, const temporary_t t )
    {
-      c.temporary = true;
+      c.temporary = t.temporary;
       return true;
    }
 

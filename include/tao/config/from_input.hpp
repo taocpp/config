@@ -11,6 +11,7 @@
 // #include "schema/builtin.hpp"
 
 #include "internal/config_parser.hpp"
+#include "internal/pegtl.hpp"
 
 namespace tao::config
 {
@@ -24,7 +25,7 @@ namespace tao::config
 
    [[nodiscard]] inline value from_input( pegtl_input_t&& in )  // , schema::builtin b = schema::builtin() )
    {
-      return basic_from_input< traits >( std::move( in ) )  // , std::move( b ) );
+      return basic_from_input< traits >( std::move( in ) );  // , std::move( b ) );
    }
 
 }  // namespace tao::config
