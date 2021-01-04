@@ -17,8 +17,8 @@
 #include "pegtl.hpp"
 #include "phase2_combine.hpp"
 #include "phase2_resolve.hpp"
-#include "phase2_remove.hpp"
-#include "phase3_repack.hpp"
+#include "phase3_remove.hpp"
+#include "phase4_repack.hpp"
 #include "state.hpp"
 #include "to_stream.hpp"
 #include "value_functions.hpp"
@@ -76,41 +76,28 @@ namespace tao::config::internal
          parse( pegtl::memory_input( data, source ) );
       }
 
-      void phase2( std::ostream* debug = nullptr )
+      unsigned phase2()
       {
-         unsigned iteration = 0;
+         unsigned r = 0;
 
-         if( debug != nullptr ) {
-            ( *debug ) << "BEGIN" << std::endl;
-            to_stream( *debug, st.root, 3 );
-            ( *debug ) << std::endl;
-         }
          while( ( phase2_combine( st.root ) > 0 ) || ( phase2_resolve( st.root ) > 0 ) ) {
-            if( debug != nullptr ) {
-               ( *debug ) << "ITERATION " << iteration++ << std::endl;
-               to_stream( *debug, st.root, 3 );
-               ( *debug ) << std::endl;
-            }
+            ++r;
          }
-         if( debug != nullptr ) {
-            ( *debug ) << "REMOVE" << std::endl;
-            to_stream( *debug, st.root, 3 );
-            ( *debug ) << std::endl;
-         }
-         phase2_remove( st.root );
-         if( debug != nullptr ) {
-            ( *debug ) << "END" << std::endl;
-            to_stream( *debug, st.root, 3 );
-            ( *debug ) << std::endl;
-         }
+         return r;
+      }
+
+      void phase3()
+      {
+         phase3_remove( st.root );
       }
 
       template< template< typename... > class Traits >
       [[nodiscard]] json::basic_value< Traits > finish()
       {
-         phase2();  // This is idempotent and not excessively expensive (for a config libary) if called redundantly.
+         phase2();
+         phase3();
          // TODO: Check config schema(s).
-         return phase3_repack< Traits >( st.root );
+         return phase4_repack< Traits >( st.root );
       }
    };
 

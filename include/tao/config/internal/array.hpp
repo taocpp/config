@@ -28,66 +28,8 @@ namespace tao::config::internal
 
       ~basic_array() = default;
 
-      void operator=( basic_array&& ) = delete;
-      void operator=( const basic_array& ) = delete;
-
-      void erase( const std::size_t n )
-      {
-         assert( n < array.size() );
-
-         auto i = array.begin();
-         std::advance( i, n );
-         array.erase( i );
-      }
-
-      void pop_back()
-      {
-         assert( !array.empty() );
-
-         array.pop_back();
-      }
-
-      [[nodiscard]] C& back() noexcept
-      {
-         assert( !array.empty() );
-
-         return array.back();
-      }
-
-      [[nodiscard]] const C& back() const noexcept
-      {
-         assert( !array.empty() );
-
-         return array.back();
-      }
-
-      [[nodiscard]] C& operator[]( const std::size_t n ) noexcept
-      {
-         assert( n < array.size() );
-
-         auto i = array.begin();
-         std::advance( i, n );
-         return *i;
-      }
-
-      [[nodiscard]] const C& operator[]( const std::size_t n ) const noexcept
-      {
-         assert( n < array.size() );
-
-         auto i = array.begin();
-         std::advance( i, n );
-         return *i;
-      }
-
-      [[nodiscard]] bool is_simple() const noexcept
-      {
-         for( const auto& c : array ) {
-            if( !c.is_simple() ) {
-               return false;
-            }
-         }
-         return true;
-      }
+      basic_array& operator=( basic_array&& ) = default;
+      basic_array& operator=( const basic_array& ) = default;
 
       [[nodiscard]] std::size_t all_references() const noexcept
       {

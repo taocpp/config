@@ -24,7 +24,7 @@ namespace tao::config::internal
 {
    struct entry
    {
-      using data_t = std::variant< json_t, reference2, array, object, entry_remove_t >;
+      using data_t = std::variant< json_t, reference2, array, object >;
 
       static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( entry_kind::value ), data_t >, json_t > );
       // TODO: All of these and everywhere?
@@ -42,7 +42,7 @@ namespace tao::config::internal
       }
 
       entry( const entry_kind k, const pegtl::position& p )
-         : m_data( std::in_place_type_t< entry_remove_t >(), 42 )
+         : m_data( std::in_place_type_t< object >(), p )
       {
          switch( k ) {
             case entry_kind::value:
@@ -52,21 +52,18 @@ namespace tao::config::internal
                set_array( p );
                return;
             case entry_kind::object:
-               set_object( p );
-               return;
-            case entry_kind::remove:
                return;
          }
          assert( false );  // UNREACHABLE
       }
 
-      entry( entry&& ) = default;
+      entry( entry&& ) = delete;
       entry( const entry& ) = default;
 
       ~entry() = default;
 
-      void operator=( entry&& ) = delete;
-      void operator=( const entry& ) = delete;
+      entry& operator=( entry&& ) = delete;
+      entry& operator=( const entry& ) = default;
 
       entry_kind kind() const noexcept
       {
@@ -103,12 +100,7 @@ namespace tao::config::internal
          m_data.emplace< std::size_t( entry_kind::object ) >( p );
       }
 
-      void set_remove()
-      {
-         m_data.emplace< std::size_t( entry_kind::remove ) >( 42 );
-      }
-
-      void make_permanent()
+      void make_permanent() noexcept
       {
          switch( kind() ) {
             case entry_kind::value:
@@ -124,8 +116,6 @@ namespace tao::config::internal
                for( auto& p : get_object().object ) {
                   p.second.make_permanent();
                }
-               return;
-            case entry_kind::remove:
                return;
          }
          assert( false );  // UNREACHABLE
@@ -198,8 +188,6 @@ namespace tao::config::internal
                return get_array().all_references();
             case entry_kind::object:
                return get_object().all_references();
-            case entry_kind::remove:
-               return 0;  // TODO: Do we need to exclude or eliminate things in a concat before a remove?
          }
          assert( false );  // UNREACHABLE
       }
@@ -207,7 +195,7 @@ namespace tao::config::internal
       //      const pegtl::position position;
 
    private:
-      std::variant< json_t, reference2, array, object, entry_remove_t > m_data;
+      std::variant< json_t, reference2, array, object > m_data;
 
       void expand()
       {
@@ -215,7 +203,7 @@ namespace tao::config::internal
             auto a = std::move( get_value().get_array() );
             set_array( get_value().position );
             for( auto& j : a ) {
-               get_array().array.emplace_back( j.position ).concat.emplace_back( std::move( j ) );  // TODO: Add remove entry in front of every data entry?
+               get_array().array.emplace_back( j.position ).concat.emplace_back( std::move( j ) );  // TODO: Set remove flag on every nested concat?
             }
             return;
          }
@@ -223,7 +211,7 @@ namespace tao::config::internal
             auto o = std::move( get_value().get_object() );
             set_object( get_value().position );
             for( auto& [ k, v ] : o ) {
-               get_object().object.try_emplace( std::move( k ), v.position ).first->second.concat.emplace_back( std::move( v ) );  // TODO: Add remove entry in front of every data entry?
+               get_object().object.try_emplace( std::move( k ), v.position ).first->second.concat.emplace_back( std::move( v ) );  // TODO: Set remove flag on every nested concat?
             }
             return;
          }

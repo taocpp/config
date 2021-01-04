@@ -29,8 +29,8 @@ namespace tao::config::internal
 
       ~basic_object() = default;
 
-      void operator=( basic_object&& ) = delete;
-      void operator=( const basic_object& ) = delete;
+      basic_object& operator=( basic_object&& ) = default;
+      basic_object& operator=( const basic_object& ) = default;
 
       [[nodiscard]] std::pair< const std::string, C >* find( const std::string& k ) noexcept
       {
@@ -42,16 +42,6 @@ namespace tao::config::internal
       {
          const auto i = object.find( k );
          return ( i == object.end() ) ? nullptr : ( &*i );
-      }
-
-      [[nodiscard]] bool is_simple() const noexcept
-      {
-         for( const auto& p : object ) {
-            if( !p.second.is_simple() ) {
-               return false;
-            }
-         }
-         return true;
       }
 
       [[nodiscard]] std::size_t all_references() const noexcept

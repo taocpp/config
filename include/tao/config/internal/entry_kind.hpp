@@ -11,8 +11,7 @@ namespace tao::config::internal
       value = 0,
       reference = 1,
       array = 2,
-      object = 3,
-      remove = 4
+      object = 3
    };
 
 }  // namespace tao::config::internal

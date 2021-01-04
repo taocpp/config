@@ -48,7 +48,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, entry_kind::remove );
+         phase1_append( st.root, st.prefix + st.suffix, entry_remove );
       }
    };
 

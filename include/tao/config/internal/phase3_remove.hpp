@@ -1,8 +1,8 @@
 // Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_PHASE2_REMOVE_HPP
-#define TAO_CONFIG_INTERNAL_PHASE2_REMOVE_HPP
+#ifndef TAO_CONFIG_INTERNAL_PHASE3_REMOVE_HPP
+#define TAO_CONFIG_INTERNAL_PHASE3_REMOVE_HPP
 
 #include <cassert>
 
@@ -15,10 +15,10 @@
 
 namespace tao::config::internal
 {
-   inline void phase2_remove( array& a );
-   inline void phase2_remove( object& o );
+   inline void phase3_remove( array& a );
+   inline void phase3_remove( object& o );
 
-   inline void phase2_remove( concat& c )
+   inline void phase3_remove( concat& c )
    {
       auto i = c.concat.begin();
 
@@ -30,15 +30,12 @@ namespace tao::config::internal
             case entry_kind::reference:
                throw pegtl::parse_error( "unresolved reference", i->get_reference().at( 0 ).position );
             case entry_kind::array:
-               phase2_remove( i->get_array() );
+               phase3_remove( i->get_array() );
                ++i;
                continue;
             case entry_kind::object:
-               phase2_remove( i->get_object() );
+               phase3_remove( i->get_object() );
                ++i;
-               continue;
-            case entry_kind::remove:
-               i = c.concat.erase( i );
                continue;
          }
          assert( false );  // UNREACHABLE
@@ -48,13 +45,13 @@ namespace tao::config::internal
       }
    }
 
-   inline void phase2_remove( array& a )
+   inline void phase3_remove( array& a )
    {
       auto i = a.array.begin();
 
       while( i != a.array.end() ) {
-         phase2_remove( *i );
-         if( i->temporary || i->concat.empty() ) {
+         phase3_remove( *i );
+         if( i->omit_from_final_result() ) {
             i = a.array.erase( i );
          }
          else {
@@ -63,13 +60,13 @@ namespace tao::config::internal
       }
    }
 
-   inline void phase2_remove( object& o )
+   inline void phase3_remove( object& o )
    {
       auto i = o.object.begin();
 
       while( i != o.object.end() ) {
-         phase2_remove( i->second );
-         if( i->second.temporary || i->second.concat.empty() ) {
+         phase3_remove( i->second );
+         if( i->second.omit_from_final_result() ) {
             i = o.object.erase( i );
          }
          else {

@@ -1,8 +1,8 @@
 // Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_PHASE3_REPACK_HPP
-#define TAO_CONFIG_INTERNAL_PHASE3_REPACK_HPP
+#ifndef TAO_CONFIG_INTERNAL_PHASE4_REPACK_HPP
+#define TAO_CONFIG_INTERNAL_PHASE4_REPACK_HPP
 
 #include <utility>
 
@@ -31,36 +31,36 @@ namespace tao::config::internal
    }
 
    template< template< typename... > class Traits >
-   void phase3_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const concat& c );
+   void phase4_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const concat& c );
 
    template< template< typename... > class Traits >
-   void phase3_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const array& a )
+   void phase4_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const array& a )
    {
       consumer.begin_array( a.array.size() );
       set_key_and_position( consumer.stack_.back(), k, a.position );
       std::size_t i = 0;
       for( const auto& c : a.array ) {
-         phase3_repack( k + i++, consumer, c );
+         phase4_repack( k + i++, consumer, c );
          consumer.element();
       }
       consumer.end_array( a.array.size() );
    }
 
    template< template< typename... > class Traits >
-   void phase3_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const object& o )
+   void phase4_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const object& o )
    {
       consumer.begin_object( o.object.size() );
       set_key_and_position( consumer.stack_.back(), k, o.position );
       for( const auto& p : o.object ) {
          consumer.key( p.first );
-         phase3_repack( k + p.first, consumer, p.second );
+         phase4_repack( k + p.first, consumer, p.second );
          consumer.member();
       }
       consumer.end_object( o.object.size() );
    }
 
    template< template< typename... > class Traits >
-   void phase3_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const json_t& j )
+   void phase4_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const json_t& j )
    {
       switch( j.type() ) {
          case json::type::NULL_:
@@ -91,39 +91,37 @@ namespace tao::config::internal
    }
 
    template< template< typename... > class Traits >
-   void phase3_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const entry& e )
+   void phase4_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const entry& e )
    {
       switch( e.kind() ) {
          case entry_kind::value:
-            phase3_repack( k, consumer, e.get_value() );
+            phase4_repack( k, consumer, e.get_value() );
             return;
          case entry_kind::reference:
-            assert( false );  // UNREACHABLE
+            assert( false );  // UNREACHABLE -- must have been either eliminated or flagged as error in an earlier phase.
          case entry_kind::array:
-            phase3_repack( k, consumer, e.get_array() );
+            phase4_repack( k, consumer, e.get_array() );
             return;
          case entry_kind::object:
-            phase3_repack( k, consumer, e.get_object() );
+            phase4_repack( k, consumer, e.get_object() );
             return;
-         case entry_kind::remove:
-            assert( false );  // UNREACHABLE
       }
       assert( false );  // UNREACHABLE
    }
 
    template< template< typename... > class Traits >
-   void phase3_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const concat& c )
+   void phase4_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const concat& c )
    {
-      assert( c.concat.size() == 1 );  // This should be ensured by phase2_remove().
+      assert( c.concat.size() == 1 );  // This should be ensured by phase3_remove().
 
-      phase3_repack( k, consumer, c.concat.front() );
+      phase4_repack( k, consumer, c.concat.front() );
    }
 
    template< template< typename... > class Traits >
-   [[nodiscard]] json::basic_value< Traits > phase3_repack( const object& o )
+   [[nodiscard]] json::basic_value< Traits > phase4_repack( const object& o )
    {
       json::events::to_basic_value< Traits > consumer;
-      phase3_repack( key(), consumer, o );
+      phase4_repack( key(), consumer, o );
       set_key_and_position( consumer.value, key(), o.position );
       return std::move( consumer.value );
    }

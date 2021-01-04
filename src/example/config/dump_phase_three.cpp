@@ -17,9 +17,13 @@ int main( int argc, char** argv )
          const std::filesystem::path file( argv[ i ] );
          std::cerr << "PARSE " << file << std::endl;
          cfg.parse( file );
-         tao::config::internal::to_stream( std::cerr, cfg.st.root, 3 );
-         std::cerr << std::endl;
       }
+      std::cerr << "PHASE 2" << std::endl;
+      cfg.phase2();
+      std::cerr << "PHASE 3" << std::endl;
+      cfg.phase3();
+      tao::config::internal::to_stream( std::cerr, cfg.st.root, 3 );
+      std::cerr << std::endl;
    }
    catch( const std::exception& e ) {
       std::cerr << "ERROR " << e.what() << std::endl;

@@ -13,7 +13,9 @@
 #include "json.hpp"
 #include "json_traits.hpp"
 #include "object.hpp"
-#include "phase2_concat.hpp"
+#include "phase2_add.hpp"
+#include "phase2_append.hpp"
+#include "phase2_insert.hpp"
 
 namespace tao::config::internal
 {
@@ -44,36 +46,39 @@ namespace tao::config::internal
          if( c.concat.size() < 2 ) {
             return;
          }
-         auto r = ++c.concat.begin();
-
-         while( r != c.concat.end() ) {
+         for( auto r = ++c.concat.begin(); r != c.concat.end(); ++r ) {
             auto l = r;
+
+            assert( l != c.concat.begin() );
+            assert( l != c.concat.end() );
+
             --l;
             switch( r->kind() ) {
                case entry_kind::value:
                   if( l->kind() == entry_kind::value ) {
-                     phase2_concat( l->get_value(), std::move( r->get_value() ) );
-                     r = c.concat.erase( r );
+                     phase2_add( std::move( l->get_value() ), r->get_value() );
+                     const auto t = c.concat.erase( l );
+                     assert( t == r );
                      ++m_changes;
-                     continue;
                   }
-                  ++r;
                   continue;
                case entry_kind::reference:
-                  ++r;
                   continue;
                case entry_kind::array:
-                  assert( l->kind() != entry_kind::array );  // Should already be merged.
-                  ++r;
+                  if( l->kind() == entry_kind::array ) {
+                     phase2_append( std::move( l->get_array() ), r->get_array() );
+                     const auto t = c.concat.erase( l );
+                     assert( t == r );
+                     ++m_changes;
+                  }
                   continue;
                case entry_kind::object:
-                  assert( l->kind() != entry_kind::object );  // Should already be merged.
-                  ++r;
-                  continue;
-               case entry_kind::remove:
-                  c.concat.erase( c.concat.begin(), r );
-                  ++m_changes;
-                  ++r;
+                  if( l->kind() == entry_kind::object ) {
+                     phase2_insert( std::move( l->get_object() ), r->get_object() );
+                     const auto t = c.concat.erase( l );
+                     assert( t == r );
+                     ++m_changes;
+                  }
                   continue;
             }
             assert( false );  // UNREACHABLE
@@ -96,8 +101,6 @@ namespace tao::config::internal
                for( auto& p : e.get_object().object ) {
                   process_concat( p.second );
                }
-               return;
-            case entry_kind::remove:
                return;
          }
          assert( false );  // UNREACHABLE

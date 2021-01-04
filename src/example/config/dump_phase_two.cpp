@@ -5,38 +5,31 @@
 #include <stdexcept>
 #include <string>
 
-#include <tao/config/internal/config_action.hpp>
-#include <tao/config/internal/config_grammar.hpp>
 #include <tao/config/internal/config_parser.hpp>
-#include <tao/config/internal/pegtl.hpp>
 #include <tao/config/internal/to_stream.hpp>
-
-namespace tao::config
-{
-   void test_parse_file( const std::filesystem::path& file )
-   {
-      internal::config_parser cfg;
-      std::cerr << file << std::endl;
-      pegtl::file_input in( file );
-      const bool result = pegtl::parse< internal::rules::config_file, internal::config_action >( in, cfg.st, cfg.em );
-      std::cerr << result << std::endl;
-      cfg.phase2( &std::cerr );
-   }
-
-}  // namespace tao::config
 
 int main( int argc, char** argv )
 {
-   for( int i = 1; i < argc; ++i ) {
-      try {
-         tao::config::test_parse_file( argv[ i ] );
+   tao::config::internal::config_parser cfg;
+
+   try {
+      for( int i = 1; i < argc; ++i ) {
+         const std::filesystem::path file( argv[ i ] );
+         std::cerr << "PARSE " << file << std::endl;
+         cfg.parse( file );
       }
-      catch( const std::exception& e ) {
-         std::cerr << "ERROR " << e.what() << std::endl;
-      }
-      catch( const std::string& e ) {
-         std::cerr << "STRING " << e << std::endl;
-      }
+      std::cerr << "PHASE 2" << std::endl;
+      cfg.phase2();
+      tao::config::internal::to_stream( std::cerr, cfg.st.root, 3 );
+      std::cerr << std::endl;
+   }
+   catch( const std::exception& e ) {
+      std::cerr << "ERROR " << e.what() << std::endl;
+      return 1;
+   }
+   catch( const std::string& e ) {
+      std::cerr << "STRING " << e << std::endl;
+      return 1;
    }
    return 0;
 }

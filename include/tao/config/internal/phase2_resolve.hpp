@@ -22,49 +22,44 @@ namespace tao::config::internal
    struct phase2_resolve_impl
    {
       explicit phase2_resolve_impl( object& root )
-         : m_root( root )
+         : m_root( root ),
+           m_changes( 0 )
       {}
 
       [[nodiscard]] std::size_t process()
       {
          assert( m_stack.empty() );
 
-         const std::size_t references = m_root.all_references();
-
          for( auto& p : m_root.object ) {
             process_concat( key1{ key1_part( p.first, m_root.position ) }, p.second );
          }
          assert( m_stack.empty() );
 
-         return references - m_root.all_references();
+         return m_changes;
       }
 
    private:
       object& m_root;
+      std::size_t m_changes;
       std::set< const void* > m_stack;
 
       void process_concat( const key1& prefix, concat& c )
       {
          const phase2_guard dog( m_stack, c );
 
-         auto i = c.concat.begin();
+         for( auto& e : c.concat ) {
+            if( const concat* d = process_entry( prefix, e ); d != nullptr ) {
+               assert( d != &c );  // TODO: This needs to be ensured elsewhere/in another way.
 
-         while( i != c.concat.end() ) {
-            if( const concat* d = process_entry( prefix, *i ) ) {
-               for( const entry& e : d->concat ) {
-                  auto j = c.concat.emplace( i, e );
-                  j->make_permanent();
-                  c.post_insert_merge( j );
+               if( !d->concat.empty() ) {
+                  assert( d->concat.size() == 1 );  // TODO: This needs to be ensured elsewhere/in another way -- and it doesn't hold if a concat contains incompatible entries!
+
+                  e = d->concat.front();
+                  e.make_permanent();
+                  // TODO: Call phase2_combine( c ) to get things done quicker?
                }
-               i = c.concat.erase( i );
-               if( ( i != c.concat.end() ) && ( i != c.concat.begin() ) ) {
-                  auto j = i;
-                  ++i;
-                  c.post_insert_merge( j );
-               }
-               continue;
+               ++m_changes;
             }
-            ++i;
          }
       }
 
@@ -127,19 +122,16 @@ namespace tao::config::internal
                return nullptr;
             case entry_kind::reference:
                return process_reference_parts( prefix, e.get_reference() );
-            case entry_kind::array:
-               for( std::size_t i = 0; i < e.get_array().array.size(); ++i ) {
-                  auto j = e.get_array().array.begin();
-                  std::advance( j, i );  // Yeah, we're not overly concerned with O(n^2) ... yet.
-                  process_concat( prefix + key1_part( i, m_root.position ), *j );
+            case entry_kind::array: {
+               std::size_t i = 0;
+               for( auto& c : e.get_array().array ) {
+                  process_concat( prefix + key1_part( i++, m_root.position ), c );
                }
-               return nullptr;
+            }  return nullptr;
             case entry_kind::object:
                for( auto& p : e.get_object().object ) {
                   process_concat( prefix + key1_part( p.first, m_root.position ), p.second );
                }
-               return nullptr;
-            case entry_kind::remove:
                return nullptr;
          }
          assert( false );  // UNREACHABLE

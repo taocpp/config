@@ -5,7 +5,9 @@
 #define TAO_CONFIG_INTERNAL_PHASE1_APPEND_HPP
 
 #include <cassert>
+#include <iterator>
 #include <string>
+#include <type_traits>
 
 #include "array.hpp"
 #include "concat.hpp"
@@ -22,28 +24,37 @@ namespace tao::config::internal
    inline bool phase1_append( concat& c, const temporary_t t )
    {
       c.temporary = t.temporary;
+      // TODO: c.implicit = false ???
       return true;
    }
 
    inline bool phase1_append( concat& c, const json_t& value )
    {
       c.concat.emplace_back( value );
+      c.implicit = false;
       return true;
    }
 
    inline bool phase1_append( concat& c, const reference2& value )
    {
       c.concat.emplace_back( value );
+      c.implicit = false;
       return true;
    }
 
    inline bool phase1_append( concat& c, const entry_kind k )
    {
-      if( k == entry_kind::remove ) {
-         c.concat.clear();
-         c.temporary = false;
-      }
       c.back_ensure_kind( k, pegtl::position( 1, 1, 1, "TODO" ) );
+      c.implicit = false;
+      return true;
+   }
+
+   inline bool phase1_append( concat& c, const entry_remove_t )
+   {
+      c.concat.clear();
+      c.remove = true;
+      c.implicit = true;
+      c.temporary = false;
       return true;
    }
 
@@ -69,8 +80,6 @@ namespace tao::config::internal
                   phase1_append( c.second, path, value );
                }
                continue;
-            case entry_kind::remove:
-               return true;
          }
          assert( false );  // UNREACHABLE
       }
@@ -105,17 +114,12 @@ namespace tao::config::internal
                throw std::string( "cannot index (across) reference" );
             case entry_kind::array:
                if( e.get_array().array.size() > n ) {
-                  auto i = e.get_array().array.begin();
-                  std::advance( i, n );
-                  return phase1_append( *i, path, value );
+                  return phase1_append( *std::next( e.get_array().array.begin(), n ), path, value );
                }
                n -= e.get_array().array.size();
                continue;
             case entry_kind::object:
                throw std::string( "cannot index (across) object" );
-            case entry_kind::remove:
-               n = index;
-               continue;  // TODO: Skip to after the remove before iterating...
          }
       }
       throw std::string( "index out of range" );
@@ -140,6 +144,9 @@ namespace tao::config::internal
    {
       if( path.empty() ) {
          return phase1_append( c, value );
+      }
+      if constexpr( std::is_same_v< entry_remove_t, V > ) {
+         c.implicit = false;
       }
       const auto& part = path.at( 0 );
 

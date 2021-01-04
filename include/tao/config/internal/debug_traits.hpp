@@ -269,9 +269,6 @@ namespace tao::config::internal
             case entry_kind::object:
                c.string( "object" );
                return;
-            case entry_kind::remove:
-               c.string( "delete" );
-               return;
          }
          assert( false );  // UNREACHABLE
       }
@@ -314,10 +311,6 @@ namespace tao::config::internal
                c.key( "object" );
                json::events::produce< Traits >( c, v.get_object() );
                break;
-            case entry_kind::remove:
-               c.key( "remove" );
-               c.null();
-               break;
          }
          c.member();
          c.end_object();
@@ -326,7 +319,9 @@ namespace tao::config::internal
 
    template<>
    struct debug_traits< concat >
-      : json::binding::object< TAO_JSON_BIND_REQUIRED( "temporary", &concat::temporary ),
+      : json::binding::object< TAO_JSON_BIND_REQUIRED( "remove", &concat::remove ),
+                               TAO_JSON_BIND_REQUIRED( "implicit", &concat::implicit ),
+                               TAO_JSON_BIND_REQUIRED( "temporary", &concat::temporary ),
                                TAO_JSON_BIND_REQUIRED( "position", &concat::position ),
                                TAO_JSON_BIND_REQUIRED( "concat_list", &concat::concat ) >
    {};
