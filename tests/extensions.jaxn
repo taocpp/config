@@ -1,0 +1,43 @@
+{
+   default: {
+      a: 1,
+      b: 2,
+      c: 1,
+      d: null
+   },
+   env: {
+      a: "env_value",
+      b: "default_value"
+   },
+   identity: {
+      a: 42,
+      b: null,
+      c: $DEADBEAF
+   },
+   parse: {
+      a: 42,
+      b: null
+   },
+   shell: {
+      a: "hallo\n"
+   },
+   split: {
+      a: [],
+      b: [
+         "a"
+      ],
+      c: [
+         "a"
+      ],
+      d: [
+         "a",
+         "b",
+         "c"
+      ],
+      e: [
+         "a",
+         "b",
+         "c"
+      ]
+   }
+}

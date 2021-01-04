@@ -76,10 +76,9 @@ namespace tao::config::internal
    }
 
    // clang-format off
-   struct split_plus_ws : pegtl::plus< pegtl::space > {};
    struct split_star_ws : pegtl::star< pegtl::space > {};
    struct split_string : pegtl::plus< pegtl::invert< pegtl::space > > {};
-   struct split_rule : pegtl::must< split_star_ws, pegtl::list_tail< split_string, split_plus_ws >, pegtl::eof > {};
+   struct split_rule : pegtl::must< split_star_ws, pegtl::star< split_string, split_star_ws >, pegtl::eof > {};
    // clang-format on
 
    template< typename Rule >
