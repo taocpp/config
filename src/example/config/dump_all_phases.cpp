@@ -15,19 +15,19 @@ int main( int argc, char** argv )
    try {
       for( int i = 1; i < argc; ++i ) {
          const std::filesystem::path file( argv[ i ] );
-         std::cerr << "PARSE " << file << std::endl;
+         std::cout << "PARSE " << file << std::endl;
          cfg.parse( file );
-         tao::config::internal::to_stream( std::cerr, cfg.st.root, 3 );
-         std::cerr << std::endl;
+         tao::config::internal::to_stream( std::cout, cfg.st.root, 3 );
+         std::cout << std::endl;
       }
-      std::cerr << "PHASE 2" << std::endl;
+      std::cout << "PHASE 2" << std::endl;
       cfg.phase2();
-      tao::config::internal::to_stream( std::cerr, cfg.st.root, 3 );
-      std::cerr << std::endl;
-      std::cerr << "PHASE 3" << std::endl;
+      tao::config::internal::to_stream( std::cout, cfg.st.root, 3 );
+      std::cout << std::endl;
+      std::cout << "PHASE 3" << std::endl;
       cfg.phase3();
-      tao::config::internal::to_stream( std::cerr, cfg.st.root, 3 );
-      std::cerr << std::endl;
+      tao::config::internal::to_stream( std::cout, cfg.st.root, 3 );
+      std::cout << std::endl;
    }
    catch( const std::exception& e ) {
       std::cerr << "ERROR " << e.what() << std::endl;

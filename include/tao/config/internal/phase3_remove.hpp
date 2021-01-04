@@ -20,22 +20,17 @@ namespace tao::config::internal
 
    inline void phase3_remove( concat& c )
    {
-      auto i = c.concat.begin();
-
-      while( i != c.concat.end() ) {
-         switch( i->kind() ) {
+      for( auto& e : c.concat ) {
+         switch( e.kind() ) {
             case entry_kind::value:
-               ++i;
                continue;
             case entry_kind::reference:
-               throw pegtl::parse_error( "unresolved reference", i->get_reference().at( 0 ).position );
+               throw pegtl::parse_error( "unresolved reference", e.get_reference().at( 0 ).position );
             case entry_kind::array:
-               phase3_remove( i->get_array() );
-               ++i;
+               phase3_remove( e.get_array() );
                continue;
             case entry_kind::object:
-               phase3_remove( i->get_object() );
-               ++i;
+               phase3_remove( e.get_object() );
                continue;
          }
          assert( false );  // UNREACHABLE
