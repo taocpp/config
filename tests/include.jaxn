@@ -1,0 +1,10 @@
+{
+   a: {
+      simple: 42
+   },
+   b: {
+      simple: 43
+   },
+   c: {},
+   simple: 42
+}

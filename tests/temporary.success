@@ -28,3 +28,6 @@ s = (q)
 t = (q.r)
 u.v = (q)
 w.x = (q.r)
+
+foo.bar = temporary
+foo.bar = null

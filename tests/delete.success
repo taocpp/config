@@ -1,4 +1,33 @@
 a = 1
 a = delete
 
-c.d.e = delete
+b.c.d = delete
+
+c = [ {
+  d = delete
+} {
+  e = 42
+} ]
+
+c.1.e = delete
+
+d.a.d = 1
+d.b.d = 2
+d.c.d = 3
+
+d.*.d = delete
+e.*.e = delete
+
+f.a = 1
+f.b = 2
+f.c = 3
+
+f.* = delete
+
+g = 1
+g = delete
+g = 2
+
+h += 1
+h = delete
+h += 2

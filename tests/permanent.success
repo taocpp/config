@@ -2,3 +2,24 @@ a = 1 + temporary
 b = 1 + temporary
 
 a += permanent
+
+c += temporary
+c += 42
+c += permanent
+
+d += temporary
+d += 42 + permanent
+
+e += temporary
+e += permanent + 42
+
+f += permanent + 42
+
+g += 42 + permanent
+
+foo.bar = temporary
+foo.bar += permanent
+
+foo.bar = temporary
+foo.baz += permanent
+foo.baz += null
