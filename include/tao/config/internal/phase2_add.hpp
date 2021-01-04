@@ -23,98 +23,94 @@ namespace tao::config::internal
       json::type r;
    };
 
-   // For numbers we currently follow two rules in order:
-   // 1. Integers and floating-point can't be mixed, and
+   // For numbers we currently follow the following rules:
+   // 1. Integers and floating-point can't be mixed, and:
    // 2. Mixed integers are handled like in the C language.
 
-   inline void phase2_number_add( const json_t& l, json_t& r )
+   inline void phase2_signed_add( const json_t& l, json_t& r )
    {
-      if( l.is_double() || r.is_double() ) {
-         if( l.is_double() && r.is_double() ) {
-            r.assign( l.get_double() + r.get_double() );
-            return;
-         }
+      if( r.is_signed() ) {
+         r.assign( l.get_signed() + r.get_signed() );
+         return;
       }
-      else if( l.is_signed() ) {
-         if( r.is_signed() ) {
-            r.assign( l.get_signed() + r.get_signed() );
-            return;
-         }
-         if( r.is_unsigned() ) {
-            r.assign( l.get_signed() + std::int64_t( r.get_unsigned() ) );
-            return;
-         }
+      if( r.is_unsigned() ) {
+         r.assign( l.get_signed() + std::int64_t( r.get_unsigned() ) );
+         return;
       }
-      else if( l.is_unsigned() ) {
-         if( r.is_signed() ) {
-            r.assign( std::int64_t( l.get_unsigned() ) + r.get_signed() );
-            return;
-         }
-         if( r.is_unsigned() ) {
-            r.assign( l.get_unsigned() + r.get_unsigned() );
-            return;
-         }
+      throw phase2_add_error{ l.type(), r.type() };
+   }
+
+   inline void phase2_unsigned_add( const json_t& l, json_t& r )
+   {
+      if( r.is_signed() ) {
+         r.assign( std::int64_t( l.get_unsigned() ) + r.get_signed() );
+         return;
+      }
+      if( r.is_unsigned() ) {
+         r.assign( l.get_unsigned() + r.get_unsigned() );
+         return;
+      }
+      throw phase2_add_error{ l.type(), r.type() };
+   }
+
+   inline void phase2_double_add( const json_t& l, json_t& r )
+   {
+      if( r.is_double() ) {
+         r.assign( l.get_double() + r.get_double() );
+         return;
       }
       throw phase2_add_error{ l.type(), r.type() };
    }
 
    inline void phase2_string_add( const json_t& l, json_t& r )
    {
-      switch( r.type() ) {
-         case json::type::STRING:
-            r.get_string() = l.get_string() + r.get_string();
-            break;
-         default:
-            throw phase2_add_error{ l.type(), r.type() };
+      if( r.type() == json::type::STRING ) {
+         r.get_string() = l.get_string() + r.get_string();
+         return;
       }
+      throw phase2_add_error{ l.type(), r.type() };
    }
 
    inline void phase2_binary_add( const json_t& l, json_t& r )
    {
-      switch( r.type() ) {
-         case json::type::BINARY:
-            r.get_binary().insert( r.get_binary().begin(), l.get_binary().begin(), l.get_binary().end() );
-            break;
-         default:
-            throw phase2_add_error{ l.type(), r.type() };
+      if( r.type() == json::type::BINARY ) {
+         r.get_binary().insert( r.get_binary().begin(), l.get_binary().begin(), l.get_binary().end() );
+         return;
       }
+      throw phase2_add_error{ l.type(), r.type() };
    }
 
    inline void phase2_value_add( json_t&& l, json_t& r )
    {
-      if( r.is_null() ) {
-         r = std::move( l );
-         return;
-      }
       switch( l.type() ) {
-         case json::type::UNINITIALIZED:
-            throw phase2_add_error{ l.type(), r.type() };
          case json::type::NULL_:
-            return;
          case json::type::BOOLEAN:
             throw phase2_add_error{ l.type(), r.type() };
          case json::type::SIGNED:
+            phase2_signed_add( l, r );
+            return;
          case json::type::UNSIGNED:
+            phase2_unsigned_add( l, r );
+            return;
          case json::type::DOUBLE:
-            phase2_number_add( l, r );
+            phase2_double_add( l, r );
             return;
          case json::type::STRING:
             phase2_string_add( l, r );
             return;
-         case json::type::STRING_VIEW:
-            assert( false );  // UNREACHABLE
          case json::type::BINARY:
             phase2_binary_add( l, r );
             return;
+         case json::type::STRING_VIEW:
          case json::type::BINARY_VIEW:
             assert( false );  // UNREACHABLE
+         case json::type::UNINITIALIZED:
          case json::type::ARRAY:
          case json::type::OBJECT:
          case json::type::VALUE_PTR:
          case json::type::OPAQUE_PTR:
-            assert( false );  // UNREACHABLE
          case json::type::VALUELESS_BY_EXCEPTION:
-            throw std::string( "something went wrong -- including the quality of this temporary error message -- TODO: improve it" );
+            assert( false );  // UNREACHABLE
       }
       assert( false );  // UNREACHABLE
    }
