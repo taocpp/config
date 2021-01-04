@@ -58,9 +58,6 @@ namespace tao::config::internal
          for( const auto& e : concat ) {
             result += e.all_references();
          }
-         if( result == 0 ) {
-            assert( concat.size() < 2 );
-         }
          return result;
       }
 

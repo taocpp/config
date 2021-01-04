@@ -52,7 +52,7 @@ namespace tao::config::internal
                assert( d != &c );  // TODO: This needs to be ensured elsewhere/in another way.
 
                if( !d->concat.empty() ) {
-                  assert( d->concat.size() == 1 );  // TODO: This needs to be ensured elsewhere/in another way -- and it doesn't hold if a concat contains incompatible entries!
+                  assert( d->concat.size() == 1 );
 
                   e = d->concat.front();
                   e.make_permanent();

@@ -1,0 +1,25 @@
+# Just enough to convince us that we have properly integrated the JSON library...
+# ...which has a far more extensive test-suite for parsing integers and doubles.
+
+dec1 = 0
+dec2 = -0
+dec3 = +0
+dec4 = 42
+dec5 = 1284712984
+dec6 = +1284712984
+dec7 = -1284712984
+dec8 = 1000000000000000
+dec9 = +1000000000000000
+dec0 = -1000000000000000
+
+hex1 = 0x123
+hex2 = +0X123
+hex3 = -0x123
+
+float1 = .1
+float2 = 123e45
+float3 = -.42
+float4 = -1.2e-1
+float5 = 0.0
+float6 = NaN
+float7 = -Infinity

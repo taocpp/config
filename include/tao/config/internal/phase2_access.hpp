@@ -107,7 +107,7 @@ namespace tao::config::internal
    [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1& suffix, const int down )
    {
       if( suffix.empty() ) {
-         if( c.all_references() == 0 ) {
+         if( ( c.concat.size() < 2 ) && ( c.all_references() == 0 ) ) {
             return &c;
          }
          throw better_luck_next_time;
