@@ -31,21 +31,18 @@ namespace tao::config::internal
    inline bool phase1_append( concat& c, const json_t& value )
    {
       c.concat.emplace_back( value );
-      c.implicit = false;
       return true;
    }
 
    inline bool phase1_append( concat& c, const reference2& value )
    {
       c.concat.emplace_back( value );
-      c.implicit = false;
       return true;
    }
 
    inline bool phase1_append( concat& c, const entry_kind k )
    {
       c.back_ensure_kind( k, pegtl::position( 1, 1, 1, "TODO" ) );
-      c.implicit = false;
       return true;
    }
 
@@ -53,7 +50,6 @@ namespace tao::config::internal
    {
       c.concat.clear();
       c.remove = true;
-      c.implicit = true;
       c.temporary = false;
       return true;
    }
@@ -98,6 +94,7 @@ namespace tao::config::internal
    {
       c.back_ensure_kind( entry_kind::object, p );
       const auto pair = c.concat.back().get_object().object.try_emplace( name, p );
+      pair.first->second.implicit = std::is_same_v< entry_remove_t, V >;
       return phase1_append( pair.first->second, path, value );
    }
 
@@ -145,9 +142,6 @@ namespace tao::config::internal
       if( path.empty() ) {
          return phase1_append( c, value );
       }
-      if constexpr( std::is_same_v< entry_remove_t, V > ) {
-         c.implicit = false;
-      }
       const auto& part = path.at( 0 );
 
       switch( part.kind() ) {
@@ -172,6 +166,7 @@ namespace tao::config::internal
 
       const std::string& name = path.front().get_name();  // TODO: Error message if other type.
       const auto pair = o.object.try_emplace( name, path.front().position );
+      pair.first->second.implicit = std::is_same_v< entry_remove_t, V >;
       phase1_append( pair.first->second, pop_front( path ), value );
    }
 
