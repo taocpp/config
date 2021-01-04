@@ -5,6 +5,8 @@
 #define TAO_CONFIG_INTERNAL_ARGUMENT_TRAITS_HPP
 
 #include <optional>
+#include <string>
+#include <string_view>
 
 #include "forward.hpp"
 #include "inner_extensions.hpp"
@@ -33,6 +35,46 @@ namespace tao::config::internal
    private:
       const json_t m_j;
    };
+
+   template<>
+   struct argument_traits< std::string >
+   {
+      argument_traits( pegtl_input_t& in, state& st, const extension_maps& em )
+         : m_p( in.position() ),
+           m_s( convert_impl( do_inner_extension( in, st, em ) ) )
+      {}
+
+      const std::string& convert() const
+      {
+         return m_s;
+      }
+
+   private:
+      const pegtl::position m_p;
+      const std::string m_s;
+
+      [[nodiscard]] std::string convert_impl( json_t&& j )
+      {
+         switch( j.type() ) {
+            case json::type::STRING:
+               return std::move( j.get_string() );
+            case json::type::BINARY: {
+               const auto bv = j.as< tao::binary_view >();
+               std::string s( reinterpret_cast< const char* >( bv.data() ), bv.size() );
+               if( !json::internal::validate_utf8_nothrow( s ) ) {
+                  throw pegtl::parse_error( "invalid utf-8 in extension result", m_p );  // TODO: Name of extension?
+               }
+               return s;
+            }
+            default:
+               throw pegtl::parse_error( "invalid type for string", m_p );
+         }
+      }
+   };
+
+   template<>
+   struct argument_traits< std::string_view >
+   {};
 
    template<>
    struct argument_traits< json_t >

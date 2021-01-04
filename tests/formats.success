@@ -1,0 +1,5 @@
+cbor = (cbor (read "tests/formats.cbor"))
+json = (json (read "tests/formats.json"))
+msgpack = (msgpack (read "tests/formats.msgpack"))
+txt = (string (read "tests/formats.txt"))
+ubjson = (ubjson (read "tests/formats.ubjson"))

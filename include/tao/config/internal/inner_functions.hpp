@@ -11,10 +11,10 @@
 
 namespace tao::config::internal
 {
-   [[nodiscard]] inline std::vector< std::byte > binary_function( const std::string_view sv )
+   [[nodiscard]] inline std::vector< std::byte > binary_function( const std::string& s )
    {
-      const auto* const sp = reinterpret_cast< const std::byte* >( sv.data() );
-      return std::vector< std::byte >( sp, sp + sv.size() );
+      const auto* const p = reinterpret_cast< const std::byte* >( s.data() );
+      return std::vector< std::byte >( p, p + s.size() );
    }
 
    [[nodiscard]] inline json_t cbor_function( const tao::binary_view bv )
@@ -44,14 +44,14 @@ namespace tao::config::internal
       return j;
    }
 
-   [[nodiscard]] inline json_t jaxn_function( const std::string_view sv )
+   [[nodiscard]] inline json_t jaxn_function( const std::string& s )
    {
-      return json::jaxn::basic_from_string< json_traits >( sv );  // TODO: Positions.
+      return json::jaxn::basic_from_string< json_traits >( s );  // TODO: Positions.
    }
 
-   [[nodiscard]] inline json_t json_function( const std::string_view sv )
+   [[nodiscard]] inline json_t json_function( const std::string& s )
    {
-      return json::basic_from_string< json_traits >( sv );  // TODO: Positions.
+      return json::basic_from_string< json_traits >( s );  // TODO: Positions.
    }
 
    [[nodiscard]] inline json_t msgpack_function( const tao::binary_view bv )
@@ -96,10 +96,10 @@ namespace tao::config::internal
       }
    };
 
-   [[nodiscard]] inline std::vector< std::string > split_function( const pegtl::position& p, const std::string_view sv )
+   [[nodiscard]] inline std::vector< std::string > split_function( const pegtl::position& p, const std::string& s )
    {
       std::vector< std::string > result;
-      pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl_input_t::eol_t, const char* > in( sv, __FUNCTION__ );
+      pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl_input_t::eol_t, const char* > in( s, __FUNCTION__ );
       pegtl::parse_nested< split_rule, split_action >( p, in, result );
       return result;
    }
