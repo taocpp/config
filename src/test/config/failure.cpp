@@ -26,6 +26,9 @@ namespace tao
       }
       catch( const std::exception& ) {
       }
+      catch( const std::string& ) {
+         // TODO: Remove catch string when all temporary throw strings have been replaced with proper exceptions.
+      }
    }
 
 }  // namespace tao
