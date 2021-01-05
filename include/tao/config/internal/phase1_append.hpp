@@ -86,7 +86,7 @@ namespace tao::config::internal
    {
       c.back_ensure_kind( entry_kind::object, p );
       const auto pair = c.concat.back().get_object().object.try_emplace( name, p );
-      pair.first->second.implicit = std::is_same_v< entry_remove_t, V > && ( pair.second || pair.first->second.implicit );
+      pair.first->second.implicit = ( std::is_same_v< entry_remove_t, V > || std::is_same_v< temporary_t, V > ) && ( pair.second || pair.first->second.implicit );
       return phase1_append( pair.first->second, path, value );
    }
 
@@ -156,7 +156,7 @@ namespace tao::config::internal
 
       const std::string& name = path.front().get_name();  // TODO: Error message if other type.
       const auto pair = o.object.try_emplace( name, path.front().position );
-      pair.first->second.implicit = std::is_same_v< entry_remove_t, V > && ( pair.second || pair.first->second.implicit );
+      pair.first->second.implicit = ( std::is_same_v< entry_remove_t, V > || std::is_same_v< temporary_t, V > ) && ( pair.second || pair.first->second.implicit );
       phase1_append( pair.first->second, pop_front( path ), value );
    }
 

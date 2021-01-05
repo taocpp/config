@@ -1,0 +1,18 @@
+a.a = temporary
+
+b.a = permanent
+
+c.a = temporary
+c.a = temporary
+
+d.a = permanent
+d.a = permanent
+
+e.a = permanent + temporary
+
+f.a = temporary + permanent
+
+g.a = temporary
+g.a += permanent
+g.a += temporary
+g.a += permanent
