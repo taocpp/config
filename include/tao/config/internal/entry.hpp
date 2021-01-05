@@ -197,18 +197,22 @@ namespace tao::config::internal
       void expand()
       {
          if( get_value().is_array() ) {
-            auto a = std::move( get_value().get_array() );
+            json_t::array_t a = std::move( get_value().get_array() );
             set_array( get_value().position );
-            for( auto& j : a ) {
-               get_array().array.emplace_back( j.position ).concat.emplace_back( std::move( j ) );  // TODO: Set remove flag on every nested concat?
+            for( json_t& j : a ) {
+               concat& d = get_array().array.emplace_back( j.position );
+               d.concat.emplace_back( std::move( j ) );
+               d.remove = true;  // TODO: Make configurable?
             }
             return;
          }
          if( get_value().is_object() ) {
-            auto o = std::move( get_value().get_object() );
+            json_t::object_t o = std::move( get_value().get_object() );
             set_object( get_value().position );
-            for( auto& [ k, v ] : o ) {
-               get_object().object.try_emplace( std::move( k ), v.position ).first->second.concat.emplace_back( std::move( v ) );  // TODO: Set remove flag on every nested concat?
+            for( auto& [ k, j ] : o ) {
+               const auto p = get_object().object.try_emplace( std::move( k ), j.position );
+               p.first->second.concat.emplace_back( std::move( j ) );
+               p.first->second.remove = true;  // TODO: Make configurable?
             }
             return;
          }
