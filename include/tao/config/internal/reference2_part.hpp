@@ -18,6 +18,8 @@ namespace tao::config::internal
 {
    struct reference2_part
    {
+      using data_t = std::variant< std::string, std::size_t, std::vector< reference2_part > >;
+
       reference2_part( const part_vector_t /*unused*/, const pegtl::position& p )
          : position( p ),
            data( std::vector< reference2_part >() )
@@ -67,7 +69,7 @@ namespace tao::config::internal
       }
 
       pegtl::position position;
-      std::variant< std::string, std::size_t, std::vector< reference2_part > > data;
+      data_t data;
    };
 
 }  // namespace tao::config::internal

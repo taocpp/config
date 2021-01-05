@@ -26,9 +26,6 @@ namespace tao::config::internal
    {
       using data_t = std::variant< json_t, reference2, array, object >;
 
-      static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( entry_kind::value ), data_t >, json_t > );
-      // TODO: All of these and everywhere?
-
       explicit entry( const json_t& j )
          : m_data( j )
       {
@@ -195,7 +192,7 @@ namespace tao::config::internal
       //      const pegtl::position position;
 
    private:
-      std::variant< json_t, reference2, array, object > m_data;
+      data_t m_data;
 
       void expand()
       {

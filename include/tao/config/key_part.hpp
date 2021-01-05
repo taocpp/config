@@ -21,6 +21,8 @@ namespace tao::config
 {
    struct key_part
    {
+      using data_t = std::variant< std::string, std::size_t >;
+
       explicit key_part( const std::size_t i )
          : data( i )
       {}
@@ -52,7 +54,7 @@ namespace tao::config
          return *s;
       }
 
-      std::variant< std::string, std::size_t > data;
+      data_t data;
    };
 
    [[nodiscard]] inline bool operator<( const key_part& l, const key_part& r ) noexcept
