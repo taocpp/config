@@ -14,6 +14,7 @@
 #include "key1_guard.hpp"
 #include "pegtl.hpp"
 #include "phase1_append.hpp"
+#include "phase1_stuff.hpp"
 
 namespace tao::config::internal
 {
@@ -28,7 +29,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, permanent );
+         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::make_permanent );
       }
    };
 
@@ -38,7 +39,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, temporary );
+         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::make_temporary );
       }
    };
 
@@ -48,7 +49,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, entry_remove );
+         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::remove_all );
       }
    };
 
@@ -58,7 +59,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, entry_kind::array );
+         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::ensure_array );
       }
    };
 
@@ -68,7 +69,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, entry_kind::object );
+         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::ensure_object );
       }
    };
 

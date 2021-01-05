@@ -7,25 +7,23 @@
 #include <string>
 #include <utility>
 
-#include "value.hpp"
-
-// #include "schema/builtin.hpp"
-
 #include "internal/config_parser.hpp"
+#include "schema/builtin.hpp"
+#include "value.hpp"
 
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   [[nodiscard]] json::basic_value< Traits > basic_from_string( const std::string& data, const std::string& source )  // , schema::builtin b = schema::builtin() )
+   [[nodiscard]] json::basic_value< Traits > basic_from_string( const std::string& data, const std::string& source, const schema::builtin& b = schema::builtin() )
    {
       internal::config_parser c;
       c.parse( data, source );
-      return c.finish< Traits >( /*std::move( b )*/ );
+      return c.finish< Traits >( b );
    }
 
-   [[nodiscard]] inline value from_string( const std::string& data, const std::string& source )  // , schema::builtin b = schema::builtin() )
+   [[nodiscard]] inline value from_string( const std::string& data, const std::string& source )  // , const schema::builtin& b = schema::builtin() )
    {
-      return basic_from_string< traits >( data, source )  // , std::move( b ) );
+      return basic_from_string< traits >( data, source, b );
    }
 
 }  // namespace tao::config

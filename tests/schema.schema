@@ -1,0 +1,22 @@
+//-*- mode: JavaScript -*-
+
+definitions
+{
+   foo.properties.required{
+      a.istring : "foO"
+      b : "number"
+   }
+
+   bar.properties.required{
+      a.istring : "baR"
+      b : "string"
+   }
+
+   baz.properties.required
+   {
+      a.istring : "baZ" b : "std.integer" c : "null" d : "std.net.ip_v4_cidr"
+   }
+}
+
+all_of
+   [ { property.a.istring : [ "fOo", "bAr", "bAz" ] } { if.property.a.istring: "Foo" then: "foo" } { if.property.a.istring: "Bar" then: "bar" } { if.property.a.istring: "Baz" then: "baz" } ]

@@ -5,7 +5,8 @@
 #include <stdexcept>
 #include <string>
 
-#include <tao/config/internal/config_parser.hpp>
+#include <tao/config.hpp>
+
 #include <tao/config/internal/to_stream.hpp>
 
 int main( int argc, char** argv )

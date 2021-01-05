@@ -13,6 +13,7 @@
 #include "extension_maps.hpp"
 #include "key1.hpp"
 #include "pegtl.hpp"
+#include "phase1_append.hpp"
 #include "state.hpp"
 #include "system_utility.hpp"
 
@@ -50,14 +51,16 @@ namespace tao::config::internal
       pegtl::parse_nested< rules::config_file, config_action >( p, static_cast< pegtl_input_t& >( in ), st, em );
    }
 
-   inline void schema_function( state& st, const std::optional< std::string >& sc )
+   inline void schema_function( state& st, const std::optional< std::string >& s )
    {
-      // if( sc ) {
-      //    st.schemas[ st.prefix ] = *sc;
-      // }
-      // else {
-      //    st.schemas.erase( st.prefix );
-      // }
+      assert( st.suffix.empty() );
+
+      if( st.prefix.empty() ) {
+         st.schema = s ? ( *s ) : std::string();
+      }
+      else {
+         phase1_append( st.root, st.prefix, s );
+      }
    }
 
    inline void setenv_function( const pegtl::position& p, const std::string& name, const std::string& value )

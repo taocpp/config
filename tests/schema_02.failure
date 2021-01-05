@@ -1,0 +1,9 @@
+foo.bar
+{
+    (schema "tests/schema.schema")
+
+    a = "BAZ"
+    b = 42
+    c = null
+    d = "not an ip network"
+}

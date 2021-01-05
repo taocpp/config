@@ -5,7 +5,8 @@
 #include <stdexcept>
 #include <string>
 
-#include <tao/config/internal/config_parser.hpp>
+#include <tao/config.hpp>
+
 #include <tao/config/internal/to_stream.hpp>
 
 int main( int argc, char** argv )
@@ -19,7 +20,7 @@ int main( int argc, char** argv )
          cfg.parse( file );
       }
       std::cout << "PHASE 2" << std::endl;
-      cfg.phase2();
+      while( ( tao::config::internal::phase2_combine( cfg.st.root ) > 0 ) || ( tao::config::internal::phase2_resolve( cfg.st.root ) > 0 ) ) {}
       tao::config::internal::to_stream( std::cout, cfg.st.root, 3 );
       std::cout << std::endl;
    }

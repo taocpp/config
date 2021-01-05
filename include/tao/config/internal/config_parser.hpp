@@ -5,7 +5,8 @@
 #define TAO_CONFIG_INTERNAL_CONFIG_PARSER_HPP
 
 #include <filesystem>
-#include <ostream>
+#include <string>
+#include <utility>
 
 #include "config_action.hpp"
 #include "config_grammar.hpp"
@@ -18,12 +19,12 @@
 #include "phase2_combine.hpp"
 #include "phase2_resolve.hpp"
 #include "phase3_remove.hpp"
-#include "phase4_repack.hpp"
+#include "phase4_schema.hpp"
+#include "phase5_repack.hpp"
 #include "state.hpp"
-#include "to_stream.hpp"
 #include "value_functions.hpp"
 
-// #include "../schema/builtin.hpp"
+#include "../schema/builtin.hpp"
 
 namespace tao::config::internal
 {
@@ -76,28 +77,13 @@ namespace tao::config::internal
          parse( pegtl::memory_input( data, source ) );
       }
 
-      unsigned phase2()
-      {
-         unsigned r = 0;
-
-         while( ( phase2_combine( st.root ) > 0 ) || ( phase2_resolve( st.root ) > 0 ) ) {
-            ++r;
-         }
-         return r;
-      }
-
-      void phase3()
-      {
-         phase3_remove( st.root );
-      }
-
       template< template< typename... > class Traits >
-      [[nodiscard]] json::basic_value< Traits > finish()
+      [[nodiscard]] json::basic_value< Traits > finish( const schema::builtin& b = schema::builtin() )
       {
-         phase2();
-         phase3();
-         // TODO: Check config schema(s).
-         return phase4_repack< Traits >( st.root );
+         while( ( phase2_combine( st.root ) > 0 ) || ( phase2_resolve( st.root ) > 0 ) ) {}
+         phase3_remove( st.root );
+         phase4_schema( st.root, st.schema, b );
+         return phase5_repack< Traits >( st.root );
       }
    };
 

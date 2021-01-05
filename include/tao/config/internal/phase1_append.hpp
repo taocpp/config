@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <iterator>
+#include <optional>
 #include <string>
 #include <type_traits>
 
@@ -17,16 +18,11 @@
 #include "json_traits.hpp"
 #include "key1.hpp"
 #include "object.hpp"
+#include "phase1_stuff.hpp"
 #include "reference2.hpp"
 
 namespace tao::config::internal
 {
-   inline bool phase1_append( concat& c, const temporary_t t )
-   {
-      c.temporary = t.temporary;
-      return true;
-   }
-
    inline bool phase1_append( concat& c, const json_t& value )
    {
       c.concat.emplace_back( value );
@@ -39,17 +35,33 @@ namespace tao::config::internal
       return true;
    }
 
-   inline bool phase1_append( concat& c, const entry_kind k )
+   inline bool phase1_append( concat& c, const phase1_stuff s )
    {
-      c.back_ensure_kind( k, pegtl::position( 1, 1, 1, "TODO" ) );
-      return true;
+      switch( s ) {
+         case phase1_stuff::remove_all:
+            c.concat.clear();
+            c.remove = true;
+            c.temporary = false;
+            return true;
+         case phase1_stuff::ensure_array:
+            c.back_ensure_kind( entry_kind::array, pegtl::position( 1, 1, 1, "TODO" ) );
+            return true;
+         case phase1_stuff::ensure_object:
+            c.back_ensure_kind( entry_kind::object, pegtl::position( 1, 1, 1, "TODO" ) );
+            return true;
+         case phase1_stuff::make_permanent:
+            c.temporary = false;
+            return true;
+         case phase1_stuff::make_temporary:
+            c.temporary = true;
+            return true;
+      }
+      assert( false );  // UNREACHABLE
    }
 
-   inline bool phase1_append( concat& c, const entry_remove_t )
+   inline bool phase1_append( concat& c, const std::optional< std::string >& s )
    {
-      c.concat.clear();
-      c.remove = true;
-      c.temporary = false;
+      c.schema = s ? ( *s ) : std::string();
       return true;
    }
 
@@ -86,7 +98,7 @@ namespace tao::config::internal
    {
       c.back_ensure_kind( entry_kind::object, p );
       const auto pair = c.concat.back().get_object().object.try_emplace( name, p );
-      pair.first->second.implicit = ( std::is_same_v< entry_remove_t, V > || std::is_same_v< temporary_t, V > ) && ( pair.second || pair.first->second.implicit );
+      pair.first->second.implicit = is_implicit_any( value ) && ( pair.second || pair.first->second.implicit );
       return phase1_append( pair.first->second, path, value );
    }
 
@@ -156,7 +168,7 @@ namespace tao::config::internal
 
       const std::string& name = path.front().get_name();  // TODO: Error message if other type.
       const auto pair = o.object.try_emplace( name, path.front().position );
-      pair.first->second.implicit = ( std::is_same_v< entry_remove_t, V > || std::is_same_v< temporary_t, V > ) && ( pair.second || pair.first->second.implicit );
+      pair.first->second.implicit = is_implicit_any( value ) && ( pair.second || pair.first->second.implicit );
       phase1_append( pair.first->second, pop_front( path ), value );
    }
 

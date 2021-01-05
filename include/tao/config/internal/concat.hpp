@@ -98,6 +98,7 @@ namespace tao::config::internal
 
       std::uint64_t generation = 0;
 
+      std::string schema;
       std::list< E > concat;
       pegtl::position position;
    };

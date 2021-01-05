@@ -8,27 +8,25 @@
 #include <utility>
 #include <vector>
 
-#include "value.hpp"
-
-// #include "schema/builtin.hpp"
-
 #include "internal/config_parser.hpp"
+#include "schema/builtin.hpp"
+#include "value.hpp"
 
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   [[nodiscard]] json::basic_value< Traits > basic_from_files( const std::vector< std::filesystem::path >& paths )  // , schema::builtin b = schema::builtin() )
+   [[nodiscard]] json::basic_value< Traits > basic_from_files( const std::vector< std::filesystem::path >& paths, const schema::builtin& b = schema::builtin() )
    {
       internal::config_parser c;
       for( const auto& path : paths ) {
          c.parse( path );
       }
-      return c.finish< Traits >( /*std::move( b )*/ );
+      return c.finish< Traits >( b );
    }
 
-   [[nodiscard]] inline value from_files( const std::vector< std::filesystem::path >& paths )  // , schema::builtin b = schema::builtin() )
+   [[nodiscard]] inline value from_files( const std::vector< std::filesystem::path >& paths, const schema::builtin& b = schema::builtin() )
    {
-      return basic_from_files< traits >( paths );  // , std::move( b ) );
+      return basic_from_files< traits >( paths, b );
    }
 
 }  // namespace tao::config

@@ -36,10 +36,9 @@ namespace tao::config::internal
       key1 suffix;
 
       object root;
+      std::string schema;
 
       std::uint64_t generation = 1;
-
-      //      std::map< key1, std::string > schemas;  // Check against final result.
    };
 
 }  // namespace tao::config::internal

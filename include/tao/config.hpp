@@ -4,11 +4,14 @@
 #ifndef TAO_CONFIG_HPP
 #define TAO_CONFIG_HPP
 
+#include "config/key.hpp"
 #include "config/value.hpp"
 
 #include "config/from_file.hpp"
 #include "config/from_files.hpp"
 #include "config/from_input.hpp"
 #include "config/to_stream.hpp"
+
+#include "config/schema.hpp"
 
 #endif

@@ -5,8 +5,7 @@
 #include <iostream>
 #include <vector>
 
-#include <tao/config/from_files.hpp>
-#include <tao/config/value.hpp>
+#include <tao/config.hpp>
 
 #include <tao/config/internal/try_catch.hpp>
 

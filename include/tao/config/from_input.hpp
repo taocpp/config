@@ -6,26 +6,24 @@
 
 #include <utility>
 
-#include "value.hpp"
-
-// #include "schema/builtin.hpp"
-
 #include "internal/config_parser.hpp"
 #include "internal/pegtl.hpp"
+#include "schema/builtin.hpp"
+#include "value.hpp"
 
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   [[nodiscard]] json::basic_value< Traits > basic_from_input( pegtl_input_t&& in )  // , schema::builtin b = schema::builtin() )
+   [[nodiscard]] json::basic_value< Traits > basic_from_input( pegtl_input_t&& in, const schema::builtin& b = schema::builtin() )
    {
       internal::config_parser c;
       c.parse( std::move( in ) );
-      return c.finish< Traits >( /*std::move( b )*/ );
+      return c.finish< Traits >( b );
    }
 
-   [[nodiscard]] inline value from_input( pegtl_input_t&& in )  // , schema::builtin b = schema::builtin() )
+   [[nodiscard]] inline value from_input( pegtl_input_t&& in, const schema::builtin& b = schema::builtin() )
    {
-      return basic_from_input< traits >( std::move( in ) );  // , std::move( b ) );
+      return basic_from_input< traits >( std::move( in ), b );
    }
 
 }  // namespace tao::config
