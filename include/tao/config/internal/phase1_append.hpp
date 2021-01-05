@@ -71,20 +71,20 @@ namespace tao::config::internal
    template< typename V >
    bool phase1_append_star( concat& c, const key1& path, const V& value )
    {
-      for( auto& e : reverse( c.concat ) ) {
+      for( entry& e : c.concat ) {
          switch( e.kind() ) {
             case entry_kind::value:
-               continue;  // TODO: Error or ignore? -- Possibly ignore!
+               continue;
             case entry_kind::reference:
-               continue;  // TODO: Error or ignore? -- Possibly ignore!
+               continue;
             case entry_kind::array:
-               for( auto& c : e.get_array().array ) {
-                  phase1_append( c, path, value );
+               for( concat& d : e.get_array().array ) {
+                  phase1_append( d, path, value );
                }
                continue;
             case entry_kind::object:
-               for( auto& c : e.get_object().object ) {
-                  phase1_append( c.second, path, value );
+               for( auto& p : e.get_object().object ) {
+                  phase1_append( p.second, path, value );
                }
                continue;
          }

@@ -14,7 +14,6 @@
 #include "entry.hpp"
 #include "key1.hpp"
 #include "object.hpp"
-#include "reverse.hpp"
 
 namespace tao::config::internal
 {

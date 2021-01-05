@@ -13,7 +13,6 @@
 #include "json.hpp"
 #include "key1.hpp"
 #include "pegtl.hpp"
-#include "reverse.hpp"
 
 namespace tao::config::internal
 {
@@ -65,7 +64,7 @@ namespace tao::config::internal
       {
          const json_t* result = nullptr;
 
-         for( const auto& e : reverse( concat ) ) {
+         for( const auto& e : concat ) {
             switch( e.kind() ) {
                case entry_kind::value:
                   if( result != nullptr ) {
