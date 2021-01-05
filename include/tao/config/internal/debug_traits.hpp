@@ -43,9 +43,6 @@ namespace tao::config::internal
       static void produce( Consumer& c, const key_kind k )
       {
          switch( k ) {
-            case key_kind::minus:
-               c.string( "minus" );
-               return;
             case key_kind::name:
                c.string( "name" );
                return;
@@ -126,16 +123,6 @@ namespace tao::config::internal
    };
 
    template<>
-   struct debug_traits< part_minus_t >
-   {
-      template< template< typename... > class Traits, typename Consumer >
-      static void produce( Consumer& c, const part_minus_t /*unused*/ )
-      {
-         c.string( "minus" );
-      }
-   };
-
-   template<>
    struct debug_traits< key1_kind >
    {
       TAO_JSON_DEFAULT_KEY( "key1_kind" );
@@ -144,17 +131,14 @@ namespace tao::config::internal
       static void produce( Consumer& c, const key1_kind k )
       {
          switch( k ) {
-            case key1_kind::star:
-               c.string( "star" );
-               return;
-            case key1_kind::minus:
-               c.string( "minus" );
-               return;
             case key1_kind::name:
                c.string( "name" );
                return;
             case key1_kind::index:
                c.string( "index" );
+               return;
+            case key1_kind::star:
+               c.string( "star" );
                return;
             case key1_kind::append:
                c.string( "append" );
@@ -202,9 +186,6 @@ namespace tao::config::internal
       static void produce( Consumer& c, const reference2_kind k )
       {
          switch( k ) {
-            case reference2_kind::minus:
-               c.string( "minus" );
-               return;
             case reference2_kind::name:
                c.string( "name" );
                return;

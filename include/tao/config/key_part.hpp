@@ -21,10 +21,6 @@ namespace tao::config
 {
    struct key_part
    {
-      explicit key_part( const internal::part_minus_t t )
-         : data( t )
-      {}
-
       explicit key_part( const std::size_t i )
          : data( i )
       {}
@@ -56,7 +52,7 @@ namespace tao::config
          return *s;
       }
 
-      std::variant< internal::part_minus_t, std::string, std::size_t > data;
+      std::variant< std::string, std::size_t > data;
    };
 
    [[nodiscard]] inline bool operator<( const key_part& l, const key_part& r ) noexcept
@@ -93,8 +89,6 @@ namespace tao::config
             return name_to_string( t.get_name() );
          case key_kind::index:
             return std::to_string( t.get_index() );
-         case key_kind::minus:
-            return "-";
       }
       assert( false );
    }
@@ -112,9 +106,6 @@ namespace tao::config
    inline void to_stream( std::ostream& o, const key_part& t )
    {
       switch( t.kind() ) {
-         case key_kind::minus:
-            o << '-';
-            return;
          case key_kind::name:
             name_to_stream( o, t.get_name() );
             return;

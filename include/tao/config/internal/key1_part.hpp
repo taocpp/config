@@ -21,11 +21,6 @@ namespace tao::config::internal
            data( t )
       {}
 
-      key1_part( const part_minus_t t, const pegtl::position& p )
-         : position( p ),
-           data( t )
-      {}
-
       // key1_part( const char, const pegtl::position& ) = delete;
       // key1_part( const signed char, const pegtl::position& ) = delete;
       // key1_part( const unsigned char, const pegtl::position& ) = delete;
@@ -86,7 +81,7 @@ namespace tao::config::internal
       }
 
       pegtl::position position;
-      std::variant< part_star_t, part_minus_t, std::string, std::size_t, std::shared_ptr< std::uint64_t > > data;
+      std::variant< std::string, std::size_t, part_star_t, std::shared_ptr< std::uint64_t > > data;
    };
 
 }  // namespace tao::config::internal

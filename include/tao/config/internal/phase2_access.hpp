@@ -20,11 +20,6 @@ namespace tao::config::internal
 {
    [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1& suffix, const int down );
 
-   [[nodiscard]] inline const concat* phase2_access_minus( const concat& c, const key1& suffix )
-   {
-      throw std::string( "TODO: " ) + __FUNCTION__;
-   }
-
    [[nodiscard]] inline const concat* phase2_access_name( const concat& c, const std::string& name, const key1& suffix, const int down )
    {
       if( c.concat.empty() ) {
@@ -92,8 +87,6 @@ namespace tao::config::internal
       switch( p.kind() ) {
          case key1_kind::star:
             throw pegtl::parse_error( "unable to access star", p.position );
-         case key1_kind::minus:
-            return phase2_access_minus( c, suffix );
          case key1_kind::name:
             return phase2_access_name( c, p.get_name(), suffix, down );
          case key1_kind::index:

@@ -49,16 +49,6 @@ namespace tao::config::internal
    };
 
    template<>
-   struct key1_action< rules::minus >
-   {
-      template< typename Input >
-      static void apply( const Input& in, std::vector< key1_part >& st )
-      {
-         st.emplace_back( part_minus, in.position() );
-      }
-   };
-
-   template<>
    struct key1_action< rules::quoted_choice >
       : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {

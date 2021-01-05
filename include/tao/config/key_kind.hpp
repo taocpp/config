@@ -8,9 +8,8 @@ namespace tao::config
 {
    enum class key_kind : char
    {
-      minus = 0,  // TODO: Remove?
-      name = 1,
-      index = 2
+      name = 0,
+      index = 1
    };
 
 }  // namespace tao::config

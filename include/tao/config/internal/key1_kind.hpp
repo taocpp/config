@@ -8,11 +8,10 @@ namespace tao::config::internal
 {
    enum class key1_kind : char
    {
-      star = 0,
-      minus = 1,  // TODO: Remove?
-      name = 2,
-      index = 3,
-      append = 4
+      name = 0,
+      index = 1,
+      star = 2,
+      append = 3
    };
 
 }  // namespace tao::config::internal

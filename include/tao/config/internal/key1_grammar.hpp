@@ -12,7 +12,7 @@ namespace tao::config::internal::rules
    // clang-format off
    struct star : pegtl::one< '*' > {};
 
-   struct key1_part : pegtl::sor< ident, quoted, index, minus, star > {};
+   struct key1_part : pegtl::sor< ident, quoted, index, star > {};
    struct key1_rule : pegtl::list_must< key1_part, dot > {};
    // clang-format on
 

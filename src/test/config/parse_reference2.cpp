@@ -9,8 +9,8 @@ namespace tao::config
 {
    void unit_test()
    {
-      internal::reference2 k( "(foo.(bar.1).42.-)" );
-      TAO_CONFIG_TEST_ASSERT( k.size() == 4 );
+      internal::reference2 k( "(foo.(bar.1).42)" );
+      TAO_CONFIG_TEST_ASSERT( k.size() == 3 );
       TAO_CONFIG_TEST_ASSERT( k[ 0 ].kind() == internal::reference2_kind::name );
       TAO_CONFIG_TEST_ASSERT( k[ 0 ].get_name() == "foo" );
       TAO_CONFIG_TEST_ASSERT( k[ 1 ].kind() == internal::reference2_kind::vector );
@@ -22,7 +22,8 @@ namespace tao::config
       TAO_CONFIG_TEST_ASSERT( v[ 1 ].get_index() == 1 );
       TAO_CONFIG_TEST_ASSERT( k[ 2 ].kind() == internal::reference2_kind::index );
       TAO_CONFIG_TEST_ASSERT( k[ 2 ].get_index() == 42 );
-      TAO_CONFIG_TEST_ASSERT( k[ 3 ].kind() == internal::reference2_kind::minus );
+
+      TAO_CONFIG_TEST_THROWS( internal::reference2( "foo.-" ) );
    }
 
 }  // namespace tao::config

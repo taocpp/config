@@ -18,11 +18,6 @@ namespace tao::config::internal
 {
    struct reference2_part
    {
-      reference2_part( const part_minus_t t, const pegtl::position& p )
-         : position( p ),
-           data( t )
-      {}
-
       reference2_part( const part_vector_t /*unused*/, const pegtl::position& p )
          : position( p ),
            data( std::vector< reference2_part >() )
@@ -40,7 +35,7 @@ namespace tao::config::internal
 
       [[nodiscard]] reference2_kind kind() const noexcept
       {
-         return reference2_kind( data.index() + 1 );
+         return reference2_kind( data.index() );
       }
 
       [[nodiscard]] std::size_t get_index() const noexcept
@@ -72,7 +67,7 @@ namespace tao::config::internal
       }
 
       pegtl::position position;
-      std::variant< part_minus_t, std::string, std::size_t, std::vector< reference2_part > > data;
+      std::variant< std::string, std::size_t, std::vector< reference2_part > > data;
    };
 
 }  // namespace tao::config::internal

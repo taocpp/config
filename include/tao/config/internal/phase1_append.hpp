@@ -24,7 +24,6 @@ namespace tao::config::internal
    inline bool phase1_append( concat& c, const temporary_t t )
    {
       c.temporary = t.temporary;
-      // TODO: c.implicit = false ???
       return true;
    }
 
@@ -80,13 +79,6 @@ namespace tao::config::internal
          assert( false );  // UNREACHABLE
       }
       return true;
-   }
-
-   template< typename V >
-   bool phase1_append_minus( concat& c, const pegtl::position& p, const key1& path, const V& value )
-   {
-      c.back_ensure_kind( entry_kind::array, p );
-      throw std::string( "TODO: " ) + __FUNCTION__;
    }
 
    template< typename V >
@@ -147,8 +139,6 @@ namespace tao::config::internal
       switch( part.kind() ) {
          case key1_kind::star:
             return phase1_append_star( c, pop_front( path ), value );
-         case key1_kind::minus:
-            return phase1_append_minus( c, part.position, pop_front( path ), value );
          case key1_kind::name:
             return phase1_append_name( c, part.position, part.get_name(), pop_front( path ), value );
          case key1_kind::index:

@@ -8,10 +8,9 @@ namespace tao::config::internal
 {
    enum class reference2_kind : char
    {
-      minus = 1,  // TODO: Remove?
-      name = 2,
-      index = 3,
-      vector = 4
+      name = 0,
+      index = 1,
+      vector = 2
    };
 
 }  // namespace tao::config::internal

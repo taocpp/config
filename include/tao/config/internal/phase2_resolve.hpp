@@ -66,8 +66,6 @@ namespace tao::config::internal
       [[nodiscard]] std::optional< key1_part > process_reference_part( const key1& prefix, const reference2_part& part )
       {
          switch( part.kind() ) {
-            case reference2_kind::minus:
-               return key1_part( part_minus, part.position );
             case reference2_kind::name:
                return key1_part( part.get_name(), part.position );
             case reference2_kind::index:

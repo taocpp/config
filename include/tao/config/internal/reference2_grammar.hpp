@@ -12,7 +12,7 @@ namespace tao::config::internal::rules
    struct reference2_must;
 
    // clang-format off
-   struct reference2_part : pegtl::sor< ident, quoted, index, minus, reference2_must > {};
+   struct reference2_part : pegtl::sor< ident, quoted, index, reference2_must > {};
    struct reference2_list : pegtl::list_must< reference2_part, dot > {};
    struct reference2_rest : pegtl::seq< reference2_list, pegtl::one< ')' > > {};  // For config_grammar.hpp -- used without actions.
    struct reference2_must : pegtl::if_must< pegtl::one< '(' >, reference2_list, pegtl::one< ')' > > {};

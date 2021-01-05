@@ -13,7 +13,6 @@ namespace tao::config::internal::rules
 
    // clang-format off
    struct dot : pegtl::one< '.' > {};
-   struct minus : pegtl::one< '-' > {};
 
    struct index : pegtl::plus< pegtl::digit > {};
 
@@ -26,7 +25,7 @@ namespace tao::config::internal::rules
    struct quoted_choice : jaxn::string_fragment {};
    struct quoted : pegtl::if_must< at_quote, quoted_choice > {};
 
-   struct key_other : pegtl::sor< ident, quoted, index, minus > {};
+   struct key_other : pegtl::sor< ident, quoted, index > {};
    struct key_first : pegtl::sor< ident, quoted > {};
 
    struct key_rule : pegtl::seq< key_first, pegtl::star_must< dot, key_other > > {};

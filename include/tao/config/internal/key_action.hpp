@@ -40,15 +40,6 @@ namespace tao::config::internal
    };
 
    template<>
-   struct key_action< rules::minus >
-   {
-      static void apply0( std::vector< key_part >& st )
-      {
-         st.emplace_back( part_minus );
-      }
-   };
-
-   template<>
    struct key_action< rules::quoted_choice >
       : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
