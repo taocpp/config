@@ -1,0 +1,7 @@
+a.b.c = delete
+a.b.c = delete
+
+d.e.f = 42
+
+d.e.g.h.i = delete
+d.e.g.h.i = delete

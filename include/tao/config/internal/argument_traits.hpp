@@ -55,20 +55,18 @@ namespace tao::config::internal
 
       [[nodiscard]] std::string convert_impl( json_t&& j )
       {
-         switch( j.type() ) {
-            case json::type::STRING:
-               return std::move( j.get_string() );
-            case json::type::BINARY: {
-               const auto bv = j.as< tao::binary_view >();
-               std::string s( reinterpret_cast< const char* >( bv.data() ), bv.size() );
-               if( !json::internal::validate_utf8_nothrow( s ) ) {
-                  throw pegtl::parse_error( "invalid utf-8 in extension result", m_p );  // TODO: Name of extension?
-               }
-               return s;
-            }
-            default:
-               throw pegtl::parse_error( "invalid type for string", m_p );
+         if( j.type() == json::type::STRING ) {
+            return std::move( j.get_string() );
          }
+         if( j.type() == json::type::BINARY ) {
+            const auto bv = j.as< tao::binary_view >();
+            std::string s( reinterpret_cast< const char* >( bv.data() ), bv.size() );
+            if( !json::internal::validate_utf8_nothrow( s ) ) {
+               throw pegtl::parse_error( "invalid utf-8 in extension result", m_p );
+            }
+            return s;
+         }
+         throw pegtl::parse_error( "invalid type for string", m_p );
       }
    };
 
