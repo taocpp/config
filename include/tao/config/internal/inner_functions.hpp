@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_INNER_FUNCTIONS_HPP
 #define TAO_CONFIG_INTERNAL_INNER_FUNCTIONS_HPP
 
+#include "jaxn_action.hpp"
 #include "json.hpp"
 #include "json_traits.hpp"
 #include "pegtl.hpp"
@@ -44,9 +45,12 @@ namespace tao::config::internal
       return j;
    }
 
-   [[nodiscard]] inline json_t jaxn_function( const std::string& s )
+   [[nodiscard]] inline json_t jaxn_function( const pegtl::position& p, const std::string& s )
    {
-      return json::jaxn::basic_from_string< json_traits >( s );  // TODO: Positions.
+      json_to_value consumer( p );
+      pegtl::memory_input in( s, "TODO" );
+      pegtl::parse< json::jaxn::internal::grammar, jaxn_action, json::jaxn::internal::errors >( static_cast< pegtl_input_t& >( in ), consumer );
+      return std::move( consumer.value );
    }
 
    [[nodiscard]] inline json_t json_function( const std::string& s )

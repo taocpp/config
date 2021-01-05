@@ -10,7 +10,7 @@
 #include "extension_action.hpp"
 #include "extension_grammar.hpp"
 #include "json.hpp"
-#include "json_action.hpp"
+#include "jaxn_action.hpp"
 #include "json_to_value.hpp"
 #include "json_traits.hpp"
 #include "key1.hpp"
@@ -55,7 +55,7 @@ namespace tao::config::internal
    [[nodiscard]] inline json_t parse_jaxn( pegtl_input_t& in )
    {
       json_to_value consumer( in.position() );
-      pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_single_value >, json_action, json::jaxn::internal::errors >( in, consumer );
+      pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_single_value >, jaxn_action, json::jaxn::internal::errors >( in, consumer );
       return std::move( consumer.value );
    }
 

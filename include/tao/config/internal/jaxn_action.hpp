@@ -1,8 +1,8 @@
 // Copyright (c) 2017-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_JSON_ACTION_HPP
-#define TAO_CONFIG_INTERNAL_JSON_ACTION_HPP
+#ifndef TAO_CONFIG_INTERNAL_JAXN_ACTION_HPP
+#define TAO_CONFIG_INTERNAL_JAXN_ACTION_HPP
 
 #include <string>
 #include <string_view>
@@ -15,12 +15,12 @@
 namespace tao::config::internal
 {
    template< typename Rule >
-   struct json_action
+   struct jaxn_action
       : pegtl::nothing< Rule >
    {};
 
    template<>
-   struct json_action< json::jaxn::internal::rules::kw_null >
+   struct jaxn_action< json::jaxn::internal::rules::kw_null >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -30,7 +30,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::kw_true >
+   struct jaxn_action< json::jaxn::internal::rules::kw_true >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -40,7 +40,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::kw_false >
+   struct jaxn_action< json::jaxn::internal::rules::kw_false >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -50,7 +50,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::identifier >
+   struct jaxn_action< json::jaxn::internal::rules::identifier >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -60,7 +60,7 @@ namespace tao::config::internal
    };
 
    template< bool NEG >
-   struct json_action< json::jaxn::internal::rules::hexnum< NEG > >
+   struct jaxn_action< json::jaxn::internal::rules::hexnum< NEG > >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -91,7 +91,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::array::begin >
+   struct jaxn_action< json::jaxn::internal::rules::array::begin >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -101,7 +101,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::array::element >
+   struct jaxn_action< json::jaxn::internal::rules::array::element >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -111,7 +111,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::array::end >
+   struct jaxn_action< json::jaxn::internal::rules::array::end >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -121,7 +121,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::object::begin >
+   struct jaxn_action< json::jaxn::internal::rules::object::begin >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -131,7 +131,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::object::element >
+   struct jaxn_action< json::jaxn::internal::rules::object::element >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -141,7 +141,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::object::end >
+   struct jaxn_action< json::jaxn::internal::rules::object::end >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -151,7 +151,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::zero< false > >
+   struct jaxn_action< json::jaxn::internal::rules::zero< false > >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -161,7 +161,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::zero< true > >
+   struct jaxn_action< json::jaxn::internal::rules::zero< true > >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -171,7 +171,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::kw_nan >
+   struct jaxn_action< json::jaxn::internal::rules::kw_nan >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -181,7 +181,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::kw_infinity< false > >
+   struct jaxn_action< json::jaxn::internal::rules::kw_infinity< false > >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -191,7 +191,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::kw_infinity< true > >
+   struct jaxn_action< json::jaxn::internal::rules::kw_infinity< true > >
    {
       template< typename Input, typename Consumer >
       static void apply( const Input& in, Consumer& consumer )
@@ -201,7 +201,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::esign >
+   struct jaxn_action< json::jaxn::internal::rules::esign >
    {
       template< typename Input, bool NEG >
       static void apply( const Input& in, json::internal::number_state< NEG >& result )
@@ -211,7 +211,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::idigits >
+   struct jaxn_action< json::jaxn::internal::rules::idigits >
    {
       template< typename Input, bool NEG >
       static void apply( const Input& in, json::internal::number_state< NEG >& result )
@@ -241,7 +241,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::fdigits >
+   struct jaxn_action< json::jaxn::internal::rules::fdigits >
    {
       template< typename Input, bool NEG >
       static void apply( const Input& in, json::internal::number_state< NEG >& result )
@@ -275,7 +275,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::edigits >
+   struct jaxn_action< json::jaxn::internal::rules::edigits >
    {
       template< typename Input, bool NEG >
       static void apply( const Input& in, json::internal::number_state< NEG >& result )
@@ -301,7 +301,7 @@ namespace tao::config::internal
    };
 
    template< bool NEG >
-   struct json_action< json::jaxn::internal::rules::number< NEG > >
+   struct jaxn_action< json::jaxn::internal::rules::number< NEG > >
       : pegtl::change_states< json::internal::number_state< NEG > >
    {
       template< typename Input, typename Consumer >
@@ -312,7 +312,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::single_string >
+   struct jaxn_action< json::jaxn::internal::rules::single_string >
       : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
       template< typename Input, typename Consumer >
@@ -323,7 +323,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::string >
+   struct jaxn_action< json::jaxn::internal::rules::string >
       : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
       template< typename Input, typename Consumer >
@@ -334,7 +334,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::key >
+   struct jaxn_action< json::jaxn::internal::rules::key >
       : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
       template< typename Input, typename Consumer >
@@ -345,7 +345,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::single_binary >
+   struct jaxn_action< json::jaxn::internal::rules::single_binary >
       : pegtl::change_action_and_states< json::jaxn::internal::bunescape_action, std::vector< std::byte > >
    {
       template< typename Input, typename Consumer >
@@ -356,7 +356,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct json_action< json::jaxn::internal::rules::binary >
+   struct jaxn_action< json::jaxn::internal::rules::binary >
       : pegtl::change_action_and_states< json::jaxn::internal::bunescape_action, std::vector< std::byte > >
    {
       template< typename Input, typename Consumer >
