@@ -36,7 +36,7 @@ namespace tao::config::internal
          assert( false );  // UNREACHABLE
       }
       if( c.concat.size() > 1 ) {
-         throw pegtl::parse_error( "concat size greater than one", c.position );
+         throw pegtl::parse_error( "concat size greater than one", c.position );  // TODO: Add the positions of all concat entries?
       }
    }
 

@@ -17,6 +17,9 @@
 
 namespace tao::config::internal
 {
+   struct phase2_access_return
+   {};
+
    [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1& suffix, const int down );
 
    [[nodiscard]] inline const concat* phase2_access_name( const concat& c, const std::string& name, const key1& suffix, const int down )
@@ -25,17 +28,17 @@ namespace tao::config::internal
          if( down >= 0 ) {
             return nullptr;
          }
-         throw better_luck_next_time;  // TODO: Or error or return?
+         throw phase2_access_return();  // TODO: Or error or return?
       }
       if( c.concat.size() > 1 ) {
-         throw better_luck_next_time;
+         throw phase2_access_return();
       }
       const auto& e = c.concat.front();
       switch( e.kind() ) {
          case entry_kind::value:
             throw std::string( "access name in value" );
          case entry_kind::reference:
-            throw better_luck_next_time;
+            throw phase2_access_return();
          case entry_kind::array:
             throw std::string( "access name in array" );
          case entry_kind::object:
@@ -56,10 +59,10 @@ namespace tao::config::internal
          if( down >= 0 ) {
             return nullptr;
          }
-         throw better_luck_next_time;  // TODO: Or error or return?
+         throw phase2_access_return();  // TODO: Or error or return?
       }
       if( c.concat.size() > 1 ) {
-         throw better_luck_next_time;
+         throw phase2_access_return();
       }
       const auto& e = c.concat.front();
       switch( e.kind() ) {
@@ -102,7 +105,7 @@ namespace tao::config::internal
          if( ( c.concat.size() < 2 ) && ( c.all_references() == 0 ) ) {
             return &c;
          }
-         throw better_luck_next_time;
+         throw phase2_access_return();
       }
       return phase2_access( c, suffix.at( 0 ), pop_front( suffix ), down );
    }
@@ -124,7 +127,7 @@ namespace tao::config::internal
          }
          return nullptr;
       }
-      catch( const better_luck_next_time_t& /*unused*/ ) {
+      catch( const phase2_access_return& /*unused*/ ) {
          return nullptr;
       }
    }

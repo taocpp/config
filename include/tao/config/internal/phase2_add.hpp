@@ -18,10 +18,7 @@
 namespace tao::config::internal
 {
    struct phase2_add_error
-   {
-      json::type l;
-      json::type r;
-   };
+   {};
 
    // For numbers we currently follow the following rules:
    // 1. Integers and floating-point can't be mixed, and:
@@ -37,7 +34,7 @@ namespace tao::config::internal
          r.assign( l.get_signed() + std::int64_t( r.get_unsigned() ) );
          return;
       }
-      throw phase2_add_error{ l.type(), r.type() };
+      throw phase2_add_error();
    }
 
    inline void phase2_unsigned_add( const json_t& l, json_t& r )
@@ -50,7 +47,7 @@ namespace tao::config::internal
          r.assign( l.get_unsigned() + r.get_unsigned() );
          return;
       }
-      throw phase2_add_error{ l.type(), r.type() };
+      throw phase2_add_error();
    }
 
    inline void phase2_double_add( const json_t& l, json_t& r )
@@ -59,7 +56,7 @@ namespace tao::config::internal
          r.assign( l.get_double() + r.get_double() );
          return;
       }
-      throw phase2_add_error{ l.type(), r.type() };
+      throw phase2_add_error();
    }
 
    inline void phase2_string_add( const json_t& l, json_t& r )
@@ -68,7 +65,7 @@ namespace tao::config::internal
          r.get_string() = l.get_string() + r.get_string();
          return;
       }
-      throw phase2_add_error{ l.type(), r.type() };
+      throw phase2_add_error();
    }
 
    inline void phase2_binary_add( const json_t& l, json_t& r )
@@ -77,7 +74,7 @@ namespace tao::config::internal
          r.get_binary().insert( r.get_binary().begin(), l.get_binary().begin(), l.get_binary().end() );
          return;
       }
-      throw phase2_add_error{ l.type(), r.type() };
+      throw phase2_add_error();
    }
 
    inline void phase2_value_add( json_t&& l, json_t& r )
@@ -85,7 +82,7 @@ namespace tao::config::internal
       switch( l.type() ) {
          case json::type::NULL_:
          case json::type::BOOLEAN:
-            throw phase2_add_error{ l.type(), r.type() };
+            throw phase2_add_error();
          case json::type::SIGNED:
             phase2_signed_add( l, r );
             return;
@@ -120,8 +117,8 @@ namespace tao::config::internal
       try {
          phase2_value_add( std::move( l ), r );
       }
-      catch( const phase2_add_error& e ) {
-         throw pegtl::parse_error( "inconsistent json types", r.position );  // TODO: Add l.position to the parse_error, too.
+      catch( const phase2_add_error& /*unused*/ ) {
+         throw pegtl::parse_error( "inconsistent json types", r.position );  // TODO: Add l.position, l.type() and r.type() to the parse_error, too.
       }
    }
 
