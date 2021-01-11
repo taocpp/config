@@ -41,15 +41,6 @@ namespace tao::config::internal
          return implicit || temporary || concat.empty();
       }
 
-      void make_permanent() noexcept
-      {
-         temporary = false;
-
-         for( auto& e : concat ) {
-            e.make_permanent();
-         }
-      }
-
       [[nodiscard]] std::size_t all_references() const noexcept
       {
          std::size_t result = 0;

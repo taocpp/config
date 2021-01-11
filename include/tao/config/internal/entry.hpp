@@ -97,27 +97,6 @@ namespace tao::config::internal
          m_data.emplace< std::size_t( entry_kind::object ) >( p );
       }
 
-      void make_permanent() noexcept
-      {
-         switch( kind() ) {
-            case entry_kind::value:
-               return;
-            case entry_kind::reference:
-               return;
-            case entry_kind::array:
-               for( auto& c : get_array().array ) {
-                  c.make_permanent();
-               }
-               return;
-            case entry_kind::object:
-               for( auto& p : get_object().object ) {
-                  p.second.make_permanent();
-               }
-               return;
-         }
-         assert( false );  // UNREACHABLE
-      }
-
       json_t& get_value() noexcept
       {
          auto* s = std::get_if< json_t >( &m_data );

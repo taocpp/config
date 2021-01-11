@@ -55,7 +55,6 @@ namespace tao::config::internal
                   assert( d->concat.size() == 1 );
 
                   e = d->concat.front();
-                  e.make_permanent();
                   // TODO: Call phase2_combine( c ) to get things done quicker?
                }
                ++m_changes;
