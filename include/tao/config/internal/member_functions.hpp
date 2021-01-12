@@ -8,9 +8,11 @@
 #include <string>
 #include <system_error>
 
+#include "concat.hpp"
 #include "config_action.hpp"
 #include "config_grammar.hpp"
 #include "extension_maps.hpp"
+#include "forward.hpp"
 #include "key1.hpp"
 #include "pegtl.hpp"
 #include "phase1_append.hpp"
@@ -59,7 +61,8 @@ namespace tao::config::internal
          st.schema = s ? ( *s ) : std::string();
       }
       else {
-         phase1_append( st.root, st.prefix, s, !s.has_value() );
+         const auto f = [ & ]( concat& c ){ c.schema = s ? ( *s ) : std::string(); };
+         phase1_append( st.root, st.prefix, f, !s.has_value() );
       }
    }
 

@@ -6,10 +6,12 @@
 
 #include <cassert>
 
+#include "concat.hpp"
 #include "config_grammar.hpp"
 #include "constants.hpp"
 #include "entry_kind.hpp"
 #include "extension_maps.hpp"
+#include "forward.hpp"
 #include "json.hpp"
 #include "key1_guard.hpp"
 #include "pegtl.hpp"
@@ -29,7 +31,8 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::make_permanent, true );
+         const auto f = []( concat& c ){ c.temporary = false; };
+         phase1_append( st.root, st.prefix + st.suffix, f, true );
       }
    };
 
@@ -39,7 +42,8 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::make_temporary, true );
+         const auto f = []( concat& c ){ c.temporary = true; };
+         phase1_append( st.root, st.prefix + st.suffix, f, true );
       }
    };
 
@@ -49,27 +53,32 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::remove_all, true );
+         const auto f = []( concat& c ){ c.concat.clear(); c.remove = true; c.temporary = false; };
+         phase1_append( st.root, st.prefix + st.suffix, f, true );
       }
    };
 
    template<>
    struct config_action< json::jaxn::internal::rules::begin_array >
    {
-      template< typename State >
-      static void apply0( State& st, const extension_maps& )
+      template< typename Input, typename State >
+      static void apply( Input& in, State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::ensure_array, false );
+         const auto p = in.position();
+         const auto f = [ & ]( concat& c ){ c.back_ensure_kind( entry_kind::array, p ); };
+         phase1_append( st.root, st.prefix + st.suffix, f, false );
       }
    };
 
    template<>
    struct config_action< json::jaxn::internal::rules::begin_object >
    {
-      template< typename State >
-      static void apply0( State& st, const extension_maps& )
+      template< typename Input, typename State >
+      static void apply( Input& in, State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::ensure_object, false );
+         const auto p = in.position();
+         const auto f = [ & ]( concat& c ){ c.back_ensure_kind( entry_kind::object, p ); };
+         phase1_append( st.root, st.prefix + st.suffix, f, false );
       }
    };
 

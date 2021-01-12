@@ -6,9 +6,11 @@
 
 #include <sstream>
 
+#include "concat.hpp"
 #include "config_action.hpp"
 #include "extension_maps.hpp"
 #include "extension_utility.hpp"
+#include "forward.hpp"
 #include "parse_utility.hpp"
 #include "pegtl.hpp"
 #include "phase1_append.hpp"
@@ -32,7 +34,9 @@ namespace tao::config::internal
       {
          const auto i = em.inner.find( name );
          if( i != em.inner.end() ) {
-            phase1_append( st.root, st.prefix + st.suffix, i->second( in, st, em ), false );
+            const auto j = i->second( in, st, em );
+            const auto f = [ & ]( concat& c ){ c.concat.emplace_back( j ); };
+            phase1_append( st.root, st.prefix + st.suffix, f, false );
             return true;
          }
       }

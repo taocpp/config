@@ -33,7 +33,9 @@ namespace tao::config::internal::rules
                 typename State >
       [[nodiscard]] static bool match( pegtl_input_t& in, State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, parse_reference2( in ), false );
+         const auto r = parse_reference2( in );
+         const auto f = [ & ]( concat& c ){ c.concat.emplace_back( r ); };
+         phase1_append( st.root, st.prefix + st.suffix, f, false );
          return true;
       }
    };
@@ -52,7 +54,9 @@ namespace tao::config::internal::rules
                 typename State >
       [[nodiscard]] static bool match( pegtl_input_t& in, State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, parse_jaxn( in ), false );
+         const auto j = parse_jaxn( in );
+         const auto f = [ & ]( concat& c ){ c.concat.emplace_back( j ); };
+         phase1_append( st.root, st.prefix + st.suffix, f, false );
          return true;
       }
    };

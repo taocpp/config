@@ -23,48 +23,6 @@
 
 namespace tao::config::internal
 {
-   inline bool phase1_append( concat& c, const json_t& value )
-   {
-      c.concat.emplace_back( value );
-      return true;
-   }
-
-   inline bool phase1_append( concat& c, const reference2& value )
-   {
-      c.concat.emplace_back( value );
-      return true;
-   }
-
-   inline bool phase1_append( concat& c, const phase1_stuff s )
-   {
-      switch( s ) {
-         case phase1_stuff::remove_all:
-            c.concat.clear();
-            c.remove = true;
-            c.temporary = false;
-            return true;
-         case phase1_stuff::ensure_array:
-            c.back_ensure_kind( entry_kind::array, pegtl::position( 1, 1, 1, "TODO" ) );
-            return true;
-         case phase1_stuff::ensure_object:
-            c.back_ensure_kind( entry_kind::object, pegtl::position( 1, 1, 1, "TODO" ) );
-            return true;
-         case phase1_stuff::make_permanent:
-            c.temporary = false;
-            return true;
-         case phase1_stuff::make_temporary:
-            c.temporary = true;
-            return true;
-      }
-      assert( false );  // UNREACHABLE
-   }
-
-   inline bool phase1_append( concat& c, const std::optional< std::string >& s )
-   {
-      c.schema = s ? ( *s ) : std::string();
-      return true;
-   }
-
    template< typename T >
    bool phase1_append( concat& c, const key1& path, const T& thing, const bool implicit );
 
@@ -144,7 +102,8 @@ namespace tao::config::internal
    bool phase1_append( concat& c, const key1& path, const T& thing, const bool implicit )
    {
       if( path.empty() ) {
-         return phase1_append( c, thing );
+         thing( c );
+         return true;
       }
       const auto& part = path.at( 0 );
 
