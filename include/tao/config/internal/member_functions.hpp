@@ -59,7 +59,7 @@ namespace tao::config::internal
          st.schema = s ? ( *s ) : std::string();
       }
       else {
-         phase1_append( st.root, st.prefix, s );
+         phase1_append( st.root, st.prefix, s, !s.has_value() );
       }
    }
 

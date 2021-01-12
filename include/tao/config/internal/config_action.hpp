@@ -29,7 +29,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::make_permanent );
+         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::make_permanent, true );
       }
    };
 
@@ -39,7 +39,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::make_temporary );
+         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::make_temporary, true );
       }
    };
 
@@ -49,7 +49,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::remove_all );
+         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::remove_all, true );
       }
    };
 
@@ -59,7 +59,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::ensure_array );
+         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::ensure_array, false );
       }
    };
 
@@ -69,7 +69,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::ensure_object );
+         phase1_append( st.root, st.prefix + st.suffix, phase1_stuff::ensure_object, false );
       }
    };
 

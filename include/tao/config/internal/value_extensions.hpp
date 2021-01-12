@@ -32,7 +32,7 @@ namespace tao::config::internal
       {
          const auto i = em.inner.find( name );
          if( i != em.inner.end() ) {
-            phase1_append( st.root, st.prefix + st.suffix, i->second( in, st, em ) );
+            phase1_append( st.root, st.prefix + st.suffix, i->second( in, st, em ), false );
             return true;
          }
       }

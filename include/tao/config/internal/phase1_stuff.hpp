@@ -18,30 +18,6 @@ namespace tao::config::internal
       make_temporary
    };
 
-   [[nodiscard]] inline bool is_implicit( const phase1_stuff s ) noexcept
-   {
-      switch( s ) {
-         case phase1_stuff::remove_all:
-            return true;
-         case phase1_stuff::ensure_array:
-         case phase1_stuff::ensure_object:
-            return false;
-         case phase1_stuff::make_permanent:
-         case phase1_stuff::make_temporary:
-            return true;
-      }
-      assert( false );  // UNREACHABLE
-   }
-
-   template< typename T >
-   [[nodiscard]] inline bool is_implicit_any( const T& t ) noexcept
-   {
-      if constexpr( std::is_same_v< T, phase1_stuff > ) {
-         return is_implicit( t );
-      }
-      return false;
-   }
-
 }  // namespace tao::config::internal
 
 #endif
