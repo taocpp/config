@@ -95,14 +95,14 @@ namespace tao::config::internal
          return std::holds_alternative< concat >( m_data );
       }
 
-      void set_array( const pegtl::position& p )
+      void set_array( pegtl::position p )
       {
-         m_data.emplace< std::size_t( entry_kind::array ) >( p );
+         m_data.emplace< std::size_t( entry_kind::array ) >( std::move( p ) );
       }
 
-      void set_object( const pegtl::position& p )
+      void set_object( pegtl::position p )
       {
-         m_data.emplace< std::size_t( entry_kind::object ) >( p );
+         m_data.emplace< std::size_t( entry_kind::object ) >( std::move( p ) );
       }
 
       void set_concat( const pegtl::position& p )
