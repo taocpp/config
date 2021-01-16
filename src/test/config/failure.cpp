@@ -37,8 +37,8 @@ int main()
 {
    unsigned count = 0;
 
-   for( const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator( "tests" ) ) {
-      if( const std::filesystem::path& path = entry.path(); path.extension() == ".failure" ) {
+   for( const auto& entry : std::filesystem::directory_iterator( "tests" ) ) {
+      if( const auto& path = entry.path(); path.extension() == ".failure" ) {
          tao::unit_test< tao::json::traits >( path );
          tao::unit_test< tao::config::traits >( path );
          ++count;
