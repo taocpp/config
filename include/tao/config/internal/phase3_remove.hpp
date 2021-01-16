@@ -32,6 +32,8 @@ namespace tao::config::internal
             case entry_kind::object:
                phase3_remove( e.get_object() );
                continue;
+            case entry_kind::concat:
+               throw pegtl::parse_error( "unresolved star", e.get_concat().position );  // Can happen when there are also unresolved references.
          }
          assert( false );  // UNREACHABLE
       }

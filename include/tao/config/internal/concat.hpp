@@ -28,12 +28,12 @@ namespace tao::config::internal
          : position( p )
       {}
 
-      basic_concat( basic_concat&& ) = delete;
+      basic_concat( basic_concat&& ) = default;
       basic_concat( const basic_concat& ) = default;
 
       ~basic_concat() = default;
 
-      basic_concat& operator=( basic_concat&& ) = delete;
+      basic_concat& operator=( basic_concat&& ) = default;
       basic_concat& operator=( const basic_concat& ) = default;
 
       [[nodiscard]] bool omit_from_final_result() const noexcept
@@ -69,6 +69,8 @@ namespace tao::config::internal
                   throw std::string( "array in reference" );
                case entry_kind::object:
                   throw std::string( "object in reference" );
+               case entry_kind::concat:
+                  throw std::string( "concat in reference" );
             }
             assert( false );  // UNREACHABLE
          }

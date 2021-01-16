@@ -7,6 +7,7 @@
 #include <cassert>
 #include <iterator>
 #include <optional>
+#include <set>
 #include <string>
 #include <type_traits>
 
@@ -20,35 +21,49 @@
 #include "object.hpp"
 #include "phase1_stuff.hpp"
 #include "reference2.hpp"
+#include "reverse.hpp"
 
 namespace tao::config::internal
 {
    template< typename T >
    bool phase1_append( concat& c, const key1& path, const T& thing, const bool implicit );
 
+   // template< typename T >
+   // bool phase1_append_star( concat& c, const pegtl::position&, const key1& path, const T& thing, const bool implicit )
+   // {
+   //    std::set< std::string > done;
+
+   //    for( entry& e : reverse( c.concat ) ) {
+   //       switch( e.kind() ) {
+   //          case entry_kind::value:
+   //             continue;
+   //          case entry_kind::reference:
+   //             continue;
+   //          case entry_kind::array:
+   //             for( concat& d : e.get_array().array ) {
+   //                phase1_append( d, path, thing, implicit );
+   //             }
+   //             continue;
+   //          case entry_kind::object:
+   //             for( auto& p : e.get_object().object ) {
+   //                if( done.emplace( p.first ).second ) {
+   //                   phase1_append( p.second, path, thing, implicit );
+   //                }
+   //             }
+   //             continue;
+   //          case entry_kind::concat:
+   //             assert( false );  // UNREACHABLE
+   //       }
+   //       assert( false );  // UNREACHABLE
+   //    }
+   //    return true;
+   // }
+
    template< typename T >
-   bool phase1_append_star( concat& c, const key1& path, const T& thing, const bool implicit )
+   bool phase1_append_star( concat& c, const pegtl::position& p, const key1& path, const T& thing, const bool implicit )
    {
-      for( entry& e : c.concat ) {
-         switch( e.kind() ) {
-            case entry_kind::value:
-               continue;
-            case entry_kind::reference:
-               continue;
-            case entry_kind::array:
-               for( concat& d : e.get_array().array ) {
-                  phase1_append( d, path, thing, implicit );
-               }
-               continue;
-            case entry_kind::object:
-               for( auto& p : e.get_object().object ) {
-                  phase1_append( p.second, path, thing, implicit );
-               }
-               continue;
-         }
-         assert( false );  // UNREACHABLE
-      }
-      return true;
+      c.back_ensure_kind( entry_kind::concat, p );
+      return phase1_append( c.concat.back().get_concat(), path, thing, implicit );
    }
 
    template< typename T >
@@ -68,9 +83,9 @@ namespace tao::config::internal
       for( auto& e : c.concat ) {
          switch( e.kind() ) {
             case entry_kind::value:
-               throw std::string( "cannot index (across) value" );
+               throw pegtl::parse_error( "cannot index (across) value", p );
             case entry_kind::reference:
-               throw std::string( "cannot index (across) reference" );
+               throw pegtl::parse_error( "cannot index (across) reference", p );
             case entry_kind::array:
                if( e.get_array().array.size() > n ) {
                   return phase1_append( *std::next( e.get_array().array.begin(), n ), path, thing, implicit );
@@ -78,7 +93,9 @@ namespace tao::config::internal
                n -= e.get_array().array.size();
                continue;
             case entry_kind::object:
-               throw std::string( "cannot index (across) object" );
+               throw pegtl::parse_error( "cannot index (across) object", p );
+            case entry_kind::concat:
+               throw pegtl::parse_error( "cannot index (across) star", p );
          }
       }
       throw std::string( "index out of range" );
@@ -109,7 +126,7 @@ namespace tao::config::internal
 
       switch( part.kind() ) {
          case key1_kind::star:
-            return phase1_append_star( c, pop_front( path ), thing, implicit );
+            return phase1_append_star( c, part.position, pop_front( path ), thing, implicit );
          case key1_kind::name:
             return phase1_append_name( c, part.position, part.get_name(), pop_front( path ), thing, implicit );
          case key1_kind::index:

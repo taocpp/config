@@ -49,6 +49,11 @@ namespace tao::config::internal
                return nullptr;
             }
             throw pegtl::parse_error( "name not found", p );
+         case entry_kind::concat:
+            if( down >= 0 ) {
+               return nullptr;
+            }
+            throw pegtl::parse_error( "name not found", p );
       }
       assert( false );  // UNREACHABLE
    }
@@ -80,6 +85,11 @@ namespace tao::config::internal
             throw pegtl::parse_error( "index out of range", p );
          case entry_kind::object:
             throw pegtl::parse_error( "cannot index (across) object", p );
+         case entry_kind::concat:
+            if( down >= 0 ) {
+               return nullptr;
+            }
+            throw pegtl::parse_error( "cannot index (across) star", p );
       }
       assert( false );  // UNREACHABLE
    }

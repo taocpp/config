@@ -20,7 +20,7 @@ int main( int argc, char** argv )
          cfg.parse( file );
       }
       std::cout << "PHASE 2" << std::endl;
-      while( ( tao::config::internal::phase2_combine( cfg.st.root ) > 0 ) || ( tao::config::internal::phase2_resolve( cfg.st.root ) > 0 ) ) {}
+      cfg.phase2_loop();
       std::cout << "PHASE 3" << std::endl;
       tao::config::internal::phase3_remove( cfg.st.root );
       std::cout << "PHASE 4" << std::endl;

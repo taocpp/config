@@ -130,6 +130,9 @@ namespace tao::config::internal
                   process_concat( prefix + key1_part( p.first, m_root.position ), p.second );
                }
                return nullptr;
+            case entry_kind::concat:
+               //               process_concat( prefix + key1_part( part_star, m_root.position ), e.get_concat() );
+               return nullptr;
          }
          assert( false );  // UNREACHABLE
       }

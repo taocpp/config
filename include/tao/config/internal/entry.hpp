@@ -24,7 +24,7 @@ namespace tao::config::internal
 {
    struct entry
    {
-      using data_t = std::variant< json_t, reference2, array, object >;
+      using data_t = std::variant< json_t, reference2, array, object, concat >;
 
       explicit entry( const json_t& j )
          : m_data( j )
@@ -50,6 +50,9 @@ namespace tao::config::internal
                return;
             case entry_kind::object:
                return;
+            case entry_kind::concat:
+               set_concat( p );
+               return;
          }
          assert( false );  // UNREACHABLE
       }
@@ -67,24 +70,29 @@ namespace tao::config::internal
          return entry_kind( m_data.index() );
       }
 
-      bool is_value() const noexcept
+      [[nodiscard]] bool is_value() const noexcept
       {
          return std::holds_alternative< json_t >( m_data );
       }
 
-      bool is_reference() const noexcept
+      [[nodiscard]] bool is_reference() const noexcept
       {
          return std::holds_alternative< reference2 >( m_data );
       }
 
-      bool is_array() const noexcept
+      [[nodiscard]] bool is_array() const noexcept
       {
          return std::holds_alternative< array >( m_data );
       }
 
-      bool is_object() const noexcept
+      [[nodiscard]] bool is_object() const noexcept
       {
          return std::holds_alternative< object >( m_data );
+      }
+
+      [[nodiscard]] bool is_concat() const noexcept
+      {
+         return std::holds_alternative< concat >( m_data );
       }
 
       void set_array( const pegtl::position& p )
@@ -95,6 +103,11 @@ namespace tao::config::internal
       void set_object( const pegtl::position& p )
       {
          m_data.emplace< std::size_t( entry_kind::object ) >( p );
+      }
+
+      void set_concat( const pegtl::position& p )
+      {
+         m_data.emplace< std::size_t( entry_kind::concat ) >( p );
       }
 
       json_t& get_value() noexcept
@@ -121,6 +134,13 @@ namespace tao::config::internal
       object& get_object() noexcept
       {
          auto* s = std::get_if< object >( &m_data );
+         assert( s );
+         return *s;
+      }
+
+      concat& get_concat() noexcept
+      {
+         auto* s = std::get_if< concat >( &m_data );
          assert( s );
          return *s;
       }
@@ -153,6 +173,13 @@ namespace tao::config::internal
          return *s;
       }
 
+      const concat& get_concat() const noexcept
+      {
+         const auto* s = std::get_if< concat >( &m_data );
+         assert( s );
+         return *s;
+      }
+
       [[nodiscard]] std::size_t all_references() const noexcept
       {
          switch( kind() ) {
@@ -164,11 +191,11 @@ namespace tao::config::internal
                return get_array().all_references();
             case entry_kind::object:
                return get_object().all_references();
+            case entry_kind::concat:
+               return get_concat().all_references();
          }
          assert( false );  // UNREACHABLE
       }
-
-      //      const pegtl::position position;
 
    private:
       data_t m_data;

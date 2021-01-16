@@ -40,19 +40,19 @@ namespace tao::config::internal
 
       void process_concat( concat& c )
       {
+         if( c.concat.empty() ) {
+            return;
+         }
          for( entry& e : c.concat ) {
             process_entry( e );
          }
-         if( c.concat.size() < 2 ) {
+         if( c.concat.size() == 1 ) {
             return;
          }
+         assert( c.concat.size() >= 2 );
+
          for( auto r = ++c.concat.begin(); r != c.concat.end(); ++r ) {
-            auto l = r;
-
-            assert( l != c.concat.begin() );
-            assert( l != c.concat.end() );
-
-            --l;
+            const auto l = std::prev( r );
             switch( r->kind() ) {
                case entry_kind::value:
                   if( l->kind() == entry_kind::value ) {
@@ -80,6 +80,8 @@ namespace tao::config::internal
                      ++m_changes;
                   }
                   continue;
+               case entry_kind::concat:
+                  continue;
             }
             assert( false );  // UNREACHABLE
          }
@@ -101,6 +103,9 @@ namespace tao::config::internal
                for( auto& p : e.get_object().object ) {
                   process_concat( p.second );
                }
+               return;
+            case entry_kind::concat:
+               process_concat( e.get_concat() );
                return;
          }
          assert( false );  // UNREACHABLE

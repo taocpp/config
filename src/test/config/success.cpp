@@ -14,37 +14,47 @@ namespace tao
    template< template< typename... > class Traits >
    void unit_test( const std::filesystem::path& path )
    {
-      const auto cc = config::basic_from_file< Traits >( path );
-      std::filesystem::path jaxn = path;
-      jaxn.replace_extension( ".jaxn" );
-      const auto cj = config::basic_from_file< Traits >( jaxn );
-      const auto jj = json::jaxn::basic_from_file< Traits >( jaxn );
+      try {
+         const auto cc = config::basic_from_file< Traits >( path );
+         std::filesystem::path jaxn = path;
+         jaxn.replace_extension( ".jaxn" );
+         const auto cj = config::basic_from_file< Traits >( jaxn );
+         const auto jj = json::jaxn::basic_from_file< Traits >( jaxn );
 
-      const auto ccs = json::jaxn::to_string( cc );
-      const auto cjs = json::jaxn::to_string( cj );
-      const auto jjs = json::jaxn::to_string( jj );
+         const auto ccs = json::jaxn::to_string( cc );
+         const auto cjs = json::jaxn::to_string( cj );
+         const auto jjs = json::jaxn::to_string( jj );
 
-      if( ccs != jjs ) {
-         ++failed;
-         std::cerr << std::endl
-                   << "Testcase '" << path << "' failed config test!" << std::endl;
-         std::cerr << "<<< Config parsed as config <<<" << std::endl;
-         std::cerr << ccs << std::endl;
-         std::cerr << ">>> Config parsed as config >>>" << std::endl;
-         std::cerr << "<<< Reference data parsed as jaxn <<<" << std::endl;
-         std::cerr << jjs << std::endl;
-         std::cerr << ">>> Reference data parsed as jaxn >>>" << std::endl;
+         if( ccs != jjs ) {
+            ++failed;
+            std::cerr << std::endl
+                      << "Testcase '" << path << "' failed config test!" << std::endl;
+            std::cerr << "<<< Config parsed as config <<<" << std::endl;
+            std::cerr << ccs << std::endl;
+            std::cerr << ">>> Config parsed as config >>>" << std::endl;
+            std::cerr << "<<< Reference data parsed as jaxn <<<" << std::endl;
+            std::cerr << jjs << std::endl;
+            std::cerr << ">>> Reference data parsed as jaxn >>>" << std::endl;
+         }
+         if( ccs != cjs ) {
+            ++failed;
+            std::cerr << std::endl
+                      << "Testcase '" << path << "' failed identity test!" << std::endl;
+            std::cerr << "<<< Config parsed as config <<<" << std::endl;
+            std::cerr << ccs << std::endl;
+            std::cerr << ">>> Config parsed as config >>>" << std::endl;
+            std::cerr << "<<< Reference data parsed as config <<<" << std::endl;
+            std::cerr << cjs << std::endl;
+            std::cerr << ">>> Reference data parsed as config >>>" << std::endl;
+         }
       }
-      if( ccs != cjs ) {
+      catch( const std::exception& e ) {
+         std::cerr << "Testcase '" << path << "' failed with exception '" << e.what() << "'" << std::endl;
          ++failed;
-         std::cerr << std::endl
-                   << "Testcase '" << path << "' failed identity test!" << std::endl;
-         std::cerr << "<<< Config parsed as config <<<" << std::endl;
-         std::cerr << ccs << std::endl;
-         std::cerr << ">>> Config parsed as config >>>" << std::endl;
-         std::cerr << "<<< Reference data parsed as config <<<" << std::endl;
-         std::cerr << cjs << std::endl;
-         std::cerr << ">>> Reference data parsed as config >>>" << std::endl;
+      }
+      catch( const std::string& s ) {
+         std::cerr << "Testcase '" << path << "' failed with error '" << s << "'" << std::endl;
+         ++failed;
       }
    }
 

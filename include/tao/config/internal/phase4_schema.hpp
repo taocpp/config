@@ -46,6 +46,8 @@ namespace tao::config::internal
                   phase4_schema( p.second, b );
                }
                return;
+            case entry_kind::concat:
+               assert( false );  // UNREACHABLE
          }
          assert( false );  // UNREACHABLE
       }

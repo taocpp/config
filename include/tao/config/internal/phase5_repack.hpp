@@ -98,13 +98,15 @@ namespace tao::config::internal
             phase5_repack( k, consumer, e.get_value() );
             return;
          case entry_kind::reference:
-            assert( false );  // UNREACHABLE -- must have been either eliminated or flagged as error in an earlier phase.
+            assert( false );  // UNREACHABLE -- must have been either eliminated or flagged as error earlier.
          case entry_kind::array:
             phase5_repack( k, consumer, e.get_array() );
             return;
          case entry_kind::object:
             phase5_repack( k, consumer, e.get_object() );
             return;
+         case entry_kind::concat:
+            assert( false );  // UNREACHABLE -- must have been either eliminated or flagged as error earlier.
       }
       assert( false );  // UNREACHABLE
    }

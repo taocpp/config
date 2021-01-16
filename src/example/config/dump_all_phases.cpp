@@ -22,7 +22,7 @@ int main( int argc, char** argv )
          std::cout << std::endl;
       }
       std::cout << "PHASE 2" << std::endl;
-      while( ( tao::config::internal::phase2_combine( cfg.st.root ) > 0 ) || ( tao::config::internal::phase2_resolve( cfg.st.root ) > 0 ) ) {}
+      cfg.phase2_loop();
       tao::config::internal::to_stream( std::cout, cfg.st.root, 3 );
       std::cout << std::endl;
       std::cout << "PHASE 3" << std::endl;
