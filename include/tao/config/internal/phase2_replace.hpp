@@ -126,7 +126,7 @@ namespace tao::config::internal
             return;
          }
          i->set_object( star.position );
-         for( const auto name : names ) {
+         for( const auto& name : names ) {
             i->get_object().object.try_emplace( name, star );
          }
          ++i;
