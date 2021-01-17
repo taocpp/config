@@ -48,8 +48,16 @@ namespace tao
 
 }  // namespace tao
 
-int main()
+int main( int argc, char** argv )
 {
+   if( argc > 1 ) {
+      for( int i = 1; i < argc; ++i ) {
+         std::cout << "Parsing " << argv[ i ] << std::endl;
+         tao::unit_test< tao::config::traits >( argv[ i ] );
+      }
+      return 0;
+   }
+
    unsigned count = 0;
 
    for( const auto& entry : std::filesystem::directory_iterator( "tests" ) ) {
