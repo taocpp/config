@@ -25,7 +25,7 @@ namespace tao::config::internal
             case entry_kind::value:
                continue;
             case entry_kind::reference:
-               throw pegtl::parse_error( "unresolved reference", e.get_reference().at( 0 ).position );
+               throw pegtl::parse_error( "unresolved reference '" + e.get_reference().to_string() + '\'', e.get_reference().at( 0 ).position );
             case entry_kind::array:
                phase3_remove( e.get_array() );
                continue;
@@ -75,4 +75,3 @@ namespace tao::config::internal
 }  // namespace tao::config::internal
 
 #endif
-

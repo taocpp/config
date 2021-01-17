@@ -38,7 +38,7 @@ namespace tao::config::internal
       if( const char* r = std::getenv( name.c_str() ) ) {
          return std::string( r );
       }
-      throw pegtl::parse_error( "environment variable not found " + name, pos );
+      throw pegtl::parse_error( "environment variable '" + name + "' not found", pos );
    }
 
    [[nodiscard]] inline std::optional< std::string > get_env_nothrow( const std::string& name )

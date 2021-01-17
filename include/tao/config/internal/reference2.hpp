@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "reference2_action.hpp"
-#include "reference2_part.hpp"
 #include "reference2_grammar.hpp"
+#include "reference2_part.hpp"
 
 namespace tao::config::internal
 {
@@ -71,6 +71,11 @@ namespace tao::config::internal
       [[nodiscard]] const std::vector< reference2_part >& vector() const noexcept
       {
          return static_cast< const std::vector< reference2_part >& >( *this );
+      }
+
+      [[nodiscard]] std::string to_string() const
+      {
+         return internal::to_string( vector() );
       }
 
       void assign( const std::string& s )

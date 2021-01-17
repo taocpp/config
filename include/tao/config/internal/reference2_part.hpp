@@ -16,6 +16,9 @@
 
 namespace tao::config::internal
 {
+   struct reference2_part;
+   [[nodiscard]] inline std::string to_string( const std::vector< reference2_part >& );
+
    struct reference2_part
    {
       using data_t = std::variant< std::string, std::size_t, std::vector< reference2_part > >;
@@ -68,9 +71,36 @@ namespace tao::config::internal
          return *s;
       }
 
+      [[nodiscard]] std::string to_string() const
+      {
+         switch( kind() ) {
+            case reference2_kind::name:
+               return get_name();  // TODO: Unescape if not identifier?
+            case reference2_kind::index:
+               return std::to_string( get_index() );
+            case reference2_kind::vector:
+               return internal::to_string( get_vector() );
+         }
+         throw std::string( "unreachable" );
+      }
+
       pegtl::position position;
       data_t data;
    };
+
+   [[nodiscard]] inline std::string to_string( const std::vector< reference2_part >& v )
+   {
+      std::string result;
+      result += '(';
+      auto it = v.begin();
+      result += it->to_string();
+      while( ++it != v.end() ) {
+         result += '.';
+         result += it->to_string();
+      }
+      result += ')';
+      return result;
+   }
 
 }  // namespace tao::config::internal
 
