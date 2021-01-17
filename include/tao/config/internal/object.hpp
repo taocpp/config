@@ -44,12 +44,12 @@ namespace tao::config::internal
          return ( i == object.end() ) ? nullptr : ( &*i );
       }
 
-      [[nodiscard]] std::size_t all_references() const noexcept
+      [[nodiscard]] std::size_t count_references_recursive() const noexcept
       {
          std::size_t result = 0;
 
          for( const auto& p : object ) {
-            result += p.second.all_references();
+            result += p.second.count_references_recursive();
          }
          return result;
       }

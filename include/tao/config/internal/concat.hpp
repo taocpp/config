@@ -41,12 +41,12 @@ namespace tao::config::internal
          return implicit || temporary || concat.empty();
       }
 
-      [[nodiscard]] std::size_t all_references() const noexcept
+      [[nodiscard]] std::size_t count_references_recursive() const noexcept
       {
          std::size_t result = 0;
 
          for( const auto& e : concat ) {
-            result += e.all_references();
+            result += e.count_references_recursive();
          }
          return result;
       }

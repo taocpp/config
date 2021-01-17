@@ -31,12 +31,12 @@ namespace tao::config::internal
       basic_array& operator=( basic_array&& ) = default;
       basic_array& operator=( const basic_array& ) = default;
 
-      [[nodiscard]] std::size_t all_references() const noexcept
+      [[nodiscard]] std::size_t count_references_recursive() const noexcept
       {
          std::size_t result = 0;
 
          for( const auto& c : array ) {
-            result += c.all_references();
+            result += c.count_references_recursive();
          }
          return result;
       }

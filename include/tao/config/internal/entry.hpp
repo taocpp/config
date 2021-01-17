@@ -105,82 +105,82 @@ namespace tao::config::internal
          m_data.emplace< std::size_t( entry_kind::object ) >( std::move( p ) );
       }
 
-      void set_concat( const pegtl::position& p )
+      void set_concat( pegtl::position p )
       {
-         m_data.emplace< std::size_t( entry_kind::concat ) >( p );
+         m_data.emplace< std::size_t( entry_kind::concat ) >( std::move( p ) );
       }
 
-      json_t& get_value() noexcept
+      [[nodiscard]] json_t& get_value() noexcept
       {
          auto* s = std::get_if< json_t >( &m_data );
          assert( s );
          return *s;
       }
 
-      reference2& get_reference() noexcept
+      [[nodiscard]] reference2& get_reference() noexcept
       {
          auto* s = std::get_if< reference2 >( &m_data );
          assert( s );
          return *s;
       }
 
-      array& get_array() noexcept
+      [[nodiscard]] array& get_array() noexcept
       {
          auto* s = std::get_if< array >( &m_data );
          assert( s );
          return *s;
       }
 
-      object& get_object() noexcept
+      [[nodiscard]] object& get_object() noexcept
       {
          auto* s = std::get_if< object >( &m_data );
          assert( s );
          return *s;
       }
 
-      concat& get_concat() noexcept
+      [[nodiscard]] concat& get_concat() noexcept
       {
          auto* s = std::get_if< concat >( &m_data );
          assert( s );
          return *s;
       }
 
-      const json_t& get_value() const noexcept
+      [[nodiscard]] const json_t& get_value() const noexcept
       {
          const auto* s = std::get_if< json_t >( &m_data );
          assert( s );
          return *s;
       }
 
-      const reference2& get_reference() const noexcept
+      [[nodiscard]] const reference2& get_reference() const noexcept
       {
          const auto* s = std::get_if< reference2 >( &m_data );
          assert( s );
          return *s;
       }
 
-      const array& get_array() const noexcept
+      [[nodiscard]] const array& get_array() const noexcept
       {
          const auto* s = std::get_if< array >( &m_data );
          assert( s );
          return *s;
       }
 
-      const object& get_object() const noexcept
+      [[nodiscard]] const object& get_object() const noexcept
       {
          const auto* s = std::get_if< object >( &m_data );
          assert( s );
          return *s;
       }
 
-      const concat& get_concat() const noexcept
+      [[nodiscard]] const concat& get_concat() const noexcept
       {
          const auto* s = std::get_if< concat >( &m_data );
          assert( s );
          return *s;
       }
 
-      [[nodiscard]] std::size_t all_references() const noexcept
+      [[nodiscard]] std::size_t count_references_recursive() const noexcept
       {
          switch( kind() ) {
             case entry_kind::value:
@@ -188,11 +188,11 @@ namespace tao::config::internal
             case entry_kind::reference:
                return 1;
             case entry_kind::array:
-               return get_array().all_references();
+               return get_array().count_references_recursive();
             case entry_kind::object:
-               return get_object().all_references();
+               return get_object().count_references_recursive();
             case entry_kind::concat:
-               return get_concat().all_references();
+               return get_concat().count_references_recursive();
          }
          assert( false );  // UNREACHABLE
       }

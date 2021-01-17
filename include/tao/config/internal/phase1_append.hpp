@@ -28,37 +28,6 @@ namespace tao::config::internal
    template< typename T >
    bool phase1_append( concat& c, const key1& path, const T& thing, const bool implicit );
 
-   // template< typename T >
-   // bool phase1_append_star( concat& c, const pegtl::position&, const key1& path, const T& thing, const bool implicit )
-   // {
-   //    std::set< std::string > done;
-
-   //    for( entry& e : reverse( c.concat ) ) {
-   //       switch( e.kind() ) {
-   //          case entry_kind::value:
-   //             continue;
-   //          case entry_kind::reference:
-   //             continue;
-   //          case entry_kind::array:
-   //             for( concat& d : e.get_array().array ) {
-   //                phase1_append( d, path, thing, implicit );
-   //             }
-   //             continue;
-   //          case entry_kind::object:
-   //             for( auto& p : e.get_object().object ) {
-   //                if( done.emplace( p.first ).second ) {
-   //                   phase1_append( p.second, path, thing, implicit );
-   //                }
-   //             }
-   //             continue;
-   //          case entry_kind::concat:
-   //             assert( false );  // UNREACHABLE
-   //       }
-   //       assert( false );  // UNREACHABLE
-   //    }
-   //    return true;
-   // }
-
    template< typename T >
    bool phase1_append_star( concat& c, const pegtl::position& p, const key1& path, const T& thing, const bool implicit )
    {
@@ -108,7 +77,9 @@ namespace tao::config::internal
       auto& a = c.concat.back().get_array();
       if( g > c.generation ) {
          c.generation = g;
-         return phase1_append( a.array.emplace_back( p ), path, thing, implicit );
+         concat& d = a.array.emplace_back( p );
+         d.remove = false;  // TODO: Make consistent with entry::expand()?
+         return phase1_append( d, path, thing, implicit );
       }
       assert( !a.array.empty() );
 
