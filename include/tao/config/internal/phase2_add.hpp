@@ -118,7 +118,8 @@ namespace tao::config::internal
          phase2_value_add( std::move( l ), r );
       }
       catch( const phase2_add_error& /*unused*/ ) {
-         pegtl::parse_error p( "inconsistent json types " + std::string( json::to_string( l.type() ) ) + " and " + std::string( json::to_string( r.type() ) ), l.position );
+         pegtl::parse_error p( "inconsistent json types '" + std::string( json::to_string( l.type() ) ) + "' and '" + std::string( json::to_string( r.type() ) ) + '\'', pegtl::position( 0, 1, 1, "location of '+'" ) );  // TODO: This position should point to the location where the concat/add is
+         p.add_position( pegtl::position( l.position ) );
          p.add_position( pegtl::position( r.position ) );
          throw p;
       }
