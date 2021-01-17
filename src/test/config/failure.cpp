@@ -24,9 +24,17 @@ namespace tao
          std::cerr << ccs << std::endl;
          std::cerr << ">>> Config parsed as config >>>" << std::endl;
       }
-      catch( const std::exception& ) {
+      catch( const pegtl::parse_error& e ) {
+         std::cout << "pegtl::parse_error: " << e.message() << std::endl;
+         for( const auto& p : e.positions() ) {
+            std::cout << "  from: " << p << std::endl;
+         }
       }
-      catch( const std::string& ) {
+      catch( const std::exception& e ) {
+         std::cout << "std::exception: " << e.what() << std::endl;
+      }
+      catch( const std::string& s ) {
+         std::cout << "Exception with std::string: " << s << std::endl;
          // TODO: Remove catch string when all temporary throw strings have been replaced with proper exceptions.
       }
    }
