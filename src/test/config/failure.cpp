@@ -7,6 +7,11 @@
 
 #include <tao/config.hpp>
 
+const char* ansi_reset = "\033[0m";
+const char* ansi_message = "\033[1;31m";
+const char* ansi_source = "\033[36m";
+const char* ansi_text = "\033[33m";
+
 namespace tao
 {
    int failed = 0;
@@ -25,9 +30,11 @@ namespace tao
          std::cerr << ">>> Config parsed as config >>>" << std::endl;
       }
       catch( const pegtl::parse_error& e ) {
-         std::cout << "pegtl::parse_error: " << e.message() << std::endl;
-         for( const auto& p : e.positions() ) {
-            std::cout << "  from: " << p << std::endl;
+         const auto& pos = e.positions();
+         auto it = pos.begin();
+         std::cout << ansi_text << "pegtl::parse_error: " << ansi_source << *it << ": " << ansi_message << e.message() << ansi_reset << std::endl;
+         while( ++it != pos.end() ) {
+            std::cout << ansi_text << "  from: " << ansi_source << *it << ansi_reset << std::endl;
          }
       }
       catch( const std::exception& e ) {
