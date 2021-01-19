@@ -67,7 +67,7 @@ namespace tao::config::internal
                throw pegtl::parse_error( "cannot index (across) star", p );
          }
       }
-      throw std::string( "index out of range" );
+      throw pegtl::parse_error( "index out of range", p );
    }
 
    template< typename T >
