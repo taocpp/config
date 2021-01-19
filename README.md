@@ -2,13 +2,17 @@
 
 [The Art of C++] / Config is a C++ header-only library that reads config files based on [JSON] and [JAXN] and produces a single [JSON Value] as result.
 
+## Documentation
+
+ * [Version 1.x](doc/README.md) (requires C++17)
+
 ## Features
 
  * [JAXN] syntax with extensions (backward compatible with [JSON]).
  * [JAXN] data model ([JSON] extended with binary data and non-finites).
  * Meta data, all sub-values are annotated with filename and position.
  * Copy, reference, replace and delete anything in the [JSON] structure.
- * Multiple ways to read and parse other config and data files, and
+ * Multiple ways to read and include other config and data files, and
  * use environment variables and the output of arbitrary shell commands.
  * The function [`tao::config::parse_file()`](doc/Parsing-Config-Files.md) is all you need to get going.
 
@@ -20,11 +24,44 @@ This library is still under heavy development and not very well documented...
 
 To compile the tests and examples it requires [taocpp/json] checked out next to it.
 
+## Introduction
+
+The config parser is backward compatible with JSON; every JSON file with a top-level object can be used as config file.
+
+```
+{
+   "ip": "127.0.0.2",
+   "port": 27960,
+   "maps": [ "ztn", "dm13", "t9" ]
+}
+```
+
+Even this very small example can be rendered differently using some of the additional syntactic possibilities of the config file format.
+
+```
+#!/usr/local/bin/q3s
+
+ip = "127.0.0.2"
+port = 27960
+maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
+```
+
+Parsing a config file generally entails nothing more than calling the appropriate `parse_file()` function with the filename.
+
+```
+#include <tao/config.hpp>
+
+const tao::config::value config = tao::config::parse_file( "foo.cfg" );
+```
+
+The resulting value is nothing other but a JSON Value from The Art of C++ / JSON with a custom traits class.
+It can be inspected using all the facilities of that JSON library.
+
 ## Contact
 
-The Art of C++ / Config is part of [The Art of C++].
+<a href="https://discord.gg/VQYkppcgqN"><img align="right" src="https://discordapp.com/api/guilds/790164930083028993/embed.png?style=banner2" alt="Join us on Discord"></a>
 
-For questions and suggestions about The Art of C++ / Config please contact the authors at `taocpp(at)icemx.net`.
+For questions and suggestions regarding The Art of C++ / Config, success or failure stories, and any other kind of feedback, please feel free to join our [Discord](https://discord.gg/VQYkppcgqN) server, open a [discussion](https://github.com/taocpp/config/discussions), an [issue](https://github.com/taocpp/config/issues) or a [pull request](https://github.com/taocpp/config/pulls) on GitHub or contact the authors at `taocpp(at)icemx.net`.
 
 ## License
 
@@ -32,7 +69,7 @@ The Art of C++ / Config is certified [Open Source] software.
 It may be used for any purpose, including commercial purposes, at absolutely no cost.
 It is distributed under the terms of the [MIT license] reproduced here.
 
-> Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
+> Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 >

@@ -1,0 +1,18 @@
+definitions
+{
+    port
+    {
+        type: "std.unsigned"
+        minimum: 1
+        maximum: 65535
+    }
+}
+
+properties
+{
+    required
+    {
+        ip: "std.net.ip_v4_address"
+        port: "port"
+    }
+}
