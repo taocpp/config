@@ -19,8 +19,8 @@ namespace tao::config::internal
 
       basic_array() = delete;
 
-      explicit basic_array( const pegtl::position& pos )
-         : position( pos )
+      explicit basic_array( const pegtl::position& p )
+         : position( p )
       {}
 
       basic_array( basic_array&& ) = default;

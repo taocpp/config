@@ -26,12 +26,12 @@ namespace tao::config::internal
       json_base& operator=( json_base&& ) = default;
       json_base& operator=( const json_base& ) = default;
 
-      json_base( pegtl::position&& pos ) noexcept
-         : position( std::move( pos ) )
+      json_base( pegtl::position&& p ) noexcept
+         : position( std::move( p ) )
       {}
 
-      json_base( const pegtl::position& pos )
-         : position( pos )
+      json_base( const pegtl::position& p )
+         : position( p )
       {}
 
       void append_message_extension( std::ostream& o ) const

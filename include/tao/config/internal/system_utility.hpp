@@ -64,7 +64,7 @@ namespace tao::config::internal
    {
       errno = 0;
 
-      const std::unique_ptr< FILE, void ( * )( FILE* ) > file( ::popen( script.c_str(), "r" ), []( FILE* f ) { ::pclose( f ); } );
+      std::unique_ptr< FILE, void ( * )( FILE* ) > file( ::popen( script.c_str(), "r" ), []( FILE* f ) { ::pclose( f ); } );
 
       if( !file ) {
          throw std::string( "TODO" );
@@ -75,6 +75,11 @@ namespace tao::config::internal
 
       while( const auto temp = ::fread( buffer, 1, sizeof( buffer ), file.get() ) ) {
          result.append( buffer, temp );
+      }
+      errno = 0;
+
+      if( ( errno != 0 ) || ( ::pclose( file.release() ) != 0 ) ) {
+         throw std::string( "TODO" );
       }
       return result;
    }

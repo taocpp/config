@@ -7,6 +7,8 @@
 #include <cassert>
 #include <set>
 
+#include "pegtl.hpp"
+
 namespace tao::config::internal
 {
    class phase2_guard
@@ -18,7 +20,7 @@ namespace tao::config::internal
            m_thing( &thing )
       {
          if( !m_stack.insert( m_thing ).second ) {
-            throw std::string( "reference cycle" );
+            throw pegtl::parse_error( "reference cycle detected", thing.position );
          }
       }
 

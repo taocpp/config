@@ -37,7 +37,7 @@ namespace tao::config::schema::internal
          }
 
          json::value candidates = json::empty_array;
-         for( const auto sv : m_values ) {
+         for( const auto& sv : m_values ) {
             candidates.emplace_back( sv );
          }
          return error( v, "value did not match", { { "value", s }, { "candidates", std::move( candidates ) } } );

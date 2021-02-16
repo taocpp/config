@@ -14,13 +14,14 @@
 #include "json_traits.hpp"
 #include "object.hpp"
 #include "pegtl.hpp"
+#include "string_utility.hpp"
 
 namespace tao::config::internal
 {
    struct phase2_add_error
    {};
 
-   // For numbers we currently follow the following rules:
+   // For numbers we currently use the following rules:
    // 1. Integers and floating-point can't be mixed, and:
    // 2. Mixed integers are handled like in the C language.
 
@@ -115,10 +116,10 @@ namespace tao::config::internal
    inline void phase2_add( json_t&& l, json_t& r )
    {
       try {
-         phase2_value_add( std::move( l ), r );
+         phase2_value_add( std::move( l ), r );  // l is unchanged when a phase2_add_error is thrown.
       }
       catch( const phase2_add_error& /*unused*/ ) {
-         pegtl::parse_error p( "inconsistent json types '" + std::string( json::to_string( l.type() ) ) + "' and '" + std::string( json::to_string( r.type() ) ) + '\'', pegtl::position( 0, 1, 1, "location of '+'" ) );  // TODO: This position should point to the location where the concat/add is
+         pegtl::parse_error p( strcat( "inconsistent json types '", l.type(), "' and '", r.type(), '\'' ), pegtl::position( 0, 1, 1, "location of '+'" ) );  // TODO: The first position should point to the location where the concat/add is (if possible).
          p.add_position( pegtl::position( l.position ) );
          p.add_position( pegtl::position( r.position ) );
          throw p;

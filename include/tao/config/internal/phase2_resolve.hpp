@@ -16,6 +16,7 @@
 #include "json_traits.hpp"
 #include "object.hpp"
 #include "phase2_access.hpp"
+#include "string_utility.hpp"
 
 namespace tao::config::internal
 {
@@ -103,7 +104,7 @@ namespace tao::config::internal
                   case json::type::UNSIGNED:
                      return key1_part( j->as< std::size_t >(), j->position );
                   default:
-                     throw std::string( "invalid json type for nested reference part" );
+                     throw pegtl::parse_error( strcat( "invalid json type '", j->type(), "' for reference part" ), j->position );
                }
             }
          }
@@ -112,8 +113,6 @@ namespace tao::config::internal
 
       [[nodiscard]] const concat* process_entry( const key1& prefix, entry& e )
       {
-         const phase2_guard dog( m_stack, e );
-
          switch( e.kind() ) {
             case entry_kind::value:
                return nullptr;
