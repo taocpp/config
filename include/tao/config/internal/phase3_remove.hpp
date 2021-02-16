@@ -12,11 +12,50 @@
 #include "forward.hpp"
 #include "object.hpp"
 #include "pegtl.hpp"
+#include "string_utility.hpp"
 
 namespace tao::config::internal
 {
    inline void phase3_remove( array& a );
    inline void phase3_remove( object& o );
+
+   [[nodiscard]] inline std::string phase3_partial_type( const entry& e )
+   {
+      switch( e.kind() ) {
+         case entry_kind::value:
+            return std::string( json::to_string( e.get_value().type() ) );
+         case entry_kind::reference:
+            assert( false );  // UNREACHABLE
+            std::abort();
+         case entry_kind::array:
+            return "array";
+         case entry_kind::object:
+            return "object";
+         case entry_kind::concat:
+            assert( false );  // UNREACHABLE
+            std::abort();
+      }
+      assert( false );  // UNREACHABLE
+   }
+
+   [[nodiscard]] inline pegtl::position phase3_partial_position( const entry& e )
+   {
+      switch( e.kind() ) {
+         case entry_kind::value:
+            return e.get_value().position;
+         case entry_kind::reference:
+            assert( false );  // UNREACHABLE
+            std::abort();
+         case entry_kind::array:
+            return e.get_array().position;
+         case entry_kind::object:
+            return e.get_object().position;
+         case entry_kind::concat:
+            assert( false );  // UNREACHABLE
+            std::abort();
+      }
+      assert( false );  // UNREACHABLE
+   }
 
    inline void phase3_remove( concat& c )
    {
@@ -38,7 +77,13 @@ namespace tao::config::internal
          assert( false );  // UNREACHABLE
       }
       if( c.concat.size() > 1 ) {
-         throw pegtl::parse_error( "concat size greater than one", c.position );  // TODO: Add the positions of all concat entries?
+         auto i = c.concat.begin();
+         const auto lt = phase3_partial_type( *i );
+         const auto lp = phase3_partial_position( *i );
+         ++i;
+         const auto rt = phase3_partial_type( *i );
+         const auto rp = phase3_partial_position( *i );
+         throw pegtl::parse_error( strcat( "incompatible types ", lt, "@", lp, " and ", rt, "@", rp ), c.position );
       }
    }
 

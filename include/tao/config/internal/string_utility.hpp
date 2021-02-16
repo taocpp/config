@@ -13,23 +13,30 @@
 
 namespace tao::config::internal
 {
-   inline std::string_view strcat_to_string( const json::type t )
+   struct strcat_stream
    {
-      return json::to_string( t );
-   }
+      std::ostringstream oss;
+   };
 
    template< typename T >
-   auto strcat_to_string( const T& t )
+   strcat_stream& operator<<=( strcat_stream& ss, const T& t )
    {
-      std::ostringstream os;
-      os << t;
-      return os.str();
+      ss.oss << t;
+      return ss;
+   }
+
+   inline strcat_stream& operator<<=( strcat_stream& ss, const json::type t )
+   {
+      ss.oss << json::to_string( t );
+      return ss;
    }
 
    template< typename... Ts >
-   [[nodiscard]] std::string strcat( Ts&&... ts )
+   [[nodiscard]] std::string strcat( const Ts&... ts )
    {
-      return ( std::string() += ... += strcat_to_string( ts ) );
+      strcat_stream ss;
+      (void)( ss <<= ... <<= ts );
+      return ss.oss.str();
    }
 
 }  // namespace tao::config::internal
