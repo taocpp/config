@@ -65,12 +65,13 @@ namespace tao::config::internal
                   continue;
                case entry_kind::reference:
                   assert( false );  // UNREACHABLE
+                  std::abort();  // TODO: Generally decide what to use for UNREACHABLE.
                case entry_kind::array:
-                  throw std::string( "array in reference" );
+                  throw pegtl::parse_error( "array as referenced reference part", e.get_array().position );
                case entry_kind::object:
-                  throw std::string( "object in reference" );
+                  throw pegtl::parse_error( "object as referenced reference part", e.get_object().position );
                case entry_kind::concat:
-                  throw std::string( "concat in reference" );
+                  throw pegtl::parse_error( "concat as referenced referene part", e.get_concat().position );
             }
             assert( false );  // UNREACHABLE
          }
