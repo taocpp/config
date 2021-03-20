@@ -36,7 +36,7 @@ The config parser is backward compatible with JSON; every JSON file with a top-l
 }
 ```
 
-Even this very small example can be rendered differently using some of the additional syntactic possibilities of the config file format.
+This small example can be rendered differently using some of the additional syntactic possibilities of the config file format.
 
 ```
 #!/usr/local/bin/q3s
@@ -45,6 +45,8 @@ ip = "127.0.0.2"
 port = 27960
 maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 ```
+
+Semantic features like deleting and referencing values, or including files and reading environment variables, usually only make sense with larger, non-trivial real-world examples.
 
 Parsing a config file generally entails nothing more than calling the appropriate `parse_file()` function with the filename.
 

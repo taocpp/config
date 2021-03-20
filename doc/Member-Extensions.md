@@ -13,9 +13,79 @@ Note that whitespace is significant within member extensions, i.e. whitespace mu
 
 ## include
 
+The `include` member extension reads the named file relative to the current working directory and parses it "as if" the contents of that file were present instead of the `include`.
+For plain `include` it is an error when the file does not exist, the `include?` alternative form ignores missing files.
+
+#### Example taoCONFIG Input File
+
+```
+// Include the file whose contents are shown below.
+(include "tests/doc_member_include.inc")
+
+foo
+{
+    // Include the same file again, this time within an object.
+    (include "tests/doc_member_include.inc")
+}
+
+(include? "tests/non_existing_file_is_no_error_with_include?")
+```
+
+#### Example taoCONFIG Include File
+
+```
+bar = 42
+baz = [ true, false ]
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   bar: 42,
+   baz: [
+      true,
+      false
+   ],
+   foo: {
+      bar: 42,
+      baz: [
+         true,
+         false
+      ]
+   }
+}
+```
+
 
 
 ## parse
+
+The `parse` member extension parses the given string as "as if" the contents of that string were present instead of the `parse`.
+
+#### Example taoCONFIG Input File
+
+```
+(parse "a = 42")
+
+foo
+{
+    b = true
+    c = false
+    (parse "b = delete   c = true")
+}
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   a: 42,
+   foo: {
+      c: true
+   }
+}
+```
 
 
 
@@ -56,7 +126,7 @@ properties
 }
 ```
 
-#### Resulting Printed Debug Data
+#### Resulting JAXN Config Data
 
 ```javascript
 {
@@ -65,7 +135,7 @@ properties
 }
 ```
 
-For more on schemas [please consult the page on how to write schema files](Writing-Schema-Files.md).
+For more information on taoCONFIG schemas [please consult the page on how to write schema files](Writing-Schema-Files.md).
 
 Schemas can also be applied to sub-sections of the config by putting the schema member in the appropriate sub-section.
 
@@ -83,7 +153,7 @@ foo.bar
 what = "ever"  // Outside scope of schema.
 ```
 
-#### Resulting Printed Debug Data
+#### Resulting JAXN Config Data
 
 ```javascript
 {

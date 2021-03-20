@@ -3,7 +3,7 @@
 --
 
 Value extensions produce a [JAXN] value and can be used wherever a value is expected.
-Note that whitespace is significant within value extensions, i.e. whitespace must be used as shown and comments are forbidden.
+Note that whitespace is significant within value extensions, i.e. whitespace MUST be used as shown and comments are forbidden.
 
  * [binary](#binary)
  * [cbor](#cbor)
@@ -23,7 +23,8 @@ Note that whitespace is significant within value extensions, i.e. whitespace mus
 
 ## binary
 
-The `binary` value extension transforms a string value into a binary value.
+The `binary` value extension explicitly transforms a string value into a binary value.
+Only the type is changed, the represented sequence of bytes is not changed.
 
 #### Example taoCONFIG Input File
 
@@ -62,6 +63,8 @@ foo = (cbor $82f5f4)
 }
 ```
 
+Note that, in line with the JSON data model, only UTF-8 strings are supported as keys in CBOR mappings.
+
 Note that `cbor` is frequently combined with `read` as in `foo = (cbor (read "filename.cbor"))`.
 
 
@@ -95,7 +98,8 @@ bar = (env? "GRMBLFX" "default")
 
 ## jaxn
 
-The `jaxn` value extension parses string data as [JAXN] and returns the resulting value.
+The `jaxn` value extension parses string (or binary) data as [JAXN] and returns the resulting value.
+In the case of binary data the input is automatically converted to a string, including a check for valid UTF-8.
 
 #### Example taoCONFIG Input File
 
@@ -114,13 +118,14 @@ foo = (jaxn '[Infinity, $ff]')
 }
 ```
 
-Note that `jaxn` is frequently combined with `string` and `read` as in `foo = (jaxn (string (read "filename.jaxn")))`.
+Note that `jaxn` is frequently combined with `string` and `read` as in `foo = (jaxn (read "filename.jaxn"))`.
 
 
 
 ## json
 
-The `json` value extension parses string data as [JSON] and returns the resulting value.
+The `json` value extension parses string (or binary) data as [JSON] and returns the resulting value.
+In the case of binary data the input is automatically converted to a string, including a check for valid UTF-8.
 
 #### Example taoCONFIG Input File
 
@@ -139,7 +144,7 @@ foo = (json '["a","b"]')
 }
 ```
 
-Note that `json` is frequently combined with `read` as in `foo = (json (read "filename.json"))` and with the file contents being automatically validated as UTF-8 before invoking the JSON parser.
+Note that `json` is frequently combined with `read` as in `foo = (json (read "filename.json"))`.
 
 
 
@@ -186,7 +191,7 @@ foo = (parse "null")
 }
 ```
 
-Note that the value described in the string is *not* allowed to use addition/concatenation, however references and/or other value extensions are allowed.
+Note that the value described in the string is *not* allowed to use addition/concatenation, however references and/or other value extensions *are* allowed.
 
 
 
@@ -212,6 +217,8 @@ bar = (string (read "tests/doc_value_read.config"))
 
 Note that `read` can be combined with `string` to validate the data as UTF-8 and transform it into a string.
 
+Note that the conversion from `binary` to `string` is automatic when the binary data is passed to an extension that expects a string.
+
 
 
 ## shell
@@ -232,7 +239,7 @@ foo = (shell "uname -s")
 }
 ```
 
-Note that availability and behaviour of the  `shell` value extension are inherently system dependent.
+Note that availability and behaviour of the `shell` value extension are inherently system dependent.
 Currently it is only supported on Unix-style operating system like Linux and macOS.
 
 
@@ -279,6 +286,8 @@ foo = (string $48656C6C6F2C20776F726C6421)
    foo: "Hello, world!"
 }
 ```
+
+Note that the conversion from `binary` to `string` is automatic when the binary data is passed to an extension that expects a string.
 
 
 
