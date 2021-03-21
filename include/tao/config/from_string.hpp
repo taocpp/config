@@ -21,7 +21,7 @@ namespace tao::config
       return c.finish< Traits >( b );
    }
 
-   [[nodiscard]] inline value from_string( const std::string& data, const std::string& source )  // , const schema::builtin& b = schema::builtin() )
+   [[nodiscard]] inline value from_string( const std::string& data, const std::string& source, const schema::builtin& b = schema::builtin() )
    {
       return basic_from_string< traits >( data, source, b );
    }
