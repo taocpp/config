@@ -4,7 +4,7 @@
 *  [Inspecting](#inspecting)
 *  [Annotations](#annotations)
 *  [Custom Traits](#custom-traits)
-*  [Builtin Schema(#builtin-schema)
+*  [Builtin Schema](#builtin-schema)
 
 This library requires decent C++17 support, currently tested on GCC 8 and 9 and "recent" Clang.
 
