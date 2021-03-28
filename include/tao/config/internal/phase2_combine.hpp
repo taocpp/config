@@ -58,7 +58,7 @@ namespace tao::config::internal
                case entry_kind::value:
                   if( l->kind() == entry_kind::value ) {
                      phase2_add( std::move( l->get_value() ), r->get_value() );
-                     const auto t = c.concat.erase( l );
+                     [[maybe_unused]] const auto t = c.concat.erase( l );
                      assert( t == r );
                      ++m_changes;
                   }
@@ -68,7 +68,7 @@ namespace tao::config::internal
                case entry_kind::array:
                   if( l->kind() == entry_kind::array ) {
                      phase2_append( std::move( l->get_array() ), r->get_array() );
-                     const auto t = c.concat.erase( l );
+                     [[maybe_unused]] const auto t = c.concat.erase( l );
                      assert( t == r );
                      ++m_changes;
                   }
@@ -76,7 +76,7 @@ namespace tao::config::internal
                case entry_kind::object:
                   if( l->kind() == entry_kind::object ) {
                      phase2_insert( std::move( l->get_object() ), r->get_object() );
-                     const auto t = c.concat.erase( l );
+                     [[maybe_unused]] const auto t = c.concat.erase( l );
                      assert( t == r );
                      ++m_changes;
                   }
