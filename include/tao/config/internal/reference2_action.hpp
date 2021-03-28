@@ -8,8 +8,8 @@
 
 #include "json.hpp"
 #include "pegtl.hpp"
-#include "reference2_part.hpp"
 #include "reference2_grammar.hpp"
+#include "reference2_part.hpp"
 
 namespace tao::config::internal
 {

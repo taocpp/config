@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "json.hpp"
-#include "key1_part.hpp"
 #include "key1_grammar.hpp"
+#include "key1_part.hpp"
 #include "pegtl.hpp"
 
 namespace tao::config::internal

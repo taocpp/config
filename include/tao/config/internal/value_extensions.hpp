@@ -35,7 +35,7 @@ namespace tao::config::internal
          const auto i = em.inner.find( name );
          if( i != em.inner.end() ) {
             const auto j = i->second( in, st, em );
-            const auto f = [ & ]( concat& c ){ c.concat.emplace_back( j ); };
+            const auto f = [ & ]( concat& c ) { c.concat.emplace_back( j ); };
             phase1_append( st.root, st.prefix + st.suffix, f, false );
             return true;
          }

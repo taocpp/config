@@ -10,12 +10,12 @@
 #include "array.hpp"
 #include "concat.hpp"
 #include "entry.hpp"
-#include "phase2_guard.hpp"
 #include "forward.hpp"
 #include "json.hpp"
 #include "json_traits.hpp"
 #include "object.hpp"
 #include "phase2_access.hpp"
+#include "phase2_guard.hpp"
 #include "string_utility.hpp"
 
 namespace tao::config::internal
@@ -123,7 +123,8 @@ namespace tao::config::internal
                for( auto& c : e.get_array().array ) {
                   process_concat( prefix + key1_part( i++, m_root.position ), c );
                }
-            }  return nullptr;
+               return nullptr;
+            }
             case entry_kind::object:
                for( auto& p : e.get_object().object ) {
                   process_concat( prefix + key1_part( p.first, m_root.position ), p.second );

@@ -13,7 +13,7 @@
 
 int main( int argc, char** argv )
 {
-   tao::config::internal::try_catch( [=]() {
+   tao::config::internal::try_catch( [ = ]() {
       const tao::config::value v = tao::config::from_files( std::vector< std::filesystem::path >( argv + 1, argv + argc ) );
       tao::json::jaxn::to_stream( std::cout, v, 3 );
       std::cout << std::endl;

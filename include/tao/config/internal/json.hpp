@@ -24,8 +24,13 @@ namespace tao::config::internal::rules
 {
    namespace jaxn = tao::json::jaxn::internal::rules;
 
-   struct wss : pegtl::star< jaxn::ws > {};
-   struct wsp : pegtl::plus< jaxn::ws > {};
+   struct wss
+      : pegtl::star< jaxn::ws >
+   {};
+
+   struct wsp
+      : pegtl::plus< jaxn::ws >
+   {};
 
 }  // namespace tao::config::internal::rules
 

@@ -8,8 +8,8 @@
 #include "forward.hpp"
 #include "json.hpp"
 #include "key1.hpp"
-#include "key1_guard.hpp"
 #include "key1_grammar.hpp"
+#include "key1_guard.hpp"
 #include "member_extensions.hpp"
 #include "parse_utility.hpp"
 #include "pegtl.hpp"
@@ -34,7 +34,7 @@ namespace tao::config::internal::rules
       [[nodiscard]] static bool match( pegtl_input_t& in, State& st, const extension_maps& )
       {
          const auto r = parse_reference2( in );
-         const auto f = [ & ]( concat& c ){ c.concat.emplace_back( r ); };
+         const auto f = [ & ]( concat& c ) { c.concat.emplace_back( r ); };
          phase1_append( st.root, st.prefix + st.suffix, f, false );
          return true;
       }
@@ -55,7 +55,7 @@ namespace tao::config::internal::rules
       [[nodiscard]] static bool match( pegtl_input_t& in, State& st, const extension_maps& )
       {
          const auto j = parse_jaxn( in );
-         const auto f = [ & ]( concat& c ){ c.concat.emplace_back( j ); };
+         const auto f = [ & ]( concat& c ) { c.concat.emplace_back( j ); };
          phase1_append( st.root, st.prefix + st.suffix, f, false );
          return true;
       }

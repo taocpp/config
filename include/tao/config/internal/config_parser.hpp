@@ -17,8 +17,8 @@
 #include "member_functions.hpp"
 #include "pegtl.hpp"
 #include "phase2_combine.hpp"
-#include "phase2_resolve.hpp"
 #include "phase2_replace.hpp"
+#include "phase2_resolve.hpp"
 #include "phase3_remove.hpp"
 #include "phase4_schema.hpp"
 #include "phase5_repack.hpp"
@@ -85,7 +85,8 @@ namespace tao::config::internal
 
       void phase2_loop()
       {
-         while( phase2_iteration() ) {}
+         while( phase2_iteration() ) {
+         }
       }
 
       template< template< typename... > class Traits >

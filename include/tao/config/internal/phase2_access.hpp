@@ -45,7 +45,7 @@ namespace tao::config::internal
             if( const auto i = e.get_object().object.find( name ); i != e.get_object().object.end() ) {
                return phase2_access( i->second, suffix, down - 1 );
             }
-            if( down >=0 ) {
+            if( down >= 0 ) {
                return nullptr;
             }
             throw pegtl::parse_error( "name not found", p );
@@ -79,7 +79,7 @@ namespace tao::config::internal
             if( e.get_array().array.size() > index ) {
                return phase2_access( *std::next( e.get_array().array.begin(), index ), suffix, down - 1 );
             }
-            if( down >=0 ) {
+            if( down >= 0 ) {
                return nullptr;
             }
             throw pegtl::parse_error( "index out of range", p );

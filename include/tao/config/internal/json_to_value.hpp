@@ -81,7 +81,7 @@ namespace tao::config::internal
          value.public_base().position = p;
       }
 
-      void binary(  std::vector< std::byte >&& v, const pegtl::position& p )
+      void binary( std::vector< std::byte >&& v, const pegtl::position& p )
       {
          value.emplace_binary( std::move( v ) );
          value.public_base().position = p;

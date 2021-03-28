@@ -31,7 +31,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         const auto f = []( concat& c ){ c.temporary = false; };
+         const auto f = []( concat& c ) { c.temporary = false; };
          phase1_append( st.root, st.prefix + st.suffix, f, true );
       }
    };
@@ -42,7 +42,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         const auto f = []( concat& c ){ c.temporary = true; };
+         const auto f = []( concat& c ) { c.temporary = true; };
          phase1_append( st.root, st.prefix + st.suffix, f, true );
       }
    };
@@ -53,7 +53,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         const auto f = []( concat& c ){ c.concat.clear(); c.remove = true; c.temporary = false; };
+         const auto f = []( concat& c ) { c.concat.clear(); c.remove = true; c.temporary = false; };
          phase1_append( st.root, st.prefix + st.suffix, f, true );
       }
    };
@@ -65,7 +65,7 @@ namespace tao::config::internal
       static void apply( Input& in, State& st, const extension_maps& )
       {
          const auto p = in.position();
-         const auto f = [ & ]( concat& c ){ c.back_ensure_kind( entry_kind::array, p ); };
+         const auto f = [ & ]( concat& c ) { c.back_ensure_kind( entry_kind::array, p ); };
          phase1_append( st.root, st.prefix + st.suffix, f, false );
       }
    };
@@ -77,7 +77,7 @@ namespace tao::config::internal
       static void apply( Input& in, State& st, const extension_maps& )
       {
          const auto p = in.position();
-         const auto f = [ & ]( concat& c ){ c.back_ensure_kind( entry_kind::object, p ); };
+         const auto f = [ & ]( concat& c ) { c.back_ensure_kind( entry_kind::object, p ); };
          phase1_append( st.root, st.prefix + st.suffix, f, false );
       }
    };

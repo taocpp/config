@@ -61,7 +61,7 @@ namespace tao::config::internal
          st.schema = s ? ( *s ) : std::string();
       }
       else {
-         const auto f = [ & ]( concat& c ){ c.schema = s ? ( *s ) : std::string(); };
+         const auto f = [ & ]( concat& c ) { c.schema = s ? ( *s ) : std::string(); };
          phase1_append( st.root, st.prefix, f, !s.has_value() );
       }
    }
