@@ -14,15 +14,15 @@ set(TAOCPP_CONFIG_INSTALL_DOC_DIR "${CMAKE_INSTALL_DOCDIR}/tao/config" CACHE STR
 set(TAOCPP_CONFIG_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake" CACHE STRING "The installation cmake directory")
 
 # define a header-only library
-add_library(config INTERFACE)
-add_library(taocpp::config ALIAS config)
-target_include_directories(config INTERFACE
+add_library(taocpp-config INTERFACE)
+add_library(taocpp::config ALIAS taocpp-config)
+target_include_directories(taocpp-config INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 # require C++17
-target_compile_features(config INTERFACE cxx_std_17)
+target_compile_features(taocpp-config INTERFACE cxx_std_17)
 
 # find a suitable taoJSON
 set(TAOCPP_CONFIG_JSON_MIN_VERSION 1.0.0)
@@ -36,7 +36,7 @@ if(NOT taocpp-json_FOUND)
 endif()
 
 # add taoJSON as a dependency
-target_link_libraries(config INTERFACE taocpp::json)
+target_link_libraries(taocpp-config INTERFACE taocpp::json)
 
 # testing
 option(TAOCPP_CONFIG_BUILD_TESTS "Build test programs" ${TAOCPP_CONFIG_IS_MAIN_PROJECT})
@@ -69,7 +69,7 @@ if(TAOCPP_CONFIG_INSTALL)
   write_basic_package_version_file(${PROJECT_NAME}-config-version.cmake COMPATIBILITY SameMajorVersion)
 
   # install and export target
-  install(TARGETS config EXPORT ${PROJECT_NAME}-targets)
+  install(TARGETS taocpp-config EXPORT ${PROJECT_NAME}-targets)
   install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
