@@ -6,6 +6,7 @@
 
 #include <iterator>
 #include <list>
+#include <stdexcept>
 #include <utility>
 
 #include "entry_kind.hpp"
@@ -64,8 +65,7 @@ namespace tao::config::internal
                   result = &e.get_value();
                   continue;
                case entry_kind::reference:
-                  assert( false );  // UNREACHABLE
-                  std::abort();     // TODO: Generally decide what to use for UNREACHABLE.
+                  throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
                case entry_kind::array:
                   throw pegtl::parse_error( "array as referenced reference part", e.get_array().position );
                case entry_kind::object:
@@ -73,7 +73,7 @@ namespace tao::config::internal
                case entry_kind::concat:
                   throw pegtl::parse_error( "concat as referenced referene part", e.get_concat().position );
             }
-            assert( false );  // UNREACHABLE
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          }
          return result;
       }

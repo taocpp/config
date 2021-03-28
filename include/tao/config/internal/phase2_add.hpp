@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE2_ADD_HH
 #define TAO_CONFIG_INTERNAL_PHASE2_ADD_HH
 
+#include <stdexcept>
 #include <utility>
 
 #include "array.hpp"
@@ -101,16 +102,16 @@ namespace tao::config::internal
             return;
          case json::type::STRING_VIEW:
          case json::type::BINARY_VIEW:
-            assert( false );  // UNREACHABLE
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          case json::type::UNINITIALIZED:
          case json::type::ARRAY:
          case json::type::OBJECT:
          case json::type::VALUE_PTR:
          case json::type::OPAQUE_PTR:
          case json::type::VALUELESS_BY_EXCEPTION:
-            assert( false );  // UNREACHABLE
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
-      assert( false );  // UNREACHABLE
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
    inline void phase2_add( json_t&& l, json_t& r )

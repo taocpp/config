@@ -5,6 +5,8 @@
 #define TAO_CONFIG_INTERNAL_ENTRY_HPP
 
 #include <cassert>
+#include <cstddef>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <variant>
@@ -54,7 +56,7 @@ namespace tao::config::internal
                set_concat( p );
                return;
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
 
       entry( entry&& ) = delete;
@@ -194,7 +196,7 @@ namespace tao::config::internal
             case entry_kind::concat:
                return get_concat().count_references_recursive();
          }
-         assert( false );  // UNREACHABLE
+         std::abort();  // LCOV_EXCL_LINE
       }
 
    private:

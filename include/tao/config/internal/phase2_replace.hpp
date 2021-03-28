@@ -4,8 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE2_REPLACE_HPP
 #define TAO_CONFIG_INTERNAL_PHASE2_REPLACE_HPP
 
-#include <cassert>
 #include <set>
+#include <stdexcept>
 
 #include "array.hpp"
 #include "concat.hpp"
@@ -74,7 +74,7 @@ namespace tao::config::internal
                process_concat_entry( c, i );
                return;
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
 
       void process_concat_entry( concat& c, std::list< entry >::iterator& i )

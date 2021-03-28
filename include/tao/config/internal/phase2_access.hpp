@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <iterator>
+#include <stdexcept>
 #include <string>
 
 #include "array.hpp"
@@ -55,7 +56,7 @@ namespace tao::config::internal
             }
             throw pegtl::parse_error( "name not found", p );
       }
-      assert( false );  // UNREACHABLE
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
    [[nodiscard]] inline const concat* phase2_access_index( const concat& c, const pegtl::position& p, const std::size_t index, const key1& suffix, const int down )
@@ -91,7 +92,7 @@ namespace tao::config::internal
             }
             throw pegtl::parse_error( "cannot index (across) star", p );
       }
-      assert( false );  // UNREACHABLE
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
    [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1_part& p, const key1& suffix, const int down )
@@ -106,7 +107,7 @@ namespace tao::config::internal
          case key1_kind::append:
             throw pegtl::parse_error( "this should be impossible", p.position );
       }
-      assert( false );  // UNREACHABLE
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
    [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1& suffix, const int down )

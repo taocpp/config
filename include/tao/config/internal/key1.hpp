@@ -52,18 +52,6 @@ namespace tao::config::internal
          return *this;
       }
 
-      void pop_front()
-      {
-         assert( !empty() );
-         pop_front();
-      }
-
-      void pop_back()
-      {
-         assert( !empty() );
-         pop_back();
-      }
-
       [[nodiscard]] std::vector< key1_part >& vector() noexcept
       {
          return static_cast< std::vector< key1_part >& >( *this );

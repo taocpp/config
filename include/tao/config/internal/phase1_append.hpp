@@ -8,6 +8,7 @@
 #include <iterator>
 #include <optional>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 
@@ -105,7 +106,7 @@ namespace tao::config::internal
          case key1_kind::append:
             return phase1_append_append( c, part.position, part.get_generation(), pop_front( path ), thing, implicit );
       }
-      assert( false );  // UNREACHABLE
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
    template< typename T >

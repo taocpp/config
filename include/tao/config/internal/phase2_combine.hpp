@@ -5,6 +5,7 @@
 #define TAO_CONFIG_INTERNAL_PHASE2_COMBINE_HPP
 
 #include <cassert>
+#include <stdexcept>
 
 #include "array.hpp"
 #include "concat.hpp"
@@ -83,7 +84,7 @@ namespace tao::config::internal
                case entry_kind::concat:
                   continue;
             }
-            assert( false );  // UNREACHABLE
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          }
       }
 
@@ -108,7 +109,7 @@ namespace tao::config::internal
                process_concat( e.get_concat() );
                return;
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
    };
 

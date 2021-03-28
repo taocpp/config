@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE4_SCHEMA_HPP
 #define TAO_CONFIG_INTERNAL_PHASE4_SCHEMA_HPP
 
+#include <stdexcept>
+
 #include "array.hpp"
 #include "concat.hpp"
 #include "entry.hpp"
@@ -35,7 +37,7 @@ namespace tao::config::internal
             case entry_kind::value:
                return;
             case entry_kind::reference:
-               assert( false );  // UNREACHABLE
+               throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
             case entry_kind::array:
                for( const auto& i : e.get_array().array ) {
                   phase4_schema( i, b );
@@ -47,9 +49,9 @@ namespace tao::config::internal
                }
                return;
             case entry_kind::concat:
-               assert( false );  // UNREACHABLE
+               throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
    }
 

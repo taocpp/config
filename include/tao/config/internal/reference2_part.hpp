@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <ostream>
+#include <stdexcept>
 #include <string>
 #include <variant>
 #include <vector>
@@ -81,7 +82,7 @@ namespace tao::config::internal
             case reference2_kind::vector:
                return internal::to_string( get_vector() );
          }
-         throw std::string( "unreachable" );
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
 
       pegtl::position position;

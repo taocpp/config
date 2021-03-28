@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE5_REPACK_HPP
 #define TAO_CONFIG_INTERNAL_PHASE5_REPACK_HPP
 
+#include <cassert>
+#include <stdexcept>
 #include <utility>
 
 #include "array.hpp"
@@ -85,7 +87,7 @@ namespace tao::config::internal
             consumer.binary( j.get_binary() );
             break;
          default:
-            assert( false );  // UNREACHABLE
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
       set_key_and_position( consumer.value, k, j.position );
    }
@@ -98,7 +100,7 @@ namespace tao::config::internal
             phase5_repack( k, consumer, e.get_value() );
             return;
          case entry_kind::reference:
-            assert( false );  // UNREACHABLE -- must have been either eliminated or flagged as error earlier.
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE -- must have been either eliminated or flagged as error earlier.
          case entry_kind::array:
             phase5_repack( k, consumer, e.get_array() );
             return;
@@ -106,9 +108,9 @@ namespace tao::config::internal
             phase5_repack( k, consumer, e.get_object() );
             return;
          case entry_kind::concat:
-            assert( false );  // UNREACHABLE -- must have been either eliminated or flagged as error earlier.
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE -- must have been either eliminated or flagged as error earlier.
       }
-      assert( false );  // UNREACHABLE
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
    template< template< typename... > class Traits >

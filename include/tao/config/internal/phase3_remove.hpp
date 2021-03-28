@@ -4,7 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE3_REMOVE_HPP
 #define TAO_CONFIG_INTERNAL_PHASE3_REMOVE_HPP
 
-#include <cassert>
+#include <stdexcept>
 
 #include "array.hpp"
 #include "concat.hpp"
@@ -25,17 +25,15 @@ namespace tao::config::internal
          case entry_kind::value:
             return std::string( json::to_string( e.get_value().type() ) );
          case entry_kind::reference:
-            assert( false );  // UNREACHABLE
-            std::abort();
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          case entry_kind::array:
             return "array";
          case entry_kind::object:
             return "object";
          case entry_kind::concat:
-            assert( false );  // UNREACHABLE
-            std::abort();
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
-      assert( false );  // UNREACHABLE
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
    [[nodiscard]] inline pegtl::position phase3_partial_position( const entry& e )
@@ -44,17 +42,15 @@ namespace tao::config::internal
          case entry_kind::value:
             return e.get_value().position;
          case entry_kind::reference:
-            assert( false );  // UNREACHABLE
-            std::abort();
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          case entry_kind::array:
             return e.get_array().position;
          case entry_kind::object:
             return e.get_object().position;
          case entry_kind::concat:
-            assert( false );  // UNREACHABLE
-            std::abort();
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
-      assert( false );  // UNREACHABLE
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
    inline void phase3_remove( concat& c )
@@ -74,7 +70,7 @@ namespace tao::config::internal
             case entry_kind::concat:
                throw pegtl::parse_error( "unresolved star", e.get_concat().position );  // Can happen when there are also unresolved references.
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
       if( c.concat.size() > 1 ) {
          auto i = c.concat.begin();

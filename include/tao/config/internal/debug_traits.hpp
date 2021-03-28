@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_DEBUG_TRAITS_HPP
 #define TAO_CONFIG_INTERNAL_DEBUG_TRAITS_HPP
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -50,7 +51,7 @@ namespace tao::config::internal
                c.string( "index" );
                return;
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
    };
 
@@ -144,7 +145,7 @@ namespace tao::config::internal
                c.string( "append" );
                return;
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
    };
 
@@ -196,7 +197,7 @@ namespace tao::config::internal
                c.string( "reference" );
                return;
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
    };
 
@@ -254,7 +255,7 @@ namespace tao::config::internal
                c.string( "concat" );
                return;
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
    };
 
