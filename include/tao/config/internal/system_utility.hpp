@@ -50,7 +50,7 @@ namespace tao::config::internal
    }
 
 #if !defined( _MSC_VER )
-   inline void set_env_throws( const pegtl::position& pos, const std::string& name, const std::string& value )
+   inline void set_env_throws( const pegtl::position& /*pos*/, const std::string& name, const std::string& value )
    {
       errno = 0;
       if( ::setenv( name.c_str(), value.c_str(), 1 ) != 0 ) {
@@ -60,7 +60,7 @@ namespace tao::config::internal
       }
    }
 
-   [[nodiscard]] inline std::string shell_popen_throws( const pegtl::position& pos, const std::string& script )
+   [[nodiscard]] inline std::string shell_popen_throws( const pegtl::position& /*pos*/, const std::string& script )
    {
       errno = 0;
 

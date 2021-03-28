@@ -141,7 +141,7 @@ namespace tao::config::internal
    template<>
    struct argument_traits< extension_maps >
    {
-      argument_traits( pegtl_input_t& /*unused*/, state& st, const extension_maps& em )
+      argument_traits( pegtl_input_t& /*unused*/, state& /*unused*/, const extension_maps& em )
          : m_em( em )
       {}
 
