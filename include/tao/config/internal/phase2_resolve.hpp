@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <set>
+#include <stdexcept>
 
 #include "array.hpp"
 #include "concat.hpp"
@@ -73,7 +74,7 @@ namespace tao::config::internal
             case reference2_kind::vector:
                return process_inner_reference( prefix, part.get_vector() );
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
 
       [[nodiscard]] const concat* process_reference_parts( const key1& prefix, const std::vector< reference2_part >& reference )
@@ -134,7 +135,7 @@ namespace tao::config::internal
                //               process_concat( prefix + key1_part( part_star, m_root.position ), e.get_concat() );
                return nullptr;
          }
-         assert( false );  // UNREACHABLE
+         throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
    };
 
