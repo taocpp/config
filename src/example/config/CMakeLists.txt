@@ -31,7 +31,7 @@ foreach(examplesourcefile ${examplesources})
   if(MSVC)
     target_compile_options(${exename} PRIVATE /W4 /WX /utf-8)
   else()
-    target_compile_options(${exename} PRIVATE -pedantic -Wall -Wextra -Wshadow -Werror)
+    target_compile_options(${exename} PRIVATE -pedantic -Wall -Wextra -Werror)
   endif()
 endforeach()
 
