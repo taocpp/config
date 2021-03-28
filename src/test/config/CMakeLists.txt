@@ -3,12 +3,10 @@ cmake_minimum_required(VERSION 3.8...3.19)
 set(testsources
   enumerations.cpp
   failure.cpp
-  main.hpp
   parse_key1.cpp
   parse_key.cpp
   parse_reference2.cpp
   success.cpp
-  test.hpp
 )
 
 # file(GLOB ...) is used to validate the above list of test_sources
