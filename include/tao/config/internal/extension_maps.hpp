@@ -14,10 +14,10 @@ namespace tao::config::internal
    {
       extension_maps() = delete;
 
-      extension_maps( value_extension_map&& inner, member_extension_map&& member, member_extension_map&& value )
-         : inner( std::move( inner ) ),
-           member( std::move( member ) ),
-           value( std::move( value ) )
+      extension_maps( value_extension_map&& in_inner, member_extension_map&& in_member, member_extension_map&& in_value )
+         : inner( std::move( in_inner ) ),
+           member( std::move( in_member ) ),
+           value( std::move( in_value ) )
       {}
 
       extension_maps( extension_maps&& ) = delete;
