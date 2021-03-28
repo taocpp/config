@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_SCHEMA_INTERNAL_REF_IMPL_HPP
@@ -17,17 +17,17 @@ namespace tao::config::schema::internal
    {
       if( v.is_boolean() ) {
          if( v.as< bool >() ) {
-            m_node = std::make_unique< trivial< true > >( v );
+            m_node = std::make_shared< trivial< true > >( v );
          }
          else {
-            m_node = std::make_unique< trivial< false > >( v );
+            m_node = std::make_shared< trivial< false > >( v );
          }
       }
       else if( v.is_array() ) {
-         m_node = std::make_unique< list< any_of, ref > >( v, m, path );
+         m_node = std::make_shared< list< any_of, ref > >( v, m, path );
       }
       else if( v.is_object() ) {
-         m_node = std::make_unique< schema >( v, m, path );
+         m_node = std::make_shared< schema >( v, m, path );
       }
    }
 

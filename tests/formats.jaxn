@@ -1,0 +1,8 @@
+{
+   cbor: "hallo",
+   jaxn: "hallo",
+   json: "hallo",
+   msgpack: "hallo",
+   txt: "hallo",
+   ubjson: "hallo"
+}

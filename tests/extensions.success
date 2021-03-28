@@ -1,0 +1,42 @@
+default
+{
+    a = (default 1 2)
+    b = (default null 2)
+    c = (default 1 null)
+    d = (default null null)
+}
+
+(setenv "TAO_CONFIG" "env_value")
+
+env
+{
+    a = (env "TAO_CONFIG")
+    b = (env? "a b c d e f g h i j k l m n o p q r s t u v w x y z" "default_value")
+}
+
+identity
+{
+    a = (identity 42)
+    b = (identity null)
+    c = (identity $deadbeaf)
+}
+
+parse
+{
+    a = (parse "42")
+    b = (parse "null")
+}
+
+shell
+{
+    a = (shell "echo hallo")
+}
+
+split
+{
+    a = (split "")
+    b = (split "a")
+    c = (split " a ")
+    d = (split "a b c")
+    e = (split " a b c ")
+}

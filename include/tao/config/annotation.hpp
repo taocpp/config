@@ -1,10 +1,15 @@
-// Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_ANNOTATION_HPP
 #define TAO_CONFIG_ANNOTATION_HPP
 
-#include "external/json.hpp"
+#include <ostream>
+
+#include <tao/json.hpp>
+#include <tao/json/contrib/position.hpp>
+
+#include <tao/pegtl/position.hpp>
 
 #include "key.hpp"
 
@@ -23,34 +28,14 @@ namespace tao::config
       annotation( const annotation& ) = default;
       annotation& operator=( const annotation& ) = default;
 
-      std::size_t line() const noexcept
-      {
-         return position.line();
-      }
-
-      std::size_t column() const noexcept
-      {
-         return position.column();
-      }
-
-      const std::string& source() const noexcept
-      {
-         return position.source();
-      }
-
-      void set_key( config::key&& k ) noexcept
+      void set_key( config::key k ) noexcept
       {
          key = std::move( k );
       }
 
-      void set_key( const config::key& k )
+      void set_position( json::position p ) noexcept
       {
-         key = k;
-      }
-
-      void set_position( const json::position& pos )
-      {
-         position = pos;
+         position = std::move( p );
       }
 
       void set_position( const pegtl::position& pos )

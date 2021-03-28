@@ -1,59 +1,44 @@
-// Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_INTERNAL_STATE_HPP
 #define TAO_CONFIG_INTERNAL_STATE_HPP
 
-#include <functional>
+#include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
 
-#include "../key.hpp"
-
+#include "array.hpp"
+#include "concat.hpp"
 #include "entry.hpp"
-#include "extension_t.hpp"
-#include "forward.hpp"
-#include "json.hpp"
+#include "key1.hpp"
+#include "object.hpp"
 #include "pegtl.hpp"
 
 namespace tao::config::internal
 {
    struct state
    {
-      state( const extension_map_t& v, const extension_map_t& m )
-         : root( nullptr ),
-           temporary( json::uninitialized, pegtl::position( {}, "(temporary)" ) ),
-           value_extensions( v ),
-           member_extensions( m )
-      {
-         root.set_object( pegtl::position( {}, "(root)" ) );
-         ostack.emplace_back( &root );
-      }
+      state()
+         : root( pegtl::position( 1, 1, 1, "(root)" ) )
+      {}
 
-      entry root;
+      state( state&& ) = delete;
+      state( const state& ) = delete;
 
-      // General Structure
+      ~state() = default;
 
-      bool clear = false;  // 'true' when = was used for something new.
+      void operator=( state&& ) = delete;
+      void operator=( const state&& ) = delete;
 
-      std::vector< entry* > ostack;   // Object contexts via '{'.
-      std::vector< concat* > lstack;  // Current rules::value_list.
-      std::vector< entry* > astack;   // Array contexts via '['.
+      key1 prefix;
+      key1 suffix;
 
-      // Phase 1 Extensions
-
-      json_t temporary;
-      std::string extension;
-
-      const extension_map_t& value_extensions;
-      const extension_map_t& member_extensions;
-
-      // Phase 2 Extensions
-
+      object root;
       std::string schema;
 
-      std::vector< key > temporaries;  // Delete from final result.
-      std::vector< json_t* > rstack;   // Nested phase 2 references (and also phase 1 keys).
+      std::uint64_t generation = 1;
    };
 
 }  // namespace tao::config::internal

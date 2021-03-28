@@ -1,333 +1,228 @@
-// Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_INTERNAL_ENTRY_HPP
 #define TAO_CONFIG_INTERNAL_ENTRY_HPP
 
-#include <stdexcept>
+#include <cassert>
 #include <string>
+#include <utility>
+#include <variant>
 
+#include "array.hpp"
 #include "concat.hpp"
-#include "entry_array.hpp"
-#include "entry_object.hpp"
+#include "constants.hpp"
+#include "entry_kind.hpp"
 #include "forward.hpp"
 #include "json.hpp"
+#include "json_traits.hpp"
+#include "object.hpp"
 #include "pegtl.hpp"
-#include "value_traits.hpp"
+#include "reference2.hpp"
 
 namespace tao::config::internal
 {
-   union entry_union
+   struct entry
    {
-      entry_union() noexcept
-      {}
+      using data_t = std::variant< json_t, reference2, array, object, concat >;
 
-      entry_union( entry_union&& ) = delete;
-      entry_union( const entry_union& ) = delete;
-
-      void operator=( entry_union&& ) = delete;
-      void operator=( const entry_union& ) = delete;
-
-      ~entry_union() noexcept
-      {}
-
-      json_t j;
-
-      entry_array a;
-      entry_object o;
-   };
-
-   class entry
-   {
-   public:
-      enum kind : std::uint8_t
+      explicit entry( const json_t& j )
+         : m_data( j )
       {
-         atom,
-         array,
-         object,
-         nothing,
-         reference
-      };
+         expand();  // Recursively convert JSON Value class arrays and objects into config::internal arrays and objects with alternating concat/entry structure.
+      }
 
-      explicit entry( concat* parent )
-         : m_type( nothing ),
-           m_parent( parent )
-      {}
-
-      entry( concat* parent, const entry& r )
-         : m_type( nothing ),
-           m_parent( parent ),
-           m_clear( r.m_clear )
+      explicit entry( const reference2& r )
+         : m_data( r )
       {
-         embed( r );
-         m_type = r.m_type;
+         assert( !r.empty() );
+      }
+
+      entry( const entry_kind k, const pegtl::position& p )
+         : m_data( std::in_place_type_t< object >(), p )
+      {
+         switch( k ) {
+            case entry_kind::value:
+            case entry_kind::reference:
+               throw std::string( "this should never happen" );
+            case entry_kind::array:
+               set_array( p );
+               return;
+            case entry_kind::object:
+               return;
+            case entry_kind::concat:
+               set_concat( p );
+               return;
+         }
+         assert( false );  // UNREACHABLE
       }
 
       entry( entry&& ) = delete;
-      entry( const entry& ) = delete;
+      entry( const entry& ) = default;
+
+      ~entry() = default;
 
       entry& operator=( entry&& ) = delete;
-      entry& operator=( const entry& ) = delete;
+      entry& operator=( const entry& ) = default;
 
-      ~entry() noexcept
+      entry_kind kind() const noexcept
       {
-         discard();
+         return entry_kind( m_data.index() );
       }
 
-      kind type() const noexcept
+      [[nodiscard]] bool is_value() const noexcept
       {
-         return m_type;
+         return std::holds_alternative< json_t >( m_data );
       }
 
-      concat* parent() const noexcept
+      [[nodiscard]] bool is_reference() const noexcept
       {
-         return m_parent;
+         return std::holds_alternative< reference2 >( m_data );
       }
 
-      bool is_atom() const noexcept
+      [[nodiscard]] bool is_array() const noexcept
       {
-         return m_type == atom;
+         return std::holds_alternative< array >( m_data );
       }
 
-      bool is_array() const noexcept
+      [[nodiscard]] bool is_object() const noexcept
       {
-         return m_type == array;
+         return std::holds_alternative< object >( m_data );
       }
 
-      bool is_object() const noexcept
+      [[nodiscard]] bool is_concat() const noexcept
       {
-         return m_type == object;
+         return std::holds_alternative< concat >( m_data );
       }
 
-      bool is_nothing() const noexcept
+      void set_array( pegtl::position p )
       {
-         return m_type == nothing;
+         m_data.emplace< std::size_t( entry_kind::array ) >( std::move( p ) );
       }
 
-      bool is_reference() const noexcept
+      void set_object( pegtl::position p )
       {
-         return m_type == reference;
+         m_data.emplace< std::size_t( entry_kind::object ) >( std::move( p ) );
       }
 
-      void reset()
+      void set_concat( pegtl::position p )
       {
-         discard();
+         m_data.emplace< std::size_t( entry_kind::concat ) >( std::move( p ) );
       }
 
-      void set_atom( const json_t& v )
+      [[nodiscard]] json_t& get_value() noexcept
       {
-         discard();
-         new( &m_union.j ) json_t( v );
-         m_type = atom;
-         m_union.j.clear = m_clear;  // See comment below.
+         auto* s = std::get_if< json_t >( &m_data );
+         assert( s );
+         return *s;
       }
 
-      template< typename T >
-      void set_atom( T&& t, const pegtl::position& pos )
+      [[nodiscard]] reference2& get_reference() noexcept
       {
-         discard();
-         new( &m_union.j ) json_t( json::uninitialized, pos );
-         m_union.j.assign( std::forward< T >( t ) );
-         m_type = atom;
-         m_union.j.clear = m_clear;  // This is at least (?) for phase two reference substitution, when copying the atom from the target of the reference we want to keep our m_clear for the copied atom, because we don't care about whether the reference target was assigned with += or =, we want to use += or = according to how the reference itself was "added".
+         auto* s = std::get_if< reference2 >( &m_data );
+         assert( s );
+         return *s;
       }
 
-      void set_array( const pegtl::position& pos )
+      [[nodiscard]] array& get_array() noexcept
       {
-         discard();
-         new( &m_union.a ) entry_array( pos );
-         m_type = array;
+         auto* s = std::get_if< array >( &m_data );
+         assert( s );
+         return *s;
       }
 
-      void set_object( const pegtl::position& pos )
+      [[nodiscard]] object& get_object() noexcept
       {
-         discard();
-         new( &m_union.o ) entry_object( pos );
-         m_type = object;
+         auto* s = std::get_if< object >( &m_data );
+         assert( s );
+         return *s;
       }
 
-      void set_reference( json_t&& v )
+      [[nodiscard]] concat& get_concat() noexcept
       {
-         discard();
-         new( &m_union.j ) json_t( std::move( v ) );
-         m_type = reference;
+         auto* s = std::get_if< concat >( &m_data );
+         assert( s );
+         return *s;
       }
 
-      json_t& get_atom() noexcept
+      [[nodiscard]] const json_t& get_value() const noexcept
       {
-         assert( is_atom() );
-         //  assert( m_union.j.clear == m_clear );  // TODO: Where, and why exactly, is this violated?
-         return m_union.j;
+         const auto* s = std::get_if< json_t >( &m_data );
+         assert( s );
+         return *s;
       }
 
-      entry_array& get_array() noexcept
+      [[nodiscard]] const reference2& get_reference() const noexcept
       {
-         assert( is_array() );
-         return m_union.a;
+         const auto* s = std::get_if< reference2 >( &m_data );
+         assert( s );
+         return *s;
       }
 
-      entry_object& get_object() noexcept
+      [[nodiscard]] const array& get_array() const noexcept
       {
-         assert( is_object() );
-         return m_union.o;
+         const auto* s = std::get_if< array >( &m_data );
+         assert( s );
+         return *s;
       }
 
-      json_t& get_reference() noexcept
+      [[nodiscard]] const object& get_object() const noexcept
       {
-         assert( is_reference() );
-         return m_union.j;
+         const auto* s = std::get_if< object >( &m_data );
+         assert( s );
+         return *s;
       }
 
-      const json_t& get_atom() const noexcept
+      [[nodiscard]] const concat& get_concat() const noexcept
       {
-         assert( is_atom() );
-         return m_union.j;
+         const auto* s = std::get_if< concat >( &m_data );
+         assert( s );
+         return *s;
       }
 
-      const entry_array& get_array() const noexcept
+      [[nodiscard]] std::size_t count_references_recursive() const noexcept
       {
-         assert( is_array() );
-         return m_union.a;
-      }
-
-      const entry_object& get_object() const noexcept
-      {
-         assert( is_object() );
-         return m_union.o;
-      }
-
-      const json_t& get_reference() const noexcept
-      {
-         assert( is_reference() );
-         return m_union.j;
-      }
-
-      concat& emplace_back( const pegtl::position& pos )
-      {
-         return get_array().emplace_back( this, pos );
-      }
-
-      concat& emplace( const std::string& k, const pegtl::position& pos )
-      {
-         return get_object().try_emplace( k, this, pos ).first->second;
-      }
-
-      void set_recursion_marker()
-      {
-         if( m_phase2_recursion_marker ) {
-            throw std::runtime_error( "reference cycle detected -- " + to_string( position() ) );
+         switch( kind() ) {
+            case entry_kind::value:
+               return 0;
+            case entry_kind::reference:
+               return 1;
+            case entry_kind::array:
+               return get_array().count_references_recursive();
+            case entry_kind::object:
+               return get_object().count_references_recursive();
+            case entry_kind::concat:
+               return get_concat().count_references_recursive();
          }
-         m_phase2_recursion_marker = true;
-      }
-
-      void clear_recursion_marker() noexcept
-      {
-         m_phase2_recursion_marker = false;
-      }
-
-      bool clear() const noexcept
-      {
-         return m_clear;
-      }
-
-      void set_clear( const bool c = true ) noexcept
-      {
-         switch( m_type ) {
-            case atom:
-            case reference:
-               m_union.j.clear = c;
-               break;
-            case array:
-            case object:
-            case nothing:
-               break;
-         }
-         m_clear = c;
-      }
-
-      void copy_atom_from( const entry& e )
-      {
-         assert( e.clear() );
-         assert( is_atom() );
-         assert( e.is_atom() );
-         assert( m_union.j.clear == m_clear );
-         assert( e.m_union.j.clear == e.m_clear );
-         assert( m_parent == e.m_parent );
-
-         m_clear = e.m_clear;
-
-         embed( e );
-      }
-
-      const pegtl::position& position() const noexcept
-      {
-         // TODO: Check whether this function should be eliminated in refactoring.
-
-         switch( m_type ) {
-            case atom:
-            case reference:
-               assert( m_union.j.position );
-               return *m_union.j.position;
-            case array:
-               return m_union.a.position();
-            case object:
-               return m_union.o.position();
-            case nothing:
-               break;
-         }
-         assert( false );
+         assert( false );  // UNREACHABLE
       }
 
    private:
-      void discard() noexcept
-      {
-         switch( m_type ) {
-            case atom:
-            case reference:
-               m_union.j.~basic_value();
-               break;
-            case array:
-               m_union.a.~entry_array();
-               break;
-            case object:
-               m_union.o.~entry_object();
-               break;
-            case nothing:
-               break;
-         }
-         m_type = nothing;
-      }
+      data_t m_data;
 
-      void embed( const entry& r )
+      void expand()
       {
-         switch( r.m_type ) {
-            case atom:
-            case reference:
-               new( &m_union.j ) json_t( r.m_union.j );
-               break;
-            case array:
-               new( &m_union.a ) entry_array( r.m_union.a.position() );
-               for( const auto& i : r.m_union.a.list() ) {
-                  m_union.a.emplace_back( this, i );
-               }
-               break;
-            case object:
-               new( &m_union.o ) entry_object( r.m_union.o.position() );
-               for( const auto& i : r.m_union.o.map() ) {
-                  m_union.o.try_emplace( i.first, this, i.second );
-               }
-               break;
-            case nothing:
-               break;
+         if( get_value().is_array() ) {
+            json_t::array_t a = std::move( get_value().get_array() );
+            set_array( get_value().position );
+            for( json_t& j : a ) {
+               concat& d = get_array().array.emplace_back( j.position );
+               d.concat.emplace_back( std::move( j ) );
+               d.remove = true;  // TODO: Make configurable?
+            }
+            return;
+         }
+         if( get_value().is_object() ) {
+            json_t::object_t o = std::move( get_value().get_object() );
+            set_object( get_value().position );
+            for( auto& [ k, j ] : o ) {
+               const auto p = get_object().object.try_emplace( std::move( k ), j.position );
+               p.first->second.concat.emplace_back( std::move( j ) );
+               p.first->second.remove = true;  // TODO: Make configurable?
+            }
+            return;
          }
       }
-
-      kind m_type;
-      concat* m_parent;  // TODO?
-      entry_union m_union;
-
-      bool m_clear = false;
-      bool m_phase2_recursion_marker = false;
    };
 
 }  // namespace tao::config::internal

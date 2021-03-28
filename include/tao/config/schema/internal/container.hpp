@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_SCHEMA_INTERNAL_CONTAINER_HPP
@@ -12,7 +12,7 @@ namespace tao::config::schema::internal
    {
       using node::node;
 
-      std::vector< std::unique_ptr< node > > m_properties;
+      std::vector< std::shared_ptr< node > > m_properties;
 
       void resolve( const node_map& m ) override
       {

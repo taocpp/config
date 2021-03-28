@@ -1,15 +1,17 @@
 (include "tests/simple.success")
 
 a = {
-   (include (shell "bash -c \"echo -n tests/simple.success\""))
+  (include "tests/simple.success")
 }
 
-(setenv "CONFIGFILE" "tests/showcase.c")
+(setenv "CONFIGFILE" "tests/simple.success")
 
 b = {
    (include (env "CONFIGFILE"))
 }
 
+b.simple += 1
+
 c = {
-   (include? "/a b c d e f g h i j k l m n o p q r s t u v w s y z")
+   (include? "a b c d e f g h i j k l m n o p q r s t u v w x y z")
 }

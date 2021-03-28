@@ -1,14 +1,3 @@
-a {
-    b {
-        c {
-            d = 42
-        }
-        f = (copy c.d)
-        c.g = (copy d)
-    }
-    e = (copy a.b.c.d)
-}
-
 h {
     i {
         j {
@@ -19,7 +8,3 @@ h {
     }
     n = (h.i.j.k)
 }
-
-o = (copy h.i)
-
-o.j.k = 44

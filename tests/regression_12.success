@@ -1,0 +1,8 @@
+a.b.c.d.e = delete
+a.b.d = 1
+
+b.c.d.e.f = temporary
+b.c.e = 2
+
+c.d.e.f.g = permanent
+c.d.g = 3

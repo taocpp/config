@@ -1,54 +1,98 @@
 # Member Extensions
 
-*Warning: The documentation is still work-in-progress and very incomplete.*
-
 ---
 
 Member extensions use the same syntax as value extensions, however they take the place of JSON object members.
 Note that whitespace is significant within member extensions, i.e. whitespace must be used as shown and comments are forbidden.
 
- * [delete](#delete)
  * [include](#include)
+ * [parse](#parse)
  * [schema](#schema)
- * [setenv](#setenv)
- * [stderr](#stderr)
- * [temporary](#temporary)
 
 
-## delete
 
-The `delete` member extension is deprecated and the `delete` special value should be used instead, TODO: link.
+## include
 
-The `delete` member extensions delete a value (and all of its sub-values) from the config.
-For plain `delete` it is an error if the value does not exist, the `delete?` alternative form is idempotent and never reports an error.
-Values that were deleted can be assigned to again later.
+The `include` member extension reads the named file relative to the current working directory and parses it "as if" the contents of that file were present instead of the `include`.
+For plain `include` it is an error when the file does not exist, the `include?` alternative form ignores missing files.
 
 #### Example taoCONFIG Input File
 
 ```
-foo = "LG"
-bar = "RL"
+// Include the file whose contents are shown below.
+(include "tests/doc_member_include.inc")
 
-(delete foo)
-(delete? baz)
+foo
+{
+    // Include the same file again, this time within an object.
+    (include "tests/doc_member_include.inc")
+}
+
+(include? "tests/non_existing_file_is_no_error_with_include?")
+```
+
+#### Example taoCONFIG Include File
+
+```
+bar = 42
+baz = [ true, false ]
 ```
 
 #### Resulting JAXN Config Data
 
 ```javascript
 {
-   bar: "RL"
+   bar: 42,
+   baz: [
+      true,
+      false
+   ],
+   foo: {
+      bar: 42,
+      baz: [
+         true,
+         false
+      ]
+   }
 }
 ```
 
 
-## include
+
+## parse
+
+The `parse` member extension parses the given string as "as if" the contents of that string were present instead of the `parse`.
+
+#### Example taoCONFIG Input File
+
+```
+(parse "a = 42")
+
+foo
+{
+    b = true
+    c = false
+    (parse "b = delete   c = true")
+}
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   a: 42,
+   foo: {
+      c: true
+   }
+}
+```
+
 
 
 ## schema
 
 The `schema` member extension tells the config library which [schema file](Writing-Schema-Files.cfg) the config must adhere to.
-After reading the config file(s), the schema file from the last `schema` directive, if any, is read, and the config is checked against it.
+After reading the config file(s), the schema is read, and the config is checked against it.
 
 #### Example taoCONFIG Input File
 
@@ -82,7 +126,7 @@ properties
 }
 ```
 
-#### Resulting Printed Debug Data
+#### Resulting JAXN Config Data
 
 ```javascript
 {
@@ -91,104 +135,50 @@ properties
 }
 ```
 
-For more on schemas [please consult the page on how to write schema files](Writing-Schema-Files.md).
+For more information on taoCONFIG schemas [please consult the page on how to write schema files](Writing-Schema-Files.md).
 
-
-## setenv
-
-*The `setenv` member extension only exists to make the examples independent of their environment.*
-
-
-## stderr
-
-This member extension is a debugging tool and is similar to the `debug` value extension.
-
-It prints a JSON representation of the library's internal intermediate data structure for the referenced part of the config data in its current state to the standard error channel.
-The config value itself does not change through the presence or absence of "stderr members".
+Schemas can also be applied to sub-sections of the config by putting the schema member in the appropriate sub-section.
 
 #### Example taoCONFIG Input File
 
 ```
-foo = 42
+foo.bar
+{
+    ip = "127.0.0.1"
+    port = 42
 
-(stderr foo)
+    (schema "tests/doc_member_schema.schema")
+}
+
+what = "ever"  // Outside scope of schema.
 ```
 
-#### Resulting Printed Debug Data
+#### Resulting JAXN Config Data
 
 ```javascript
 {
-   position: "tests/doc_member_stderr.config:1:6",
-   concat_list: [
-      {
-         clear: true,
-         atom: 42
+   foo: {
+      bar: {
+         ip: "127.0.0.1",
+         port: 42
       }
-   ]
-}
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: 42
-}
-```
-
-
-## temporary
-
-A part of the config can be marked as _temporary_ meaning that it will be removed from the final result after reading is complete.
-Marking a part of the config as _temporary_ can be done before or after the marked part of the config was (first) defined.
-Temporary parts of the config can still be referenced and copied normally.
-
-#### Example taoCONFIG Input File
-
-```
-template
-{
-   foo = 42
-   bar = true
-}
-
-(temporary template)
-
-first = (template) +
-{
-   foo = 43
-}
-
-second = (template) +
-{
-   bar = false
-}
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   first: {
-      bar: true,
-      foo: 43
    },
-   second: {
-      bar: false,
-      foo: 42
-   }
+   what: "ever"
 }
+```
 
+The schema member can occur multiple times at top-level or within a sub-section, however the last one "wins" and only a single schema will actually be used.
+In order to "cancel" a schema checking the schema member can be used with `null`.
+
+```
+(schema null)  // Remove any top-level schema checking.
 ```
 
 
 
-Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
 
-[CBOR]: http://cbor.io
 [JAXN]: https://github.com/stand-art/jaxn
 [JSON]: https://tools.ietf.org/html/rfc8259
-[MsgPack]: http://msgpack.org
 [taoCONFIG]: https://github.com/taocpp/config
 [taoJSON]: https://github.com/taocpp/json
-[UBJSON]: http://ubjson.org

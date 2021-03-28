@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_SCHEMA_INTERNAL_SWITCH_CASE_HPP
@@ -12,20 +12,20 @@ namespace tao::config::schema::internal
 {
    struct switch_type : node
    {
-      std::map< std::string_view, std::unique_ptr< node > > m_cases;
-      std::unique_ptr< node > m_default;
+      std::map< std::string_view, std::shared_ptr< node > > m_cases;
+      std::shared_ptr< node > m_default;
 
       switch_type( const value& v, node_map& m, const std::string& path )
          : node( v )
       {
          if( const auto& c = internal::find( m_source, "case" ) ) {
             for( const auto& p : c.get_object() ) {
-               m_cases.emplace( p.first, std::make_unique< ref >( p.second, m, path ) );
+               m_cases.emplace( p.first, std::make_shared< ref >( p.second, m, path ) );
             }
          }
          if( const auto& d = internal::find( m_source, "default" ) ) {
             if( d != false ) {
-               m_default = std::make_unique< ref >( d, m, path );
+               m_default = std::make_shared< ref >( d, m, path );
             }
          }
       }
@@ -87,8 +87,8 @@ namespace tao::config::schema::internal
    struct switch_string : node
    {
       std::string_view m_key;
-      std::map< std::string_view, std::unique_ptr< node >, Compare > m_cases;
-      std::unique_ptr< node > m_default;
+      std::map< std::string_view, std::shared_ptr< node >, Compare > m_cases;
+      std::shared_ptr< node > m_default;
 
       switch_string( const value& v, node_map& m, const std::string& path )
          : node( v )
@@ -97,12 +97,12 @@ namespace tao::config::schema::internal
          m_key = s->first;
          if( const auto& c = internal::find( s->second, "case" ) ) {
             for( const auto& p : c.get_object() ) {
-               m_cases.emplace( p.first, std::make_unique< ref >( p.second, m, path ) );
+               m_cases.emplace( p.first, std::make_shared< ref >( p.second, m, path ) );
             }
          }
          if( const auto& d = internal::find( s->second, "default" ) ) {
             if( d != false ) {
-               m_default = std::make_unique< ref >( d, m, path );
+               m_default = std::make_shared< ref >( d, m, path );
             }
          }
       }
@@ -148,20 +148,20 @@ namespace tao::config::schema::internal
 
    struct switch_case : node
    {
-      std::unique_ptr< node > m_impl;
+      std::shared_ptr< node > m_impl;
 
       switch_case( const value& v, node_map& m, const std::string& path )
          : node( v )
       {
          const auto s = m_source.get_object().begin();
          if( s->first == "type" ) {
-            m_impl = std::make_unique< switch_type >( s->second, m, path );
+            m_impl = std::make_shared< switch_type >( s->second, m, path );
          }
          else if( s->first == "string" ) {
-            m_impl = std::make_unique< switch_string< std::less< std::string_view > > >( s->second, m, path );
+            m_impl = std::make_shared< switch_string< std::less< std::string_view > > >( s->second, m, path );
          }
          else if( s->first == "istring" ) {
-            m_impl = std::make_unique< switch_string< iless > >( s->second, m, path );
+            m_impl = std::make_shared< switch_string< iless > >( s->second, m, path );
          }
          else {
             // TODO: Throw proper exception

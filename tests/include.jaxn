@@ -3,7 +3,7 @@
       simple: 42
    },
    b: {
-      show: true
+      simple: 43
    },
    c: {},
    simple: 42

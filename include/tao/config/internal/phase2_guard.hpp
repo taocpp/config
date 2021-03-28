@@ -1,38 +1,46 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_INTERNAL_PHASE2_GUARD_HPP
 #define TAO_CONFIG_INTERNAL_PHASE2_GUARD_HPP
 
+#include <cassert>
+#include <set>
+
+#include "pegtl.hpp"
+
 namespace tao::config::internal
 {
-   template< typename T >
    class phase2_guard
    {
    public:
-      explicit phase2_guard( T& v )
-         : m_v( v )
+      template< typename T >
+      phase2_guard( std::set< const void* >& stack, T& thing )
+         : m_stack( stack ),
+           m_thing( &thing )
       {
-         m_v.set_recursion_marker();
-      }
-
-      ~phase2_guard()
-      {
-         m_v.clear_recursion_marker();
+         if( !m_stack.insert( m_thing ).second ) {
+            throw pegtl::parse_error( "reference cycle detected", thing.position );
+         }
       }
 
       phase2_guard( phase2_guard&& ) = delete;
       phase2_guard( const phase2_guard& ) = delete;
 
+      ~phase2_guard()
+      {
+         const std::size_t count = m_stack.erase( m_thing );
+         assert( count == 1 );
+         (void)count;
+      }
+
       void operator=( phase2_guard&& ) = delete;
       void operator=( const phase2_guard& ) = delete;
 
    private:
-      T& m_v;
+      std::set< const void* >& m_stack;
+      const void* m_thing;
    };
-
-   template< typename T >
-   phase2_guard( T& )->phase2_guard< T >;
 
 }  // namespace tao::config::internal
 

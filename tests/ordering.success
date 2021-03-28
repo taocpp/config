@@ -1,6 +1,0 @@
-a = ((b))
-b = "fib" + "ble"
-c = "fib" + "ble"
-d = ((c))
-fibble = "fobble"
-fobble = 42

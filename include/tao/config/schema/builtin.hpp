@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_SCHEMA_BUILTIN_HPP
@@ -33,7 +33,7 @@ namespace tao::config::schema
          value source;
          source.key = name;
          source.position = json::position( "<builtin>", 0, 0 );
-         m_nodes.emplace( name, std::make_unique< T >( source ) );
+         m_nodes.emplace( name, std::make_shared< T >( source ) );
       }
 
       builtin()

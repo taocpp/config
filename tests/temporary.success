@@ -1,26 +1,33 @@
-(temporary a)
-(temporary d.e.f)
-(temporary f)
+a = temporary
+b = temporary + 42
+c = 42 + temporary
 
-a = 1
+d += temporary
+e += temporary + 42
+f += 42 + temporary
 
-b = 2
+g = 42
+g += temporary
+h = temporary
+h += 42
+i += 42
+i += temporary
+j += temporary
+j += 42
 
-c = [ 0 1 2 3 4 5 ]
+k = temporary + 42
+l = (k)
 
-(temporary c.2)
+m.n = temporary + 42
+o = (m)
+p = (m.n)
 
-d.e.f.g = true
+q = temporary
+q.r = 42
+s = (q)
+t = (q.r)
+u.v = (q)
+w.x = (q.r)
 
-e = [ {
-   (temporary f)
-   (temporary h.i)
-
-   f = 1
-   g = 2
-   h.i.j = 3
-} ]
-
-f = 42
-
-g = (copy f)
+foo.bar = temporary
+foo.bar = null

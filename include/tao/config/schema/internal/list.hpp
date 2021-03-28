@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_SCHEMA_INTERNAL_LIST_HPP
@@ -16,7 +16,7 @@ namespace tao::config::schema::internal
          : T( v )
       {
          for( const auto& e : v.get_array() ) {
-            this->m_properties.emplace_back( std::make_unique< E >( e, ts... ) );
+            this->m_properties.emplace_back( std::make_shared< E >( e, ts... ) );
          }
       }
    };

@@ -1,99 +1,54 @@
-// Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2020-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_KEY_HPP
-#define TAO_CONFIG_KEY_HPP
+#ifndef TAO_CONFIG_INTERNAL_KEY_HPP
+#define TAO_CONFIG_INTERNAL_KEY_HPP
 
 #include <sstream>
 #include <vector>
 
-#include "internal/grammar.hpp"
+#include "internal/key_action.hpp"
+#include "internal/key_grammar.hpp"
+#include "internal/pegtl.hpp"
 
-#include "part.hpp"
+#include "key_part.hpp"
 
 namespace tao::config
 {
-   namespace internal
-   {
-      template< typename Rule >
-      struct key_action
-         : pegtl::nothing< Rule >
-      {};
-
-      template<>
-      struct key_action< rules::identifier >
-      {
-         template< typename Input >
-         static void apply( const Input& in, std::vector< part >& st )
-         {
-            st.emplace_back( in.string() );
-         }
-      };
-
-      template<>
-      struct key_action< rules::index >
-      {
-         template< typename Input >
-         static void apply( const Input& in, std::vector< part >& st )
-         {
-            st.emplace_back( std::stoul( in.string() ) );
-         }
-      };
-
-      template<>
-      struct key_action< rules::star >
-      {
-         static void apply0( std::vector< part >& st )
-         {
-            st.emplace_back( part::star_t() );
-         }
-      };
-
-      template<>
-      struct key_action< rules::minus >
-      {
-         static void apply0( std::vector< part >& st )
-         {
-            st.emplace_back( part::minus_t() );
-         }
-      };
-
-   }  // namespace internal
-
    struct key
-      : public std::vector< part >
+      : std::vector< key_part >
    {
       key() = default;
 
       key( key&& ) = default;
       key& operator=( key&& ) = default;
 
+      ~key() = default;
+
       key( const key& ) = default;
       key& operator=( const key& ) = default;
 
-      ~key() = default;
-
       explicit key( const std::string& s )
       {
-         parse( s );
+         assign( s );
       }
 
-      key( const std::initializer_list< part >& l )
-         : std::vector< part >( l )
+      key( const std::initializer_list< key_part >& l )
+         : std::vector< key_part >( l )
       {}
 
-      key( const std::vector< part >::const_iterator& begin, const std::vector< part >::const_iterator& end )
-         : std::vector< part >( begin, end )
+      key( const std::vector< key_part >::const_iterator& begin, const std::vector< key_part >::const_iterator& end )
+         : std::vector< key_part >( begin, end )
       {}
 
       key& operator=( const std::string& s )
       {
          clear();
-         parse( s );
+         assign( s );
          return *this;
       }
 
-      key& operator=( const std::initializer_list< part >& l )
+      key& operator=( const std::initializer_list< key_part >& l )
       {
          vector() = l;
          return *this;
@@ -111,19 +66,19 @@ namespace tao::config
          pop_back();
       }
 
-      [[nodiscard]] std::vector< part >& vector() noexcept
+      [[nodiscard]] std::vector< key_part >& vector() noexcept
       {
-         return static_cast< std::vector< part >& >( *this );
+         return static_cast< std::vector< key_part >& >( *this );
       }
 
-      [[nodiscard]] const std::vector< part >& vector() const noexcept
+      [[nodiscard]] const std::vector< key_part >& vector() const noexcept
       {
-         return static_cast< const std::vector< part >& >( *this );
+         return static_cast< const std::vector< key_part >& >( *this );
       }
 
-      void parse( const std::string& s )
+      void assign( const std::string& s )
       {
-         using grammar = pegtl::must< internal::rules::pointer, pegtl::eof >;
+         using grammar = pegtl::must< internal::rules::key_rule, pegtl::eof >;
          pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl::eol::lf_crlf, const char* > in( s, __FUNCTION__ );
          pegtl::parse< grammar, internal::key_action >( in, vector() );
       }
@@ -147,15 +102,9 @@ namespace tao::config
       return l;
    }
 
-   inline key& operator+=( key& l, const part& p )
+   inline key& operator+=( key& l, const key_part& p )
    {
       l.emplace_back( p );
-      return l;
-   }
-
-   inline key& operator+=( key& l, const part::kind k )
-   {
-      l.emplace_back( k );
       return l;
    }
 
@@ -165,53 +114,50 @@ namespace tao::config
       return l;
    }
 
+   inline key& operator+=( key& l, std::string&& n )
+   {
+      l.emplace_back( std::move( n ) );
+      return l;
+   }
+
    inline key& operator+=( key& l, const std::string& n )
    {
       l.emplace_back( n );
       return l;
    }
 
-   [[nodiscard]] inline key operator+( const key& l, const key& k )
+   [[nodiscard]] inline key operator+( const key& l, const key& r )
    {
-      key r = l;
-      r += k;
-      return r;
+      key t( l );
+      t += r;
+      return t;
    }
 
-   [[nodiscard]] inline key operator+( const key& l, const part& p )
+   [[nodiscard]] inline key operator+( const key& l, const key_part& r )
    {
-      key r = l;
-      r += p;
-      return r;
-   }
-
-   [[nodiscard]] inline key operator+( const key& l, const part::kind k )
-   {
-      key r = l;
-      r += k;
-      return r;
+      key t( l );
+      t += r;
+      return t;
    }
 
    [[nodiscard]] inline key operator+( const key& l, const std::size_t i )
    {
-      key r = l;
-      r += i;
-      return r;
+      key t( l );
+      t += i;
+      return t;
+   }
+
+   [[nodiscard]] inline key operator+( const key& l, std::string&& n )
+   {
+      key t( l );
+      t += std::move( n );
+      return t;
    }
 
    [[nodiscard]] inline key operator+( const key& l, const std::string& n )
    {
-      key r = l;
-      r += n;
-      return r;
-   }
-
-   [[nodiscard]] inline key operator+( const std::string& n, const key& l )  // TODO: Ensure this doesn't survive the first wave of refactoring after stabilising the semantics.
-   {
-      key t = l + n;
-      if( t.size() > 1 ) {
-         std::swap( t.front(), t.back() );
-      }
+      key t( l );
+      t += n;
       return t;
    }
 

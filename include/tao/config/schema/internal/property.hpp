@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_SCHEMA_INTERNAL_PROPERTY_HPP
@@ -11,14 +11,14 @@ namespace tao::config::schema::internal
    struct property : node
    {
       std::string m_key;
-      std::unique_ptr< ref > m_schema;
+      std::shared_ptr< ref > m_schema;
 
       property( const value& v, node_map& m, const std::string& path )
          : node( v )
       {
          const auto& e = *v.get_object().begin();
          m_key = e.first;
-         m_schema = std::make_unique< ref >( e.second, m, path );
+         m_schema = std::make_shared< ref >( e.second, m, path );
       }
 
       void resolve( const node_map& m ) override

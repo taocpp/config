@@ -1,52 +1,94 @@
 # Parsing Config Files
 
-*Warning: The documentation is still work-in-progress and very incomplete.*
-
-*  [Reading](#reading)
+*  [Parsing](#parsing)
 *  [Inspecting](#inspecting)
 *  [Annotations](#annotations)
+*  [Custom Traits](#custom-traits)
+*  [Builtin Schema](#builtin-schema)
 
-Requires good C++17 support, currently tested on GCC 8 and 9 and "recent" Clang.
+This library requires decent C++17 support, currently tested on GCC 8 and 9 and "recent" Clang.
 
-## Reading
+The following assumes that the [PEGTL], [taoJSON] and [taoCONFIG] are all available to your compiler, i.e. the include paths are set up correctly.
+Then to access the facilities of this library please simply include `<tao/config.hpp>` in your source(s).
 
-If you manage to compile the tests and examples by tweaking the `Makefile`, and want to try this out in your application, simply include `tao/config.hpp` and use one of the functions
+## Parsing
+
+The following functions read and parse one or more config files.
+The return value is a single [taoJSON] Object in the form of a `tao::config::value` aka. `tao::json::basic_value< tao::config::traits >`.
 
 ```c++
-tao::config:value tao::config::parse_file( const std::string& file );
-tao::config:value tao::config::parse_files( const std::vector< std::string >& files );
+tao::config::value tao::config::from_file( const std::filesystem::path& );
+tao::config::value tao::config::from_files( const std::vector< std::filesystem::path >& files );
 ```
 
-to obtain a `tao::config::value`, which is a `tao::json::basic_value< tao::config::traits >`.
+When more than one file is passed to `from_files()` it behaves (mostly) like parsing a single file with the concatenated contents (the only difference being that while individual files may optionally contain top-level curly braces for the implicit top-level JSON Object these would produce an error in the concatenated file).
+
+The config can also be parsed from a `std::string` instead of a file.
+The second parameter, `source`, should be a string that describes the source of the data.
+It is used in error messages to indicate not just the line and column numbers.
+See the [PEGTL] documentation for more details.
+
+```c++
+tao::config::value tao::config::from_string( const std::string& data, const std::string& source );
+```
 
 ## Inspecting
 
-The usual [JSON Value API](https://github.com/taocpp/json) can be used to inspect and operate on the obtained config.
-
-In addition, some config library specific functions are available that operate on *config keys*.
-
-A config key is an instance of `tao::config::key` which consists mostly of a `std::vector< tao::config::part >`.
+Since the parsed config is presented as single [taoJSON] value object, all the facilities from the [taoJSON] library can be used to inspect and operate on the obtained config.
 
 ## Annotations
 
-The returned [JSON Values](https://github.com/taocpp/json) use the JSON library's annotation feature to annotate the values with a config Key, and the filename and position they were parsed from.
+By default, i.e. when using the included `tao::config::traits` for `tao::json::basic_value`, the [taoJSON] library's annotation feature is used to store the "config Key", as well as the filename (or, more generally, the source) and line and column numbers where they occurred in the parsed input.
 
-The config Key is a kind of strongly typed JSON Pointer; unlike JSON Pointer, the string "2" and the integer 2 are distinguished, and strings can only be used to index objects, while integers can only be used to index arrays.
+The config Key is conceptually a kind of strongly typed JSON Pointer.
+That is, unlike in a JSON Pointer, the string "2" and the integer 2 are distinguished.
+Strings can only be used to index objects, and integers can only be used to index arrays.
 
-Parsing multiple files with `parse_files()` does the same as having each config file include the next one in the list at the end, or the same as having a single additional top-level config file include all others in the correct order.
+The annotation feature sets up `tao::config::annotation` as public base class of every `tao::config::value` object, whereby the public data members of `tao::config::annotation` are available as public data members of every `tao::config::value`, the returned one and all of its sub-values.
 
-Alternative versions of these functions take a template parameter for a `tao::json::basic_value<>` with different traits as result.
+These public data members are:
+
+```c++
+   tao::config::key key;
+   tao::json::position position;  // tao/json/contrib/position.hpp
+```
+
+## Custom Traits
+
+The parsing functions are also available in a "basic" version that takes the traits for the returned [taoJSON] value as template parameter.
 
 ```c++
 template< template< typename... > class Traits >
-tao::json::basic_value< Traits > tao::config::basic_parse_file( const std::string& file );
+tao::json:basic_value< Traits > tao::config::basic_from_file( const std::filesystem::path& );
+
 template< template< typename... > class Traits >
-tao::json::basic_value< Traits > tao::config::basic_parse_files( const std::vector< std::string >& files );
+tao::json:basic_value< Traits > tao::config::basic_from_files( const std::vector< std::filesystem::path >& );
+
+template< template< typename... > class Traits >
+tao::json::basic_value< Traits > tao::config::basic_from_string( const std::string& data, const std::string& source );
 ```
 
-The pointer and position information is given to each result (sub-)value via the public base class' `set_pointer()` and `set_position()` methods, see `tao/config/annotation.hpp`.
-These methods are individually optional, they will only be called with the pointer and/or position information, respectively, when present.
+Beyond the possibilities given to the traits by the [taoJSON] library this also gives control over the annotation.
 
-For further details please Use The Source, or contact us if you have any questions.
+The type `tao::config::annotation` implements the following non-static member functions that are used by the library to set the corresponding annotations.
 
-Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
+```c++
+   void set_key( tao::config::key&& );
+   void set_position( const tao::pegtl::position& );
+```
+
+However these functions are only called when they are available, so a custom traits class template can choose to omit the annotations by either not setting up a public base class for the [taoJSON] values or by not implementing either or both of these functions in the public base.
+
+## Builtin Schema
+
+All of the config parsing functions actually have a further argument, a const-reference to an object of type `tao::config::schema::builtin`.
+This argument is defaulted to a default-constructed object of that type.
+
+The role of this `builtin` instance is to provide the built-in schema definitions that can then be extended by the schema files.
+The built-in definitions can be programmatically extended by passing an appropriately prepared instance of `tao::config::schema::builtin` as final argument to the parsing functions.
+
+Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
+
+[PEGTL]: https://github.com/taocpp/PEGTL
+[taoCONFIG]: https://github.com/taocpp/config
+[taoJSON]: https://github.com/taocpp/json

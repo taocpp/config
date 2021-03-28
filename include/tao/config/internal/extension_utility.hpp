@@ -1,39 +1,122 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_INTERNAL_EXTENSION_UTILITY_HPP
 #define TAO_CONFIG_INTERNAL_EXTENSION_UTILITY_HPP
 
-#include <string>
+#include <type_traits>
+#include <utility>
 
-#include "action.hpp"
-#include "control.hpp"
+#include "argument_traits.hpp"
+#include "extension_maps.hpp"
+#include "extension_types.hpp"
 #include "forward.hpp"
-#include "grammar.hpp"
-#include "key_utility.hpp"
+#include "json.hpp"
+#include "json_traits.hpp"
 #include "pegtl.hpp"
-#include "state.hpp"
+#include "result_traits.hpp"
 
 namespace tao::config::internal
 {
-   [[nodiscard]] inline json_t obtain_jaxn( pegtl_input_t& in )
+   template< typename R >
+   json_t convert_result( const pegtl::position& p, R&& r )
    {
-      json::events::to_basic_value< value_traits > consumer;
-      pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_value >, json::jaxn::internal::action, json::jaxn::internal::errors >( in, consumer );
-      return std::move( consumer.value );
+      return result_traits< std::decay_t< R > >::convert( p, std::forward< R >( r ) );
    }
 
-   [[nodiscard]] inline std::string obtain_string( pegtl_input_t& in )
+   template< typename R, typename A >
+   [[nodiscard]] value_extension wrap( R ( *f )( A ) )
    {
-      std::string s2;
-      pegtl::parse< pegtl::must< json::jaxn::internal::rules::string_fragment >, json::jaxn::internal::unescape_action >( in, s2 );
-      return s2;
+      static_assert( !std::is_pointer_v< R > );
+      static_assert( !std::is_reference_v< R > );
+      static_assert( !std::is_same_v< R, void > );
+
+      return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
+         const auto p = in.position();
+         const argument_traits< std::decay_t< A > > a( in, st, em );
+         return convert_result( p, f( a.convert() ) );
+      };
    }
 
-   [[nodiscard]] inline key obtain_key( pegtl_input_t& in, state& st )
+   template< typename R, typename A, typename B >
+   [[nodiscard]] value_extension wrap( R ( *f )( A, B ) )
    {
-      pegtl::parse< pegtl::must< rules::pointer >, action, control >( in, st );
-      return value_to_key( st.temporary );
+      static_assert( !std::is_pointer_v< R > );
+      static_assert( !std::is_reference_v< R > );
+      static_assert( !std::is_same_v< R, void > );
+
+      return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
+         const auto p = in.position();
+         const argument_traits< std::decay_t< A > > a( in, st, em );
+         const argument_traits< std::decay_t< B > > b( in, st, em );
+         return convert_result( p, f( a.convert(), b.convert() ) );
+      };
+   }
+
+   template< typename R, typename A, typename B, typename C >
+   [[nodiscard]] value_extension wrap( R ( *f )( A, B, C ) )
+   {
+      static_assert( !std::is_pointer_v< R > );
+      static_assert( !std::is_reference_v< R > );
+      static_assert( !std::is_same_v< R, void > );
+
+      return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
+         const auto p = in.position();
+         const argument_traits< std::decay_t< A > > a( in, st, em );
+         const argument_traits< std::decay_t< B > > b( in, st, em );
+         const argument_traits< std::decay_t< C > > c( in, st, em );
+         return convert_result( p, f( a.convert(), b.convert(), c.convert() ) );
+      };
+   }
+
+   template< typename R, typename A, typename B, typename C, typename D >
+   [[nodiscard]] value_extension wrap( R ( *f )( A, B, C, D ) )
+   {
+      static_assert( !std::is_pointer_v< R > );
+      static_assert( !std::is_reference_v< R > );
+      static_assert( !std::is_same_v< R, void > );
+
+      return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
+         const auto p = in.position();
+         const argument_traits< std::decay_t< A > > a( in, st, em );
+         const argument_traits< std::decay_t< B > > b( in, st, em );
+         const argument_traits< std::decay_t< C > > c( in, st, em );
+         const argument_traits< std::decay_t< D > > d( in, st, em );
+         return convert_result( p, f( a.convert(), b.convert(), c.convert(), d.convert() ) );
+      };
+   }
+
+   template< typename A, typename B >
+   [[nodiscard]] member_extension wrap( void ( *f )( A, B ) )
+   {
+      return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
+         const argument_traits< std::decay_t< A > > a( in, st, em );
+         const argument_traits< std::decay_t< B > > b( in, st, em );
+         f( a.convert(), b.convert() );
+      };
+   }
+
+   template< typename A, typename B, typename C >
+   [[nodiscard]] member_extension wrap( void ( *f )( A, B, C ) )
+   {
+      return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
+         const argument_traits< std::decay_t< A > > a( in, st, em );
+         const argument_traits< std::decay_t< B > > b( in, st, em );
+         const argument_traits< std::decay_t< C > > c( in, st, em );
+         f( a.convert(), b.convert(), c.convert() );
+      };
+   }
+
+   template< typename A, typename B, typename C, typename D >
+   [[nodiscard]] member_extension wrap( void ( *f )( A, B, C, D ) )
+   {
+      return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
+         const argument_traits< std::decay_t< A > > a( in, st, em );
+         const argument_traits< std::decay_t< B > > b( in, st, em );
+         const argument_traits< std::decay_t< C > > c( in, st, em );
+         const argument_traits< std::decay_t< D > > d( in, st, em );
+         f( a.convert(), b.convert(), c.convert(), d.convert() );
+      };
    }
 
 }  // namespace tao::config::internal

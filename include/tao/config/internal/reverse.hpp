@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_INTERNAL_REVERSE_HPP
@@ -34,7 +34,7 @@ namespace tao::config::internal
    };
 
    template< typename T >
-   reverse( T& )->reverse< T >;
+   reverse( T& ) -> reverse< T >;
 
 }  // namespace tao::config::internal
 

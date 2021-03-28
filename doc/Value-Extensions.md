@@ -1,16 +1,13 @@
 # Value Extensions
 
-*Warning: The documentation is still work-in-progress and very incomplete.*
-
 --
 
 Value extensions produce a [JAXN] value and can be used wherever a value is expected.
-Note that whitespace is significant within value extensions, i.e. whitespace must be used as shown and comments are forbidden.
+Note that whitespace is significant within value extensions, i.e. whitespace MUST be used as shown and comments are forbidden.
 
  * [binary](#binary)
  * [cbor](#cbor)
- * [copy](#copy)
- * [debug](#debug)
+ * [default](#default)
  * [env](#env)
  * [jaxn](#jaxn)
  * [json](#json)
@@ -22,9 +19,12 @@ Note that whitespace is significant within value extensions, i.e. whitespace mus
  * [string](#string)
  * [ubjson](#ubjson)
 
+
+
 ## binary
 
-The `binary` value extension transforms a string value into a binary value.
+The `binary` value extension explicitly transforms a string value into a binary value.
+Only the type is changed, the represented sequence of bytes is not changed.
 
 #### Example taoCONFIG Input File
 
@@ -39,6 +39,7 @@ foo = (binary "Hello, world!")
    foo: $48656C6C6F2C20776F726C6421
 }
 ```
+
 
 
 ## cbor
@@ -62,46 +63,14 @@ foo = (cbor $82f5f4)
 }
 ```
 
+Note that, in line with the JSON data model, only UTF-8 strings are supported as keys in CBOR mappings.
+
 Note that `cbor` is frequently combined with `read` as in `foo = (cbor (read "filename.cbor"))`.
 
 
-## copy
 
-The `copy` value extension copies a value
+## default
 
-#### Example taoCONFIG Input File
-
-```
-
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-```
-
-
-## debug
-
-This value extension is a debugging tool and is similar to the `stderr` member extension.
-
-It produces a single string value with the [JSON] representation of the library's internal intermediate data structure for the referenced part of the config data in its current state.
-
-#### Example taoCONFIG Input File
-
-```
-foo = 42
-bar = (debug foo)
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   bar: "{position:\"tests/doc_value_debug.config:1:6\",concat_list:[{clear:true,atom:42}]}",
-   foo: 42
-}
-```
 
 
 ## env
@@ -126,9 +95,11 @@ bar = (env? "GRMBLFX" "default")
 ```
 
 
+
 ## jaxn
 
-The `jaxn` value extension parses string data as [JAXN] and returns the resulting value.
+The `jaxn` value extension parses string (or binary) data as [JAXN] and returns the resulting value.
+In the case of binary data the input is automatically converted to a string, including a check for valid UTF-8.
 
 #### Example taoCONFIG Input File
 
@@ -147,12 +118,14 @@ foo = (jaxn '[Infinity, $ff]')
 }
 ```
 
-Note that `jaxn` is frequently combined with `string` and `read` as in `foo = (jaxn (string (read "filename.jaxn")))`.
+Note that `jaxn` is frequently combined with `string` and `read` as in `foo = (jaxn (read "filename.jaxn"))`.
+
 
 
 ## json
 
-The `json` value extension parses string data as [JSON] and returns the resulting value.
+The `json` value extension parses string (or binary) data as [JSON] and returns the resulting value.
+In the case of binary data the input is automatically converted to a string, including a check for valid UTF-8.
 
 #### Example taoCONFIG Input File
 
@@ -171,7 +144,8 @@ foo = (json '["a","b"]')
 }
 ```
 
-Note that `json` is frequently combined with `string` and `read` as in `foo = (json (string (read "filename.json")))`.
+Note that `json` is frequently combined with `read` as in `foo = (json (read "filename.json"))`.
+
 
 
 ## msgpack
@@ -198,6 +172,7 @@ foo = (msgpack $82a161c3a162c2)
 Note that `msgpack` is frequently combined with `read` as in `foo = (msgpack (read "filename.msgpack"))`.
 
 
+
 ## parse
 
 The `parse` value extension parses the given string as a single config value just "as if" the config file contained the string instead of the invocation of `parse`.
@@ -216,7 +191,8 @@ foo = (parse "null")
 }
 ```
 
-Note that the value described in the string is *not* allowed to use addition/concatenation, however references and/or other value extensions are allowed.
+Note that the value described in the string is *not* allowed to use addition/concatenation, however references and/or other value extensions *are* allowed.
+
 
 
 ## read
@@ -239,7 +215,10 @@ bar = (string (read "tests/doc_value_read.config"))
 }
 ```
 
-Note that `read` must be combined with `string` in order to validate the data as UTF-8 and transform it into a string.
+Note that `read` can be combined with `string` to validate the data as UTF-8 and transform it into a string.
+
+Note that the conversion from `binary` to `string` is automatic when the binary data is passed to an extension that expects a string.
+
 
 
 ## shell
@@ -260,8 +239,9 @@ foo = (shell "uname -s")
 }
 ```
 
-Note that availability and behaviour of the  `shell` value extension are inherently system dependent.
+Note that availability and behaviour of the `shell` value extension are inherently system dependent.
 Currently it is only supported on Unix-style operating system like Linux and macOS.
+
 
 
 ## split
@@ -287,6 +267,7 @@ foo = (split "a b c ")
 ```
 
 
+
 ## string
 
 The `string` value extension transforms a binary value into a string value.
@@ -305,6 +286,9 @@ foo = (string $48656C6C6F2C20776F726C6421)
    foo: "Hello, world!"
 }
 ```
+
+Note that the conversion from `binary` to `string` is automatic when the binary data is passed to an extension that expects a string.
+
 
 
 ## ubjson
@@ -326,7 +310,10 @@ foo = (ubjson $4344)
 ```
 
 Note that `ubjson` is frequently combined with `read` as in `foo = (ubjson (read "filename.ubjson"))`.
-Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
+
+
+
+Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
 
 [CBOR]: http://cbor.io
 [JAXN]: https://github.com/stand-art/jaxn

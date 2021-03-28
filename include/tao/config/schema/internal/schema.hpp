@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_SCHEMA_INTERNAL_SCHEMA_HPP
@@ -33,7 +33,7 @@ namespace tao::config::schema::internal
       void add( T&& t, Ts&&... ts )
       {
          if( t ) {
-            m_properties.emplace_back( std::make_unique< P >( std::forward< T >( t ), std::forward< Ts >( ts )... ) );
+            m_properties.emplace_back( std::make_shared< P >( std::forward< T >( t ), std::forward< Ts >( ts )... ) );
          }
       }
 
@@ -45,7 +45,7 @@ namespace tao::config::schema::internal
             for( const auto& e : d.get_object() ) {
                assert( is_identifier( e.first ) );
                auto p = path.empty() ? e.first : ( path + '.' + e.first );
-               auto n = std::make_unique< ref >( e.second, m, p );
+               auto n = std::make_shared< ref >( e.second, m, p );
                if( !m.emplace( p, std::move( n ) ).second ) {
                   std::ostringstream os;
                   os << "type '" << p << "' already defined, redefined here:";
@@ -64,12 +64,12 @@ namespace tao::config::schema::internal
          add< list< one_of, ref > >( internal::find( v, "one_of" ), m, path );
 
          if( const auto& n = internal::find( v, "if" ) ) {
-            auto p = std::make_unique< if_then_else >( n, m, path );
+            auto p = std::make_shared< if_then_else >( n, m, path );
             if( const auto& t = internal::find( v, "then" ) ) {
-               p->m_then = std::make_unique< ref >( t, m, path );
+               p->m_then = std::make_shared< ref >( t, m, path );
             }
             if( const auto& e = internal::find( v, "else" ) ) {
-               p->m_else = std::make_unique< ref >( e, m, path );
+               p->m_else = std::make_shared< ref >( e, m, path );
             }
             m_properties.emplace_back( std::move( p ) );
          }
@@ -99,7 +99,7 @@ namespace tao::config::schema::internal
          add< items >( internal::find( v, "items" ), m, path );
          if( const auto& n = internal::find( v, "unique_items" ) ) {
             if( n.as< bool >() ) {
-               m_properties.emplace_back( std::make_unique< unique_items >( v ) );
+               m_properties.emplace_back( std::make_shared< unique_items >( v ) );
             }
          }
 
@@ -108,7 +108,7 @@ namespace tao::config::schema::internal
          add< has_property >( internal::find( v, "has_property" ) );
          add< property >( internal::find( v, "property" ), m, path );
          if( const auto& p = internal::find( v, "properties" ) ) {
-            auto n = std::make_unique< properties >( v );
+            auto n = std::make_shared< properties >( v );
             if( const auto& r = internal::find( p, "required" ) ) {
                n->add_required( r, m, path );
             }
@@ -116,7 +116,7 @@ namespace tao::config::schema::internal
                n->add_optional( o, m, path );
             }
             if( const auto& a = internal::find( p, "additional" ) ) {
-               n->m_default = std::make_unique< ref >( a, m, path );
+               n->m_default = std::make_shared< ref >( a, m, path );
             }
             m_properties.emplace_back( std::move( n ) );
          }

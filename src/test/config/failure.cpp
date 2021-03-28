@@ -1,10 +1,16 @@
-// Copyright (c) 2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2020-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #include <algorithm>
 #include <filesystem>
+#include <iostream>
 
 #include <tao/config.hpp>
+
+const char* ansi_reset = "\033[0m";
+const char* ansi_message = "\033[1;31m";
+const char* ansi_source = "\033[36m";
+const char* ansi_text = "\033[33m";
 
 namespace tao
 {
@@ -23,18 +29,39 @@ namespace tao
          std::cerr << ccs << std::endl;
          std::cerr << ">>> Config parsed as config >>>" << std::endl;
       }
-      catch( const std::exception& ) {
+      catch( const pegtl::parse_error& e ) {
+         const auto& pos = e.positions();
+         auto it = pos.begin();
+         std::cout << ansi_text << "pegtl::parse_error: " << ansi_source << *it << ": " << ansi_message << e.message() << ansi_reset << std::endl;
+         while( ++it != pos.end() ) {
+            std::cout << ansi_text << "  from: " << ansi_source << *it << ansi_reset << std::endl;
+         }
+      }
+      catch( const std::exception& e ) {
+         std::cout << "std::exception: " << e.what() << std::endl;
+      }
+      catch( const std::string& s ) {
+         std::cout << "Exception with std::string: " << s << std::endl;
+         // TODO: Remove catch string when all temporary throw strings have been replaced with proper exceptions.
       }
    }
 
 }  // namespace tao
 
-int main()
+int main( int argc, char** argv )
 {
+   if( argc > 1 ) {
+      for( int i = 1; i < argc; ++i ) {
+         std::cout << "Parsing " << argv[ i ] << std::endl;
+         tao::unit_test< tao::config::traits >( argv[ i ] );
+      }
+      return 0;
+   }
+
    unsigned count = 0;
 
-   for( const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator( "tests" ) ) {
-      if( const std::filesystem::path& path = entry.path(); path.extension() == ".failure" ) {
+   for( const auto& entry : std::filesystem::directory_iterator( "tests" ) ) {
+      if( const auto& path = entry.path(); path.extension() == ".failure" ) {
          tao::unit_test< tao::json::traits >( path );
          tao::unit_test< tao::config::traits >( path );
          ++count;

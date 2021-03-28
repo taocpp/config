@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_SCHEMA_INTERNAL_PROPERTIES_HPP
@@ -10,23 +10,23 @@ namespace tao::config::schema::internal
 {
    struct properties : node
    {
-      std::map< std::string, std::unique_ptr< ref > > m_required;
-      std::map< std::string, std::unique_ptr< ref > > m_optional;
-      std::unique_ptr< ref > m_default;
+      std::map< std::string, std::shared_ptr< ref > > m_required;
+      std::map< std::string, std::shared_ptr< ref > > m_optional;
+      std::shared_ptr< ref > m_default;
 
       using node::node;
 
       void add_required( const value& v, node_map& m, const std::string& path )
       {
          for( const auto& e : v.get_object() ) {
-            m_required.try_emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
+            m_required.try_emplace( e.first, std::make_shared< ref >( e.second, m, path ) );
          }
       }
 
       void add_optional( const value& v, node_map& m, const std::string& path )
       {
          for( const auto& e : v.get_object() ) {
-            m_optional.try_emplace( e.first, std::make_unique< ref >( e.second, m, path ) );
+            m_optional.try_emplace( e.first, std::make_shared< ref >( e.second, m, path ) );
          }
       }
 

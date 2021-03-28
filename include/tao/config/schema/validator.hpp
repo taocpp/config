@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2021 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_SCHEMA_VALIDATOR_HPP
@@ -15,10 +15,10 @@ namespace tao::config::schema
    {
       internal::node_map m_nodes;
 
-      explicit validator( const value& v, builtin b = builtin() )
-         : m_nodes( std::move( b.m_nodes ) )
+      explicit validator( const value& v, const builtin& b = builtin() )
+         : m_nodes( b.m_nodes )
       {
-         m_nodes.emplace( "", std::make_unique< internal::schema >( v, m_nodes ) );
+         m_nodes.emplace( "", std::make_shared< internal::schema >( v, m_nodes ) );
 
          for( const auto& e : m_nodes ) {
             e.second->resolve( m_nodes );
