@@ -6,9 +6,8 @@
 .SECONDARY:
 
 CXXSTD = -std=c++17
-CPPFLAGS ?= -pedantic -I../json/external/PEGTL/include -I../json/include -Iinclude
-# CXXFLAGS ?= -Wall -Wextra -Werror -O3 -ftemplate-backtrace-limit=0
-CXXFLAGS ?= -Wall -Wextra -Werror -Wno-unused-parameter -O0 -ftemplate-backtrace-limit=0
+CPPFLAGS ?= -pedantic -Iinclude -Iexternal/json/include -Iexternal/json/external/PEGTL/include
+CXXFLAGS ?= -Wall -Wextra -Werror -O3 -ftemplate-backtrace-limit=0
 
 HEADERS := $(shell find include -name "*.hpp")
 SOURCES := $(shell find src -name '*.cpp')
@@ -26,7 +25,7 @@ compile: $(BINARIES)
 .PHONY: check
 check: $(UNIT_TESTS)
 	echo $(UNIT_TESTS)
-	@set -e; for T in $(UNIT_TESTS); do echo $$T; $$T; done
+	@set -e; for T in $(UNIT_TESTS); do echo $$T; TAO_CONFIG_VAR=hello $$T; done
 
 .PHONE: clean
 clean:
