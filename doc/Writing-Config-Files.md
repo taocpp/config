@@ -502,13 +502,13 @@ Extensions are special expressions that, like references, are written in parenth
 
 [Value extensions](Value-Extensions.md) produce a [JAXN] value and can be used wherever a value is expected.
 
-For example the `split` value extension takes a string and splits it into it's space-separated components.
+For example the `split` value extension splits a string into its space-separated components.
 
 ```
 foo = (split "a 1 ?")  // foo = [ "a", "a", "?" ]
 ```
 
-[Member extensions](Member-Extensions.md) use the same syntax as value extensions, however they take the place of JSON object members.
+[Member extensions](Member-Extensions.md) use the same syntax as value extensions, however they take the place object members.
 
 For example the `include` member extensions takes a string, interprets it as filename, and reads and parses its contents in place of the `include` extension.
 
@@ -543,7 +543,7 @@ Member extensions can similarly contain nested value extensions.
 ## Temporary
 
 The literal pseudo-value `temporary` (and its counterpart, `permanent`) can occur anywhere one of the literal values `null`, `true` and `false` can occur, however it does not itself carry a value.
-Instead it marks the sub-tree of the JSON result to which it is "added' as temporary, meaning that while it is available to references it will be removed from the final resulting JSON value.
+Instead it marks the sub-tree of the JSON result to which it is "added" as temporary, meaning that while it is available to references it will be removed from the final resulting JSON value.
 
 #### Example taoCONFIG Input File
 
@@ -586,7 +586,7 @@ template += temporary  // Can also be "added" later.
 }
 ```
 
-Similarly `permanent` allows removing the marking as temporary.
+Similarly, `permanent` allows removing the marking as temporary.
 Arbitrary many `temporary` and `permanent` pseudo-values can be "added" to a value with the last one "winning".
 
 #### Example taoCONFIG Input File
