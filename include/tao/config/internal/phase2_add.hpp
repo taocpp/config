@@ -24,7 +24,7 @@ namespace tao::config::internal
 
    // For numbers we currently use the following rules:
    // 1. Integers and floating-point can't be mixed, and:
-   // 2. Mixed integers are handled like in the C language.
+   // 2. Mixed integers result in a signed value.
 
    inline void phase2_signed_add( const json_t& l, json_t& r )
    {

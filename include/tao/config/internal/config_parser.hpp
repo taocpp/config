@@ -80,7 +80,7 @@ namespace tao::config::internal
 
       [[nodiscard]] bool phase2_iteration()
       {
-         return ( phase2_combine( st.root ) > 0 ) || ( phase2_resolve( st.root ) > 0 ) || ( phase2_replace( st.root ) > 0 );
+         return ( phase2_combine( st.root ) + phase2_resolve( st.root ) + phase2_replace( st.root ) ) > 0;
       }
 
       void phase2_loop()

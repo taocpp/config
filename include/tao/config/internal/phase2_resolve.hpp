@@ -36,7 +36,6 @@ namespace tao::config::internal
             process_concat( key1{ key1_part( p.first, m_root.position ) }, p.second );
          }
          assert( m_stack.empty() );
-
          return m_changes;
       }
 
@@ -58,8 +57,8 @@ namespace tao::config::internal
 
                   e = d->concat.front();
                   // TODO: Call phase2_combine( c ) to get things done quicker?
+                  ++m_changes;
                }
-               ++m_changes;
             }
          }
       }
