@@ -1,0 +1,18 @@
+template = temporary +
+{
+    host = "127.0.0.1"
+    port = 6000
+    version = 42
+}
+
+foo = (template) +
+{
+    host = "127.0.0.2"
+}
+
+bar = (template) +
+{
+    port = 6001
+}
+
+template += temporary  // Can also be "added" later.

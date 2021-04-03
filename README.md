@@ -11,7 +11,7 @@
 [![CodeQL](https://github.com/taocpp/config/workflows/CodeQL/badge.svg)](https://github.com/taocpp/config/actions?query=workflow%3ACodeQL)
 [![Code Coverage](https://codecov.io/gh/taocpp/config/branch/master/graph/badge.svg?token=ykWa8RRdyk)](https://codecov.io/gh/taocpp/config)
 
-[The Art of C++] / Config is a C++ header-only library that reads config files based on [JSON] and [JAXN] and produces a single [JSON Value] as result.
+[The Art of C++] / Config is a C++ header-only library that reads config files in a format based on [JSON] and [JAXN] and produces a single [JSON Value] as result.
 
 ## Documentation
 
@@ -32,8 +32,6 @@
 This library is still under heavy development and not very well documented...
 
 ...however it generally works, and test coverage and error messages are not too bad.
-
-To compile the tests and examples it requires [taocpp/json] checked out next to it.
 
 ## Introduction
 
@@ -67,7 +65,7 @@ Parsing a config file generally entails nothing more than calling the appropriat
 const tao::config::value config = tao::config::parse_file( "foo.cfg" );
 ```
 
-The resulting value is nothing other but a JSON Value from The Art of C++ / JSON with a custom traits class.
+The resulting value is nothing other but a [JSON Value] from The Art of C++ / JSON with a custom traits class.
 It can be inspected using all the facilities of that JSON library.
 
 ## Contact

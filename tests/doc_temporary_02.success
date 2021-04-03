@@ -1,0 +1,2 @@
+foo = temporary + permanent + 42 + permanent + temporary
+bar = temporary + temporary + 42 + permanent + permanent

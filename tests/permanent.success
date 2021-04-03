@@ -23,3 +23,5 @@ foo.bar += permanent
 foo.bar = temporary
 foo.baz += permanent
 foo.baz += null
+
+foo.fob = temporary + permanent + temporary

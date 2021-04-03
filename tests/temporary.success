@@ -31,3 +31,5 @@ w.x = (q.r)
 
 foo.bar = temporary
 foo.bar = null
+
+foo.baz = temporary + temporary
