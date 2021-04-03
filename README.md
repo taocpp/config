@@ -57,6 +57,8 @@ maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 
 Semantic features like deleting and referencing values, or including files and reading environment variables, usually only make sense with larger, non-trivial real-world examples.
 
+These features can be used to manage situations that go beyond single deployments with a single config, for example providing the tools to manage configuration templates that are adapted to different environments.
+
 Parsing a config file generally entails nothing more than calling the appropriate `parse_file()` function with the filename.
 
 ```

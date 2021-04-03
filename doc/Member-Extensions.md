@@ -1,7 +1,5 @@
 # Member Extensions
 
----
-
 Member extensions use the same syntax as value extensions, however they take the place of JSON object members.
 Note that whitespace is significant within member extensions, i.e. whitespace must be used as shown and comments are forbidden.
 
@@ -92,7 +90,7 @@ foo
 ## schema
 
 The `schema` member extension tells the config library which [schema file](Writing-Schema-Files.cfg) the config must adhere to.
-After reading the config file(s), the schema is read, and the config is checked against it.
+After reading the config file(s), the schema is read, and the config, more precisely: the config (sub-)object of which the schema was set, is checked against it.
 
 #### Example taoCONFIG Input File
 

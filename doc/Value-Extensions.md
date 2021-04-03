@@ -1,7 +1,5 @@
 # Value Extensions
 
---
-
 Value extensions produce a [JAXN] value and can be used wherever a value is expected.
 Note that whitespace is significant within value extensions, i.e. whitespace MUST be used as shown and comments are forbidden.
 

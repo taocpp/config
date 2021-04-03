@@ -1,0 +1,10 @@
+{
+   servers: {
+      primary: {
+         port: 7000
+      },
+      secondary: {
+         port: 7000
+      }
+   }
+}

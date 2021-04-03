@@ -31,3 +31,7 @@ g = 2
 h += 1
 h = delete
 h += 2
+
+i = 9 + temporary
+i = delete
+i += 10

@@ -1,0 +1,12 @@
+servers
+{
+    primary
+    {
+        port = 443
+    }
+    secondary
+    {
+        port = 8888
+    }
+}
+servers.*.port = 7000  // Testing

@@ -1,7 +1,5 @@
 # Writing Config Files
 
----
-
 The config file syntax is based on [JSON] and is completely backwards compatible:
 **Every [JSON]** or [JAXN] **file** with a top-level [JSON] object **is a valid [taoCONFIG] file**.
 
@@ -21,12 +19,15 @@ We assume that the reader is somewhat familiar with [JSON].
    - [Number Values](#number-values)
    - [String Values](#string-values)
    - [Binary Values](#binary-values)
- * [Additional Features)(#additional-features)
+ * [Additional Features](#additional-features)
+   - [Additions](#additions)
    - [Overwrite](#overwrite)
    - [Delete](#delete)
-   - [Temporary](#temporary)
+   - [Asterisks](#asterisk)
    - [References](#references)
    - [Extensions](#extensions)
+   - [Temporary](#temporary)
+   - [Dotted Names](#dotted-names)
 
 Please note that, for now, this document shows basic use cases for all features, but not much beyond that.
 It also does not go into the details and complexities of how all the features (can) interact with each other.
@@ -296,10 +297,95 @@ Strings are like in [JAXN], i.e. [JSON] strings with [extensions](https://github
 Features that extend the syntax and/or semantics beyond simple syntactic sugar for [JSON].
 
 
+## Additions
+
+Values of certain types can be added together explicitly or, in some cases, implicitly.
+
+#### Numbers
+
+For numbers the addition must be explicit and performs the usual addition, however:
+
+Given that there are three data types for numeric values, signed integer, unsigned integer, and floating point, each with 64bits, the following rules are applied.
+
+ * Integer values of the same signedness yield an integer with that signedness as result.
+ * Integer values of mixed signedness are converted to signed integers before adding and yield a signed integer as result.
+ * Floating-point values can only be added to other floating-point values and yield a floating-point value as result.
+
+The order in which the additions are performed is undefined, e.g. `foo = 1 + 2 + 3` can be evaluated as either `(1 + 2) + 3` or `1 + (2 + 3)`.
+
+```
+foo = 42 + 10
+foo += 3
+// foo is 55
+```
+
+#### Strings
+
+For strings the addition must be explicit and performs concatenation.
+
+```
+foo = "a" + "b"
+foo += "c"
+// foo is "abc"
+```
+
+Like in [JAXN] the same concatenations can be performed for binary data, and strings and binary data can not be mixed.
+
+#### Arrays
+
+For arrays the addition can be explicit or implicit and performs concatenation.
+
+The implicit form is obtained by omitting a `+=` after a name.
+
+```
+foo = [ 1 2 ] + [ 3 ]
+foo += [ 4 5 ]
+foo [ 6 7 ]
+// foo is [ 1 2 3 4 5 6 7 ]
+```
+
+#### Objects
+
+For objects the addition can be explicit or implicit and performs an object "merge" operation.
+
+For keys that exist only in one of the two objects being merged the result of the merge will contain that object member unchanged.
+
+For keys that exist in both of the objects being merged the value of the member in the result will depend on whether the second objects used a `=` or a `+=` to define the member.
+In the first case the member from the second object overwrites the member from the first, in the second case the corresponding values are in turn added.
+
+#### Example taoCONFIG Input File
+
+```
+foo
+{
+    a = 1
+    b = 2
+    c = 3
+}
+foo
+{
+    a = 10
+    b += 20
+    d = 40
+}
+```
+
+#### Resulting JSON Config Data
+
+```javascript
+{
+   foo: {
+      a: 10,
+      b: 22,
+      c: 3,
+      d: 40
+   }
+}
+```
+
 ## Overwrite
 
-The same object member name can be assigned to multiple times.
-The last assignment "wins".
+A named object member can be assigned to multiple times in which case the last assignment "wins".
 
 #### Example taoCONFIG Input File
 
@@ -353,28 +439,61 @@ maps = delete  // Changed our minds, no maps.
 }
 ```
 
-TODO
+Deleted values can subsequently be assigned new values or added-to in which case they behave "as if" anything that was assigned or added prior to the `delete` never happened.
+
+```
+foo = 42
+foo = delete
+foo += 44
+```
+
+Unlike the other pseudo-values `delete` is not allowed to be in a syntactic addition.
 
 
-## Dotted Names
+## Asterisks
 
-In many (all?) places the name of an object member is used it is actually possible to use a name with multiple dot-separated components, similar but not identical to JSON Pointer.
+The asterisk can be used as special object member name to designate all array or object members.
+It is usually used in conjunction with [dotted names](#dotted-names) to form a pattern to which to apply an assignment or addition.
 
-Dotted names can contain four different kinds of components.
+#### Example taoCONFIG Input File
 
-1.  Strings intended to index objects.
-2.  Unsigned integers intended to index arrays.
-4.  The character `*` that indicates all sub-values.
+```
+servers
+{
+    primary
+    {
+	port = 443
+    }
+    secondary
+    {
+        port = 8888
+    }
+}
+servers.*.port = 7000  // Testing
+```
 
-Unlike JSON Pointer, integers are never interpreted as the name of an object member.
-Just as for single-component names, integers, and other strings that are not C-style identifiers can be used with (single or double) quotes.
-For example the dotted name `foo."1.2.3".bar` consists of three components, the strings `"foo"`, `"1.2.3"` and `"bar"`.
+#### Resulting JSON Config Data
+
+```javascript
+{
+   servers: {
+      primary: {
+         port: 7000
+      },
+      secondary: {
+         port: 7000
+      }
+   }
+}
+```
+
+Assignments using asterisks can be combined with the literal pseudo-value `delete`.
+Assignments and additions using asterisks can be combined with the literal pseudo-values `temporary` and `permanent`.
 
 
 ## References
 
-TODO (syntax, semantics, nesting, phasing, vs. temporary, vs. equals)
-
+TODO (syntax, semantics, nesting, vs. temporary, vs. equals, vs. schemas, vs. asterisk)
 
 
 ## Extensions
@@ -421,8 +540,7 @@ Member extensions can similarly contain nested value extensions.
 ```
 
 
-
-# Temporary
+## Temporary
 
 The literal pseudo-value `temporary` (and its counterpart, `permanent`) can occur anywhere one of the literal values `null`, `true` and `false` can occur, however it does not itself carry a value.
 Instead it marks the sub-tree of the JSON result to which it is "added' as temporary, meaning that while it is available to references it will be removed from the final resulting JSON value.
@@ -487,7 +605,49 @@ bar = temporary + temporary + 42 + permanent + permanent
 ```
 
 
-Copyright (c) 2018-2020 Dr. Colin Hirsch and Daniel Frey
+## Dotted Names
+
+Wherever the name of an object member is expected it is also possible to use a name with multiple dot-separated components.
+
+Dotted names can contain kinds of components.
+
+1.  Strings, intended to index objects.
+2.  Unsigned integers, intended to index arrays.
+4.  The [asterisk](#asterisks), intended to index objects or arrays.
+
+#### Example taoCONFIG Input File
+
+```
+foo
+{
+    bar.baz += 1
+}
+foo.bar
+{
+    baz += 1
+}
+foo.bar.baz += 1
+```
+
+#### Resulting JSON Config Data
+
+```javascript
+{
+   foo: {
+      bar: {
+         baz: 3
+      }
+   }
+}
+```
+
+Just as for single-component names, integers, and other strings that are not C-style identifiers can be used with (single or double) quotes.
+For example the dotted name `foo."1.2.3".bar` consists of three components, the strings `"foo"`, `"1.2.3"` and `"bar"`.
+
+Dotted names can be thought of as strongly-typed JSON Pointers: there is no ambiguity about whether an integer is intended to index an array or an object.
+
+
+Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
 
 [CBOR]: http://cbor.io
 [JAXN]: https://github.com/stand-art/jaxn
