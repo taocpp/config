@@ -15,9 +15,16 @@
 
 ## Documentation
 
+ * [Changelog](doc/Changelog.md)
  * [Version 1.x](doc/README.md) (requires C++17)
 
-## Features
+## Contact
+
+<a href="https://discord.gg/VQYkppcgqN"><img align="right" src="https://discordapp.com/api/guilds/790164930083028993/embed.png?style=banner2" alt="Join us on Discord"></a>
+
+For questions and suggestions regarding The Art of C++ / Config, success or failure stories, and any other kind of feedback, please feel free to join our [Discord](https://discord.gg/VQYkppcgqN) server, open a [discussion](https://github.com/taocpp/config/discussions), an [issue](https://github.com/taocpp/config/issues) or a [pull request](https://github.com/taocpp/config/pulls) on GitHub or contact the authors at `taocpp(at)icemx.net`.
+
+## Introduction
 
  * [JAXN] syntax with extensions (backward compatible with [JSON]).
  * [JAXN] data model ([JSON] extended with binary data and non-finites).
@@ -27,15 +34,7 @@
  * use environment variables and the output of arbitrary shell commands.
  * The function [`tao::config::parse_file()`](doc/Parsing-Config-Files.md) is all you need to get going.
 
-## Status
-
-This library is still under heavy development and not very well documented...
-
-...however it generally works, and test coverage and error messages are not too bad.
-
-## Introduction
-
-The config parser is backward compatible with JSON; every JSON file with a top-level object can be used as config file.
+Every JSON file with a top-level object can be used as config file.
 
 ```
 {
@@ -69,12 +68,6 @@ const tao::config::value config = tao::config::parse_file( "foo.cfg" );
 
 The resulting value is nothing other but a [JSON Value] from The Art of C++ / JSON with a custom traits class.
 It can be inspected using all the facilities of that JSON library.
-
-## Contact
-
-<a href="https://discord.gg/VQYkppcgqN"><img align="right" src="https://discordapp.com/api/guilds/790164930083028993/embed.png?style=banner2" alt="Join us on Discord"></a>
-
-For questions and suggestions regarding The Art of C++ / Config, success or failure stories, and any other kind of feedback, please feel free to join our [Discord](https://discord.gg/VQYkppcgqN) server, open a [discussion](https://github.com/taocpp/config/discussions), an [issue](https://github.com/taocpp/config/issues) or a [pull request](https://github.com/taocpp/config/pulls) on GitHub or contact the authors at `taocpp(at)icemx.net`.
 
 ## License
 
