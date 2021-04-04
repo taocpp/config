@@ -453,7 +453,7 @@ Unlike the other pseudo-values `delete` is not allowed to be in a syntactic addi
 ## Asterisks
 
 The asterisk can be used as special object member name to designate all array or object members.
-It is usually used in conjunction with [dotted names](#dotted-names) to form a pattern to which to apply an assignment or addition.
+It is frequently used in conjunction with [dotted names](#dotted-names) to form a pattern for an assignment or addition.
 
 #### Example taoCONFIG Input File
 
@@ -493,12 +493,152 @@ Assignments and additions using asterisks can be combined with the literal pseud
 
 ## References
 
-TODO (syntax, semantics, nesting, vs. temporary, vs. equals, vs. schemas, vs. asterisk)
+References are (nested) dotted names written in parentheses that refer to other parts of the config and copy the referenced value.
+
+```
+foo = 42
+bar = (foo)
+// bar is 42
+```
+
+To uniformly support forwards and backwards references, they and [additions](#additions) are resolved *after* the config has been parsed, i.e. after all assignments and [extensions](#extensions).
+
+References are resolved relative to the array or object scope in which they syntactically occur, similar to how name lookups from within nested namespaces are handled in the C++ programming language.
+
+#### Example taoCONFIG Input File
+
+```
+r = (a.b.x)
+
+a
+{
+    b
+    {
+        c
+        {
+            i = (x)
+            j = (b.x)
+            k = (a.x)
+
+            x = 4
+	}
+        x = 3
+    }
+    x = 2
+}
+x = 1
+```
+
+#### Resulting JSON Config Data
+
+```javascript
+{
+   a: {
+      b: {
+         c: {
+            i: 4,
+            j: 3,
+            k: 2,
+            x: 4
+         },
+         x: 3
+      },
+      x: 2
+   },
+   r: 3,
+   x: 1
+}
+```
+
+It is an error if there is no order in which all additions and references can be resolved due to some kind of cyclic references.
+It is also an error when the first component of a reference matches an inner scope in which the other parts can not be resolved *even if* they could have been resolved in an enclosing scope.
+
+#### Example Broken Input Files
+
+Cyclic reference is an error:
+
+```
+a = (b)
+b = (a)
+```
+
+While resolving `(a.b)` within `a.a` the first time the first `a` of `(a.b)` matches while moving from inner to outer scopes is the inner `a` in which no `b` exists which is an error:
+
+```
+a
+{
+    a
+    {
+        c = (a.b)
+    }
+    b = 1
+}
+```
+
+References can be arbitrarily **nested** meaning that the parts ofa  reference can themselves be references.
+For this to work the inner references must refer to values that can occur as part of a reference, namely strings and integers.
+
+#### Example taoCONFIG Input File
+
+```
+foo = [ 10 11 12 13 14 ]
+bar = 3
+baz = (foo.(bar))
+```
+
+#### Resulting JSON Config Data
+
+```javascript
+{
+   bar: 3,
+   baz: 13,
+   foo: [
+      10,
+      11,
+      12,
+      13,
+      14
+   ]
+}
+```
+
+When referencing values marked as [temporary](#temporary) the copied value will not be marked as temporary, however any sub-values will retain their temporary status.
+Similarly schema definitions will be retained only for sub-values of the referenced value (TODO: Is this really what we want?)
+
+#### Example taoCONFIG Input File
+
+```
+foo = temporary +
+{
+    bar
+    {
+        a = 1
+    }
+    baz = temporary +
+    {
+        b = 2
+    }
+}
+
+ttt = (foo)
+```
+
+#### Resulting JSON Config Data
+
+```javascript
+{
+   ttt: {
+      bar: {
+         a: 1
+      }
+   }
+}
+```
 
 
 ## Extensions
 
-Extensions are special expressions that, like references, are written in parentheses and greatly extend the possibilities of the config file.
+Extensions are expressions that, like references, are written in parentheses and give access to same *extended* features.
 
 [Value extensions](Value-Extensions.md) produce a [JAXN] value and can be used wherever a value is expected.
 

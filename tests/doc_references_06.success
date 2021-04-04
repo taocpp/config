@@ -1,0 +1,13 @@
+foo = temporary +
+{
+    bar
+    {
+        a = 1
+    }
+    baz = temporary +
+    {
+        b = 2
+    }
+}
+
+ttt = (foo)
