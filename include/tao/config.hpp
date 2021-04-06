@@ -10,8 +10,10 @@
 #include "config/from_file.hpp"
 #include "config/from_files.hpp"
 #include "config/from_input.hpp"
+#include "config/from_string.hpp"
 #include "config/to_stream.hpp"
 
+#include "config/access.hpp"
 #include "config/schema.hpp"
 
 #endif

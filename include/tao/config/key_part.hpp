@@ -23,11 +23,11 @@ namespace tao::config
    {
       using data_t = std::variant< std::string, std::size_t >;
 
-      explicit key_part( const std::size_t i )
+      explicit key_part( const std::size_t i ) noexcept
          : data( i )
       {}
 
-      explicit key_part( std::string&& n )
+      explicit key_part( std::string&& n ) noexcept
          : data( std::move( n ) )
       {}
 
@@ -57,9 +57,14 @@ namespace tao::config
       data_t data;
    };
 
-   [[nodiscard]] inline bool operator<( const key_part& l, const key_part& r ) noexcept
+   [[nodiscard]] inline bool operator< ( const key_part& l, const key_part& r ) noexcept
    {
       return l.data < r.data;
+   }
+
+   [[nodiscard]] inline bool operator==( const key_part& l, const key_part& r ) noexcept
+   {
+      return l.data == r.data;
    }
 
    [[nodiscard]] constexpr bool is_alpha( const int c ) noexcept
