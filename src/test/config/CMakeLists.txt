@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8...3.19)
 
 set(testsources
+  access.cpp
+  assign.cpp
   enumerations.cpp
   failure.cpp
   parse_key1.cpp
