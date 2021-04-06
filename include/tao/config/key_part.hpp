@@ -57,7 +57,7 @@ namespace tao::config
       data_t data;
    };
 
-   [[nodiscard]] inline bool operator< ( const key_part& l, const key_part& r ) noexcept
+   [[nodiscard]] inline bool operator<( const key_part& l, const key_part& r ) noexcept
    {
       return l.data < r.data;
    }
