@@ -41,6 +41,9 @@ namespace tao::config::internal
          case entry_kind::reference:
             throw phase2_access_return();
          case entry_kind::array:
+            if( down >= 0 ) {
+               return nullptr;
+            }
             throw pegtl::parse_error( "access name in array", p );
          case entry_kind::object:
             if( const auto i = e.get_object().object.find( name ); i != e.get_object().object.end() ) {
