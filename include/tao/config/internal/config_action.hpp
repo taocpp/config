@@ -52,7 +52,7 @@ namespace tao::config::internal
       template< typename State >
       static void apply0( State& st, const extension_maps& )
       {
-         const auto f = []( concat& c ) { c.concat.clear(); c.remove = true; c.temporary = false; };
+         const auto f = []( concat& c ) { c.concat.clear(); c.remove = true; };
          phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::implicit );
       }
    };
