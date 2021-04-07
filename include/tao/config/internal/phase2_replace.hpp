@@ -126,8 +126,10 @@ namespace tao::config::internal
             return;
          }
          i->set_object( star.position );
+
          for( const auto& name : names ) {
-            i->get_object().object.try_emplace( name, star );
+            [[maybe_unused]] const auto [ j, b ] = i->get_object().object.try_emplace( name, star );
+            assert( b && ( j->second.temporary == star.temporary ) );
          }
          ++i;
       }
@@ -139,6 +141,7 @@ namespace tao::config::internal
                continue;
             }
             c.remove = s.remove;
+            c.temporary |= s.temporary;
             c.concat.insert( c.concat.begin(), s.concat.begin(), s.concat.end() );
          }
       }
@@ -150,6 +153,7 @@ namespace tao::config::internal
                c.remove = true;
                c.concat.clear();
             }
+            c.temporary |= s.temporary;
             c.concat.insert( c.concat.end(), s.concat.begin(), s.concat.end() );
          }
       }

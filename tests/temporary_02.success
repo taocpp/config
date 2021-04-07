@@ -5,12 +5,12 @@ foo
 {
     bar
     {
-        a = 1
+        i = 42
     }
     baz
     {
-        b = 2
+        j = 43
     }
 }
 
-ttt = (foo)
+dst = (foo)

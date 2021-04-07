@@ -1,8 +1,8 @@
 a.b.c.d.e = delete
 a.b.d = 1
 
-b.c.d.e.f = temporary
+(temporary b.c.d.e.f)
 b.c.e = 2
 
-c.d.e.f.g = permanent
+(permanent c.d.e.f.g)
 c.d.g = 3

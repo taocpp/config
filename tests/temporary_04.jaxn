@@ -1,0 +1,16 @@
+{
+   bar: {
+      a: [],
+      b: []
+   },
+   foo: {
+      a: {},
+      b: {  // TODO: Fix code -- b should be an empty object.
+         c: 1,
+         d: 2,
+         e: [
+            3
+         ]
+      }
+   }
+}

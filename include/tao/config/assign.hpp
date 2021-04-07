@@ -52,8 +52,7 @@ namespace tao::config
          case key_kind::index:
             return assign( v, k[ 0 ].get_index(), pop_front( k ) );
       }
-      assert( false );
-      std::abort();
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
 }  // namespace tao::config

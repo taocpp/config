@@ -26,7 +26,6 @@ We assume that the reader is somewhat familiar with [JSON].
    - [Asterisks](#asterisk)
    - [References](#references)
    - [Extensions](#extensions)
-   - [Temporary](#temporary)
    - [Dotted Names](#dotted-names)
 
 Please note that, for now, this document shows basic use cases for all features, but not much beyond that.
@@ -488,7 +487,6 @@ servers.*.port = 7000  // Testing
 ```
 
 Assignments using asterisks can be combined with the literal pseudo-value `delete`.
-Assignments and additions using asterisks can be combined with the literal pseudo-values `temporary` and `permanent`.
 
 
 ## References
@@ -602,19 +600,22 @@ baz = (foo.(bar))
 }
 ```
 
-When referencing values marked as [temporary](#temporary) the copied value will not be marked as temporary, however any sub-values will retain their temporary status.
+When referencing values marked as [temporary](Member-Extensions.md#temporary) the copied value will not be marked as temporary, however any sub-values will retain their temporary status.
 Similarly schema definitions will be retained only for sub-values of the referenced value (TODO: Is this really what we want?)
 
 #### Example taoCONFIG Input File
 
 ```
-foo = temporary +
+(temporary foo)
+(temporary foo.baz)
+
+foo
 {
     bar
     {
         a = 1
     }
-    baz = temporary +
+    baz
     {
         b = 2
     }
@@ -677,71 +678,6 @@ Member extensions can similarly contain nested value extensions.
 
 ```
 (include (read (env "INCLUDE_FILE_NAME_FILE")))
-```
-
-
-## Temporary
-
-The literal pseudo-value `temporary` (and its counterpart, `permanent`) can occur anywhere one of the literal values `null`, `true` and `false` can occur, however it does not itself carry a value.
-Instead it marks the sub-tree of the JSON result to which it is "added" as temporary, meaning that while it is available to references it will be removed from the final resulting JSON value.
-
-#### Example taoCONFIG Input File
-
-```
-template = temporary +
-{
-    host = "127.0.0.1"
-    port = 6000
-    version = 42
-}
-
-foo = (template) +
-{
-    host = "127.0.0.2"
-}
-
-bar = (template) +
-{
-    port = 6001
-}
-
-template += temporary  // Can also be "added" later.
-
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   bar: {
-      host: "127.0.0.1",
-      port: 6001,
-      version: 42
-   },
-   foo: {
-      host: "127.0.0.2",
-      port: 6000,
-      version: 42
-   }
-}
-```
-
-Similarly, `permanent` allows removing the marking as temporary.
-Arbitrary many `temporary` and `permanent` pseudo-values can be "added" to a value with the last one "winning".
-
-#### Example taoCONFIG Input File
-
-```
-foo = temporary + permanent + 42 + permanent + temporary
-bar = temporary + temporary + 42 + permanent + permanent
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   bar: 42
-}
 ```
 
 

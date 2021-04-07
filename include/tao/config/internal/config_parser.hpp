@@ -49,8 +49,10 @@ namespace tao::config::internal
                { { "include", wrap( include_function ) },
                  { "include?", wrap( include_if_function ) },
                  { "parse", wrap( member_function ) },
+                 { "permanent", wrap( permanent_function ) },
                  { "schema", wrap( schema_function ) },
-                 { "setenv", wrap( setenv_function ) } },
+                 { "setenv", wrap( setenv_function ) },
+                 { "temporary", wrap( temporary_function ) } },
                { { "parse", wrap( value_function ) } } )
       {}
 

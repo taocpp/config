@@ -25,28 +25,6 @@ namespace tao::config::internal
    {};
 
    template<>
-   struct config_action< rules::permanent >
-   {
-      template< typename State >
-      static void apply0( State& st, const extension_maps& )
-      {
-         const auto f = []( concat& c ) { c.temporary = false; };
-         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::implicit );
-      }
-   };
-
-   template<>
-   struct config_action< rules::temporary >
-   {
-      template< typename State >
-      static void apply0( State& st, const extension_maps& )
-      {
-         const auto f = []( concat& c ) { c.temporary = true; };
-         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::implicit );
-      }
-   };
-
-   template<>
    struct config_action< rules::assign_head >
    {
       template< typename State >

@@ -23,6 +23,9 @@ namespace tao::config::internal
             if( m.second.remove ) {
                pair.first->second.remove = true;
             }
+            if( m.second.temporary ) {
+               pair.first->second.temporary = true;
+            }
             pair.first->second.concat.splice( pair.first->second.concat.begin(), m.second.concat );
          }
       }

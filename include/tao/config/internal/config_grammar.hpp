@@ -70,10 +70,7 @@ namespace tao::config::internal::rules
 
    struct remove : pegtl::keyword< 'd', 'e', 'l', 'e', 't', 'e' > {};
 
-   struct permanent : pegtl::keyword< 'p', 'e', 'r', 'm', 'a', 'n', 'e', 'n', 't' > {};
-   struct temporary : pegtl::keyword< 't', 'e', 'm', 'p', 'o', 'r', 'a', 'r', 'y' > {};
-
-   struct value_part : pegtl::sor< array, object, permanent, temporary, bracketed_value, jaxn_value > {};
+   struct value_part : pegtl::sor< array, object, bracketed_value, jaxn_value > {};
    struct value_list : pegtl::list< value_part, pegtl::one< '+' >, jaxn::ws > {};
 
    struct assign_head : pegtl::one< ':', '=' > {};

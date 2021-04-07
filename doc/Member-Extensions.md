@@ -5,7 +5,9 @@ Note that whitespace is significant within member extensions, i.e. whitespace mu
 
  * [include](#include)
  * [parse](#parse)
+ * [permanent](#permanent)
  * [schema](#schema)
+ * [temporary](#temporary)
 
 
 
@@ -84,6 +86,12 @@ foo
    }
 }
 ```
+
+
+
+## permanent
+
+The `permanent` member extension is used to undo the effects of [`temporary`](#temporary).
 
 
 
@@ -170,6 +178,56 @@ In order to "cancel" a schema checking the schema member can be used with `null`
 
 ```
 (schema null)  // Remove any top-level schema checking.
+```
+
+
+
+## temporary
+
+The `temporary` member extension marks a sub-tree of the JSON as temporary, meaning that it will be removed from the final resulting JSON value.
+This is frequently used for templates that are referenced somewhere else in the config.
+
+#### Example taoCONFIG Input File
+
+```
+(temporary template)  // Can occur before...
+
+template
+{
+    host = "127.0.0.1"
+    port = 6000
+    version = 42
+}
+
+foo = (template) +
+{
+    host = "127.0.0.2"
+}
+
+bar = (template) +
+{
+    port = 6001
+}
+
+(temporary template)  // ...and/or after.
+
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   bar: {
+      host: "127.0.0.1",
+      port: 6001,
+      version: 42
+   },
+   foo: {
+      host: "127.0.0.2",
+      port: 6000,
+      version: 42
+   }
+}
 ```
 
 

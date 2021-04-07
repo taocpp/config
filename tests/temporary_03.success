@@ -1,0 +1,37 @@
+(temporary a)
+(permanent a)
+
+(permanent b)
+
+(permanent c)
+(temporary c)
+
+(temporary d)
+(permanent d)
+d = 1
+
+(temporary e)
+e = 2
+(permanent e)
+
+f = 3
+(temporary f)
+(permanent f)
+
+(permanent g)
+g = 4
+
+h = 5
+(permanent h)
+
+(permanent i)
+(temporary i)
+i = 6
+
+(permanent j)
+j = 7
+(temporary j)
+
+k = 8
+(permanent k)
+(temporary k)

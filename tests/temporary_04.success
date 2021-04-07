@@ -1,0 +1,31 @@
+foo.a
+{
+    c = 1
+    d = 2
+    e = [ 3 ]
+}
+
+(temporary foo.*.*)
+
+foo.b
+{
+    c = 1
+    d = 2
+    e = [ 3 ]
+}
+
+bar.a
+[
+    true
+    false
+    null
+]
+
+(temporary bar.*.*)
+
+bar.b
+[
+    true
+    false
+    null
+]

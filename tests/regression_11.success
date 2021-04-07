@@ -1,18 +1,30 @@
-a.a = temporary
+(temporary a.a)
 
-b.a = permanent
+(permanent b.a)
 
-c.a = temporary
-c.a = temporary
+(temporary c.a)
+(temporary c.a)
 
-d.a = permanent
-d.a = permanent
+(permanent d.a)
+(permanent d.a)
 
-e.a = permanent + temporary
+(permanent e.a)
+(temporary e.a)
 
-f.a = temporary + permanent
+(temporary f.a)
+(permanent f.a)
 
-g.a = temporary
-g.a += permanent
-g.a += temporary
-g.a += permanent
+(temporary g.a)
+(permanent g.a)
+(temporary g.a)
+(permanent g.a)
+
+h = 1
+i = 2
+
+(permanent h)
+h = delete
+
+(temporary i)
+i = delete
+(permanent i)

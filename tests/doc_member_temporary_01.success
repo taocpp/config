@@ -1,4 +1,6 @@
-template = temporary +
+(temporary template)  // Can occur before...
+
+template
 {
     host = "127.0.0.1"
     port = 6000
@@ -15,4 +17,4 @@ bar = (template) +
     port = 6001
 }
 
-template += temporary  // Can also be "added" later.
+(temporary template)  // ...and/or after.

@@ -53,6 +53,14 @@ namespace tao::config::internal
       pegtl::parse_nested< rules::config_file, config_action >( p, static_cast< pegtl_input_t& >( in ), st, em );
    }
 
+   inline void permanent_function( state& st, const key1& path )
+   {
+      assert( st.suffix.empty() );
+
+      const auto f = []( concat& c ) { c.temporary = false; };
+      phase1_append( st.root, st.prefix + path, f, phase1_mode::implicit );
+   }
+
    inline void schema_function( state& st, const std::optional< std::string >& s )
    {
       assert( st.suffix.empty() );
@@ -73,6 +81,14 @@ namespace tao::config::internal
 #else
       set_env_throws( p, name, value );
 #endif
+   }
+
+   inline void temporary_function( state& st, const key1& path )
+   {
+      assert( st.suffix.empty() );
+
+      const auto f = []( concat& c ) { c.temporary = true; };
+      phase1_append( st.root, st.prefix + path, f, phase1_mode::implicit );
    }
 
 }  // namespace tao::config::internal

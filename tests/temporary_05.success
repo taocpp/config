@@ -1,0 +1,23 @@
+foo.a
+{
+    c = 1
+}
+
+(temporary foo.*)
+
+foo.b
+{
+    c = 1
+}
+
+bar.a
+[
+    true
+]
+
+(temporary bar.*)
+
+bar.b
+[
+    true
+]

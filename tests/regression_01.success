@@ -1,4 +1,6 @@
-tmp = temporary +
+(temporary tmp)
+
+tmp =
 {
     ip = "127.0.0.1"
 }

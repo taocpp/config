@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <ostream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <variant>
@@ -97,7 +98,7 @@ namespace tao::config
          case key_kind::index:
             return std::to_string( t.get_index() );
       }
-      assert( false );
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
    inline void name_to_stream( std::ostream& o, const std::string& n )
@@ -120,7 +121,7 @@ namespace tao::config
             o << t.get_index();
             return;
       }
-      assert( false );
+      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
 }  // namespace tao::config

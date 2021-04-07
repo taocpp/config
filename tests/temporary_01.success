@@ -1,0 +1,74 @@
+(temporary a)
+a = 1
+
+b = 2
+(temporary b)
+
+(temporary c.d.e)
+c.d.e = 3
+
+f.g.h = 4
+(temporary f.g.h)
+
+i = 5
+(temporary i)
+i = 6
+
+j += 7
+(temporary j)
+j += 8
+
+(temporary k)
+(temporary l.m)
+
+foo.bar
+{
+    (temporary a)
+    a = 1
+
+    b = 2
+    (temporary b)
+
+    (temporary c.d.e)
+    c.d.e = 3
+
+    f.g.h = 4
+    (temporary f.g.h)
+
+    i = 5
+    (temporary i)
+    i = 6
+
+    j += 7
+    (temporary j)
+    j += 8
+
+    (temporary k)
+    (temporary l.m)
+}
+
+foo.baz
+[ {
+    (temporary a)
+    a = 1
+
+    b = 2
+    (temporary b)
+
+    (temporary c.d.e)
+    c.d.e = 3
+
+    f.g.h = 4
+    (temporary f.g.h)
+
+    i = 5
+    (temporary i)
+    i = 6
+
+    j += 7
+    (temporary j)
+    j += 8
+
+    (temporary k)
+    (temporary l.m)
+} ]
