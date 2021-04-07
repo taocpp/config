@@ -20,33 +20,33 @@
 #include "json_traits.hpp"
 #include "key1.hpp"
 #include "object.hpp"
-#include "phase1_stuff.hpp"
+#include "phase1_mode.hpp"
 #include "reference2.hpp"
 #include "reverse.hpp"
 
 namespace tao::config::internal
 {
    template< typename T >
-   bool phase1_append( concat& c, const key1& path, const T& thing, const bool implicit );
+   bool phase1_append( concat& c, const key1& path, const T& thing, const phase1_mode mode );
 
    template< typename T >
-   bool phase1_append_star( concat& c, const pegtl::position& p, const key1& path, const T& thing, const bool implicit )
+   bool phase1_append_star( concat& c, const pegtl::position& p, const key1& path, const T& thing, const phase1_mode mode )
    {
       c.back_ensure_kind( entry_kind::concat, p );
-      return phase1_append( c.concat.back().get_concat(), path, thing, implicit );
+      return phase1_append( c.concat.back().get_concat(), path, thing, mode );
    }
 
    template< typename T >
-   bool phase1_append_name( concat& c, const pegtl::position& p, const std::string& name, const key1& path, const T& thing, const bool implicit )
+   bool phase1_append_name( concat& c, const pegtl::position& p, const std::string& name, const key1& path, const T& thing, const phase1_mode mode )
    {
       c.back_ensure_kind( entry_kind::object, p );
       const auto pair = c.concat.back().get_object().object.try_emplace( name, p );
-      pair.first->second.implicit = implicit && ( pair.second || pair.first->second.implicit );
-      return phase1_append( pair.first->second, path, thing, implicit );
+      pair.first->second.implicit = ( mode == phase1_mode::implicit ) && ( pair.second || pair.first->second.implicit );
+      return phase1_append( pair.first->second, path, thing, mode );
    }
 
    template< typename T >
-   bool phase1_append_index( concat& c, const pegtl::position& p, const std::size_t index, const key1& path, const T& thing, const bool implicit )
+   bool phase1_append_index( concat& c, const pegtl::position& p, const std::size_t index, const key1& path, const T& thing, const phase1_mode mode )
    {
       std::size_t n = index;
 
@@ -58,7 +58,7 @@ namespace tao::config::internal
                throw pegtl::parse_error( "cannot index (across) reference", p );
             case entry_kind::array:
                if( e.get_array().array.size() > n ) {
-                  return phase1_append( *std::next( e.get_array().array.begin(), n ), path, thing, implicit );
+                  return phase1_append( *std::next( e.get_array().array.begin(), n ), path, thing, mode );
                }
                n -= e.get_array().array.size();
                continue;
@@ -72,7 +72,7 @@ namespace tao::config::internal
    }
 
    template< typename T >
-   bool phase1_append_append( concat& c, const pegtl::position& p, const std::uint64_t g, const key1& path, const T& thing, const bool implicit )
+   bool phase1_append_append( concat& c, const pegtl::position& p, const std::uint64_t g, const key1& path, const T& thing, const phase1_mode mode )
    {
       c.back_ensure_kind( entry_kind::array, p );
       auto& a = c.concat.back().get_array();
@@ -80,15 +80,15 @@ namespace tao::config::internal
          c.generation = g;
          concat& d = a.array.emplace_back( p );
          d.remove = false;  // TODO: Make consistent with entry::expand()?
-         return phase1_append( d, path, thing, implicit );
+         return phase1_append( d, path, thing, mode );
       }
       assert( !a.array.empty() );
 
-      return phase1_append( a.array.back(), path, thing, implicit );
+      return phase1_append( a.array.back(), path, thing, mode );
    }
 
    template< typename T >
-   bool phase1_append( concat& c, const key1& path, const T& thing, const bool implicit )
+   bool phase1_append( concat& c, const key1& path, const T& thing, const phase1_mode mode )
    {
       if( path.empty() ) {
          thing( c );
@@ -98,26 +98,26 @@ namespace tao::config::internal
 
       switch( part.kind() ) {
          case key1_kind::star:
-            return phase1_append_star( c, part.position, pop_front( path ), thing, implicit );
+            return phase1_append_star( c, part.position, pop_front( path ), thing, mode );
          case key1_kind::name:
-            return phase1_append_name( c, part.position, part.get_name(), pop_front( path ), thing, implicit );
+            return phase1_append_name( c, part.position, part.get_name(), pop_front( path ), thing, mode );
          case key1_kind::index:
-            return phase1_append_index( c, part.position, part.get_index(), pop_front( path ), thing, implicit );
+            return phase1_append_index( c, part.position, part.get_index(), pop_front( path ), thing, mode );
          case key1_kind::append:
-            return phase1_append_append( c, part.position, part.get_generation(), pop_front( path ), thing, implicit );
+            return phase1_append_append( c, part.position, part.get_generation(), pop_front( path ), thing, mode );
       }
       throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
 
    template< typename T >
-   void phase1_append( object& o, const key1& path, const T& thing, const bool implicit )
+   void phase1_append( object& o, const key1& path, const T& thing, const phase1_mode mode )
    {
       assert( !path.empty() );
 
       const std::string& name = path.front().get_name();  // TODO: Error message if other type.
       const auto pair = o.object.try_emplace( name, path.front().position );
-      pair.first->second.implicit = implicit && ( pair.second || pair.first->second.implicit );
-      phase1_append( pair.first->second, pop_front( path ), thing, implicit );
+      pair.first->second.implicit = ( mode == phase1_mode::implicit ) && ( pair.second || pair.first->second.implicit );
+      phase1_append( pair.first->second, pop_front( path ), thing, mode );
    }
 
 }  // namespace tao::config::internal

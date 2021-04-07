@@ -16,7 +16,6 @@
 #include "key1_guard.hpp"
 #include "pegtl.hpp"
 #include "phase1_append.hpp"
-#include "phase1_stuff.hpp"
 
 namespace tao::config::internal
 {
@@ -32,7 +31,7 @@ namespace tao::config::internal
       static void apply0( State& st, const extension_maps& )
       {
          const auto f = []( concat& c ) { c.temporary = false; };
-         phase1_append( st.root, st.prefix + st.suffix, f, true );
+         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::implicit );
       }
    };
 
@@ -43,7 +42,7 @@ namespace tao::config::internal
       static void apply0( State& st, const extension_maps& )
       {
          const auto f = []( concat& c ) { c.temporary = true; };
-         phase1_append( st.root, st.prefix + st.suffix, f, true );
+         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::implicit );
       }
    };
 
@@ -54,7 +53,7 @@ namespace tao::config::internal
       static void apply0( State& st, const extension_maps& )
       {
          const auto f = []( concat& c ) { c.concat.clear(); c.remove = true; c.temporary = false; };
-         phase1_append( st.root, st.prefix + st.suffix, f, true );
+         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::implicit );
       }
    };
 
@@ -66,7 +65,7 @@ namespace tao::config::internal
       {
          const auto p = in.position();
          const auto f = [ & ]( concat& c ) { c.back_ensure_kind( entry_kind::array, p ); };
-         phase1_append( st.root, st.prefix + st.suffix, f, false );
+         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::manifest );
       }
    };
 
@@ -78,7 +77,7 @@ namespace tao::config::internal
       {
          const auto p = in.position();
          const auto f = [ & ]( concat& c ) { c.back_ensure_kind( entry_kind::object, p ); };
-         phase1_append( st.root, st.prefix + st.suffix, f, false );
+         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::manifest );
       }
    };
 

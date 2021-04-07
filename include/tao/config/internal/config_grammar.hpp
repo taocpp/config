@@ -35,7 +35,7 @@ namespace tao::config::internal::rules
       {
          const auto r = parse_reference2( in );
          const auto f = [ & ]( concat& c ) { c.concat.emplace_back( r ); };
-         phase1_append( st.root, st.prefix + st.suffix, f, false );
+         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::manifest );
          return true;
       }
    };
@@ -56,7 +56,7 @@ namespace tao::config::internal::rules
       {
          const auto j = parse_jaxn( in );
          const auto f = [ & ]( concat& c ) { c.concat.emplace_back( j ); };
-         phase1_append( st.root, st.prefix + st.suffix, f, false );
+         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::manifest );
          return true;
       }
    };
