@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11...3.19)
+cmake_minimum_required(VERSION 3.8...3.19)
 
 project(taocpp-config VERSION 1.0.0 LANGUAGES CXX)
 
@@ -37,13 +37,17 @@ if(NOT taocpp-json_FOUND)
     set(TAOCPP_JSON_INSTALL_CMAKE_DIR ${CMAKE_INSTALL_DATAROOTDIR}/json/cmake CACHE STRING "Override taoJSON cmake install directory")
     add_subdirectory(external/json)
   else()
-    include(FetchContent)
-    FetchContent_Declare(
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.11)
+      include(FetchContent)
+      FetchContent_Declare(
         taocpp-json
         GIT_REPOSITORY https://github.com/taocpp/json.git
         GIT_TAG        master
       )
-    FetchContent_MakeAvailable(taocpp-json)
+      FetchContent_MakeAvailable(taocpp-json)
+    else()
+      message(FATAL_ERROR "taoJSON headers are not found!\nInstall taoJSON OR\ncheckout the taoJSON project manually into external/json OR\nuse cmake 3.11 or above")
+    endif()
   endif()
   if(TAOCPP_CONFIG_INSTALL)
     # install and export target
