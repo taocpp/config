@@ -37,7 +37,7 @@ if(NOT taocpp-json_FOUND)
     set(TAOCPP_JSON_INSTALL_CMAKE_DIR ${CMAKE_INSTALL_DATAROOTDIR}/json/cmake CACHE STRING "Override taoJSON cmake install directory")
     add_subdirectory(external/json)
   else()
-    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.11)
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14.4)
       include(FetchContent)
       FetchContent_Declare(
         taocpp-json
