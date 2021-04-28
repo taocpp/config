@@ -19,7 +19,7 @@
 namespace tao::config::internal
 {
    template< typename R >
-   json_t convert_result( const pegtl::position& p, R&& r )
+   [[nodiscard]] json_t convert_result( const pegtl::position& p, R&& r )
    {
       return result_traits< std::decay_t< R > >::convert( p, std::forward< R >( r ) );
    }
