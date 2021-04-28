@@ -114,7 +114,10 @@ namespace tao::config::internal
    {
       assert( !path.empty() );
 
-      const std::string& name = path.front().get_name();  // TODO: Error message if other type.
+      if( path.front().kind() != key1_kind::name ) {
+         throw pegtl::parse_error( "expected name", path.front().position );
+      }
+      const std::string& name = path.front().get_name();
       const auto pair = o.object.try_emplace( name, path.front().position );
       pair.first->second.implicit = ( mode == phase1_mode::implicit ) && ( pair.second || pair.first->second.implicit );
       phase1_append( pair.first->second, pop_front( path ), thing, mode );
