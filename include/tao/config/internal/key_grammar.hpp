@@ -14,7 +14,7 @@ namespace tao::config::internal::rules
    // clang-format off
    struct dot : pegtl::one< '.' > {};
 
-   struct index : pegtl::plus< pegtl::digit > {};
+   struct index : pegtl::rep_min_max< 1, 15, pegtl::digit > {};
 
    struct ident_first : pegtl::ranges< 'a', 'z', 'A', 'Z', '_' > {};
    struct ident_other : pegtl::ranges< 'a', 'z', 'A', 'Z', '0', '9', '-', '-', '_' > {};
