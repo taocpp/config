@@ -5,6 +5,7 @@
 #define TAO_CONFIG_FROM_STRING_HPP
 
 #include <string>
+#include <string_view>
 #include <utility>
 
 #include "internal/config_parser.hpp"
@@ -14,16 +15,27 @@
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   [[nodiscard]] json::basic_value< Traits > basic_from_string( const std::string& data, const std::string& source, const schema::builtin& b = schema::builtin() )
+   [[nodiscard]] json::basic_value< Traits > basic_from_string( const char* data, const std::size_t size, const std::string& source, const schema::builtin& b = schema::builtin() )
    {
       internal::config_parser c;
-      c.parse( data, source );
+      c.parse( data, size, source );
       return c.finish< Traits >( b );
    }
 
-   [[nodiscard]] inline value from_string( const std::string& data, const std::string& source, const schema::builtin& b = schema::builtin() )
+   template< template< typename... > class Traits >
+   [[nodiscard]] json::basic_value< Traits > basic_from_string( const std::string_view data, const std::string& source, const schema::builtin& b = schema::builtin() )
    {
-      return basic_from_string< traits >( data, source, b );
+      return basic_from_string< Traits >( data.data(), data.size(), source, b );
+   }
+
+   [[nodiscard]] inline value from_string( const char* data, const std::size_t size, const std::string& source, const schema::builtin& b = schema::builtin() )
+   {
+      return basic_from_string< traits >( data, size, source, b );
+   }
+
+   [[nodiscard]] inline value from_string( const std::string_view data, const std::string& source, const schema::builtin& b = schema::builtin() )
+   {
+      return from_string( data.data(), data.size(), source, b );
    }
 
 }  // namespace tao::config

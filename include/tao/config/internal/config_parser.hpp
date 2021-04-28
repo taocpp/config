@@ -4,8 +4,10 @@
 #ifndef TAO_CONFIG_INTERNAL_CONFIG_PARSER_HPP
 #define TAO_CONFIG_INTERNAL_CONFIG_PARSER_HPP
 
+#include <cstdint>
 #include <filesystem>
 #include <string>
+#include <string_view>
 #include <utility>
 
 #include "config_action.hpp"
@@ -75,9 +77,14 @@ namespace tao::config::internal
          parse( pegtl::file_input( path ) );
       }
 
-      void parse( const std::string& data, const std::string& source )
+      void parse( const char* data, const std::size_t size, const std::string& source )
       {
-         parse( pegtl::memory_input( data, source ) );
+         parse( pegtl::memory_input( data, size, source ) );
+      }
+
+      void parse( const std::string_view data, const std::string& source )
+      {
+         parse( data.data(), data.size(), source );
       }
 
       [[nodiscard]] bool phase2_iteration()
