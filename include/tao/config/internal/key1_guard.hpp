@@ -12,7 +12,7 @@
 
 namespace tao::config::internal
 {
-   class key1_guard
+   class [[nodiscard]] key1_guard
    {
    public:
       key1_guard() = delete;

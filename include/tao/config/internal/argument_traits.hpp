@@ -27,7 +27,7 @@ namespace tao::config::internal
          : m_j( do_inner_extension( in, st, em ) )
       {}
 
-      T convert() const
+      [[nodiscard]] T convert() const
       {
          return m_j.as< T >();
       }
@@ -44,7 +44,7 @@ namespace tao::config::internal
            m_s( convert_impl( do_inner_extension( in, st, em ) ) )
       {}
 
-      const std::string& convert() const
+      [[nodiscard]] const std::string& convert() const
       {
          return m_s;
       }
@@ -81,7 +81,7 @@ namespace tao::config::internal
          : m_j( do_inner_extension( in, st, em ) )
       {}
 
-      const json_t& convert() const
+      [[nodiscard]] const json_t& convert() const
       {
          return m_j;
       }
@@ -97,7 +97,7 @@ namespace tao::config::internal
          : m_k( parse_key1( in ) )
       {}
 
-      const key1& convert() const noexcept
+      [[nodiscard]] const key1& convert() const noexcept
       {
          return m_k;
       }
@@ -113,7 +113,7 @@ namespace tao::config::internal
          : m_p( in.position() )
       {}
 
-      const pegtl::position& convert() const noexcept
+      [[nodiscard]] const pegtl::position& convert() const noexcept
       {
          return m_p;
       }
@@ -129,7 +129,7 @@ namespace tao::config::internal
          : m_st( st )
       {}
 
-      state& convert() const noexcept
+      [[nodiscard]] state& convert() const noexcept
       {
          return m_st;
       }
@@ -145,7 +145,7 @@ namespace tao::config::internal
          : m_em( em )
       {}
 
-      const extension_maps& convert() const noexcept
+      [[nodiscard]] const extension_maps& convert() const noexcept
       {
          return m_em;
       }
@@ -161,7 +161,7 @@ namespace tao::config::internal
          : m_j( do_inner_extension( in, st, em ) )
       {}
 
-      std::optional< T > convert() const
+      [[nodiscard]] std::optional< T > convert() const
       {
          return m_j.optional< T >();
       }

@@ -11,7 +11,7 @@
 
 namespace tao::config::internal
 {
-   class phase2_guard
+   class [[nodiscard]] phase2_guard
    {
    public:
       template< typename T >
