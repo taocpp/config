@@ -32,7 +32,7 @@ For questions and suggestions regarding The Art of C++ / Config, success or fail
  * Copy, reference, replace and delete anything in the [JSON] structure.
  * Multiple ways to read and include other config and data files, and
  * use environment variables and the output of arbitrary shell commands.
- * The function [`tao::config::parse_file()`](doc/Parsing-Config-Files.md) is all you need to get going.
+ * The function [`tao::config::from_file()`](doc/Parsing-Config-Files.md) is all you need to get going.
 
 Every JSON file with a top-level object can be used as config file.
 
@@ -58,12 +58,12 @@ Semantic features like deleting and referencing values, or including files and r
 
 These features can be used to manage situations that go beyond single deployments with a single config, for example providing the tools to manage configuration templates that are adapted to different environments.
 
-Parsing a config file generally entails nothing more than calling the appropriate `parse_file()` function with the filename.
+Parsing a config file generally entails nothing more than calling the appropriate `from_file()` function with the filename.
 
 ```
 #include <tao/config.hpp>
 
-const tao::config::value config = tao::config::parse_file( "foo.cfg" );
+const tao::config::value config = tao::config::from_file( "foo.cfg" );
 ```
 
 The resulting value is nothing other but a [JSON Value] from The Art of C++ / JSON with a custom traits class.
