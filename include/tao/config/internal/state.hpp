@@ -30,7 +30,7 @@ namespace tao::config::internal
       ~state() = default;
 
       void operator=( state&& ) = delete;
-      void operator=( const state&& ) = delete;
+      void operator=( const state& ) = delete;
 
       key1 prefix;
       key1 suffix;
@@ -39,6 +39,9 @@ namespace tao::config::internal
       std::string schema;
 
       std::uint64_t generation = 1;
+
+      static constexpr std::size_t depth_limit = 96;
+      static constexpr std::size_t concat_limit = 64;
    };
 
 }  // namespace tao::config::internal
