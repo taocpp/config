@@ -5,7 +5,6 @@
 #define TAO_CONFIG_INTERNAL_KEY1_GUARD_HPP
 
 #include <cassert>
-#include <vector>
 
 #include "key1.hpp"
 #include "pegtl.hpp"
