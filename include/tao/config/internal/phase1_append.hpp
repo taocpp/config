@@ -19,6 +19,7 @@
 #include "json.hpp"
 #include "json_traits.hpp"
 #include "key1.hpp"
+#include "limits.hpp"
 #include "object.hpp"
 #include "phase1_mode.hpp"
 #include "reference2.hpp"
@@ -114,6 +115,9 @@ namespace tao::config::internal
    {
       assert( !path.empty() );
 
+      if( path.size() > global_nesting_limit ) {
+         throw pegtl::parse_error( "nesting depth exceeded", path.at( global_nesting_limit ).position );
+      }
       if( path.front().kind() != key1_kind::name ) {
          throw pegtl::parse_error( "expected name", path.front().position );
       }
