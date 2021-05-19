@@ -8,7 +8,7 @@
 
 namespace tao::config::internal
 {
-   static constexpr std::size_t global_concat_limit = 64;
+   static constexpr std::size_t global_nesting_limit = 96;
 
 }  // namespace tao::config::internal
 
