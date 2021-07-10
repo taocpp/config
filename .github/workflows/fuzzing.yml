@@ -9,7 +9,6 @@ on:
 env:
   FUZZING_SERVER_ADDRESS: taocpp.app.code-intelligence.com:6773
   WEB_APP_ADDRESS:  https://taocpp.app.code-intelligence.com
-  
 
 jobs:
   fuzz_tests:
@@ -22,7 +21,7 @@ jobs:
           ci_fuzz_api_token: ${{ secrets.CI_FUZZ_API_TOKEN }}
           project: "projects/organizations_9ebb593abaa9ec32_config_git-48b6b783"
           git_reference: ${{ github.sha }}
-          fuzzing_server_address: ${{ env.FUZZING_SERVER_ADDRESS }}          
+          fuzzing_server_address: ${{ env.FUZZING_SERVER_ADDRESS }}
       - id: monitor-fuzzing
         name: Fuzzing
         uses: CodeIntelligenceTesting/github-actions/monitor-fuzzing@dev
@@ -49,4 +48,4 @@ jobs:
           git_reference: ${{ github.sha }}
           fuzzing_server_address: ${{ env.FUZZING_SERVER_ADDRESS }}
           dashboard_address: ${{ env.WEB_APP_ADDRESS }}
-          
+
