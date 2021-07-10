@@ -33,7 +33,7 @@ namespace tao::config
    }
 
    template< template< typename... > class Traits >
-   [[nodiscard]] const json::basic_value< Traits >& access_index( const json::basic_value< Traits >& v, const std::uint64_t n, const key& p )
+   [[nodiscard]] const json::basic_value< Traits >& access_index( const json::basic_value< Traits >& v, const std::size_t n, const key& p )
    {
       if( !v.is_array() ) {
          throw std::runtime_error( internal::strcat( "attempt to index non-array with ", n ) );
