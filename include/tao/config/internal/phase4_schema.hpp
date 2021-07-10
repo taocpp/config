@@ -27,6 +27,11 @@ namespace tao::config::internal
       }
    }
 
+#if defined( _MSC_VER )
+#pragma warning( push )
+#pragma warning( disable : 4702 )
+#endif
+
    inline void phase4_schema( const concat& c, const schema::builtin& b )
    {
       if( !c.schema.empty() ) {
@@ -54,6 +59,10 @@ namespace tao::config::internal
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
    }
+
+#if defined( _MSC_VER )
+#pragma warning( pop )
+#endif
 
    inline void phase4_schema( const object& root, const std::string& s, const schema::builtin& b = schema::builtin() )
    {
