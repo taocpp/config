@@ -22,7 +22,7 @@
 namespace tao::config::internal
 {
    template< template< typename... > class Traits >
-   void set_key_and_position( json::basic_value< Traits >& r, const key& k, const pegtl::position& p )
+   void set_key_and_position( [[maybe_unused]] json::basic_value< Traits >& r, [[maybe_unused]] const key& k, [[maybe_unused]] const pegtl::position& p )
    {
       if constexpr( has_set_key< json::basic_value< Traits > > ) {
          r.set_key( k );

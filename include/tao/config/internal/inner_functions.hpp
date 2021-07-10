@@ -70,7 +70,7 @@ namespace tao::config::internal
       return std::vector< std::byte >( p, p + d.size() );
    }
 
-   [[nodiscard]] inline std::string shell_function( const pegtl::position& p, const std::string& script )
+   [[nodiscard]] inline std::string shell_function( const pegtl::position& p, [[maybe_unused]] const std::string& script )
    {
 #if defined( _MSC_VER )
       throw pegtl::parse_error( "shell extension not supported on this platform", p );

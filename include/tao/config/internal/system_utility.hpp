@@ -33,6 +33,11 @@ namespace tao::config::internal
       }
    }
 
+#if defined( _MSC_VER )
+#pragma warning( push )
+#pragma warning( disable : 4996 )
+#endif
+
    [[nodiscard]] inline std::string get_env_throws( const pegtl::position& pos, const std::string& name )
    {
       if( const char* r = std::getenv( name.c_str() ) ) {
@@ -48,6 +53,10 @@ namespace tao::config::internal
       }
       return std::nullopt;
    }
+
+#if defined( _MSC_VER )
+#pragma warning( pop )
+#endif
 
 #if !defined( _MSC_VER )
    inline void set_env_throws( const pegtl::position& /*pos*/, const std::string& name, const std::string& value )

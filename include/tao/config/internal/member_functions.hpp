@@ -27,7 +27,7 @@ namespace tao::config::internal
          pegtl::file_input in( f );
          pegtl::parse_nested< rules::config_file, config_action >( p, static_cast< pegtl_input_t& >( in ), st, em );
       }
-      catch( const std::system_error& e ) {
+      catch( const std::system_error& /*unused*/ ) {
          throw pegtl::parse_error( "include error", p );
          // throw pegtl::parse_error( format( __FILE__, __LINE__, "include failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
       }
@@ -74,7 +74,7 @@ namespace tao::config::internal
       }
    }
 
-   inline void setenv_function( const pegtl::position& p, const std::string& name, const std::string& value )
+   inline void setenv_function( const pegtl::position& p, [[maybe_unused]] const std::string& name, [[maybe_unused]] const std::string& value )
    {
 #if defined( _MSC_VER )
       throw pegtl::parse_error( "setenv not supported on this platform", p );
