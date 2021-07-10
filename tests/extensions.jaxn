@@ -18,9 +18,6 @@
       a: 42,
       b: null
    },
-   shell: {
-      a: "hallo\n"
-   },
    split: {
       a: [],
       b: [

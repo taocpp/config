@@ -1,0 +1,4 @@
+shell
+{
+    a = (shell "echo hallo")
+}

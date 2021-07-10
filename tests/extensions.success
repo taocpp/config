@@ -27,11 +27,6 @@ parse
     b = (parse "null")
 }
 
-shell
-{
-    a = (shell "echo hallo")
-}
-
 split
 {
     a = (split "")
