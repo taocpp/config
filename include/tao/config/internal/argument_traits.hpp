@@ -29,7 +29,12 @@ namespace tao::config::internal
 
       [[nodiscard]] T convert() const
       {
-         return m_j.as< T >();
+         try {
+            return m_j.as< T >();
+         }
+         catch( const std::logic_error& e ) {
+            throw std::runtime_error( e.what() );
+         }
       }
 
    private:
@@ -163,7 +168,12 @@ namespace tao::config::internal
 
       [[nodiscard]] std::optional< T > convert() const
       {
-         return m_j.optional< T >();
+         try {
+            return m_j.optional< T >();
+         }
+         catch( const std::logic_error& e ) {
+            throw std::runtime_error( e.what() );
+         }
       }
 
    private:
