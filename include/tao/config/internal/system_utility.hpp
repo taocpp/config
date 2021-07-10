@@ -39,7 +39,9 @@ namespace tao::config::internal
       char buffer[ 256 ];
       std::size_t s = 0;
       if( ::getenv_s( &s, buffer, name.c_str() ) == 0 ) {
-         return std::string( buffer );
+         if( s > 0 ) {
+            return std::string( buffer );
+         }
       }
       // TODO: Check s and try with a larger buffer
 #else
