@@ -36,7 +36,7 @@ namespace tao::config::internal
 
       void append_message_extension( std::ostream& o ) const
       {
-         o << " (" << position.source << ':' << position.line << ':' << position.column << ')';
+         o << '(' << position.source << ':' << position.line << ':' << position.column << ')';
       }
    };
 
