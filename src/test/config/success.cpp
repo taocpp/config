@@ -66,6 +66,11 @@ int main()
 
    for( const auto& entry : std::filesystem::directory_iterator( "tests" ) ) {
       if( const auto& path = entry.path(); path.extension() == ".success" ) {
+#if defined( _MSC_VER )
+         if( entry.path().stem() == "shell" ) {
+            continue;
+         }
+#endif
          tao::unit_test< tao::json::traits >( path );
          tao::unit_test< tao::config::traits >( path );
          ++count;
