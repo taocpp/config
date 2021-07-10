@@ -74,13 +74,9 @@ namespace tao::config::internal
       }
    }
 
-   inline void setenv_function( const pegtl::position& p, [[maybe_unused]] const std::string& name, [[maybe_unused]] const std::string& value )
+   inline void setenv_function( const pegtl::position& p, const std::string& name, const std::string& value )
    {
-#if defined( _MSC_VER )
-      throw pegtl::parse_error( "setenv not supported on this platform", p );
-#else
       set_env_throws( p, name, value );
-#endif
    }
 
    inline void temporary_function( state& st, const key1& path )
