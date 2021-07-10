@@ -20,7 +20,7 @@ namespace tao::config::schema::internal
       // TODO: Compare international strings (Unicode, using ICU)
       bool operator()( const std::string_view lhs, const std::string_view rhs ) const noexcept
       {
-         const auto d = strncasecmp( &( *lhs.begin() ), &( *rhs.begin() ), ( std::min )( lhs.size(), rhs.size() ) );
+         const auto d = strncasecmp( &( *lhs.begin() ), &( *rhs.begin() ), (std::min)( lhs.size(), rhs.size() ) );
          return ( d < 0 ) || ( ( d == 0 ) && ( lhs.size() < rhs.size() ) );
       }
    };
