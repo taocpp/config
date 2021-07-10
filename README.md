@@ -3,7 +3,6 @@
 [![Windows CI](https://github.com/taocpp/config/workflows/Windows/badge.svg)](https://github.com/taocpp/config/actions?query=workflow%3AWindows)
 [![macOS CI](https://github.com/taocpp/config/workflows/macOS/badge.svg)](https://github.com/taocpp/config/actions?query=workflow%3AmacOS)
 [![Linux CI](https://github.com/taocpp/config/workflows/Linux/badge.svg)](https://github.com/taocpp/config/actions?query=workflow%3ALinux)
-[![Android CI](https://github.com/taocpp/config/workflows/Android/badge.svg)](https://github.com/taocpp/config/actions?query=workflow%3AAndroid)
 <br>
 [![clang-analyze](https://github.com/taocpp/config/workflows/clang-analyze/badge.svg)](https://github.com/taocpp/config/actions?query=workflow%3Aclang-analyze)
 [![clang-tidy](https://github.com/taocpp/config/workflows/clang-tidy/badge.svg)](https://github.com/taocpp/config/actions?query=workflow%3Aclang-tidy)
