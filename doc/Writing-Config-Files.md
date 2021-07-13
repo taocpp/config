@@ -277,17 +277,17 @@ Note that `null`, `true` and `false` as member names are shortcuts for `"null"`,
 
 ## Number Values
 
-Numbers are like in [JAXN], i.e. [JSON] numbers with [extensions](https://github.com/stand-art/jaxn/blob/master/Specification.md#numbers).
+Numbers are like in [JAXN], i.e. [JSON] numbers with [extensions](https://github.com/stand-art/jaxn/blob/main/Specification.md#numbers).
 
 
 ## String Values
 
-Strings are like in [JAXN], i.e. [JSON] strings with [extensions](https://github.com/stand-art/jaxn/blob/master/Specification.md#strings).
+Strings are like in [JAXN], i.e. [JSON] strings with [extensions](https://github.com/stand-art/jaxn/blob/main/Specification.md#strings).
 
 
 ## Binary Values
 
-[Binary data](https://github.com/stand-art/jaxn/blob/master/Specification.md#binary-data) is also like in [JAXN].
+[Binary data](https://github.com/stand-art/jaxn/blob/main/Specification.md#binary-data) is also like in [JAXN].
 
 
 

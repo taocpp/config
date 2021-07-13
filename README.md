@@ -8,7 +8,7 @@
 [![clang-tidy](https://github.com/taocpp/config/workflows/clang-tidy/badge.svg)](https://github.com/taocpp/config/actions?query=workflow%3Aclang-tidy)
 [![Sanitizer](https://github.com/taocpp/config/workflows/Sanitizer/badge.svg)](https://github.com/taocpp/config/actions?query=workflow%3ASanitizer)
 [![CodeQL](https://github.com/taocpp/config/workflows/CodeQL/badge.svg)](https://github.com/taocpp/config/actions?query=workflow%3ACodeQL)
-[![Code Coverage](https://codecov.io/gh/taocpp/config/branch/master/graph/badge.svg?token=ykWa8RRdyk)](https://codecov.io/gh/taocpp/config)
+[![Code Coverage](https://codecov.io/gh/taocpp/config/branch/main/graph/badge.svg?token=ykWa8RRdyk)](https://codecov.io/gh/taocpp/config)
 
 [The Art of C++] / Config is a C++ header-only library that reads config files in a format based on [JSON] and [JAXN] and produces a single [JSON Value] as result.
 
