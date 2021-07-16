@@ -1,6 +1,14 @@
 name: clang-format
 
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
+      - 'doc/**'
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'doc/**'
 
 jobs:
   clang-format:
@@ -14,6 +22,5 @@ jobs:
     - uses: DoozyX/clang-format-lint-action@v0.12
       with:
         source: './include ./src'
-        exclude: './external'
         extensions: 'hpp,cpp'
         clangFormatVersion: 12
