@@ -70,6 +70,8 @@ It can be inspected using all the facilities of that JSON library.
 
 ## License
 
+<a href="https://opensource.org/licenses/MIT"><img align="right" src="https://opensource.org/files/OSIApproved.png" width="150" hspace="20" alt="Open Source Initiative"></a>
+
 The Art of C++ / Config is certified [Open Source] software.
 It may be used for any purpose, including commercial purposes, at absolutely no cost.
 It is distributed under the terms of the [MIT license] reproduced here.
