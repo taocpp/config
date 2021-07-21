@@ -5,6 +5,8 @@
 #define TAO_CONFIG_INTERNAL_KEY_HPP
 
 #include <sstream>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "internal/key_action.hpp"
@@ -163,9 +165,9 @@ namespace tao::config
 
    [[nodiscard]] inline std::string to_string( const key& p )
    {
-      std::ostringstream o;
-      to_stream( o, p );
-      return o.str();
+      std::ostringstream oss;
+      to_stream( oss, p );
+      return std::move( oss ).str();
    }
 
 }  // namespace tao::config

@@ -22,9 +22,9 @@ namespace tao::config::schema::internal
 
    inline std::string pos( const json::position& p )
    {
-      std::ostringstream os;
-      p.append_message_extension( os );
-      return os.str();
+      std::ostringstream oss;
+      p.append_message_extension( oss );
+      return std::move( oss ).str();
    }
 
    inline json::value pos( const value& v )

@@ -6,7 +6,6 @@
 
 #include <sstream>
 #include <string>
-#include <string_view>
 #include <utility>
 
 #include "json.hpp"
@@ -36,7 +35,7 @@ namespace tao::config::internal
    {
       strcat_stream ss;
       (void)( ss <<= ... <<= ts );
-      return ss.oss.str();
+      return std::move( ss.oss ).str();
    }
 
 }  // namespace tao::config::internal

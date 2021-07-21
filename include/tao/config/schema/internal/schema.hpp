@@ -47,10 +47,10 @@ namespace tao::config::schema::internal
                auto p = path.empty() ? e.first : ( path + '.' + e.first );
                auto n = std::make_shared< ref >( e.second, m, p );
                if( !m.emplace( p, std::move( n ) ).second ) {
-                  std::ostringstream os;
-                  os << "type '" << p << "' already defined, redefined here:";
-                  internal::find( d, e.first ).append_message_extension( os );
-                  throw std::runtime_error( os.str() );
+                  std::ostringstream oss;
+                  oss << "type '" << p << "' already defined, redefined here:";
+                  internal::find( d, e.first ).append_message_extension( oss );
+                  throw std::runtime_error( std::move( oss ).str() );
                }
             }
          }

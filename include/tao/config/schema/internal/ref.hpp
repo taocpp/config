@@ -4,6 +4,10 @@
 #ifndef TAO_CONFIG_SCHEMA_INTERNAL_REF_HPP
 #define TAO_CONFIG_SCHEMA_INTERNAL_REF_HPP
 
+#include <sstream>
+#include <string>
+#include <utility>
+
 #include "node.hpp"
 
 namespace tao::config::schema::internal
@@ -25,10 +29,10 @@ namespace tao::config::schema::internal
             const auto k = m_source.as< std::string >();
             const auto it = m.find( k );
             if( it == m.end() ) {
-               std::ostringstream os;
-               os << "can not resolve '" << k << "' defined here:";
-               m_source.append_message_extension( os );
-               throw std::runtime_error( os.str() );
+               std::ostringstream oss;
+               oss << "can not resolve '" << k << "' defined here:";
+               m_source.append_message_extension( oss );
+               throw std::runtime_error( std::move( oss ).str() );
             }
             m_ptr = it->second.get();
          }
