@@ -19,8 +19,8 @@ jobs:
       with:
         submodules: recursive
 
-    - uses: DoozyX/clang-format-lint-action@v0.12
+    - uses: DoozyX/clang-format-lint-action@v0.13
       with:
         source: './include ./src'
         extensions: 'hpp,cpp'
-        clangFormatVersion: 12
+        clangFormatVersion: 13
