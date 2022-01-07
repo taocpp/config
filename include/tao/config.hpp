@@ -16,6 +16,7 @@
 #include "config/access.hpp"
 #include "config/assign.hpp"
 
+#include "config/parser.hpp"
 #include "config/schema.hpp"
 
 #endif

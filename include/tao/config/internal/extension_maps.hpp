@@ -28,9 +28,9 @@ namespace tao::config::internal
       void operator=( extension_maps&& ) = delete;
       void operator=( const extension_maps& ) = delete;
 
-      const value_extension_map inner;
-      const member_extension_map member;
-      const member_extension_map value;
+      value_extension_map inner;
+      member_extension_map member;
+      member_extension_map value;
    };
 
 }  // namespace tao::config::internal
