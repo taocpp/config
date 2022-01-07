@@ -79,7 +79,7 @@ namespace tao::config::internal
 
       void parse( const char* data, const std::size_t size, const std::string& source )
       {
-         parse( pegtl::memory_input( data, size, source ) );
+         parse( pegtl_input_t( data, size, source ) );
       }
 
       void parse( const std::string_view data, const std::string& source )
