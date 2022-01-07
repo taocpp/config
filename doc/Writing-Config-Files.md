@@ -723,7 +723,7 @@ For example the dotted name `foo."1.2.3".bar` consists of three components, the 
 Dotted names can be thought of as strongly-typed JSON Pointers: there is no ambiguity about whether an integer is intended to index an array or an object.
 
 
-Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2018-2022 Dr. Colin Hirsch and Daniel Frey
 
 [CBOR]: http://cbor.io
 [JAXN]: https://github.com/stand-art/jaxn

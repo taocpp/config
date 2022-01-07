@@ -8,4 +8,4 @@
  * [Parsing Config Files](Parsing-Config-Files.md)
  * [Changelog](Changelog.md)
 
-Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2018-2022 Dr. Colin Hirsch and Daniel Frey

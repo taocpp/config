@@ -20,7 +20,7 @@ Pre-1.0.0 milestones in rough reverse chronological order.
 
 Development of taoCONFIG started in September 2018 to provide a more expressive config file syntax for [JSON] (or [JAXN]) config files.
 
-Copyright (c) 2018-2021 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2018-2022 Dr. Colin Hirsch and Daniel Frey
 
 [JAXN]: https://github.com/stand-art/jaxn
 [JSON]: https://tools.ietf.org/html/rfc8259
