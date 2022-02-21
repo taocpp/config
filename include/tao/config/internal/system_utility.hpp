@@ -20,7 +20,7 @@ namespace tao::config::internal
 
    [[nodiscard]] inline std::string read_file_throws( const std::string& filename )
    {
-      return pegtl::internal::read_file_stdio( filename ).read_string();
+      return pegtl::internal::file_reader( filename ).read();
    }
 
    [[nodiscard]] inline std::optional< std::string > read_file_nothrow( const std::string& filename )
