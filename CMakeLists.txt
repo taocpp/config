@@ -36,7 +36,7 @@ if(NOT taocpp-json_FOUND)
 endif()
 
 # add taoJSON as a dependency
-target_link_libraries(taocpp-config INTERFACE taocpp::json)
+target_link_libraries(taocpp-config INTERFACE taocpp-json)
 
 # testing
 option(TAOCPP_CONFIG_BUILD_TESTS "Build test programs" ${TAOCPP_CONFIG_IS_MAIN_PROJECT})
@@ -67,6 +67,9 @@ if(TAOCPP_CONFIG_INSTALL)
 
   # Enable version checks in find_package
   write_basic_package_version_file(${PROJECT_NAME}-config-version.cmake COMPATIBILITY SameMajorVersion)
+
+  # keep taocpp::config target compatibility
+  set_target_properties(taocpp-config PROPERTIES EXPORT_NAME config)
 
   # install and export target
   install(TARGETS taocpp-config taocpp-json EXPORT ${PROJECT_NAME}-targets)
