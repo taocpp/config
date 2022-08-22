@@ -30,6 +30,7 @@ find_package(taocpp-json ${TAOCPP_CONFIG_JSON_MIN_VERSION} QUIET CONFIG)
 if(NOT taocpp-json_FOUND)
   # if a compatible version of taoJSON is not already installed, build and install it from the submodule directory
   message(STATUS "Adding taoJSON as submodule from external/json")
+  set(TAOCPP_JSON_INSTALL ON)
   set(TAOCPP_JSON_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE STRING "Override taoJSON include install directory")
   set(TAOCPP_JSON_INSTALL_CMAKE_DIR ${CMAKE_INSTALL_DATAROOTDIR}/json/cmake CACHE STRING "Override taoJSON cmake install directory")
   add_subdirectory(external/json)
