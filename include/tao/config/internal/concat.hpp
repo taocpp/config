@@ -71,7 +71,7 @@ namespace tao::config::internal
                case entry_kind::object:
                   throw pegtl::parse_error( "object as referenced reference part", e.get_object().position );
                case entry_kind::concat:
-                  throw pegtl::parse_error( "concat as referenced referene part", e.get_concat().position );
+                  throw pegtl::parse_error( "concat as referenced reference part", e.get_concat().position );
             }
             throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          }
