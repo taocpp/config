@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2022 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2020-2023 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_INTERNAL_REFERENCE2_KIND_HPP

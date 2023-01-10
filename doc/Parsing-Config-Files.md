@@ -87,7 +87,7 @@ This argument is defaulted to a default-constructed object of that type.
 The role of this `builtin` instance is to provide the built-in schema definitions that can then be extended by the schema files.
 The built-in definitions can be programmatically extended by passing an appropriately prepared instance of `tao::config::schema::builtin` as final argument to the parsing functions.
 
-Copyright (c) 2018-2022 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2018-2023 Dr. Colin Hirsch and Daniel Frey
 
 [PEGTL]: https://github.com/taocpp/PEGTL
 [taoCONFIG]: https://github.com/taocpp/config
