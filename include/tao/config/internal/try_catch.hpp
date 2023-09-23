@@ -7,6 +7,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <tao/pegtl/contrib/nested_exceptions.hpp>
+
 #include "pegtl.hpp"
 #include "reverse.hpp"
 
@@ -18,12 +20,11 @@ namespace tao::config::internal
       try {
          f();
       }
-      catch( const pegtl::parse_error& e ) {
+      catch( const pegtl::parse_error& ) {
          std::cerr << "*** config parse error ***" << std::endl;
-         for( const auto& p : reverse( e.positions() ) ) {
-            std::cerr << "  at " << p << std::endl;
+         for( const auto& e : pegtl::nested::flatten() ) {
+            std::cerr << e.message() << ": " << e.position_string() << std::endl;
          }
-         std::cerr << e.message() << std::endl;
       }
       catch( const std::exception& e ) {
          std::cerr << "*** config error ***" << std::endl;

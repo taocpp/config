@@ -16,7 +16,7 @@ namespace tao::config::internal
       pegtl::position position;
 
       json_base()
-         : position( pegtl::internal::frobnicator{ nullptr, 1, 1, 1 }, "TODO: Delete the default c'tor!" )
+         : position( pegtl::internal::inputerator{ nullptr, 1, 1, 1 }, "TODO: Delete the default c'tor!" )
       {}
       //      json_base() = delete;
 
