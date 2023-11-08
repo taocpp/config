@@ -6,6 +6,7 @@ set(testsources
   custom.cpp
   enumerations.cpp
   failure.cpp
+  multi_line_string_position.cpp
   parse_key1.cpp
   parse_key.cpp
   parse_reference2.cpp

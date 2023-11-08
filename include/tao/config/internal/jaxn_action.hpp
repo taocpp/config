@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "change_action_and_states.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"
 
@@ -313,56 +314,56 @@ namespace tao::config::internal
 
    template<>
    struct jaxn_action< json::jaxn::internal::rules::single_string >
-      : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
+      : change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
-      template< typename Input, typename Consumer >
-      static void success( const Input& in, std::string& unescaped, Consumer& consumer )
+      template< typename Consumer >
+      static void success( const pegtl::position& pos, std::string& unescaped, Consumer& consumer )
       {
-         consumer.string( std::move( unescaped ), in.position() );  // TODO: Position from start of string!
+         consumer.string( std::move( unescaped ), pos );
       }
    };
 
    template<>
    struct jaxn_action< json::jaxn::internal::rules::string >
-      : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
+      : change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
-      template< typename Input, typename Consumer >
-      static void success( const Input& in, std::string& unescaped, Consumer& consumer )
+      template< typename Consumer >
+      static void success( const pegtl::position& pos, std::string& unescaped, Consumer& consumer )
       {
-         consumer.string( std::move( unescaped ), in.position() );  // TODO: Position from start of string!
+         consumer.string( std::move( unescaped ), pos );
       }
    };
 
    template<>
    struct jaxn_action< json::jaxn::internal::rules::key >
-      : pegtl::change_action_and_states< json::jaxn::internal::unescape_action, std::string >
+      : change_action_and_states< json::jaxn::internal::unescape_action, std::string >
    {
-      template< typename Input, typename Consumer >
-      static void success( const Input& in, std::string& unescaped, Consumer& consumer )
+      template< typename Consumer >
+      static void success( const pegtl::position& pos, std::string& unescaped, Consumer& consumer )
       {
-         consumer.key( std::move( unescaped ), in.position() );  // TODO: Position from start of string!
+         consumer.key( std::move( unescaped ), pos );
       }
    };
 
    template<>
    struct jaxn_action< json::jaxn::internal::rules::single_binary >
-      : pegtl::change_action_and_states< json::jaxn::internal::bunescape_action, std::vector< std::byte > >
+      : change_action_and_states< json::jaxn::internal::bunescape_action, std::vector< std::byte > >
    {
-      template< typename Input, typename Consumer >
-      static void success( const Input& in, std::vector< std::byte >& value, Consumer& consumer )
+      template< typename Consumer >
+      static void success( const pegtl::position& pos, std::vector< std::byte >& value, Consumer& consumer )
       {
-         consumer.binary( std::move( value ), in.position() );  // TODO: Position from start of binary!
+         consumer.binary( std::move( value ), pos );
       }
    };
 
    template<>
    struct jaxn_action< json::jaxn::internal::rules::binary >
-      : pegtl::change_action_and_states< json::jaxn::internal::bunescape_action, std::vector< std::byte > >
+      : change_action_and_states< json::jaxn::internal::bunescape_action, std::vector< std::byte > >
    {
-      template< typename Input, typename Consumer >
-      static void success( const Input& in, std::vector< std::byte >& value, Consumer& consumer )
+      template< typename Consumer >
+      static void success( const pegtl::position& pos, std::vector< std::byte >& value, Consumer& consumer )
       {
-         consumer.binary( std::move( value ), in.position() );  // TODO: Position from start of binary!
+         consumer.binary( std::move( value ), pos );
       }
    };
 
