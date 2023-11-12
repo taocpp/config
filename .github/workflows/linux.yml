@@ -50,7 +50,6 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-          - clang++-10
           - clang++-11
           - clang++-12
         build_type: [Debug, Release]
