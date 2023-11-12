@@ -18,10 +18,10 @@ jobs:
         compiler:
           - g++-9
           - g++-10
-          #- g++-11
-          - clang++-10
-          - clang++-11
-          - clang++-12
+          - g++-11
+          - g++-12
+          - clang++-13
+          - clang++-14
         build_type: [Debug, Release]
 
     runs-on: ubuntu-latest
@@ -50,9 +50,9 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-          - clang++-7
-          - clang++-8
-          - clang++-9
+          - clang++-10
+          - clang++-11
+          - clang++-12
         build_type: [Debug, Release]
 
     runs-on: ubuntu-latest
