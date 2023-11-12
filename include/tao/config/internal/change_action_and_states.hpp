@@ -55,6 +55,6 @@ namespace tao::config::internal
       }
    };
 
-}  // tao::config::internal
+}  // namespace tao::config::internal
 
 #endif
