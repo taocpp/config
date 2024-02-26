@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2018-2024 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_INTERNAL_VALUE_EXTENSIONS_HPP
@@ -18,9 +18,6 @@
 
 namespace tao::config::internal
 {
-   [[nodiscard]] inline const value_extension_map& the_inner_extension_map();
-   [[nodiscard]] inline const member_extension_map& the_value_extension_map();
-
    [[nodiscard]] inline bool do_value_extension( pegtl_input_t& in, state& st, const extension_maps& em )
    {
       const std::string name = parse_extension( in );

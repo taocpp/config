@@ -232,7 +232,7 @@ bar = (template) +
 
 
 
-Copyright (c) 2018-2023 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2018-2024 Dr. Colin Hirsch and Daniel Frey
 
 [JAXN]: https://github.com/stand-art/jaxn
 [JSON]: https://tools.ietf.org/html/rfc8259

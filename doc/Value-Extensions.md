@@ -311,7 +311,7 @@ Note that `ubjson` is frequently combined with `read` as in `foo = (ubjson (read
 
 
 
-Copyright (c) 2018-2023 Dr. Colin Hirsch and Daniel Frey
+Copyright (c) 2018-2024 Dr. Colin Hirsch and Daniel Frey
 
 [CBOR]: http://cbor.io
 [JAXN]: https://github.com/stand-art/jaxn
