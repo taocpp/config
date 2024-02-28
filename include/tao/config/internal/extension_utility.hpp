@@ -24,8 +24,12 @@ namespace tao::config::internal
       return result_traits< std::decay_t< R > >::convert( p, std::forward< R >( r ) );
    }
 
+   // NOTE: We can't just make wrap() variadic the straightforward way because that would look like
+   // return convert_result( p, f( argument_traits< std::decay_t< As > >( in, st, em ).convert()... ) );
+   // and with the order of function parameter evaluation not being defined in C++ that doesn't work.
+
    template< typename R, typename A >
-   [[nodiscard]] value_extension wrap( R ( *f )( A ) )
+   [[nodiscard]] inner_extension wrap( R ( *f )( A ) )
    {
       static_assert( !std::is_pointer_v< R > );
       static_assert( !std::is_reference_v< R > );
@@ -39,7 +43,7 @@ namespace tao::config::internal
    }
 
    template< typename R, typename A, typename B >
-   [[nodiscard]] value_extension wrap( R ( *f )( A, B ) )
+   [[nodiscard]] inner_extension wrap( R ( *f )( A, B ) )
    {
       static_assert( !std::is_pointer_v< R > );
       static_assert( !std::is_reference_v< R > );
@@ -53,41 +57,8 @@ namespace tao::config::internal
       };
    }
 
-   template< typename R, typename A, typename B, typename C >
-   [[nodiscard]] value_extension wrap( R ( *f )( A, B, C ) )
-   {
-      static_assert( !std::is_pointer_v< R > );
-      static_assert( !std::is_reference_v< R > );
-      static_assert( !std::is_same_v< R, void > );
-
-      return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
-         const auto p = in.position();
-         const argument_traits< std::decay_t< A > > a( in, st, em );
-         const argument_traits< std::decay_t< B > > b( in, st, em );
-         const argument_traits< std::decay_t< C > > c( in, st, em );
-         return convert_result( p, f( a.convert(), b.convert(), c.convert() ) );
-      };
-   }
-
-   template< typename R, typename A, typename B, typename C, typename D >
-   [[nodiscard]] value_extension wrap( R ( *f )( A, B, C, D ) )
-   {
-      static_assert( !std::is_pointer_v< R > );
-      static_assert( !std::is_reference_v< R > );
-      static_assert( !std::is_same_v< R, void > );
-
-      return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
-         const auto p = in.position();
-         const argument_traits< std::decay_t< A > > a( in, st, em );
-         const argument_traits< std::decay_t< B > > b( in, st, em );
-         const argument_traits< std::decay_t< C > > c( in, st, em );
-         const argument_traits< std::decay_t< D > > d( in, st, em );
-         return convert_result( p, f( a.convert(), b.convert(), c.convert(), d.convert() ) );
-      };
-   }
-
    template< typename A, typename B >
-   [[nodiscard]] member_extension wrap( void ( *f )( A, B ) )
+   [[nodiscard]] outer_extension wrap( void ( *f )( A, B ) )
    {
       return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
          const argument_traits< std::decay_t< A > > a( in, st, em );
@@ -97,7 +68,7 @@ namespace tao::config::internal
    }
 
    template< typename A, typename B, typename C >
-   [[nodiscard]] member_extension wrap( void ( *f )( A, B, C ) )
+   [[nodiscard]] outer_extension wrap( void ( *f )( A, B, C ) )
    {
       return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
          const argument_traits< std::decay_t< A > > a( in, st, em );
@@ -108,7 +79,7 @@ namespace tao::config::internal
    }
 
    template< typename A, typename B, typename C, typename D >
-   [[nodiscard]] member_extension wrap( void ( *f )( A, B, C, D ) )
+   [[nodiscard]] outer_extension wrap( void ( *f )( A, B, C, D ) )
    {
       return [ = ]( pegtl_input_t& in, state& st, const extension_maps& em ) {
          const argument_traits< std::decay_t< A > > a( in, st, em );

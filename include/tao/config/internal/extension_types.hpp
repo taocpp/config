@@ -15,11 +15,11 @@
 
 namespace tao::config::internal
 {
-   using value_extension = std::function< json_t( pegtl_input_t&, state&, const extension_maps& ) >;
-   using value_extension_map = std::map< std::string, value_extension >;
+   using inner_extension = std::function< json_t( pegtl_input_t&, state&, const extension_maps& ) >;
+   using inner_extension_map = std::map< std::string, inner_extension >;
 
-   using member_extension = std::function< void( pegtl_input_t&, state&, const extension_maps& ) >;
-   using member_extension_map = std::map< std::string, member_extension >;
+   using outer_extension = std::function< void( pegtl_input_t&, state&, const extension_maps& ) >;
+   using outer_extension_map = std::map< std::string, outer_extension >;
 
 }  // namespace tao::config::internal
 

@@ -4,7 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_VALUE_EXTENSIONS_HPP
 #define TAO_CONFIG_INTERNAL_VALUE_EXTENSIONS_HPP
 
-#include <sstream>
+#include <string>
 
 #include "concat.hpp"
 #include "config_action.hpp"

@@ -18,6 +18,7 @@
 namespace tao::config::internal
 {
    struct reference2_part;
+
    [[nodiscard]] inline std::string to_string( const std::vector< reference2_part >& );
 
    struct reference2_part

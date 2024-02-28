@@ -13,8 +13,6 @@
 
 namespace tao::config::internal
 {
-   [[nodiscard]] inline const member_extension_map& the_member_extension_map();
-
    [[nodiscard]] inline bool do_member_extension( pegtl_input_t& in, state& st, const extension_maps& em )
    {
       const std::string name = parse_extension( in );

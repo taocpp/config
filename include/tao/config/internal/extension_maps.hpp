@@ -14,7 +14,7 @@ namespace tao::config::internal
    {
       extension_maps() = delete;
 
-      extension_maps( value_extension_map&& inner, member_extension_map&& member, member_extension_map&& value )
+      extension_maps( inner_extension_map&& inner, outer_extension_map&& member, outer_extension_map&& value )
          : inner( std::move( inner ) ),
            member( std::move( member ) ),
            value( std::move( value ) )
@@ -28,9 +28,9 @@ namespace tao::config::internal
       void operator=( extension_maps&& ) = delete;
       void operator=( const extension_maps& ) = delete;
 
-      value_extension_map inner;
-      member_extension_map member;
-      member_extension_map value;
+      inner_extension_map inner;
+      outer_extension_map member;
+      outer_extension_map value;
    };
 
 }  // namespace tao::config::internal

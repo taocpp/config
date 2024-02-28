@@ -41,7 +41,7 @@ namespace tao::config::internal
       }
       catch( const std::system_error& e ) {
          if( e.code().value() != ENOENT ) {
-            throw pegtl::parse_error( "include error -- file not found", p );
+            throw pegtl::parse_error( "include error", p );
             // throw pegtl::parse_error( format( __FILE__, __LINE__, "include failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
          }
       }

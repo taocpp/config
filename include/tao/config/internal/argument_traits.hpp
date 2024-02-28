@@ -5,8 +5,10 @@
 #define TAO_CONFIG_INTERNAL_ARGUMENT_TRAITS_HPP
 
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "forward.hpp"
 #include "inner_extensions.hpp"
@@ -18,8 +20,6 @@
 
 namespace tao::config::internal
 {
-   inline json_t do_inner_extension( state&, pegtl_input_t&, const extension_maps& );
-
    template< typename T >
    struct argument_traits
    {

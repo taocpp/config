@@ -17,8 +17,6 @@
 
 namespace tao::config::internal
 {
-   [[nodiscard]] inline const value_extension_map& the_inner_extension_map();
-
    [[nodiscard]] inline json_t do_inner_extension( pegtl_input_t& in, state& st, const extension_maps& em )
    {
       if( parse_open( in ) ) {
