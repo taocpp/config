@@ -31,6 +31,8 @@ namespace tao::config::internal
       inner_extension_map inner;
       outer_extension_map member;
       outer_extension_map value;
+
+      inner_function_map functions;
    };
 
 }  // namespace tao::config::internal

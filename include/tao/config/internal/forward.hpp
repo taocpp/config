@@ -18,9 +18,12 @@ namespace tao::config::internal
    struct basic_array;
    template< typename C >
    struct basic_object;
+   template< typename C >
+   struct basic_function;
 
    using array = basic_array< concat >;
    using object = basic_object< concat >;
+   using function = basic_function< concat >;
 
    template< typename T >
    struct argument_traits;

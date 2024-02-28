@@ -15,16 +15,13 @@
 #include "json_traits.hpp"
 #include "object.hpp"
 #include "phase2_add.hpp"
-#include "phase2_append.hpp"
-#include "phase2_insert.hpp"
 
 namespace tao::config::internal
 {
    struct phase2_combine_impl
    {
       explicit phase2_combine_impl( object& root )
-         : m_root( root ),
-           m_changes( 0 )
+         : m_root( root )
       {}
 
       [[nodiscard]] std::size_t process()
@@ -37,7 +34,7 @@ namespace tao::config::internal
 
    private:
       object& m_root;
-      std::size_t m_changes;
+      std::size_t m_changes = 0;
 
       void process_concat( concat& c )
       {
@@ -50,7 +47,7 @@ namespace tao::config::internal
          if( c.concat.size() == 1 ) {
             return;
          }
-         assert( c.concat.size() >= 2 );
+         // assert( c.concat.size() >= 2 );
 
          for( auto r = ++c.concat.begin(); r != c.concat.end(); ++r ) {
             const auto l = std::prev( r );
@@ -63,11 +60,13 @@ namespace tao::config::internal
                      ++m_changes;
                   }
                   continue;
+               case entry_kind::function:
+                  continue;
                case entry_kind::reference:
                   continue;
                case entry_kind::array:
                   if( l->kind() == entry_kind::array ) {
-                     phase2_append( std::move( l->get_array() ), r->get_array() );
+                     process_array( std::move( l->get_array() ), r->get_array() );
                      [[maybe_unused]] const auto t = c.concat.erase( l );
                      assert( t == r );
                      ++m_changes;
@@ -75,7 +74,7 @@ namespace tao::config::internal
                   continue;
                case entry_kind::object:
                   if( l->kind() == entry_kind::object ) {
-                     phase2_insert( std::move( l->get_object() ), r->get_object() );
+                     process_object( std::move( l->get_object() ), r->get_object() );
                      [[maybe_unused]] const auto t = c.concat.erase( l );
                      assert( t == r );
                      ++m_changes;
@@ -92,6 +91,11 @@ namespace tao::config::internal
       {
          switch( e.kind() ) {
             case entry_kind::value:
+               return;
+            case entry_kind::function:
+               for( concat& c : e.get_function().array ) {
+                  process_concat( c );
+               }
                return;
             case entry_kind::reference:
                return;
@@ -110,6 +114,30 @@ namespace tao::config::internal
                return;
          }
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
+      }
+
+      static void process_array( array&& l, array& r )
+      {
+         r.array.splice( r.array.begin(), l.array );
+      }
+
+      static void process_object( object&& l, object& r )
+      {
+         for( std::pair< const std::string, concat >& m : l.object ) {
+            const auto pair = r.object.try_emplace( m.first, m.second );
+            if( !pair.second ) {
+               if( pair.first->second.remove ) {
+                  continue;
+               }
+               if( m.second.remove ) {
+                  pair.first->second.remove = true;
+               }
+               if( m.second.temporary ) {
+                  pair.first->second.temporary = true;
+               }
+               pair.first->second.concat.splice( pair.first->second.concat.begin(), m.second.concat );
+            }
+         }
       }
    };
 

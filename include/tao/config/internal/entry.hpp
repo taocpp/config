@@ -16,6 +16,7 @@
 #include "constants.hpp"
 #include "entry_kind.hpp"
 #include "forward.hpp"
+#include "function.hpp"
 #include "json.hpp"
 #include "json_traits.hpp"
 #include "object.hpp"
@@ -26,7 +27,7 @@ namespace tao::config::internal
 {
    struct entry
    {
-      using data_t = std::variant< json_t, reference2, array, object, concat >;
+      using data_t = std::variant< json_t, function, reference2, array, object, concat >;
 
       explicit entry( const json_t& j )
          : m_data( j )
@@ -40,11 +41,16 @@ namespace tao::config::internal
          assert( !r.empty() );
       }
 
+      entry( const std::string& n, const pegtl::position& p )
+         : m_data( std::in_place_type_t< function >(), n, p )
+      {}
+
       entry( const entry_kind k, const pegtl::position& p )
          : m_data( std::in_place_type_t< object >(), p )
       {
          switch( k ) {
             case entry_kind::value:
+            case entry_kind::function:
             case entry_kind::reference:
                throw std::string( "this should never happen" );
             case entry_kind::array:
@@ -59,12 +65,12 @@ namespace tao::config::internal
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
 
-      entry( entry&& ) = delete;
+      entry( entry&& ) = default;
       entry( const entry& ) = default;
 
       ~entry() = default;
 
-      entry& operator=( entry&& ) = delete;
+      entry& operator=( entry&& ) = default;
       entry& operator=( const entry& ) = default;
 
       entry_kind kind() const noexcept
@@ -75,6 +81,11 @@ namespace tao::config::internal
       [[nodiscard]] bool is_value() const noexcept
       {
          return std::holds_alternative< json_t >( m_data );
+      }
+
+      [[nodiscard]] bool is_function() const noexcept
+      {
+         return std::holds_alternative< function >( m_data );
       }
 
       [[nodiscard]] bool is_reference() const noexcept
@@ -119,6 +130,13 @@ namespace tao::config::internal
          return *s;
       }
 
+      [[nodiscard]] function& get_function() noexcept
+      {
+         auto* s = std::get_if< function >( &m_data );
+         assert( s );
+         return *s;
+      }
+
       [[nodiscard]] reference2& get_reference() noexcept
       {
          auto* s = std::get_if< reference2 >( &m_data );
@@ -150,6 +168,13 @@ namespace tao::config::internal
       [[nodiscard]] const json_t& get_value() const noexcept
       {
          const auto* s = std::get_if< json_t >( &m_data );
+         assert( s );
+         return *s;
+      }
+
+      [[nodiscard]] const function& get_function() const noexcept
+      {
+         const auto* s = std::get_if< function >( &m_data );
          assert( s );
          return *s;
       }
@@ -187,6 +212,8 @@ namespace tao::config::internal
          switch( kind() ) {
             case entry_kind::value:
                return 0;
+            case entry_kind::function:
+               return get_function().count_references_recursive();
             case entry_kind::reference:
                return 1;
             case entry_kind::array:

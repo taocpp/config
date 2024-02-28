@@ -55,6 +55,12 @@ namespace tao::config::internal
          switch( e.kind() ) {
             case entry_kind::value:
                throw pegtl::parse_error( "cannot index (across) value", p );
+            case entry_kind::function:
+               if( e.get_function().array.size() > n ) {
+                  return phase1_append( *std::next( e.get_function().array.begin(), n ), path, thing, mode );
+               }
+               n -= e.get_function().array.size();
+               continue;
             case entry_kind::reference:
                throw pegtl::parse_error( "cannot index (across) reference", p );
             case entry_kind::array:

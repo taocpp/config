@@ -24,6 +24,8 @@ namespace tao::config::internal
       switch( e.kind() ) {
          case entry_kind::value:
             return std::string( json::to_string( e.get_value().type() ) );
+         case entry_kind::function:
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          case entry_kind::reference:
             throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          case entry_kind::array:
@@ -41,6 +43,8 @@ namespace tao::config::internal
       switch( e.kind() ) {
          case entry_kind::value:
             return e.get_value().position;
+         case entry_kind::function:
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          case entry_kind::reference:
             throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
          case entry_kind::array:
@@ -59,6 +63,8 @@ namespace tao::config::internal
          switch( e.kind() ) {
             case entry_kind::value:
                continue;
+            case entry_kind::function:
+               throw pegtl::parse_error( "unresolved function '" + e.get_function().name + '\'', e.get_function().position );
             case entry_kind::reference:
                throw pegtl::parse_error( "unresolved reference '" + e.get_reference().to_string() + '\'', e.get_reference().at( 0 ).position );
             case entry_kind::array:

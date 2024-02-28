@@ -41,6 +41,8 @@ namespace tao::config::internal
          switch( e.kind() ) {
             case entry_kind::value:
                return;
+            case entry_kind::function:
+               throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
             case entry_kind::reference:
                throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
             case entry_kind::array:

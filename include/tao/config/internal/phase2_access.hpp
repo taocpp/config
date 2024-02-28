@@ -38,6 +38,11 @@ namespace tao::config::internal
       switch( e.kind() ) {
          case entry_kind::value:
             throw pegtl::parse_error( "access name in value", p );  // TODO: Add c.position to the exception, too?
+         case entry_kind::function:
+            if( down >= 0 ) {
+               return nullptr;
+            }
+            throw pegtl::parse_error( "access name in function", p );
          case entry_kind::reference:
             throw phase2_access_return();
          case entry_kind::array:
@@ -77,6 +82,14 @@ namespace tao::config::internal
       switch( e.kind() ) {
          case entry_kind::value:
             throw pegtl::parse_error( "cannot index (across) value", p );
+         case entry_kind::function:
+            if( e.get_function().array.size() > index ) {
+               return phase2_access( *std::next( e.get_function().array.begin(), index ), suffix, down - 1 );
+            }
+            if( down >= 0 ) {
+               return nullptr;
+            }
+            throw pegtl::parse_error( "function index out of range", p );
          case entry_kind::reference:
             throw pegtl::parse_error( "cannot index (across) reference", p );
          case entry_kind::array:

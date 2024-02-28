@@ -99,6 +99,8 @@ namespace tao::config::internal
          case entry_kind::value:
             phase5_repack( k, consumer, e.get_value() );
             return;
+         case entry_kind::function:
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE -- must have been either eliminated or flagged as error earlier.
          case entry_kind::reference:
             throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE -- must have been either eliminated or flagged as error earlier.
          case entry_kind::array:

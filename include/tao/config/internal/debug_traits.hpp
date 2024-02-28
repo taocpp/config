@@ -242,6 +242,9 @@ namespace tao::config::internal
             case entry_kind::value:
                c.string( "value" );
                return;
+            case entry_kind::function:
+               c.string( "function" );
+               return;
             case entry_kind::reference:
                c.string( "reference" );
                return;
@@ -284,6 +287,10 @@ namespace tao::config::internal
                c.key( "value" );
                json::events::produce< Traits >( c, v.get_value() );
                break;
+            case entry_kind::function:
+               c.key( "function" );
+               json::events::produce< Traits >( c, v.get_function() );
+               break;
             case entry_kind::reference:
                c.key( "reference" );
                json::events::produce< Traits >( c, v.get_reference() );
@@ -325,6 +332,13 @@ namespace tao::config::internal
    struct debug_traits< object >
       : json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &object::position ),
                                TAO_JSON_BIND_REQUIRED( "object_data", &object::object ) >
+   {};
+
+   template<>
+   struct debug_traits< function >
+      : json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &function::position ),
+                               TAO_JSON_BIND_REQUIRED( "function", &function::name ),
+                               TAO_JSON_BIND_REQUIRED( "function_args", &function::array ) >
    {};
 
    template< typename T >

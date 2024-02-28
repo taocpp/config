@@ -18,6 +18,7 @@
 #include "json_traits.hpp"
 #include "member_functions.hpp"
 #include "pegtl.hpp"
+#include "phase2_call.hpp"
 #include "phase2_combine.hpp"
 #include "phase2_replace.hpp"
 #include "phase2_resolve.hpp"
@@ -89,12 +90,14 @@ namespace tao::config::internal
 
       [[nodiscard]] bool phase2_iteration()
       {
-         return ( phase2_combine( st.root ) + phase2_resolve( st.root ) + phase2_replace( st.root ) ) > 0;
+         return ( phase2_call( st.root, em ) + phase2_combine( st.root ) + phase2_resolve( st.root ) + phase2_replace( st.root ) ) > 0;
       }
 
       void phase2_loop()
       {
          while( phase2_iteration() ) {
+            // This loop could do with some major optimisations, though they would only be worth it
+            // if somebody reads some really large config files or reads one 10^7 times per second.
          }
       }
 

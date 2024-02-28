@@ -4,6 +4,9 @@
 #ifndef TAO_CONFIG_INTERNAL_INNER_FUNCTIONS_HPP
 #define TAO_CONFIG_INTERNAL_INNER_FUNCTIONS_HPP
 
+#include <string>
+#include <vector>
+
 #include "jaxn_action.hpp"
 #include "json.hpp"
 #include "json_traits.hpp"
@@ -27,6 +30,42 @@ namespace tao::config::internal
    {
       assert( !l.is_uninitialized() );
       return ( !l.is_null() ) ? l : r;
+   }
+
+   [[nodiscard]] inline bool new_default_function( entry& e, function& f )
+   {
+      if( f.array.size() < 2 ) {
+         throw pegtl::parse_error( "default function requires at least two arguments", f.position );
+      }
+      for( concat& c : f.array ) {
+         if( c.concat.size() != 1 ) {
+            return false;
+         }
+         entry& a = c.concat.front();
+
+         switch( a.kind() ) {
+            case entry_kind::value:
+               if( a.get_value().is_null() ) {
+                  continue;
+               }
+               break;
+            case entry_kind::function:
+               return false;
+            case entry_kind::reference:
+               return false;
+            case entry_kind::array:
+               break;
+            case entry_kind::object:
+               break;
+            case entry_kind::concat:
+               return false;
+         }
+         // Both a and f are sub-objects of e.
+         entry t = std::move( a );
+         e = std::move( t );
+         return true;
+      }
+      throw pegtl::parse_error( "default function requires at least one non-null argument", f.position );
    }
 
    [[nodiscard]] inline std::string env_function( const pegtl::position& p, const std::string& s )

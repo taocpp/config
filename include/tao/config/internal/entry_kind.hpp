@@ -9,10 +9,11 @@ namespace tao::config::internal
    enum class entry_kind : char
    {
       value = 0,
-      reference = 1,
-      array = 2,
-      object = 3,
-      concat = 4
+      function = 1,
+      reference = 2,
+      array = 3,
+      object = 4,
+      concat = 5
    };
 
 }  // namespace tao::config::internal

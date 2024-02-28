@@ -19,27 +19,6 @@
 
 namespace tao::config::internal::rules
 {
-   struct reference_value
-   {
-      using rule_t = reference_value;
-      using subs_t = pegtl::type_list< reference2_rest >;
-
-      template< pegtl::apply_mode A,
-                pegtl::rewind_mode M,
-                template< typename... >
-                class Action,
-                template< typename... >
-                class Control,
-                typename State >
-      [[nodiscard]] static bool match( pegtl_input_t& in, State& st, const extension_maps& )
-      {
-         const auto r = parse_reference2( in );
-         const auto f = [ & ]( concat& c ) { c.concat.emplace_back( r ); };
-         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::manifest );
-         return true;
-      }
-   };
-
    struct jaxn_value
    {
       using rule_t = jaxn_value;
@@ -56,6 +35,27 @@ namespace tao::config::internal::rules
       {
          const auto j = parse_jaxn( in );
          const auto f = [ & ]( concat& c ) { c.concat.emplace_back( j ); };
+         phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::manifest );
+         return true;
+      }
+   };
+
+   struct reference_value
+   {
+      using rule_t = reference_value;
+      using subs_t = pegtl::type_list< reference2_rest >;
+
+      template< pegtl::apply_mode A,
+                pegtl::rewind_mode M,
+                template< typename... >
+                class Action,
+                template< typename... >
+                class Control,
+                typename State >
+      [[nodiscard]] static bool match( pegtl_input_t& in, State& st, const extension_maps& )
+      {
+         const auto r = parse_reference2( in );
+         const auto f = [ & ]( concat& c ) { c.concat.emplace_back( r ); };
          phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::manifest );
          return true;
       }
@@ -107,8 +107,9 @@ namespace tao::config::internal::rules
    struct opt_comma : pegtl::opt< pegtl::one< ',' >, wss > {};
 
    template< typename U > struct member_list_impl : pegtl::until< U, member, wss, opt_comma > {};
+   template< typename U > struct element_list_impl : pegtl::until< U, value_list, wss, opt_comma > {};
 
-   struct element_list : pegtl::until< jaxn::end_array, value_list, wss, opt_comma > {};
+   struct element_list : element_list_impl< jaxn::end_array > {};
    struct array : pegtl::if_must< jaxn::begin_array, element_list > {};
    struct member_list : member_list_impl< jaxn::end_object > {};
    struct object : pegtl::if_must< jaxn::begin_object, member_list > {};

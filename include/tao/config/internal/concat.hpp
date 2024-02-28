@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_CONCAT_HPP
 #define TAO_CONFIG_INTERNAL_CONCAT_HPP
 
+#include <cstddef>
+#include <cstdint>
 #include <iterator>
 #include <list>
 #include <stdexcept>
@@ -64,6 +66,8 @@ namespace tao::config::internal
                   }
                   result = &e.get_value();
                   continue;
+               case entry_kind::function:
+                  throw pegtl::parse_error( "function as referenced reference part", e.get_function().position );
                case entry_kind::reference:
                   throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
                case entry_kind::array:

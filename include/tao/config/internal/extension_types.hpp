@@ -15,6 +15,9 @@
 
 namespace tao::config::internal
 {
+   using inner_function = std::function< bool( entry& ) >;
+   using inner_function_map = std::map< std::string, inner_function >;
+
    using inner_extension = std::function< json_t( pegtl_input_t&, state&, const extension_maps& ) >;
    using inner_extension_map = std::map< std::string, inner_extension >;
 
