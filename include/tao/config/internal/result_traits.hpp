@@ -6,6 +6,8 @@
 
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <utility>
 
 #include "forward.hpp"
 #include "json.hpp"
@@ -57,6 +59,12 @@ namespace tao::config::internal
          return result_traits< std::string >::convert( p, std::string( sv ) );
       }
    };
+
+   template< typename R >
+   [[nodiscard]] json_t convert_result( const pegtl::position& p, R&& r )
+   {
+      return result_traits< std::decay_t< R > >::convert( p, std::forward< R >( r ) );
+   }
 
 }  // namespace tao::config::internal
 

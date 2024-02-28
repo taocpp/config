@@ -4,11 +4,12 @@
 #ifndef TAO_CONFIG_INTERNAL_PARSE_UTILITY_HPP
 #define TAO_CONFIG_INTERNAL_PARSE_UTILITY_HPP
 
-#include <optional>
 #include <string>
+#include <utility>
 
 #include "extension_action.hpp"
 #include "extension_grammar.hpp"
+#include "forward.hpp"
 #include "jaxn_action.hpp"
 #include "json.hpp"
 #include "json_to_value.hpp"
@@ -66,7 +67,7 @@ namespace tao::config::internal
       return result;
    }
 
-   [[nodiscard]] inline std::string parse_extension( pegtl_input_t& in )
+   [[nodiscard]] inline std::string parse_name( pegtl_input_t& in )
    {
       std::string result;
       pegtl::parse< pegtl::must< rules::wss, rules::extension_rule, rules::wss >, extension_action >( in, result );

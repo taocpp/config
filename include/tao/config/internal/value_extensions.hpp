@@ -9,7 +9,7 @@
 #include "concat.hpp"
 #include "config_action.hpp"
 #include "extension_maps.hpp"
-#include "extension_utility.hpp"
+#include "extension_wrapper.hpp"
 #include "forward.hpp"
 #include "parse_utility.hpp"
 #include "pegtl.hpp"
@@ -20,7 +20,7 @@ namespace tao::config::internal
 {
    [[nodiscard]] inline bool do_value_extension( pegtl_input_t& in, state& st, const extension_maps& em )
    {
-      const std::string name = parse_extension( in );
+      const std::string name = parse_name( in );
       {
          const auto i = em.value.find( name );
          if( i != em.value.end() ) {

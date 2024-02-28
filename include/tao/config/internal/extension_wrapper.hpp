@@ -1,8 +1,8 @@
 // Copyright (c) 2018-2024 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_EXTENSION_UTILITY_HPP
-#define TAO_CONFIG_INTERNAL_EXTENSION_UTILITY_HPP
+#ifndef TAO_CONFIG_INTERNAL_EXTENSION_WRAPPER_HPP
+#define TAO_CONFIG_INTERNAL_EXTENSION_WRAPPER_HPP
 
 #include <type_traits>
 #include <utility>
@@ -18,12 +18,6 @@
 
 namespace tao::config::internal
 {
-   template< typename R >
-   [[nodiscard]] json_t convert_result( const pegtl::position& p, R&& r )
-   {
-      return result_traits< std::decay_t< R > >::convert( p, std::forward< R >( r ) );
-   }
-
    // NOTE: We can't just make wrap() variadic the straightforward way because that would look like
    // return convert_result( p, f( argument_traits< std::decay_t< As > >( in, st, em ).convert()... ) );
    // and with the order of function parameter evaluation not being defined in C++ that doesn't work.

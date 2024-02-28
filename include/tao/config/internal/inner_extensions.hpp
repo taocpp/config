@@ -6,7 +6,7 @@
 
 #include "extension_maps.hpp"
 #include "extension_types.hpp"
-#include "extension_utility.hpp"
+#include "extension_wrapper.hpp"
 #include "forward.hpp"
 #include "json.hpp"
 #include "json_traits.hpp"
@@ -20,7 +20,7 @@ namespace tao::config::internal
    [[nodiscard]] inline json_t do_inner_extension( pegtl_input_t& in, state& st, const extension_maps& em )
    {
       if( parse_open( in ) ) {
-         const std::string name = parse_extension( in );
+         const std::string name = parse_name( in );
          {
             const auto i = em.inner.find( name );
             if( i != em.inner.end() ) {
