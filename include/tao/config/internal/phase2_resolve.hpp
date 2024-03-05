@@ -24,7 +24,8 @@ namespace tao::config::internal
    struct phase2_resolve_impl
    {
       explicit phase2_resolve_impl( object& root )
-         : m_root( root )
+         : m_root( root ),
+           m_changes( 0 )
       {}
 
       [[nodiscard]] std::size_t process()
@@ -40,7 +41,7 @@ namespace tao::config::internal
 
    private:
       object& m_root;
-      std::size_t m_changes = 0;
+      std::size_t m_changes;
       std::set< const void* > m_stack;
 
       void process_concat( const key1& prefix, concat& c )
@@ -115,13 +116,6 @@ namespace tao::config::internal
          switch( e.kind() ) {
             case entry_kind::value:
                return nullptr;
-            case entry_kind::function: {
-               std::size_t i = 0;
-               for( auto& c : e.get_function().array ) {
-                  process_concat( prefix + key1_part( i++, m_root.position ), c );
-               }
-               return nullptr;
-            }
             case entry_kind::reference:
                return process_reference_parts( prefix, e.get_reference() );
             case entry_kind::array: {

@@ -4,11 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE2_REPLACE_HPP
 #define TAO_CONFIG_INTERNAL_PHASE2_REPLACE_HPP
 
-#include <cstddef>
-#include <list>
 #include <set>
 #include <stdexcept>
-#include <string>
 
 #include "array.hpp"
 #include "concat.hpp"
@@ -23,7 +20,8 @@ namespace tao::config::internal
    struct phase2_replace_impl
    {
       explicit phase2_replace_impl( object& root )
-         : m_root( root )
+         : m_root( root ),
+           m_changes( 0 )
       {}
 
       [[nodiscard]] std::size_t process()
@@ -36,7 +34,7 @@ namespace tao::config::internal
 
    private:
       object& m_root;
-      std::size_t m_changes = 0;
+      std::size_t m_changes;
 
       void process_concat( concat& c )
       {
@@ -51,14 +49,6 @@ namespace tao::config::internal
       {
          switch( i->kind() ) {
             case entry_kind::value:
-               ++i;
-               return;
-            case entry_kind::function:
-               if( c.concat.size() == 1 ) {
-                  for( concat& d : i->get_function().array ) {
-                     process_concat( d );
-                  }
-               }
                ++i;
                return;
             case entry_kind::reference:
@@ -97,8 +87,6 @@ namespace tao::config::internal
             switch( j->kind() ) {
                case entry_kind::value:
                   continue;
-               case entry_kind::function:
-                  throw pegtl::parse_error( "please do not use a star inside of a function", j->get_function().position );
                case entry_kind::reference:
                   continue;
                case entry_kind::array:
@@ -117,8 +105,6 @@ namespace tao::config::internal
             switch( j->kind() ) {
                case entry_kind::value:
                   continue;
-               case entry_kind::function:
-                  throw pegtl::parse_error( "please do not use a star inside of a function", j->get_function().position );
                case entry_kind::reference:
                   continue;
                case entry_kind::array:

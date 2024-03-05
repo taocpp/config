@@ -4,7 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_ARRAY_HPP
 #define TAO_CONFIG_INTERNAL_ARRAY_HPP
 
-#include <cstddef>
+#include <iterator>
 #include <list>
 
 #include "forward.hpp"
