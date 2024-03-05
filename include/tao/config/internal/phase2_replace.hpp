@@ -88,7 +88,8 @@ namespace tao::config::internal
                case entry_kind::value:
                   continue;
                case entry_kind::reference:
-                  continue;
+                  ++i;
+                  return;
                case entry_kind::array:
                   process_array_concat_entry( j->get_array(), star );
                   continue;
@@ -106,7 +107,8 @@ namespace tao::config::internal
                case entry_kind::value:
                   continue;
                case entry_kind::reference:
-                  continue;
+                  ++i;
+                  return;
                case entry_kind::array:
                   process_concat_entry_array( star, j->get_array() );
                   continue;
