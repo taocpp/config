@@ -684,8 +684,6 @@ A function's arguments can be literal values, other function calls, additions, r
 The next example does the same as the previous one, albeit in a slightly contrived manner that shows a composed function argument with reference.
 
 ```
-(temporary bar)
-
 bar = "ER"
 foo = (env "US" + (bar))
 ```
@@ -865,7 +863,7 @@ The same goes for included files, their assignments, additions and deletions are
 
 ### Phase Two
 
-The second phase successively eliminates all functions, references and additions.
+The second phase successively replaces all functions, references and additions with the result of their evaluation.
 
 During this phase the order in which things were parsed is no longer relevant.
 
