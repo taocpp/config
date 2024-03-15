@@ -40,6 +40,10 @@ namespace tao::config::internal
          assert( !r.empty() );
       }
 
+      entry( const std::string& n, const pegtl::position& p )
+         : m_data( std::in_place_type_t< array >(), n, p )
+      {}
+
       entry( const entry_kind k, const pegtl::position& p )
          : m_data( std::in_place_type_t< object >(), p )
       {
@@ -59,12 +63,12 @@ namespace tao::config::internal
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
 
-      entry( entry&& ) = delete;
+      entry( entry&& ) = default;
       entry( const entry& ) = default;
 
       ~entry() = default;
 
-      entry& operator=( entry&& ) = delete;
+      entry& operator=( entry&& ) = default;
       entry& operator=( const entry& ) = default;
 
       entry_kind kind() const noexcept
@@ -95,6 +99,18 @@ namespace tao::config::internal
       [[nodiscard]] bool is_concat() const noexcept
       {
          return std::holds_alternative< concat >( m_data );
+      }
+
+      void set_value( json_t&& t )
+      {
+         m_data = std::move( t );
+         expand();
+      }
+
+      void set_value( const json_t& t )
+      {
+         m_data = t;
+         expand();
       }
 
       void set_array( pegtl::position p )
@@ -180,23 +196,6 @@ namespace tao::config::internal
          const auto* s = std::get_if< concat >( &m_data );
          assert( s );
          return *s;
-      }
-
-      [[nodiscard]] std::size_t count_references_recursive() const noexcept
-      {
-         switch( kind() ) {
-            case entry_kind::value:
-               return 0;
-            case entry_kind::reference:
-               return 1;
-            case entry_kind::array:
-               return get_array().count_references_recursive();
-            case entry_kind::object:
-               return get_object().count_references_recursive();
-            case entry_kind::concat:
-               return get_concat().count_references_recursive();
-         }
-         std::abort();  // LCOV_EXCL_LINE
       }
 
    private:

@@ -1,0 +1,14 @@
+{
+   bar: 42,
+   baz: [
+      true,
+      false
+   ],
+   foo: {
+      bar: 42,
+      baz: [
+         true,
+         false
+      ]
+   }
+}

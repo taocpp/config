@@ -20,7 +20,7 @@ int main( int argc, char** argv )
          cfg.parse( file );
       }
       std::cout << "PHASE 2" << std::endl;
-      cfg.phase2_loop();
+      tao::config::internal::phase2_everything( cfg.st, cfg.fm );
       tao::config::internal::to_stream( std::cout, cfg.st.root, 3 );
       std::cout << std::endl;
    }

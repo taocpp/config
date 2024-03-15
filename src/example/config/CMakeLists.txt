@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.8...3.19)
 set(examplesources
   dump_all_phases.cpp
   dump_only_data.cpp
-  dump_phase_four.cpp
   dump_phase_one.cpp
   dump_phase_three.cpp
   dump_phase_two.cpp

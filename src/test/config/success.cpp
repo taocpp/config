@@ -11,6 +11,21 @@ namespace tao
 {
    int failed = 0;
 
+   void setenv_throws( const std::string& name, const std::string& value )
+   {
+#if defined( _MSC_VER )
+      const auto e = ::_putenv_s( name.c_str(), value.c_str() );
+      if( e != 0 ) {
+#else
+      errno = 0;
+      if( ::setenv( name.c_str(), value.c_str(), 1 ) != 0 ) {
+         const auto e = errno;
+#endif
+         (void)e;
+         throw std::string( "setenv failed" );
+      }
+   }
+
    template< template< typename... > class Traits >
    void unit_test( const std::filesystem::path& path )
    {
@@ -71,6 +86,7 @@ int main()
             continue;
          }
 #endif
+         tao::setenv_throws( "TAO_CONFIG", "env_value" );
          tao::unit_test< tao::json::traits >( path );
          tao::unit_test< tao::config::traits >( path );
          ++count;

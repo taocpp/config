@@ -4,8 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_ARRAY_HPP
 #define TAO_CONFIG_INTERNAL_ARRAY_HPP
 
-#include <iterator>
 #include <list>
+#include <string>
 
 #include "forward.hpp"
 #include "pegtl.hpp"
@@ -23,6 +23,11 @@ namespace tao::config::internal
          : position( p )
       {}
 
+      explicit basic_array( const std::string& f, const pegtl::position& p )
+         : function( f ),
+           position( p )
+      {}
+
       basic_array( basic_array&& ) = default;
       basic_array( const basic_array& ) = default;
 
@@ -31,16 +36,7 @@ namespace tao::config::internal
       basic_array& operator=( basic_array&& ) = default;
       basic_array& operator=( const basic_array& ) = default;
 
-      [[nodiscard]] std::size_t count_references_recursive() const noexcept
-      {
-         std::size_t result = 0;
-
-         for( const auto& c : array ) {
-            result += c.count_references_recursive();
-         }
-         return result;
-      }
-
+      std::string function;
       std::list< C > array;
       pegtl::position position;
    };

@@ -1,0 +1,2 @@
+foo = (default 1 2)
+bar = (default null false true)

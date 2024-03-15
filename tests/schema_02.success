@@ -1,9 +1,0 @@
-foo.bar
-{
-    (schema "tests/schema.schema")
-
-    a = "BAZ"
-    b = 42
-    c = null
-    d = "255.255.255.255/32"
-}

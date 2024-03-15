@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2023 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2018-2024 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
 #ifndef TAO_CONFIG_HPP
@@ -17,6 +17,5 @@
 #include "config/assign.hpp"
 
 #include "config/parser.hpp"
-#include "config/schema.hpp"
 
 #endif

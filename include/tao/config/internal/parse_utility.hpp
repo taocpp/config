@@ -4,11 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_PARSE_UTILITY_HPP
 #define TAO_CONFIG_INTERNAL_PARSE_UTILITY_HPP
 
-#include <string>
 #include <utility>
 
-#include "extension_action.hpp"
-#include "extension_grammar.hpp"
 #include "forward.hpp"
 #include "jaxn_action.hpp"
 #include "json.hpp"
@@ -24,21 +21,6 @@
 
 namespace tao::config::internal
 {
-   inline void skip_ws( pegtl_input_t& in )
-   {
-      pegtl::parse< rules::wss >( in );
-   }
-
-   [[nodiscard]] inline bool parse_open( pegtl_input_t& in )
-   {
-      return pegtl::parse< pegtl::seq< pegtl::one< '(' >, rules::wss > >( in );
-   }
-
-   inline void parse_close( pegtl_input_t& in )
-   {
-      pegtl::parse< pegtl::must< pegtl::one< ')' >, rules::wss > >( in );
-   }
-
    [[nodiscard]] inline key1 parse_key1( pegtl_input_t& in )
    {
       key1 result;
@@ -58,20 +40,6 @@ namespace tao::config::internal
       json_to_value consumer( in.position() );
       pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_single_value >, jaxn_action, json::jaxn::internal::errors >( in, consumer );
       return std::move( consumer.value );
-   }
-
-   [[nodiscard]] inline std::string parse_string( pegtl_input_t& in )
-   {
-      std::string result;
-      pegtl::parse< pegtl::must< json::jaxn::internal::rules::string_fragment >, json::jaxn::internal::unescape_action >( in, result );
-      return result;
-   }
-
-   [[nodiscard]] inline std::string parse_name( pegtl_input_t& in )
-   {
-      std::string result;
-      pegtl::parse< pegtl::must< rules::wss, rules::extension_rule, rules::wss >, extension_action >( in, result );
-      return result;
    }
 
 }  // namespace tao::config::internal

@@ -318,6 +318,7 @@ namespace tao::config::internal
    template<>
    struct debug_traits< array >
       : json::binding::object< TAO_JSON_BIND_REQUIRED( "position", &array::position ),
+                               TAO_JSON_BIND_OPTIONAL( "function", &array::function ),
                                TAO_JSON_BIND_REQUIRED( "array_data", &array::array ) >
    {};
 

@@ -7,7 +7,7 @@
 
 #include <tao/config.hpp>
 
-#include <tao/config/internal/try_catch.hpp>
+#include "try_catch.hpp"
 
 int main( int argc, char** argv )
 {

@@ -1,10 +1,11 @@
 # Writing Config Files
 
 The config file syntax is based on [JSON] and is completely backwards compatible:
-**Every [JSON]** or [JAXN] **file** with a top-level [JSON] object **is a valid [taoCONFIG] file**.
+
+> **Every [JSON]** (or [JAXN]) **file** with a top-level [JSON] object **is a valid [taoCONFIG] file**.
 
 The data model is also based on [JSON] and corresponds exactly to the [JAXN] data model as implemented by the [taoJSON] library.
-We assume that the reader is somewhat familiar with [JSON].
+We assume that the reader is somewhat familiar with [JSON] and its terminology.
 
  * [General Syntax](#general-syntax)
    - [Example](#example)
@@ -23,19 +24,20 @@ We assume that the reader is somewhat familiar with [JSON].
    - [Additions](#additions)
    - [Overwrite](#overwrite)
    - [Delete](#delete)
-   - [Asterisks](#asterisk)
+   - [Asterisks](#asterisks)
    - [References](#references)
-   - [Extensions](#extensions)
+   - [Functions](#functions)
    - [Dotted Names](#dotted-names)
-
-Please note that, for now, this document shows basic use cases for all features, but not much beyond that.
-It also does not go into the details and complexities of how all the features (can) interact with each other.
+   - [Temporaries](#temporaries)
+   - [Include Files](#include-files)
+ * [Advanced Considerations](#advanced-considerations)
 
 
 
 # General Syntax
 
 This first section is in tutorial form.
+It starts with a simple config file example in JSON form and successively introduces the main syntactic features of taoCONFIG by changing the example to use these features.
 
 
 ## Example
@@ -287,7 +289,7 @@ Strings are like in [JAXN], i.e. [JSON] strings with [extensions](https://github
 
 ## Binary Values
 
-[Binary data](https://github.com/stand-art/jaxn/blob/main/Specification.md#binary-data) is also like in [JAXN].
+[Binary data](https://github.com/stand-art/jaxn/blob/main/Specification.md#binary-data) is also exactly like in [JAXN].
 
 
 
@@ -328,7 +330,7 @@ foo += "c"
 // foo is "abc"
 ```
 
-Like in [JAXN] the same concatenations can be performed for binary data, and strings and binary data can not be mixed.
+Like in [JAXN] the same concatenations can be performed for binary data, and strings and binary data can **not** be mixed.
 
 #### Arrays
 
@@ -349,8 +351,8 @@ For objects the addition can be explicit or implicit and performs an object "mer
 
 For keys that exist only in one of the two objects being merged the result of the merge will contain that object member unchanged.
 
-For keys that exist in both of the objects being merged the value of the member in the result will depend on whether the second objects used a `=` or a `+=` to define the member.
-In the first case the member from the second object overwrites the member from the first, in the second case the corresponding values are in turn added.
+For keys that exist in both of the objects being merged the value of the member in the result will depend on whether the second object used a `=` or a `+=` to define the member.
+In the case of `=` the member from the second object overwrites the member of the first, in the case of `+=` the corresponding values are recursively merged.
 
 #### Example taoCONFIG Input File
 
@@ -382,9 +384,10 @@ foo
 }
 ```
 
+
 ## Overwrite
 
-A named object member can be assigned to multiple times in which case the last assignment "wins".
+A named object member can be assigned-to multiple times with the final assignment "winning".
 
 #### Example taoCONFIG Input File
 
@@ -440,18 +443,28 @@ maps = delete  // Changed our minds, no maps.
 
 Deleted values can subsequently be assigned new values or added-to in which case they behave "as if" anything that was assigned or added prior to the `delete` never happened.
 
+#### Example taoCONFIG Input File
+
 ```
 foo = 42
 foo = delete
 foo += 44
 ```
 
-Unlike the other pseudo-values `delete` is not allowed to be in a syntactic addition.
+#### Resulting JSON Config Data
+
+```javascript
+{
+   foo: 44
+}
+```
+
+Note that `delete` may not be an operand of an addition, i.e. `42 + delete` or similar are **not** allowed.
 
 
 ## Asterisks
 
-The asterisk can be used as special object member name to designate all array or object members.
+The asterisk can be used as special name to designate all array or object members.
 It is frequently used in conjunction with [dotted names](#dotted-names) to form a pattern for an assignment or addition.
 
 #### Example taoCONFIG Input File
@@ -486,20 +499,19 @@ servers.*.port = 7000  // Testing
 }
 ```
 
-Assignments using asterisks can be combined with the literal pseudo-value `delete`.
+Assignments using asterisks **can** be combined with the literal pseudo-value `delete`.
 
 
 ## References
 
-References are (nested) dotted names written in parentheses that refer to other parts of the config and copy the referenced value.
+References are (nested) dotted names written in parentheses that refer to other parts of the config.
+During processing of the config file they copy the referenced value.
 
 ```
 foo = 42
 bar = (foo)
 // bar is 42
 ```
-
-To uniformly support forwards and backwards references, they and [additions](#additions) are resolved *after* the config has been parsed, i.e. after all assignments and [extensions](#extensions).
 
 References are resolved relative to the array or object scope in which they syntactically occur, similar to how name lookups from within nested namespaces are handled in the C++ programming language.
 
@@ -548,19 +560,19 @@ x = 1
 }
 ```
 
-It is an error if there is no order in which all additions and references can be resolved due to some kind of cyclic references.
-It is also an error when the first component of a reference matches an inner scope in which the other parts can not be resolved *even if* they could have been resolved in an enclosing scope.
+It is an error if there is no order in which all additions, functions and references can be resolved due cyclic references!
 
 #### Example Broken Input Files
 
-Cyclic reference is an error:
+Cyclic references are an error for obvious reasons.
 
 ```
 a = (b)
 b = (a)
 ```
 
-While resolving `(a.b)` within `a.a` the first time the first `a` of `(a.b)` matches while moving from inner to outer scopes is the inner `a` in which no `b` exists which is an error:
+It is also an error when a reference can't be resolved due to the first component of the reference "anchoring" the lookup to the "wrong" place.
+Consider the following example:
 
 ```
 a
@@ -573,8 +585,21 @@ a
 }
 ```
 
-References can be arbitrarily **nested** meaning that the parts ofa  reference can themselves be references.
-For this to work the inner references must refer to values that can occur as part of a reference, namely strings and integers.
+The lookup of `a.b` starts by attempting to find `a` inside of `a.a`.
+This fails because there is only `c` within `a.a`, not another `a` that could be matched to the `a` in `a.b`.
+Next the lookup steps outside of `a.a` and attempts to find the `a` from `a.b` within `a`.
+This succeeds, anchoring the lookup of `a.b` to `a.a`.
+More precisely, the second component of `a.a` is matched with the first component of `a.b`.
+Now the example generates an error because there is no `b` within `a.a`.
+
+The search is not continued inside the top-level `a` because once the lookup is anchored no backtracking is performed.
+This is similar to the name lookup rules in the C++ programming language.
+
+
+### Nested References
+
+References can be arbitrarily **nested**, that is parts of a reference can themselves be a reference!
+For this to work the "inner" reference must refer to a value that can natuarlly occur as part of a reference, namely a string or an integer.
 
 #### Example taoCONFIG Input File
 
@@ -600,8 +625,9 @@ baz = (foo.(bar))
 }
 ```
 
-When referencing values marked as [temporary](Member-Extensions.md#temporary) the copied value will not be marked as temporary, however any sub-values will retain their temporary status.
-Similarly schema definitions will be retained only for sub-values of the referenced value (TODO: Is this really what we want?)
+### References vs. Temporary
+
+When referencing values marked as [temporary](Member-Extensions.md#temporary) the copied value will **not** be marked as [temporary](#temporaries), however any sub-values will retain their temporary status.
 
 #### Example taoCONFIG Input File
 
@@ -637,59 +663,49 @@ ttt = (foo)
 ```
 
 
-## Extensions
+## Functions
 
-Extensions are expressions that, like references, are written in parentheses and give access to same *extended* features.
+This library contains [a set of config functions](All-Config-Functions.md).
+These functions can be used in config files to perform operations on values.
+Applications can also add custom functions.
 
-[Value extensions](Value-Extensions.md) produce a [JAXN] value and can be used wherever a value is expected.
+Functions are syntactically similar to references in taoCONFIG, and to lists or function calls in Scheme and LISP.
+A function call has one or more arguments, wherefore `(foo)` is parsed as a reference rather than a call to a nullary function.
 
-For example the `split` value extension splits a string into its space-separated components.
-
-```
-foo = (split "a 1 ?")  // foo = [ "a", "a", "?" ]
-```
-
-[Member extensions](Member-Extensions.md) use the same syntax as value extensions, however they take the place object members.
-
-For example the `include` member extensions takes a string, interprets it as filename, and reads and parses its contents in place of the `include` extension.
+For example the following config file assigns the value of the environment (shell) variable `$USER` to the config key `foo`.
 
 ```
-(include "filename.cfg")
+foo = (env "USER")
 ```
 
-For a list and description of all available extensions please read the pages on [value extensions](Value-Extensions.md) and [member extensions](Member-Extensions.md).
+Functions can occur anywhere a value can occur.
+A function's arguments can be literal values, other function calls, additions, references, or any combination or nesting of these.
 
-Value extensions can be nested quite freely, however the inner-most arguments must be literals as extensions can *not* access config values or use references.
-
-For example the `split`, `read` and `env` extensions can be combined and nested like this.
-
-```
-foo = (split (read (env "IP_LIST_FILE")))
-```
-
-On the other hand moving the inner-most argument into a separate definition and accessing it from inside the nested extensions does *not* work.
+The next example does the same as the previous one, albeit in a slightly contrived manner that shows a composed function argument with reference.
 
 ```
-bar = "IP_LIST_FILE
-foo = (split (read (env (bar))))  // Parse error!
+(temporary bar)
+
+bar = "ER"
+foo = (env "US" + (bar))
 ```
 
-Member extensions can similarly contain nested value extensions.
+The config functions supplied with this library are listed and explained on [a separate page](All-Config-Functions.md).
 
-```
-(include (read (env "INCLUDE_FILE_NAME_FILE")))
-```
+To add custom functions to a config parser and make them available to your config files please consult `src/test/config/custom.cpp` or contact the developers of this library.
 
 
 ## Dotted Names
 
 Wherever the name of an object member is expected it is also possible to use a name with multiple dot-separated components.
 
-Dotted names can contain kinds of components.
+Dotted names can contain multiple kinds of components.
 
 1.  Strings, intended to index objects.
 2.  Unsigned integers, intended to index arrays.
 4.  The [asterisk](#asterisks), intended to index objects or arrays.
+
+The asterisk indexes into all object members or array elements.
 
 #### Example taoCONFIG Input File
 
@@ -720,10 +736,196 @@ foo.bar.baz += 1
 Just as for single-component names, integers, and other strings that are not C-style identifiers can be used with (single or double) quotes.
 For example the dotted name `foo."1.2.3".bar` consists of three components, the strings `"foo"`, `"1.2.3"` and `"bar"`.
 
-Dotted names can be thought of as strongly-typed JSON Pointers: there is no ambiguity about whether an integer is intended to index an array or an object.
+Dotted names can be thought of as strongly-typed JSON Pointers; there is no ambiguity about whether an integer is intended to index an array or an object.
+
+
+## Include Files
+
+The `include` feature reads the named file relative to the current working directory and parses it "as if" the contents of that file were present instead of the `include`.
+For plain `include` it is an error when the file does not exist, the `include?` alternative form silently ignores this case.
+
+The filename has to be supplied as non-empty string in double quotes and can contain arbitrary characters except for the double quote itself.
+Consequently, and unlike all other quoted strings in this library, *no escape sequences* are recognised.
+
+Files can be included anywhere an object member can be defined.
+The top-level definitions of the included file will appear in the same place of the JSON hierarchy as the `include`.
+
+#### Example taoCONFIG Input File
+
+```
+// Include the file whose contents are shown below.
+(include "tests/doc_include.inc")
+
+foo
+{
+    // Include the same file again, this time within an object.
+    (include "tests/doc_include.inc")
+}
+
+// Use include? with a non-existing file, not an error.
+(include? "tests/non_existing_file_is_no_error_with_include?")
+```
+
+#### Example taoCONFIG Include File
+
+```
+bar = 42
+baz = [ true, false ]
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   bar: 42,
+   baz: [
+      true,
+      false
+   ],
+   foo: {
+      bar: 42,
+      baz: [
+         true,
+         false
+      ]
+   }
+}
+```
+
+
+## Temporaries
+
+Sometimes parts of the configuration that are required during config file parsing, for example in order to be [referenced](#references), are not themselves considered part of the actual config.
+In these cases the `temporary` feature can be used to exclude any part of the JSON hierarchy from the final config parsing result.
+
+Like `include` the `temporary` statement can occur anywhere an object member can be defined.
+It takes a single config key, which can include [asterisks](#asterisks) and be any [dotted name](#dotted-names), as argument.
+
+The argument is always interpreted relative to the position of the `temporary` in the object hierarchy.
+For example a `(temporary c.d)` within an object at `a.b` would mark `a.b.c.d` as temporary, independent of whether that node exists (yet).
+
+#### Example taoCONFIG Input File
+
+```
+(temporary template)  // Can occur before...
+
+template
+{
+    host = "127.0.0.1"
+    port = 6000
+    version = 42
+}
+
+foo = (template) +
+{
+    host = "127.0.0.2"
+}
+
+bar = (template) +
+{
+    port = 6001
+}
+
+(temporary template)  // ...and/or after.
+
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   bar: {
+      host: "127.0.0.1",
+      port: 6001,
+      version: 42
+   },
+   foo: {
+      host: "127.0.0.2",
+      port: 6000,
+      version: 42
+   }
+}
+```
+
+Similarly the `permanent` feature can be used to restore any part of the JSON hierarchy that was marked as `temporary` to the default behaviour of being part of the final result data.
+
+
+
+# Advanced Considerations
+
+For technical reasons reading a configuration is performed in multiple steps.
+Authors of config files need to be aware of the two main phases in order to fully understand the semantics of their configs.
+
+### Phase One
+
+The first phase does the reading and parsing of all configuration files.
+
+During this phase all assignments, additions and deletions are recorded in their order of occurrence.
+The same goes for included files, their assignments, additions and deletions are performed when and where the include was encountered during parsing.
+
+### Phase Two
+
+The second phase successively eliminates all functions, references and additions.
+
+During this phase the order in which things were parsed is no longer relevant.
+
+ * Functions are eliminated as soon as their arguments are "plain" values, i.e. they are free from functions, references and additions, by replacing the function with the result of calling said function.
+ * References are eliminated as soon as the referenced value is "plain", by replacing the reference with a (deep) copy of the referenced value.
+ * Additions are eliminated as soon as both operands are "plain", again by replacing the two operands with the result of the addition (which can be a concatenation, or, for objects, a merge).
+
+### Why Phases?
+
+The semantics of `delete`, `+=` and `=`, and, by extension, `include`, depends on the order in which they are processed.
+This is due to the combination of features being non-monotonic, which requires linear processing for predictable behaviour.
+
+However for references this would be too limiting as only previously defined values could be referenced, and delta[^1] config files might not be able to make the required modifications.
+With references that can "point" both forwards and backwards this problem does not arise.
+
+#### Example taoCONFIG Input File
+
+```
+hosts
+{
+    arctic
+    {
+        foo = 42
+    }
+    mystic
+    {
+        foo = 23
+    }
+}
+host = (env "HOST")
+
+(temporary host)
+(temporary hosts)
+
+config
+{
+    mode = "FOBBLE"
+    size = (hosts.(host).foo)
+}
+
+(include? "test_delta_config.cfg")
+```
+
+This example shows a configuration with parameters that depend on the name of the host machine.
+
+#### Example taoCONFIG Delta File
+
+```
+hosts.test01.foo = 3
+```
+
+If references were resolved when encountered then the delta config would have no effect -- the `foo` value for the additional host `test01` would be available only *after* the refernce for `config.size` was resolved.
+
+Luckily this is not how taoCONFIG works, the references are resolved during the second phase, and everything will work as expected.
+
 
 
 Copyright (c) 2018-2024 Dr. Colin Hirsch and Daniel Frey
+
+[^1]: A "delta" config is typically a configuration file that is optionally included at the end of a full configuration file. The full configuration file usually configures an application for an operational environment; the delta config can optionally modify the full configuration, e.g. for a test environment that might be funcionally identical to the operational environment but have minor differences like using different hostnames.
 
 [CBOR]: http://cbor.io
 [JAXN]: https://github.com/stand-art/jaxn

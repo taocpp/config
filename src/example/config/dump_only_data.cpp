@@ -7,9 +7,9 @@
 
 #include <tao/config.hpp>
 
-#include <tao/config/internal/try_catch.hpp>
-
 #include <tao/json/jaxn/events/to_stream.hpp>
+
+#include "try_catch.hpp"
 
 int main( int argc, char** argv )
 {

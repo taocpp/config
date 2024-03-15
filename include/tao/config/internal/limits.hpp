@@ -4,7 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_LIMITS_HPP
 #define TAO_CONFIG_INTERNAL_LIMITS_HPP
 
-#include <cstdint>
+#include <cstddef>
 
 namespace tao::config::internal
 {

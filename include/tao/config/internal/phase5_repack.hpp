@@ -5,6 +5,7 @@
 #define TAO_CONFIG_INTERNAL_PHASE5_REPACK_HPP
 
 #include <cassert>
+#include <cstddef>
 #include <stdexcept>
 #include <utility>
 
@@ -102,6 +103,9 @@ namespace tao::config::internal
          case entry_kind::reference:
             throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE -- must have been either eliminated or flagged as error earlier.
          case entry_kind::array:
+            if( !e.get_array().function.empty() ) {
+               throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE -- must have been either eliminated or flagged as error earlier.
+            }
             phase5_repack( k, consumer, e.get_array() );
             return;
          case entry_kind::object:

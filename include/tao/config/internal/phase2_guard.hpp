@@ -5,6 +5,7 @@
 #define TAO_CONFIG_INTERNAL_PHASE2_GUARD_HPP
 
 #include <cassert>
+#include <cstddef>
 #include <set>
 
 #include "pegtl.hpp"

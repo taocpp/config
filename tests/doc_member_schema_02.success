@@ -1,9 +1,0 @@
-foo.bar
-{
-    ip = "127.0.0.1"
-    port = 42
-
-    (schema "tests/doc_member_schema.schema")
-}
-
-what = "ever"  // Outside scope of schema.

@@ -7,8 +7,6 @@
 
 #include <tao/config.hpp>
 
-#include <tao/pegtl/contrib/nested_exceptions.hpp>
-
 const char* ansi_reset = "\033[0m";
 const char* ansi_message = "\033[1;31m";
 const char* ansi_source = "\033[36m";
@@ -31,10 +29,8 @@ namespace tao
          std::cerr << ccs << std::endl;
          std::cerr << ">>> Config parsed as config >>>" << std::endl;
       }
-      catch( const pegtl::parse_error& ) {
-         for( const auto& e : pegtl::nested::flatten() ) {
-            std::cout << ansi_text << "pegtl::parse_error: " << ansi_message << e.message() << ": " << ansi_source << e.position_string() << ansi_reset << std::endl;
-         }
+      catch( const pegtl::parse_error_base& e ) {
+         std::cout << ansi_text << "pegtl::parse_error: " << ansi_message << e.message() << ": " << ansi_source << e.position_string() << ansi_reset << std::endl;
       }
       catch( const std::exception& e ) {
          std::cout << "std::exception: " << e.what() << std::endl;

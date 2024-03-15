@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_REFERENCE2_HPP
 #define TAO_CONFIG_INTERNAL_REFERENCE2_HPP
 
+#include <initializer_list>
+#include <string>
 #include <vector>
 
 #include "reference2_action.hpp"

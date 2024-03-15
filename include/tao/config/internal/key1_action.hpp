@@ -4,6 +4,9 @@
 #ifndef TAO_CONFIG_INTERNAL_KEY1_ACTION_HPP
 #define TAO_CONFIG_INTERNAL_KEY1_ACTION_HPP
 
+#include <cstddef>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "json.hpp"

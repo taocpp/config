@@ -31,7 +31,7 @@ For questions and suggestions regarding The Art of C++ / Config, success or fail
  * use environment variables and the output of arbitrary shell commands.
  * The function [`tao::config::from_file()`](doc/Parsing-Config-Files.md) is all you need to get going.
 
-Every JSON file with a top-level object can be used as config file.
+Every JSON file with a top-level object can be used as [config file](doc/Writing-Config-Files.md).
 
 ```
 {
@@ -41,7 +41,7 @@ Every JSON file with a top-level object can be used as config file.
 }
 ```
 
-This small example can be rendered differently using some of the additional syntactic possibilities of the config file format.
+This small example can be rendered differently using some of the additional syntactic possibilities of the [config file](doc/Writing-Config-Files.md) format.
 
 ```
 #!/usr/local/bin/q3s
@@ -51,11 +51,11 @@ port = 27960
 maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 ```
 
-Semantic features like deleting and referencing values, or including files and reading environment variables, usually only make sense with larger, non-trivial real-world examples.
+Semantic features like [deleting](doc/Writing-Config-Files.md#delete) and [referencing](doc/Writing-Config-Files.md#references) values, or [including files](doc/Writing-Config-Filesmd#include-files) and [reading environment variables](doc/All-Config-Functions.md#env), usually only make sense with larger, non-trivial real-world examples.
 
 These features can be used to manage situations that go beyond single deployments with a single config, for example providing the tools to manage configuration templates that are adapted to different environments.
 
-Parsing a config file generally entails nothing more than calling the appropriate `from_file()` function with the filename.
+[Parsing](doc/Parsing-Config-Files.md) a [config file](doc/Writing-Config-Files.md) is as simple as calling the appropriate `from_file()` function with the filename.
 
 ```
 #include <tao/config.hpp>
@@ -63,8 +63,8 @@ Parsing a config file generally entails nothing more than calling the appropriat
 const tao::config::value config = tao::config::from_file( "foo.cfg" );
 ```
 
-The resulting value is nothing other but a [JSON Value] from The Art of C++ / JSON with a custom traits class.
-It can be inspected using all the facilities of that JSON library.
+The resulting value is nothing other but a [JSON Value] from [taoJSON] with a custom traits class that annotates every sub-value with the filename and position it was parsed from.
+It can be inspected -- and manipulated -- using all the facilities of that JSON library.
 
 ## License
 
@@ -87,5 +87,5 @@ It is distributed under the terms of the [MIT license] reproduced here.
 [JSON Value]: https://github.com/taocpp/json/
 [MIT license]: http://www.opensource.org/licenses/mit-license.html
 [Open Source]: http://www.opensource.org/docs/definition.html
-[taocpp/json]: https://github.com/taocpp/json/
+[taoJSON]: https://github.com/taocpp/json/
 [The Art of C++]: https://taocpp.github.io/

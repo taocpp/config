@@ -31,7 +31,6 @@ namespace tao::config
       static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( internal::key1_kind::name ), internal::key1_part::data_t >, std::string > );
       static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( internal::key1_kind::index ), internal::key1_part::data_t >, std::size_t > );
       static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( internal::key1_kind::star ), internal::key1_part::data_t >, internal::part_star_t > );
-      static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( internal::key1_kind::append ), internal::key1_part::data_t >, std::shared_ptr< std::uint64_t > > );
 
       static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( internal::reference2_kind::name ), internal::reference2_part::data_t >, std::string > );
       static_assert( std::is_same_v< std::variant_alternative_t< std::size_t( internal::reference2_kind::index ), internal::reference2_part::data_t >, std::size_t > );

@@ -9,11 +9,6 @@
       a: "env_value",
       b: "default_value"
    },
-   identity: {
-      a: 42,
-      b: null,
-      c: $DEADBEAF
-   },
    parse: {
       a: 42,
       b: null

@@ -5,13 +5,7 @@
 #define TAO_CONFIG_INTERNAL_STATE_HPP
 
 #include <cstdint>
-#include <map>
-#include <string>
-#include <vector>
 
-#include "array.hpp"
-#include "concat.hpp"
-#include "entry.hpp"
 #include "key1.hpp"
 #include "object.hpp"
 #include "pegtl.hpp"
@@ -34,10 +28,11 @@ namespace tao::config::internal
 
       key1 prefix;
       key1 suffix;
+      key1 member;
 
       object root;
-      std::string schema;
 
+      bool include_is_optional;
       std::uint64_t generation = 1;
    };
 

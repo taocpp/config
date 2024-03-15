@@ -8,22 +8,21 @@
 #include <utility>
 
 #include "internal/config_parser.hpp"
-#include "schema/builtin.hpp"
 #include "value.hpp"
 
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   [[nodiscard]] json::basic_value< Traits > basic_from_file( const std::filesystem::path& path, const schema::builtin& b = schema::builtin() )
+   [[nodiscard]] json::basic_value< Traits > basic_from_file( const std::filesystem::path& path )
    {
       internal::config_parser c;
       c.parse( path );
-      return c.finish< Traits >( b );
+      return c.finish< Traits >();
    }
 
-   [[nodiscard]] inline value from_file( const std::filesystem::path& path, const schema::builtin& b = schema::builtin() )
+   [[nodiscard]] inline value from_file( const std::filesystem::path& path )
    {
-      return basic_from_file< traits >( path, b );
+      return basic_from_file< traits >( path );
    }
 
 }  // namespace tao::config

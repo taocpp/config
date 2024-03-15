@@ -12,34 +12,27 @@
 
 #include "config_action.hpp"
 #include "config_grammar.hpp"
-#include "extension_maps.hpp"
-#include "inner_functions.hpp"
+#include "forward.hpp"
+#include "function_implementations.hpp"
+#include "function_wrapper.hpp"
 #include "json.hpp"
 #include "json_traits.hpp"
-#include "member_functions.hpp"
 #include "pegtl.hpp"
-#include "phase2_combine.hpp"
-#include "phase2_replace.hpp"
-#include "phase2_resolve.hpp"
+#include "phase2_everything.hpp"
 #include "phase3_remove.hpp"
-#include "phase4_schema.hpp"
 #include "phase5_repack.hpp"
 #include "state.hpp"
-#include "value_functions.hpp"
-
-#include "../schema/builtin.hpp"
 
 namespace tao::config::internal
 {
    struct config_parser
    {
       config_parser()
-         : em( { { "binary", wrap( binary_function ) },
+         : fm( { { "binary", wrap( binary_function ) },
                  { "cbor", wrap( cbor_function ) },
                  { "default", wrap( default_function ) },
                  { "env", wrap( env_function ) },
                  { "env?", wrap( env_if_function ) },
-                 { "identity", wrap( identity_function ) },
                  { "jaxn", wrap( jaxn_function ) },
                  { "json", wrap( json_function ) },
                  { "msgpack", wrap( msgpack_function ) },
@@ -47,15 +40,7 @@ namespace tao::config::internal
                  { "shell", wrap( shell_function ) },
                  { "split", wrap( split_function ) },
                  { "string", wrap( string_function ) },
-                 { "ubjson", wrap( ubjson_function ) } },
-               { { "include", wrap( include_function ) },
-                 { "include?", wrap( include_if_function ) },
-                 { "parse", wrap( member_function ) },
-                 { "permanent", wrap( permanent_function ) },
-                 { "schema", wrap( schema_function ) },
-                 { "setenv", wrap( setenv_function ) },
-                 { "temporary", wrap( temporary_function ) } },
-               { { "parse", wrap( value_function ) } } )
+                 { "ubjson", wrap( ubjson_function ) } } )
       {}
 
       config_parser( config_parser&& ) = delete;
@@ -65,11 +50,11 @@ namespace tao::config::internal
       void operator=( const config_parser& ) = delete;
 
       state st;
-      extension_maps em;
+      function_map fm;
 
       void parse( pegtl_input_t&& in )
       {
-         pegtl::parse< rules::config_file, config_action >( in, st, em );
+         pegtl::parse< rules::config_file, config_action >( in, st, fm );
       }
 
       void parse( const std::filesystem::path& path )
@@ -87,23 +72,11 @@ namespace tao::config::internal
          parse( data.data(), data.size(), source );
       }
 
-      [[nodiscard]] bool phase2_iteration()
-      {
-         return ( phase2_combine( st.root ) + phase2_resolve( st.root ) + phase2_replace( st.root ) ) > 0;
-      }
-
-      void phase2_loop()
-      {
-         while( phase2_iteration() ) {
-         }
-      }
-
       template< template< typename... > class Traits >
-      [[nodiscard]] json::basic_value< Traits > finish( const schema::builtin& b = schema::builtin() )
+      [[nodiscard]] json::basic_value< Traits > finish()
       {
-         phase2_loop();
+         phase2_everything( st, fm );
          phase3_remove( st.root );
-         phase4_schema( st.root, st.schema, b );
          return phase5_repack< Traits >( st.root );
       }
    };

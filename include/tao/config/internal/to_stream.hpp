@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_TO_STREAM_HPP
 #define TAO_CONFIG_INTERNAL_TO_STREAM_HPP
 
+#include <cstddef>
 #include <ostream>
 
 #include "debug_traits.hpp"

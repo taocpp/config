@@ -1,0 +1,11 @@
+// Include the file whose contents are shown below.
+(include "tests/doc_include.inc")
+
+foo
+{
+    // Include the same file again, this time within an object.
+    (include "tests/doc_include.inc")
+}
+
+// Use include? with a non-existing file, not an error.
+(include? "tests/non_existing_file_is_no_error_with_include?")

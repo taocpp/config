@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_KEY1_HPP
 #define TAO_CONFIG_INTERNAL_KEY1_HPP
 
+#include <initializer_list>
+#include <string>
 #include <vector>
 
 #include "key1_action.hpp"

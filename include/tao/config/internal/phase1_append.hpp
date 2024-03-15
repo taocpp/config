@@ -5,6 +5,7 @@
 #define TAO_CONFIG_INTERNAL_PHASE1_APPEND_HPP
 
 #include <cassert>
+#include <cstddef>
 #include <iterator>
 #include <optional>
 #include <set>
@@ -23,7 +24,6 @@
 #include "object.hpp"
 #include "phase1_mode.hpp"
 #include "reference2.hpp"
-#include "reverse.hpp"
 
 namespace tao::config::internal
 {

@@ -4,10 +4,8 @@ a = {
   (include "tests/simple.success")
 }
 
-(setenv "CONFIGFILE" "tests/simple.success")
-
 b = {
-   (include (env "CONFIGFILE"))
+   ( include "tests/simple.success" )
 }
 
 b.simple += 1

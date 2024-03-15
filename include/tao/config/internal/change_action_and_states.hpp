@@ -5,7 +5,9 @@
 #ifndef TAO_CONFIG_INTERNAL_CHANGE_ACTION_AND_STATES_HPP
 #define TAO_CONFIG_INTERNAL_CHANGE_ACTION_AND_STATES_HPP
 
+#include <cstddef>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 
 #include "pegtl.hpp"

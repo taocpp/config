@@ -5,6 +5,7 @@
 #define TAO_CONFIG_INTERNAL_PHASE2_ACCESS_HPP
 
 #include <cassert>
+#include <cstddef>
 #include <iterator>
 #include <stdexcept>
 #include <string>
@@ -15,6 +16,7 @@
 #include "entry.hpp"
 #include "key1.hpp"
 #include "object.hpp"
+#include "statistics.hpp"
 
 namespace tao::config::internal
 {
@@ -116,7 +118,7 @@ namespace tao::config::internal
    [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1& suffix, const int down )
    {
       if( suffix.empty() ) {
-         if( ( c.concat.size() < 2 ) && ( c.count_references_recursive() == 0 ) ) {
+         if( ( c.concat.size() < 2 ) && ( statistics( c ).references() == 0 ) ) {
             return &c;
          }
          throw phase2_access_return();

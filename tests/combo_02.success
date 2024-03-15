@@ -1,0 +1,4 @@
+foo.a.bar = delete
+foo.*.bar = 42
+foo.b.baz = 1
+foo.a.baz = 2

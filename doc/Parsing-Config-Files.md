@@ -6,10 +6,12 @@
 *  [Custom Traits](#custom-traits)
 *  [Builtin Schema](#builtin-schema)
 
-This library requires decent C++17 support, currently tested on GCC 8 and 9 and "recent" Clang.
+This library requires decent C++17 support, currently supported are GCC 9 and Clang 11 (or newer).
 
 The following assumes that the [PEGTL], [taoJSON] and [taoCONFIG] are all available to your compiler, i.e. the include paths are set up correctly.
-Then to access the facilities of this library please simply include `<tao/config.hpp>` in your source(s).
+When checking out [taoCONFIG] via git this can be achieved by (recursively!) initialising and updating all git submodules.
+
+To access the facilities of this library simply include `<tao/config.hpp>` in your source(s).
 
 ## Parsing
 
@@ -50,7 +52,7 @@ These public data members are:
 
 ```c++
    tao::config::key key;
-   tao::json::position position;  // tao/json/contrib/position.hpp
+   tao::json::position position;  // From tao/json/contrib/position.hpp
 ```
 
 ## Custom Traits
@@ -79,13 +81,7 @@ The type `tao::config::annotation` implements the following non-static member fu
 
 However these functions are only called when they are available, so a custom traits class template can choose to omit the annotations by either not setting up a public base class for the [taoJSON] values or by not implementing either or both of these functions in the public base.
 
-## Builtin Schema
 
-All of the config parsing functions actually have a further argument, a const-reference to an object of type `tao::config::schema::builtin`.
-This argument is defaulted to a default-constructed object of that type.
-
-The role of this `builtin` instance is to provide the built-in schema definitions that can then be extended by the schema files.
-The built-in definitions can be programmatically extended by passing an appropriately prepared instance of `tao::config::schema::builtin` as final argument to the parsing functions.
 
 Copyright (c) 2018-2024 Dr. Colin Hirsch and Daniel Frey
 

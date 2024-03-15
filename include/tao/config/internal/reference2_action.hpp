@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_REFERENCE2_ACTION_HPP
 #define TAO_CONFIG_INTERNAL_REFERENCE2_ACTION_HPP
 
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "json.hpp"

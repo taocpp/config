@@ -5,7 +5,10 @@
 #define TAO_CONFIG_INTERNAL_KEY1_GUARD_HPP
 
 #include <cassert>
+#include <cstddef>
+#include <utility>
 
+#include "forward.hpp"
 #include "key1.hpp"
 #include "pegtl.hpp"
 
@@ -26,8 +29,8 @@ namespace tao::config::internal
          m_suffix = std::move( suffix );
       }
 
-      template< typename State, typename Arg >
-      key1_guard( const pegtl_input_t& in, State& st, const Arg& /*unused*/ )
+      template< typename State >
+      key1_guard( const pegtl_input_t& in, State& st, const function_map& /*unused*/ )
          : m_prefix( st.prefix ),
            m_suffix( st.suffix ),
            m_size( m_prefix.size() )

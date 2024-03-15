@@ -5,6 +5,7 @@
 #define TAO_CONFIG_INTERNAL_PHASE3_REMOVE_HPP
 
 #include <stdexcept>
+#include <string>
 
 #include "array.hpp"
 #include "concat.hpp"
@@ -62,6 +63,9 @@ namespace tao::config::internal
             case entry_kind::reference:
                throw pegtl::parse_error( "unresolved reference '" + e.get_reference().to_string() + '\'', e.get_reference().at( 0 ).position );
             case entry_kind::array:
+               if( !e.get_array().function.empty() ) {
+                  throw pegtl::parse_error( "unresolved function '" + e.get_array().function + '\'', e.get_array().position );
+               }
                phase3_remove( e.get_array() );
                continue;
             case entry_kind::object:

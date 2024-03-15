@@ -22,16 +22,13 @@ int main( int argc, char** argv )
          std::cout << std::endl;
       }
       std::cout << "PHASE 2" << std::endl;
-      cfg.phase2_loop();
+      tao::config::internal::phase2_everything( cfg.st, cfg.fm );
       tao::config::internal::to_stream( std::cout, cfg.st.root, 3 );
       std::cout << std::endl;
       std::cout << "PHASE 3" << std::endl;
       tao::config::internal::phase3_remove( cfg.st.root );
       tao::config::internal::to_stream( std::cout, cfg.st.root, 3 );
       std::cout << std::endl;
-      std::cout << "PHASE 4" << std::endl;
-      tao::config::internal::phase4_schema( cfg.st.root, cfg.st.schema );
-      std::cout << "   Schema validation does not change anything." << std::endl;
       std::cout << "RESULT" << std::endl;
       const tao::config::value j = tao::config::internal::phase5_repack< tao::config::traits >( cfg.st.root );
       tao::config::to_stream( std::cout, j, 3 );

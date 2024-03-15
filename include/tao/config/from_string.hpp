@@ -9,33 +9,32 @@
 #include <utility>
 
 #include "internal/config_parser.hpp"
-#include "schema/builtin.hpp"
 #include "value.hpp"
 
 namespace tao::config
 {
    template< template< typename... > class Traits >
-   [[nodiscard]] json::basic_value< Traits > basic_from_string( const char* data, const std::size_t size, const std::string& source, const schema::builtin& b = schema::builtin() )
+   [[nodiscard]] json::basic_value< Traits > basic_from_string( const char* data, const std::size_t size, const std::string& source )
    {
       internal::config_parser c;
       c.parse( data, size, source );
-      return c.finish< Traits >( b );
+      return c.finish< Traits >();
    }
 
    template< template< typename... > class Traits >
-   [[nodiscard]] json::basic_value< Traits > basic_from_string( const std::string_view data, const std::string& source, const schema::builtin& b = schema::builtin() )
+   [[nodiscard]] json::basic_value< Traits > basic_from_string( const std::string_view data, const std::string& source )
    {
-      return basic_from_string< Traits >( data.data(), data.size(), source, b );
+      return basic_from_string< Traits >( data.data(), data.size(), source );
    }
 
-   [[nodiscard]] inline value from_string( const char* data, const std::size_t size, const std::string& source, const schema::builtin& b = schema::builtin() )
+   [[nodiscard]] inline value from_string( const char* data, const std::size_t size, const std::string& source )
    {
-      return basic_from_string< traits >( data, size, source, b );
+      return basic_from_string< traits >( data, size, source );
    }
 
-   [[nodiscard]] inline value from_string( const std::string_view data, const std::string& source, const schema::builtin& b = schema::builtin() )
+   [[nodiscard]] inline value from_string( const std::string_view data, const std::string& source )
    {
-      return from_string( data.data(), data.size(), source, b );
+      return from_string( data.data(), data.size(), source );
    }
 
 }  // namespace tao::config

@@ -4,6 +4,10 @@
 #ifndef TAO_CONFIG_INTERNAL_FORWARD_HPP
 #define TAO_CONFIG_INTERNAL_FORWARD_HPP
 
+#include <functional>
+#include <map>
+#include <string>
+
 namespace tao::config::internal
 {
    struct entry;
@@ -22,12 +26,11 @@ namespace tao::config::internal
    using array = basic_array< concat >;
    using object = basic_object< concat >;
 
-   template< typename T >
-   struct argument_traits;
-   template< typename T >
-   struct result_traits;
+   template< typename, typename >
+   struct function_traits;
 
-   struct extension_maps;
+   using function = std::function< bool( entry& ) >;
+   using function_map = std::map< std::string, function >;
 
 }  // namespace tao::config::internal
 

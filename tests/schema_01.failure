@@ -1,6 +1,0 @@
-(schema "tests/schema.schema")
-
-a = "BAZ"
-b = 42
-c = true
-d = "255.255.255.255/32"

@@ -1,10 +1,11 @@
 // Copyright (c) 2020-2024 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/config/
 
-#ifndef TAO_CONFIG_INTERNAL_PART2_HPP
-#define TAO_CONFIG_INTERNAL_PART2_HPP
+#ifndef TAO_CONFIG_INTERNAL_REFERENCE2_PART_HPP
+#define TAO_CONFIG_INTERNAL_REFERENCE2_PART_HPP
 
 #include <cassert>
+#include <cstdlib>
 #include <ostream>
 #include <stdexcept>
 #include <string>

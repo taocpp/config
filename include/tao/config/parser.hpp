@@ -5,6 +5,7 @@
 #define TAO_CONFIG_PARSER_HPP
 
 #include "internal/config_parser.hpp"
+#include "internal/function_wrapper.hpp"
 
 namespace tao::config
 {
@@ -26,13 +27,13 @@ namespace tao::config
       template< typename F >
       void set_inner_extension( const std::string& name, F& f )
       {
-         m_parser.em.inner[ name ] = internal::wrap( f );
+         m_parser.fm[ name ] = internal::wrap( f );
       }
 
       template< template< typename... > class Traits >
-      [[nodiscard]] json::basic_value< Traits > result( const schema::builtin& b = schema::builtin() )
+      [[nodiscard]] json::basic_value< Traits > result()
       {
-         return m_parser.finish< Traits >( b );
+         return m_parser.finish< Traits >();
       }
 
    protected:

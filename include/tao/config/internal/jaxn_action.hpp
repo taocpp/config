@@ -4,6 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_JAXN_ACTION_HPP
 #define TAO_CONFIG_INTERNAL_JAXN_ACTION_HPP
 
+#include <algorithm>
+#include <cstring>
 #include <string>
 #include <string_view>
 #include <utility>

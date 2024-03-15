@@ -10,6 +10,8 @@
 #include <tao/pegtl/contrib/instantiate.hpp>
 #include <tao/pegtl/contrib/predicates.hpp>
 
+#include <tao/pegtl/change_action_and_state.hpp>
+
 namespace tao::pegtl
 {
    template< typename P >
