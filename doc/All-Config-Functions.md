@@ -185,7 +185,7 @@ Note that `msgpack` is frequently combined with `read` as in `foo = (msgpack (re
 
 ## parse
 
-The `parse` value extension parses the given string as a single config value just "as if" the config file contained the string instead of the invocation of `parse`.
+The `parse` function parses the given string as a single config value just "as if" the config file contained the string instead of the invocation of `parse`.
 
 #### Example taoCONFIG Input File
 
@@ -203,8 +203,10 @@ foo = (parse "null")
 
 This can be useful when combined with [`env`](#env) for environment variables that contain numeric values as in `foo = (parse (env "MYVAR"))`.
 
-Note that the value described in the string is *not* allowed to use addition/concatenation, however references and/or other value extensions *are* allowed.
+Note that the value described in the string is *not* allowed to use addition/concatenation, however references and functions *are* allowed.
+Further, the `parse` function can **only** be used on "top-level", not inside of arguments to other functions.
 
+For example `foo = (parse (default ...))` is allowed, but `foo = (default (parse ...) ...)` is not.
 
 ## read
 
