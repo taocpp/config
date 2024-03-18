@@ -16,7 +16,7 @@
 
 namespace tao::config::internal
 {
-   [[nodiscard]] function wrap( bool ( *x )( entry& e ) )
+   [[nodiscard]] inline function wrap( bool ( *x )( entry& e ) )
    {
       return function( [ x ]( entry& e ) {
          try {
