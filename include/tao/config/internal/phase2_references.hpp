@@ -16,7 +16,6 @@
 #include "entry.hpp"
 #include "forward.hpp"
 #include "json.hpp"
-#include "json_traits.hpp"
 #include "object.hpp"
 #include "phase2_access.hpp"
 #include "phase2_guard.hpp"
@@ -58,7 +57,7 @@ namespace tao::config::internal
                   assert( d->concat.size() == 1 );
 
                   e = d->concat.front();
-                  // TODO: Call phase2_combinations( c ) to get things done quicker?
+                  // TODO: Call phase2_additions( c ) to get things done quicker?
                   ++m_changes;
                }
             }
@@ -97,16 +96,23 @@ namespace tao::config::internal
       [[nodiscard]] std::optional< key1_part > process_inner_reference( const key1& prefix, const std::vector< reference2_part >& reference )
       {
          if( const concat* c = process_reference_parts( prefix, reference ) ) {
-            if( const json_t* j = c->get_value() ) {
-               switch( j->type() ) {
-                  case json::type::STRING:
-                  case json::type::STRING_VIEW:
-                     return key1_part( j->as< std::string >(), j->position );
-                  case json::type::SIGNED:
-                  case json::type::UNSIGNED:
-                     return key1_part( j->as< std::size_t >(), j->position );
-                  default:
-                     throw pegtl::parse_error( strcat( "invalid json type '", j->type(), "' for reference part" ), j->position );
+            if( c->concat.size() == 1 ) {
+               const entry& e = c->concat.back();
+               switch( e.kind() ) {
+                  case entry_kind::STRING:
+                     return key1_part( e.get_string(), e.get_string_atom().position );
+                  case entry_kind::UNSIGNED:
+                     return key1_part( e.get_unsigned(), e.get_unsigned_atom().position );
+                  case entry_kind::NULL_:
+                  case entry_kind::BOOLEAN:
+                  case entry_kind::BINARY:
+                  case entry_kind::SIGNED:
+                  case entry_kind::DOUBLE:
+                  case entry_kind::ARRAY:
+                  case entry_kind::OBJECT:
+                  case entry_kind::ASTERISK:
+                  case entry_kind::REFERENCE:
+                     throw pegtl::parse_error( strcat( "invalid type '", e.kind(), "' for reference part" ), e.get_position() );
                }
             }
          }
@@ -116,25 +122,31 @@ namespace tao::config::internal
       [[nodiscard]] const concat* process_entry( const key1& prefix, entry& e )
       {
          switch( e.kind() ) {
-            case entry_kind::value:
+            case entry_kind::NULL_:
+            case entry_kind::BOOLEAN:
+            case entry_kind::STRING:
+            case entry_kind::BINARY:
+            case entry_kind::SIGNED:
+            case entry_kind::UNSIGNED:
+            case entry_kind::DOUBLE:
                return nullptr;
-            case entry_kind::reference:
-               return process_reference_parts( prefix, e.get_reference() );
-            case entry_kind::array: {
+            case entry_kind::ARRAY: {
                std::size_t i = 0;
                for( auto& c : e.get_array().array ) {
                   process_concat( prefix + key1_part( i++, m_root.position ), c );
                }
                return nullptr;
             }
-            case entry_kind::object:
+            case entry_kind::OBJECT:
                for( auto& p : e.get_object().object ) {
                   process_concat( prefix + key1_part( p.first, m_root.position ), p.second );
                }
                return nullptr;
-            case entry_kind::concat:
-               //               process_concat( prefix + key1_part( part_star, m_root.position ), e.get_concat() );
+            case entry_kind::ASTERISK:
+               //               process_concat( prefix + key1_part( part_asterisk, m_root.position ), e.get_concat() );
                return nullptr;
+            case entry_kind::REFERENCE:
+               return process_reference_parts( prefix, e.get_reference() );
          }
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }

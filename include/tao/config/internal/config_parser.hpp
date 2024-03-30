@@ -16,7 +16,6 @@
 #include "function_implementations.hpp"
 #include "function_wrapper.hpp"
 #include "json.hpp"
-#include "json_traits.hpp"
 #include "pegtl.hpp"
 #include "phase2_everything.hpp"
 #include "phase3_remove.hpp"
@@ -29,18 +28,18 @@ namespace tao::config::internal
    {
       config_parser()
          : fm( { { "binary", wrap( binary_function ) },
-                 { "cbor", wrap( cbor_function ) },
+                 // { "cbor", wrap( cbor_function ) },
                  { "default", wrap( default_function ) },
                  { "env", wrap( env_function ) },
                  { "env?", wrap( env_if_function ) },
                  { "jaxn", wrap( jaxn_function ) },
-                 { "json", wrap( json_function ) },
-                 { "msgpack", wrap( msgpack_function ) },
+                 // { "json", wrap( json_function ) },
+                 // { "msgpack", wrap( msgpack_function ) },
                  { "read", wrap( read_function ) },
                  { "shell", wrap( shell_function ) },
                  { "split", wrap( split_function ) },
-                 { "string", wrap( string_function ) },
-                 { "ubjson", wrap( ubjson_function ) } } )
+                 { "string", wrap( string_function ) } } )
+                 //{ "ubjson", wrap( ubjson_function ) } } )
       {}
 
       config_parser( config_parser&& ) = delete;

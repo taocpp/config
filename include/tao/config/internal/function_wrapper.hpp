@@ -11,7 +11,6 @@
 #include "forward.hpp"
 #include "function_traits.hpp"
 #include "json.hpp"
-#include "json_traits.hpp"
 #include "pegtl.hpp"
 
 namespace tao::config::internal
@@ -29,7 +28,7 @@ namespace tao::config::internal
    }
 
    template< typename R, typename A >
-   [[nodiscard]] function wrap( R ( *x )( A ) )
+   [[nodiscard]] function wrap( R ( *x )( const pegtl::position&, A ) )
    {
       static_assert( !std::is_pointer_v< R > );
       static_assert( !std::is_reference_v< R > );
@@ -38,9 +37,8 @@ namespace tao::config::internal
       return function( [ x ]( entry& e ) {
          array& f = e.get_array();
          try {
-            std::size_t i = 0;
-            decltype( auto ) a = function_traits< std::decay_t< A > >::get( f, i );
-            function_traits< std::decay_t< R > >::put( e, x( a ) );
+            decltype( auto ) a = function_traits< std::decay_t< A > >::get( f, 0 );
+            function_traits< std::decay_t< R > >::put( e, x( f.position, a ) );
          }
          catch( const arguments_unready& ) {
             return false;
@@ -50,7 +48,7 @@ namespace tao::config::internal
    }
 
    template< typename R, typename A, typename B >
-   [[nodiscard]] function wrap( R ( *x )( A, B ) )
+   [[nodiscard]] function wrap( R ( *x )( const pegtl::position&, A, B ) )
    {
       static_assert( !std::is_pointer_v< R > );
       static_assert( !std::is_reference_v< R > );
@@ -59,10 +57,9 @@ namespace tao::config::internal
       return function( [ x ]( entry& e ) {
          array& f = e.get_array();
          try {
-            std::size_t i = 0;
-            decltype( auto ) a = function_traits< std::decay_t< A > >::get( f, i );
-            decltype( auto ) b = function_traits< std::decay_t< B > >::get( f, i );
-            function_traits< std::decay_t< R > >::put( e, x( a, b ) );
+            decltype( auto ) a = function_traits< std::decay_t< A > >::get( f, 0 );
+            decltype( auto ) b = function_traits< std::decay_t< B > >::get( f, 1 );
+            function_traits< std::decay_t< R > >::put( e, x( f.position, a, b ) );
          }
          catch( const arguments_unready& ) {
             return false;

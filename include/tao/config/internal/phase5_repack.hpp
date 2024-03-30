@@ -13,8 +13,6 @@
 #include "concat.hpp"
 #include "entry.hpp"
 #include "forward.hpp"
-#include "json.hpp"
-#include "json_traits.hpp"
 #include "object.hpp"
 #include "repack_traits.hpp"
 
@@ -63,55 +61,48 @@ namespace tao::config::internal
    }
 
    template< template< typename... > class Traits >
-   void phase5_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const json_t& j )
-   {
-      switch( j.type() ) {
-         case json::type::NULL_:
-            consumer.null();
-            break;
-         case json::type::BOOLEAN:
-            consumer.boolean( j.get_boolean() );
-            break;
-         case json::type::SIGNED:
-            consumer.number( j.get_signed() );
-            break;
-         case json::type::UNSIGNED:
-            consumer.number( j.get_unsigned() );
-            break;
-         case json::type::DOUBLE:
-            consumer.number( j.get_double() );
-            break;
-         case json::type::STRING:
-            consumer.string( j.get_string() );
-            break;
-         case json::type::BINARY:
-            consumer.binary( j.get_binary() );
-            break;
-         default:
-            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-      }
-      set_key_and_position( consumer.value, k, j.position );
-   }
-
-   template< template< typename... > class Traits >
    void phase5_repack( const key& k, json::events::to_basic_value< Traits >& consumer, const entry& e )
    {
       switch( e.kind() ) {
-         case entry_kind::value:
-            phase5_repack( k, consumer, e.get_value() );
+         case entry_kind::NULL_:
+            consumer.null();
+            set_key_and_position( consumer.value, k, e.get_position() );
             return;
-         case entry_kind::reference:
-            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE -- must have been either eliminated or flagged as error earlier.
-         case entry_kind::array:
+         case entry_kind::BOOLEAN:
+            consumer.boolean( e.get_boolean() );
+            set_key_and_position( consumer.value, k, e.get_position() );
+            return;
+         case entry_kind::SIGNED:
+            consumer.number( e.get_signed() );
+            set_key_and_position( consumer.value, k, e.get_position() );
+            return;
+         case entry_kind::UNSIGNED:
+            consumer.number( e.get_unsigned() );
+            set_key_and_position( consumer.value, k, e.get_position() );
+            return;
+         case entry_kind::DOUBLE:
+            consumer.number( e.get_double() );
+            set_key_and_position( consumer.value, k, e.get_position() );
+            return;
+         case entry_kind::STRING:
+            consumer.string( e.get_string() );
+            set_key_and_position( consumer.value, k, e.get_position() );
+            return;
+         case entry_kind::BINARY:
+            consumer.binary( e.get_binary() );
+            set_key_and_position( consumer.value, k, e.get_position() );
+            return;
+         case entry_kind::ARRAY:
             if( !e.get_array().function.empty() ) {
                throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE -- must have been either eliminated or flagged as error earlier.
             }
             phase5_repack( k, consumer, e.get_array() );
             return;
-         case entry_kind::object:
+         case entry_kind::OBJECT:
             phase5_repack( k, consumer, e.get_object() );
             return;
-         case entry_kind::concat:
+         case entry_kind::ASTERISK:
+         case entry_kind::REFERENCE:
             throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE -- must have been either eliminated or flagged as error earlier.
       }
       throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE

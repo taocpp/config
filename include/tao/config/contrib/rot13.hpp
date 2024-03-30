@@ -6,13 +6,16 @@
 
 #include <string>
 
+#include "../internal/atom.hpp"
+#include "../internal/pegtl.hpp"
+
 namespace tao::config
 {
-   [[nodiscard]] std::string rot13( const std::string& in )
+   [[nodiscard]] inline internal::string_t rot13( const pegtl::position& pos, const std::string& in )
    {
-      std::string out( in );
+      internal::string_t out( in, pos );
 
-      for( char& c : out ) {
+      for( char& c : out.value ) {
          if( ( ( 'a' <= c ) && ( c <= 'm' ) ) || ( ( 'A' <= c ) && ( c <= 'M' ) ) ) {
             c += 13;
          }

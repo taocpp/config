@@ -14,7 +14,6 @@
 #include "concat.hpp"
 #include "entry.hpp"
 #include "json.hpp"
-#include "json_traits.hpp"
 #include "key1.hpp"
 #include "object.hpp"
 #include "pegtl.hpp"
@@ -114,10 +113,10 @@ namespace tao::config::internal
    };
 
    template<>
-   struct debug_traits< part_star_t >
+   struct debug_traits< part_asterisk_t >
    {
       template< template< typename... > class Traits, typename Consumer >
-      static void produce( Consumer& c, const part_star_t /*unused*/ )
+      static void produce( Consumer& c, const part_asterisk_t /*unused*/ )
       {
          c.string( "star" );
       }
@@ -138,7 +137,7 @@ namespace tao::config::internal
             case key1_kind::index:
                c.string( "index" );
                return;
-            case key1_kind::star:
+            case key1_kind::asterisk:
                c.string( "star" );
                return;
             case key1_kind::append:
@@ -239,33 +238,41 @@ namespace tao::config::internal
       static void produce( Consumer& c, const entry_kind k )
       {
          switch( k ) {
-            case entry_kind::value:
-               c.string( "value" );
+            case entry_kind::NULL_:
+               c.string( "null" );
                return;
-            case entry_kind::reference:
-               c.string( "reference" );
+            case entry_kind::BOOLEAN:
+               c.string( "boolean" );
                return;
-            case entry_kind::array:
+            case entry_kind::STRING:
+               c.string( "string" );
+               return;
+            case entry_kind::BINARY:
+               c.string( "binary" );
+               return;
+            case entry_kind::SIGNED:
+               c.string( "signed" );
+               return;
+            case entry_kind::UNSIGNED:
+               c.string( "unsigned" );
+               return;
+            case entry_kind::DOUBLE:
+               c.string( "double" );
+               return;
+            case entry_kind::ARRAY:
                c.string( "array" );
                return;
-            case entry_kind::object:
+            case entry_kind::OBJECT:
                c.string( "object" );
                return;
-            case entry_kind::concat:
+            case entry_kind::ASTERISK:
                c.string( "concat" );
+               return;
+            case entry_kind::REFERENCE:
+               c.string( "reference" );
                return;
          }
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-      }
-   };
-
-   template<>
-   struct debug_traits< json::basic_value< json_traits > >
-   {
-      template< template< typename... > class, typename Consumer >
-      static void produce( Consumer& c, const json::basic_value< json_traits >& v )
-      {
-         json::events::from_value( c, v );
       }
    };
 
@@ -276,29 +283,52 @@ namespace tao::config::internal
       static void produce( Consumer& c, const entry& v )
       {
          c.begin_object();
-         // c.key( "type" );
-         // json::events::produce< Traits >( c, v.type() );
-         // c.member();
+         c.key( "type" );
+         json::events::produce< Traits >( c, v.kind() );
+         c.member();
          switch( v.kind() ) {
-            case entry_kind::value:
-               c.key( "value" );
-               json::events::produce< Traits >( c, v.get_value() );
+            case entry_kind::NULL_:
+               c.end_object();
+               return;
+            case entry_kind::BOOLEAN:
+               c.key( "data" );
+               json::events::produce< Traits >( c, v.get_boolean() );
                break;
-            case entry_kind::reference:
-               c.key( "reference" );
-               json::events::produce< Traits >( c, v.get_reference() );
+            case entry_kind::STRING:
+               c.key( "data" );
+               json::events::produce< Traits >( c, v.get_string() );
                break;
-            case entry_kind::array:
-               c.key( "array" );
+            case entry_kind::BINARY:
+               c.key( "data" );
+               json::events::produce< Traits >( c, v.get_binary() );
+               break;
+            case entry_kind::SIGNED:
+               c.key( "data" );
+               json::events::produce< Traits >( c, v.get_signed() );
+               break;
+            case entry_kind::UNSIGNED:
+               c.key( "data" );
+               json::events::produce< Traits >( c, v.get_unsigned() );
+               break;
+            case entry_kind::DOUBLE:
+               c.key( "data" );
+               json::events::produce< Traits >( c, v.get_double() );
+               break;
+            case entry_kind::ARRAY:
+               c.key( "data" );
                json::events::produce< Traits >( c, v.get_array() );
                break;
-            case entry_kind::object:
-               c.key( "object" );
+            case entry_kind::OBJECT:
+               c.key( "data" );
                json::events::produce< Traits >( c, v.get_object() );
                break;
-            case entry_kind::concat:
-               c.key( "concat" );
-               json::events::produce< Traits >( c, v.get_concat() );
+            case entry_kind::ASTERISK:
+               c.key( "data" );
+               json::events::produce< Traits >( c, v.get_asterisk() );
+               break;
+            case entry_kind::REFERENCE:
+               c.key( "data" );
+               json::events::produce< Traits >( c, v.get_reference() );
                break;
          }
          c.member();

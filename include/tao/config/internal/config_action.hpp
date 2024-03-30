@@ -48,7 +48,7 @@ namespace tao::config::internal
       static void apply( Input& in, State& st, const function_map& /*unused*/ )
       {
          const auto p = in.position();
-         const auto f = [ & ]( concat& c ) { c.back_ensure_kind( entry_kind::array, p ); };
+         const auto f = [ & ]( concat& c ) { c.back_ensure_init( array_init, p ); };
          phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::manifest );
       }
    };
@@ -60,7 +60,7 @@ namespace tao::config::internal
       static void apply( Input& in, State& st, const function_map& /*unused*/ )
       {
          const auto p = in.position();
-         const auto f = [ & ]( concat& c ) { c.back_ensure_kind( entry_kind::object, p ); };
+         const auto f = [ & ]( concat& c ) { c.back_ensure_init( object_init, p ); };
          phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::manifest );
       }
    };

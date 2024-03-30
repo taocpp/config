@@ -47,7 +47,7 @@ namespace tao::config::internal
       template< typename Input >
       static void apply( const Input& in, std::vector< key1_part >& st )
       {
-         st.emplace_back( part_star, in.position() );
+         st.emplace_back( part_asterisk, in.position() );
       }
    };
 

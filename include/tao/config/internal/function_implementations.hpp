@@ -9,25 +9,26 @@
 #include <utility>
 #include <vector>
 
+#include "entry.hpp"
 #include "forward.hpp"
 #include "jaxn_action.hpp"
+#include "jaxn_to_entry.hpp"
 #include "json.hpp"
-#include "json_traits.hpp"
 #include "pegtl.hpp"
 #include "system_utility.hpp"
 
 namespace tao::config::internal
 {
-   [[nodiscard]] inline std::vector< std::byte > binary_function( const std::string& s )
+   [[nodiscard]] inline binary_t binary_function( const pegtl::position& p, const std::string& s )
    {
-      const auto* const p = reinterpret_cast< const std::byte* >( s.data() );
-      return std::vector< std::byte >( p, p + s.size() );
+      const auto* const d = reinterpret_cast< const std::byte* >( s.data() );
+      return binary_t( std::vector< std::byte >( d, d + s.size() ), p );
    }
 
-   [[nodiscard]] inline json_t cbor_function( const tao::binary_view bv )
-   {
-      return json::cbor::basic_from_binary< json_traits >( bv );  // TODO: Positions.
-   }
+   // [[nodiscard]] inline json_t cbor_function( const std::vector< std::byte >& bv )
+   // {
+   //    return json::cbor::basic_from_binary< json_traits >( bv );  // TODO: Positions.
+   // }
 
    [[nodiscard]] inline bool default_function( entry& e )
    {
@@ -42,21 +43,25 @@ namespace tao::config::internal
          entry& f = c.concat.front();
 
          switch( f.kind() ) {
-            case entry_kind::value:
-               if( f.get_value().is_null() ) {
-                  continue;
-               }
+            case entry_kind::NULL_:
+               continue;
+            case entry_kind::STRING:
+            case entry_kind::BINARY:
+            case entry_kind::BOOLEAN:
+            case entry_kind::SIGNED:
+            case entry_kind::UNSIGNED:
+            case entry_kind::DOUBLE:
                break;
-            case entry_kind::reference:
-               return false;
-            case entry_kind::array:
+            case entry_kind::ARRAY:
                if( !f.get_array().function.empty() ) {
                   return false;
                }
                break;
-            case entry_kind::object:
+            case entry_kind::OBJECT:
                break;
-            case entry_kind::concat:
+            case entry_kind::ASTERISK:
+               return false;
+            case entry_kind::REFERENCE:
                return false;
          }
          // Both f and a are sub-objects of e.
@@ -67,48 +72,48 @@ namespace tao::config::internal
       throw pegtl::parse_error( "default function requires at least one non-null argument", a.position );
    }
 
-   [[nodiscard]] inline std::string env_function( const pegtl::position& p, const std::string& s )
+   [[nodiscard]] inline string_t env_function( const pegtl::position& p, const std::string& s )
    {
-      return getenv_throws( p, s );
+      return string_t( getenv_throws( p, s ), p );
    }
 
-   [[nodiscard]] inline std::string env_if_function( const std::string& s, const std::string& d )
+   [[nodiscard]] inline string_t env_if_function( const pegtl::position& p, const std::string& s, const std::string& d )
    {
       const auto r = getenv_nothrow( s );
-      return r ? ( *r ) : d;
+      return string_t( r ? ( *r ) : d, p );
    }
 
-   [[nodiscard]] inline json_t jaxn_function( const pegtl::position& p, const std::string& s )
+   [[nodiscard]] inline entry jaxn_function( const pegtl::position& /*unused*/, const std::string& s )
    {
-      json_to_value consumer( p );
+      jaxn_to_entry consumer;
       pegtl::memory_input in( s, "TODO" );
       pegtl::parse< json::jaxn::internal::grammar, jaxn_action, json::jaxn::internal::errors >( static_cast< pegtl_input_t& >( in ), consumer );
-      return std::move( consumer.value );
+      return std::move( consumer.value ).value();
    }
 
-   [[nodiscard]] inline json_t json_function( const std::string& s )
-   {
-      return json::basic_from_string< json_traits >( s );  // TODO: Positions.
-   }
+   // [[nodiscard]] inline json_t json_function( const std::string& s )
+   // {
+   //    return json::basic_from_string< json_traits >( s );  // TODO: Positions.
+   // }
 
-   [[nodiscard]] inline json_t msgpack_function( const tao::binary_view bv )
-   {
-      return json::msgpack::basic_from_binary< json_traits >( bv );  // TODO: Positions.
-   }
+   // [[nodiscard]] inline json_t msgpack_function( const std::vector< std::byte >& bv )
+   // {
+   //    return json::msgpack::basic_from_binary< json_traits >( bv );  // TODO: Positions.
+   // }
 
-   [[nodiscard]] inline std::vector< std::byte > read_function( const std::string& filename )
+   [[nodiscard]] inline binary_t read_function( const pegtl::position& p, const std::string& filename )
    {
       const std::string d = read_file_throws( filename );
-      const std::byte* p = reinterpret_cast< const std::byte* >( d.data() );
-      return std::vector< std::byte >( p, p + d.size() );
+      const std::byte* x = reinterpret_cast< const std::byte* >( d.data() );
+      return binary_t( std::vector< std::byte >( x, x + d.size() ), p );
    }
 
-   [[nodiscard]] inline std::string shell_function( const pegtl::position& p, [[maybe_unused]] const std::string& script )
+   [[nodiscard]] inline string_t shell_function( const pegtl::position& p, [[maybe_unused]] const std::string& script )
    {
 #if defined( _MSC_VER )
       throw pegtl::parse_error( "shell extension not supported on this platform", p );
 #else
-      return shell_popen_throws( p, script );
+      return string_t( shell_popen_throws( p, script ), p );
 #endif
    }
 
@@ -127,32 +132,33 @@ namespace tao::config::internal
    struct split_action< split_string >
    {
       template< typename Input >
-      static void apply( const Input& in, std::vector< std::string >& result )
+      static void apply( const Input& in, entry& result, const pegtl::position& p )
       {
-         result.emplace_back( in.string() );
+         concat& c = result.get_array().array.emplace_back( p );
+         c.concat.emplace_back( string_t( in.string(), in.position() ) );
       }
    };
 
-   [[nodiscard]] inline std::vector< std::string > split_function( const pegtl::position& p, const std::string& s )
+   [[nodiscard]] inline entry split_function( const pegtl::position& p, const std::string& s )
    {
-      std::vector< std::string > result;
+      entry result( array_init, p );
       pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl_input_t::eol_t, const char* > in( s, __FUNCTION__ );
-      pegtl::parse_nested< split_rule, split_action >( p, in, result );
+      pegtl::parse_nested< split_rule, split_action >( p, in, result, p );
       return result;
    }
 
-   [[nodiscard]] inline std::string string_function( const pegtl::position& p, const tao::binary_view bv )
+   [[nodiscard]] inline string_t string_function( const pegtl::position& p, const std::vector< std::byte >& bv )
    {
       if( !json::internal::validate_utf8_nothrow( std::string_view( reinterpret_cast< const char* >( bv.data() ), bv.size() ) ) ) {
          throw pegtl::parse_error( "invalid utf8 in binary data", p );
       }
-      return std::string( reinterpret_cast< const char* >( bv.data() ), bv.size() );
+      return string_t( std::string( reinterpret_cast< const char* >( bv.data() ), bv.size() ), p );
    }
 
-   [[nodiscard]] inline json_t ubjson_function( const tao::binary_view bv )
-   {
-      return json::ubjson::basic_from_binary< json_traits >( bv );  // TODO: Positions.
-   }
+   // [[nodiscard]] inline json_t ubjson_function( const std::vector< std::byte >& bv )
+   // {
+   //    return json::ubjson::basic_from_binary< json_traits >( bv );  // TODO: Positions.
+   // }
 
 }  // namespace tao::config::internal
 

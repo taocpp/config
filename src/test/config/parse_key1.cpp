@@ -17,7 +17,7 @@ namespace tao::config
       TAO_CONFIG_TEST_ASSERT( k[ 1 ].get_name() == "bar" );
       TAO_CONFIG_TEST_ASSERT( k[ 2 ].kind() == internal::key1_kind::index );
       TAO_CONFIG_TEST_ASSERT( k[ 2 ].get_index() == 42 );
-      TAO_CONFIG_TEST_ASSERT( k[ 3 ].kind() == internal::key1_kind::star );
+      TAO_CONFIG_TEST_ASSERT( k[ 3 ].kind() == internal::key1_kind::asterisk );
 
       TAO_CONFIG_TEST_THROWS( internal::key1( "foo.-" ) );
    }

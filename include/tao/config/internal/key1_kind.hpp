@@ -10,7 +10,7 @@ namespace tao::config::internal
    {
       name = 0,
       index = 1,
-      star = 2,
+      asterisk = 2,
       append = 3
    };
 

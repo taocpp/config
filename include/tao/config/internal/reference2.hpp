@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_REFERENCE2_HPP
 #define TAO_CONFIG_INTERNAL_REFERENCE2_HPP
 
+#include <cassert>
 #include <initializer_list>
 #include <string>
 #include <vector>
@@ -73,6 +74,12 @@ namespace tao::config::internal
          using grammar = pegtl::must< rules::reference2_rule, pegtl::eof >;
          pegtl::memory_input< pegtl::tracking_mode::lazy, pegtl::eol::lf_crlf, const char* > in( s, __FUNCTION__ );
          pegtl::parse< grammar, reference2_action >( in, vector() );
+      }
+
+      [[nodiscard]] const pegtl::position& get_position() const noexcept
+      {
+         assert( !vector().empty() );
+         return vector()[ 0 ].position;
       }
    };
 

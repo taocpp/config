@@ -5,6 +5,8 @@
 #define TAO_CONFIG_INTERNAL_CONFIG_GRAMMAR_HPP
 
 #include "forward.hpp"
+#include "jaxn_action.hpp"
+#include "jaxn_to_entry.hpp"
 #include "json.hpp"
 #include "key1_grammar.hpp"
 #include "key1_guard.hpp"
@@ -29,8 +31,10 @@ namespace tao::config::internal::rules
                 typename State >
       [[nodiscard]] static bool match( pegtl_input_t& in, State& st, const function_map& /*unused*/ )
       {
-         const auto j = parse_jaxn( in );
-         const auto f = [ & ]( concat& c ) { c.concat.emplace_back( j ); };
+         jaxn_to_entry consumer;
+         pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_single_value >, jaxn_action, json::jaxn::internal::errors >( in, consumer );
+         // assert( consumer.value.has_value() );
+         const auto f = [ &e = *consumer.value ]( concat& c ) { c.concat.emplace_back( std::move( e ) ); };
          phase1_append( st.root, st.prefix + st.suffix, f, phase1_mode::manifest );
          return true;
       }

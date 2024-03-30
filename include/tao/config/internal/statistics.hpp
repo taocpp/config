@@ -31,21 +31,29 @@ namespace tao::config::internal
       void count( const entry& e )
       {
          switch( e.kind() ) {
-            case entry_kind::value:
+            case entry_kind::NULL_:
+               ++m_nulls;
+               return;
+            case entry_kind::BOOLEAN:
+            case entry_kind::STRING:
+            case entry_kind::BINARY:
+            case entry_kind::SIGNED:
+            case entry_kind::UNSIGNED:
+            case entry_kind::DOUBLE:
                ++m_atoms;
                return;
-            case entry_kind::reference:
-               ++m_references;
-               return;
-            case entry_kind::array:
+            case entry_kind::ARRAY:
                count( e.get_array() );
                return;
-            case entry_kind::object:
+            case entry_kind::OBJECT:
                count( e.get_object() );
                return;
-            case entry_kind::concat:
+            case entry_kind::ASTERISK:
                ++m_asterisks;
-               count( e.get_concat() );
+               count( e.get_asterisk() );
+               return;
+            case entry_kind::REFERENCE:
+               ++m_references;
                return;
          }
          std::abort();  // LCOV_EXCL_LINE

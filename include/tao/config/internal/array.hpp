@@ -36,6 +36,11 @@ namespace tao::config::internal
       basic_array& operator=( basic_array&& ) = default;
       basic_array& operator=( const basic_array& ) = default;
 
+      [[nodiscard]] const pegtl::position& get_position() const noexcept
+      {
+         return position;
+      }
+
       std::string function;
       std::list< C > array;
       pegtl::position position;

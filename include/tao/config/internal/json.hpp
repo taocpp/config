@@ -11,15 +11,6 @@
 
 #include "pegtl.hpp"
 
-namespace tao::config::internal
-{
-   template< typename T >
-   struct json_traits;
-
-   using json_t = tao::json::basic_value< json_traits >;
-
-}  // namespace tao::config::internal
-
 namespace tao::config::internal::rules
 {
    namespace jaxn = tao::json::jaxn::internal::rules;

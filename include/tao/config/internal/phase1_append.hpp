@@ -18,7 +18,6 @@
 #include "constants.hpp"
 #include "entry.hpp"
 #include "json.hpp"
-#include "json_traits.hpp"
 #include "key1.hpp"
 #include "limits.hpp"
 #include "object.hpp"
@@ -31,16 +30,16 @@ namespace tao::config::internal
    void phase1_append( concat& c, const key1& path, const T& thing, const phase1_mode mode );
 
    template< typename T >
-   void phase1_append_star( concat& c, const pegtl::position& p, const key1& path, const T& thing, const phase1_mode mode )
+   void phase1_append_asterisk( concat& c, const pegtl::position& p, const key1& path, const T& thing, const phase1_mode mode )
    {
-      c.back_ensure_kind( entry_kind::concat, p );
-      phase1_append( c.concat.back().get_concat(), path, thing, mode );
+      c.back_ensure_init( asterisk_init, p );
+      phase1_append( c.concat.back().get_asterisk(), path, thing, mode );
    }
 
    template< typename T >
    void phase1_append_name( concat& c, const pegtl::position& p, const std::string& name, const key1& path, const T& thing, const phase1_mode mode )
    {
-      c.back_ensure_kind( entry_kind::object, p );
+      c.back_ensure_init( object_init, p );
       const auto pair = c.concat.back().get_object().object.try_emplace( name, p );
       pair.first->second.implicit = ( mode == phase1_mode::implicit ) && ( pair.second || pair.first->second.implicit );
       phase1_append( pair.first->second, path, thing, mode );
@@ -53,21 +52,27 @@ namespace tao::config::internal
 
       for( auto& e : c.concat ) {
          switch( e.kind() ) {
-            case entry_kind::value:
+            case entry_kind::NULL_:
+            case entry_kind::BOOLEAN:
+            case entry_kind::STRING:
+            case entry_kind::BINARY:
+            case entry_kind::SIGNED:
+            case entry_kind::UNSIGNED:
+            case entry_kind::DOUBLE:
                throw pegtl::parse_error( "cannot index (across) value", p );
-            case entry_kind::reference:
-               throw pegtl::parse_error( "cannot index (across) reference", p );
-            case entry_kind::array:
+            case entry_kind::ARRAY:
                if( e.get_array().array.size() > n ) {
                   phase1_append( *std::next( e.get_array().array.begin(), n ), path, thing, mode );
                   return;
                }
                n -= e.get_array().array.size();
                continue;
-            case entry_kind::object:
+            case entry_kind::OBJECT:
                throw pegtl::parse_error( "cannot index (across) object", p );
-            case entry_kind::concat:
+            case entry_kind::ASTERISK:
                throw pegtl::parse_error( "cannot index (across) star", p );
+            case entry_kind::REFERENCE:
+               throw pegtl::parse_error( "cannot index (across) reference", p );
          }
       }
       throw pegtl::parse_error( "index out of range", p );
@@ -76,7 +81,7 @@ namespace tao::config::internal
    template< typename T >
    void phase1_append_append( concat& c, const pegtl::position& p, const std::uint64_t g, const key1& path, const T& thing, const phase1_mode mode )
    {
-      c.back_ensure_kind( entry_kind::array, p );
+      c.back_ensure_init( array_init, p );
       auto& a = c.concat.back().get_array();
       if( g > c.generation ) {
          c.generation = g;
@@ -99,8 +104,8 @@ namespace tao::config::internal
       const auto& part = path.at( 0 );
 
       switch( part.kind() ) {
-         case key1_kind::star:
-            phase1_append_star( c, part.position, pop_front( path ), thing, mode );
+         case key1_kind::asterisk:
+            phase1_append_asterisk( c, part.position, pop_front( path ), thing, mode );
             return;
          case key1_kind::name:
             phase1_append_name( c, part.position, part.get_name(), pop_front( path ), thing, mode );

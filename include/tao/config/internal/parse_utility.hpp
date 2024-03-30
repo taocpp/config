@@ -7,10 +7,6 @@
 #include <utility>
 
 #include "forward.hpp"
-#include "jaxn_action.hpp"
-#include "json.hpp"
-#include "json_to_value.hpp"
-#include "json_traits.hpp"
 #include "key1.hpp"
 #include "key1_action.hpp"
 #include "key1_grammar.hpp"
@@ -33,13 +29,6 @@ namespace tao::config::internal
       reference2 result;
       pegtl::parse< pegtl::must< rules::reference2_rest >, reference2_action >( in, result.vector() );  // NOTE: Assumes that the opening bracket was already parsed!
       return result;
-   }
-
-   [[nodiscard]] inline json_t parse_jaxn( pegtl_input_t& in )
-   {
-      json_to_value consumer( in.position() );
-      pegtl::parse< pegtl::must< json::jaxn::internal::rules::sor_single_value >, jaxn_action, json::jaxn::internal::errors >( in, consumer );
-      return std::move( consumer.value );
    }
 
 }  // namespace tao::config::internal

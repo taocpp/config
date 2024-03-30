@@ -15,7 +15,6 @@
 #include "entry.hpp"
 #include "forward.hpp"
 #include "json.hpp"
-#include "json_traits.hpp"
 #include "object.hpp"
 
 namespace tao::config::internal
@@ -50,13 +49,16 @@ namespace tao::config::internal
       void process_entry( concat& c, std::list< entry >::iterator& i )
       {
          switch( i->kind() ) {
-            case entry_kind::value:
+            case entry_kind::NULL_:
+            case entry_kind::BOOLEAN:
+            case entry_kind::STRING:
+            case entry_kind::BINARY:
+            case entry_kind::SIGNED:
+            case entry_kind::DOUBLE:
+            case entry_kind::UNSIGNED:
                ++i;
                return;
-            case entry_kind::reference:
-               ++i;
-               return;
-            case entry_kind::array:
+            case entry_kind::ARRAY:
                if( c.concat.size() == 1 ) {
                   for( concat& d : i->get_array().array ) {
                      process_concat( d );
@@ -64,7 +66,7 @@ namespace tao::config::internal
                }
                ++i;
                return;
-            case entry_kind::object:
+            case entry_kind::OBJECT:
                if( c.concat.size() == 1 ) {
                   for( auto& p : i->get_object().object ) {
                      process_concat( p.second );
@@ -72,8 +74,11 @@ namespace tao::config::internal
                }
                ++i;
                return;
-            case entry_kind::concat:
+            case entry_kind::ASTERISK:
                process_concat_entry( c, i );
+               return;
+            case entry_kind::REFERENCE:
+               ++i;
                return;
          }
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
@@ -81,49 +86,59 @@ namespace tao::config::internal
 
       void process_concat_entry( concat& c, std::list< entry >::iterator& i )
       {
-         const concat star = std::move( i->get_concat() );
+         const concat star = std::move( i->get_asterisk() );
 
          std::set< std::string > names;
 
          for( auto j = c.concat.begin(); j != i; ++j ) {
             switch( j->kind() ) {
-               case entry_kind::value:
+               case entry_kind::NULL_:
+               case entry_kind::BOOLEAN:
+               case entry_kind::STRING:
+               case entry_kind::BINARY:
+               case entry_kind::SIGNED:
+               case entry_kind::UNSIGNED:
+               case entry_kind::DOUBLE:
                   continue;
-               case entry_kind::reference:
-                  continue;
-               case entry_kind::array:
+               case entry_kind::ARRAY:
                   if( !j->get_array().function.empty() ) {
                      throw pegtl::parse_error( "please do not use a star inside of a function", j->get_array().position );
                   }
                   process_array_concat_entry( j->get_array(), star );
                   continue;
-               case entry_kind::object:
+               case entry_kind::OBJECT:
                   for( const auto& p : j->get_object().object ) {
                      names.emplace( p.first );
                   }
                   continue;
-               case entry_kind::concat:
+               case entry_kind::ASTERISK:
+               case entry_kind::REFERENCE:
                   continue;
             }
          }
          for( auto j = i; j != c.concat.end(); ++j ) {
             switch( j->kind() ) {
-               case entry_kind::value:
+               case entry_kind::NULL_:
+               case entry_kind::BOOLEAN:
+               case entry_kind::STRING:
+               case entry_kind::BINARY:
+               case entry_kind::SIGNED:
+               case entry_kind::UNSIGNED:
+               case entry_kind::DOUBLE:
                   continue;
-               case entry_kind::reference:
-                  continue;
-               case entry_kind::array:
+               case entry_kind::ARRAY:
                   if( !j->get_array().function.empty() ) {
                      throw pegtl::parse_error( "please do not use a star inside of a function", j->get_array().position );
                   }
                   process_concat_entry_array( star, j->get_array() );
                   continue;
-               case entry_kind::object:
+               case entry_kind::OBJECT:
                   for( const auto& p : j->get_object().object ) {
                      names.emplace( p.first );
                   }
                   continue;
-               case entry_kind::concat:
+               case entry_kind::ASTERISK:
+               case entry_kind::REFERENCE:
                   continue;
             }
          }

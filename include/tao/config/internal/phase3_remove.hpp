@@ -23,15 +23,27 @@ namespace tao::config::internal
    [[nodiscard]] inline std::string phase3_partial_type( const entry& e )
    {
       switch( e.kind() ) {
-         case entry_kind::value:
-            return std::string( json::to_string( e.get_value().type() ) );
-         case entry_kind::reference:
-            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-         case entry_kind::array:
+         case entry_kind::NULL_:
+            return "null";
+         case entry_kind::BOOLEAN:
+            return "boolean";
+         case entry_kind::STRING:
+            return "string";
+         case entry_kind::BINARY:
+            return "binary";
+         case entry_kind::SIGNED:
+            return "signed";
+         case entry_kind::UNSIGNED:
+            return "unsigned";
+         case entry_kind::DOUBLE:
+            return "double";
+         case entry_kind::ARRAY:
             return "array";
-         case entry_kind::object:
+         case entry_kind::OBJECT:
             return "object";
-         case entry_kind::concat:
+         case entry_kind::ASTERISK:
+            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
+         case entry_kind::REFERENCE:
             throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
       throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
@@ -40,15 +52,19 @@ namespace tao::config::internal
    [[nodiscard]] inline pegtl::position phase3_partial_position( const entry& e )
    {
       switch( e.kind() ) {
-         case entry_kind::value:
-            return e.get_value().position;
-         case entry_kind::reference:
+         case entry_kind::NULL_:
+         case entry_kind::BOOLEAN:
+         case entry_kind::STRING:
+         case entry_kind::BINARY:
+         case entry_kind::SIGNED:
+         case entry_kind::UNSIGNED:
+         case entry_kind::DOUBLE:
+         case entry_kind::ARRAY:
+         case entry_kind::OBJECT:
+            return e.get_position();
+         case entry_kind::ASTERISK:
             throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-         case entry_kind::array:
-            return e.get_array().position;
-         case entry_kind::object:
-            return e.get_object().position;
-         case entry_kind::concat:
+         case entry_kind::REFERENCE:
             throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
       throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
@@ -58,21 +74,27 @@ namespace tao::config::internal
    {
       for( auto& e : c.concat ) {
          switch( e.kind() ) {
-            case entry_kind::value:
+            case entry_kind::NULL_:
+            case entry_kind::BOOLEAN:
+            case entry_kind::STRING:
+            case entry_kind::BINARY:
+            case entry_kind::SIGNED:
+            case entry_kind::UNSIGNED:
+            case entry_kind::DOUBLE:
                continue;
-            case entry_kind::reference:
-               throw pegtl::parse_error( "unresolved reference '" + e.get_reference().to_string() + '\'', e.get_reference().at( 0 ).position );
-            case entry_kind::array:
+            case entry_kind::ARRAY:
                if( !e.get_array().function.empty() ) {
                   throw pegtl::parse_error( "unresolved function '" + e.get_array().function + '\'', e.get_array().position );
                }
                phase3_remove( e.get_array() );
                continue;
-            case entry_kind::object:
+            case entry_kind::OBJECT:
                phase3_remove( e.get_object() );
                continue;
-            case entry_kind::concat:
-               throw pegtl::parse_error( "unresolved star", e.get_concat().position );  // Can happen when there are also unresolved references.
+            case entry_kind::ASTERISK:
+               throw pegtl::parse_error( "unresolved star", e.get_asterisk().position );  // Can happen when there are also unresolved references.
+            case entry_kind::REFERENCE:
+               throw pegtl::parse_error( "unresolved reference '" + e.get_reference().to_string() + '\'', e.get_reference().at( 0 ).position );
          }
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }

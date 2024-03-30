@@ -44,6 +44,11 @@ namespace tao::config::internal
          return ( i == object.end() ) ? nullptr : ( &*i );
       }
 
+      [[nodiscard]] const pegtl::position& get_position() const noexcept
+      {
+         return position;
+      }
+
       std::map< std::string, C > object;
       pegtl::position position;
    };

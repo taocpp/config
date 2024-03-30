@@ -6,7 +6,7 @@
 
 #include "forward.hpp"
 #include "phase2_asterisks.hpp"
-#include "phase2_combinations.hpp"
+#include "phase2_additions.hpp"
 #include "phase2_functions.hpp"
 #include "phase2_references.hpp"
 #include "state.hpp"
@@ -15,7 +15,7 @@ namespace tao::config::internal
 {
    [[nodiscard]] inline bool phase2_iteration( state& st, const function_map& fm )
    {
-      return ( phase2_functions( st, fm ) + phase2_combinations( st.root ) + phase2_references( st.root ) + phase2_asterisks( st.root ) ) > 0;
+      return ( phase2_functions( st, fm ) + phase2_additions( st.root ) + phase2_references( st.root ) + phase2_asterisks( st.root ) ) > 0;
    }
 
    inline void phase2_everything( state& st, const function_map& fm )

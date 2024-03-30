@@ -51,11 +51,15 @@ namespace tao::config::internal
       void process_entry( entry& e )
       {
          switch( e.kind() ) {
-            case entry_kind::value:
+            case entry_kind::NULL_:
+            case entry_kind::BOOLEAN:
+            case entry_kind::STRING:
+            case entry_kind::BINARY:
+            case entry_kind::SIGNED:
+            case entry_kind::UNSIGNED:
+            case entry_kind::DOUBLE:
                return;
-            case entry_kind::reference:
-               return;
-            case entry_kind::array:
+            case entry_kind::ARRAY:
                for( auto& c : e.get_array().array ) {
                   process_concat( c );
                }
@@ -63,12 +67,13 @@ namespace tao::config::internal
                   process_function( e );
                }
                return;
-            case entry_kind::object:
+            case entry_kind::OBJECT:
                for( auto& p : e.get_object().object ) {
                   process_concat( p.second );
                }
                return;
-            case entry_kind::concat:
+            case entry_kind::ASTERISK:
+            case entry_kind::REFERENCE:
                return;
          }
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE

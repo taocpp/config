@@ -38,16 +38,20 @@ namespace tao::config::internal
       }
       const auto& e = c.concat.front();
       switch( e.kind() ) {
-         case entry_kind::value:
+         case entry_kind::NULL_:
+         case entry_kind::BOOLEAN:
+         case entry_kind::STRING:
+         case entry_kind::BINARY:
+         case entry_kind::SIGNED:
+         case entry_kind::UNSIGNED:
+         case entry_kind::DOUBLE:
             throw pegtl::parse_error( "access name in value", p );  // TODO: Add c.position to the exception, too?
-         case entry_kind::reference:
-            throw phase2_access_return();
-         case entry_kind::array:
+         case entry_kind::ARRAY:
             if( down >= 0 ) {
                return nullptr;
             }
             throw pegtl::parse_error( "access name in array", p );
-         case entry_kind::object:
+         case entry_kind::OBJECT:
             if( const auto i = e.get_object().object.find( name ); i != e.get_object().object.end() ) {
                return phase2_access( i->second, suffix, down - 1 );
             }
@@ -55,11 +59,13 @@ namespace tao::config::internal
                return nullptr;
             }
             throw pegtl::parse_error( "name not found", p );
-         case entry_kind::concat:
+         case entry_kind::ASTERISK:
             if( down >= 0 ) {
                return nullptr;
             }
             throw pegtl::parse_error( "name not found", p );
+         case entry_kind::REFERENCE:
+            throw phase2_access_return();
       }
       throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
@@ -77,11 +83,15 @@ namespace tao::config::internal
       }
       const auto& e = c.concat.front();
       switch( e.kind() ) {
-         case entry_kind::value:
+         case entry_kind::NULL_:
+         case entry_kind::BOOLEAN:
+         case entry_kind::STRING:
+         case entry_kind::BINARY:
+         case entry_kind::SIGNED:
+         case entry_kind::UNSIGNED:
+         case entry_kind::DOUBLE:
             throw pegtl::parse_error( "cannot index (across) value", p );
-         case entry_kind::reference:
-            throw pegtl::parse_error( "cannot index (across) reference", p );
-         case entry_kind::array:
+         case entry_kind::ARRAY:
             if( e.get_array().array.size() > index ) {
                return phase2_access( *std::next( e.get_array().array.begin(), index ), suffix, down - 1 );
             }
@@ -89,13 +99,15 @@ namespace tao::config::internal
                return nullptr;
             }
             throw pegtl::parse_error( "index out of range", p );
-         case entry_kind::object:
+         case entry_kind::OBJECT:
             throw pegtl::parse_error( "cannot index (across) object", p );
-         case entry_kind::concat:
+         case entry_kind::ASTERISK:
             if( down >= 0 ) {
                return nullptr;
             }
             throw pegtl::parse_error( "cannot index (across) star", p );
+         case entry_kind::REFERENCE:
+            throw pegtl::parse_error( "cannot index (across) reference", p );
       }
       throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
    }
@@ -103,7 +115,7 @@ namespace tao::config::internal
    [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1_part& p, const key1& suffix, const int down )
    {
       switch( p.kind() ) {
-         case key1_kind::star:
+         case key1_kind::asterisk:
             throw pegtl::parse_error( "unable to access star", p.position );
          case key1_kind::name:
             return phase2_access_name( c, p.position, p.get_name(), suffix, down );

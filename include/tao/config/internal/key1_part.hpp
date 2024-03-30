@@ -19,9 +19,9 @@ namespace tao::config::internal
 {
    struct key1_part
    {
-      using data_t = std::variant< std::string, std::size_t, part_star_t, std::shared_ptr< std::uint64_t > >;
+      using data_t = std::variant< std::string, std::size_t, part_asterisk_t, std::shared_ptr< std::uint64_t > >;
 
-      key1_part( const part_star_t t, const pegtl::position& p )
+      key1_part( const part_asterisk_t t, const pegtl::position& p )
          : position( p ),
            data( t )
       {}
