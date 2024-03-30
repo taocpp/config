@@ -1,18 +1,18 @@
 # All Config Functions
 
  * [binary](#binary)
- * [cbor](#cbor)
+ * [~~cbor~~](#cbor)
  * [default](#default)
  * [env](#env)
  * [jaxn](#jaxn)
- * [json](#json)
- * [msgpack](#msgpack)
+ * [~~json~~](#json)
+ * [~~msgpack~~](#msgpack)
  * [parse](#parse)
  * [read](#read)
  * [shell](#shell)
  * [split](#split)
  * [string](#string)
- * [ubjson](#ubjson)
+ * [~~ubjson~~](#ubjson)
 
 This page is the reference documentation for all included config functions.
 
@@ -39,7 +39,7 @@ foo = (binary "Hello, world!")
 ```
 
 
-## cbor
+## ~~cbor~~
 
 The `cbor` function parses binary data as [CBOR] and returns the resulting value.
 
@@ -134,7 +134,7 @@ foo = (jaxn '[Infinity, $ff]')
 Note that `jaxn` is frequently combined with `read` as in `foo = (jaxn (read "filename.jaxn"))`.
 
 
-## json
+## ~~json~~
 
 The `json` function parses string (or binary) data as [JSON] and returns the resulting value.
 In the case of binary data the input is automatically converted to a string, including a check for valid UTF-8.
@@ -159,7 +159,7 @@ foo = (json '["a","b"]')
 Note that `json` is frequently combined with `read` as in `foo = (json (read "filename.json"))`.
 
 
-## msgpack
+## ~~msgpack~~
 
 The `msgpack` value extension parses binary data as [MsgPack] and returns the resulting value.
 
@@ -303,7 +303,7 @@ Note that the conversion from `binary` to `string` is automatic when the binary 
 The automatic conversion, too, checks whether the binary data is a valid UTF-8 sequence and throws an exception if that is not the case.
 
 
-## ubjson
+## ~~ubjson~~
 
 The `ubjson` value function parses binary data as [UBJSON] and returns the resulting value.
 
