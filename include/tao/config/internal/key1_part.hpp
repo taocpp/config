@@ -5,8 +5,8 @@
 #define TAO_CONFIG_INTERNAL_KEY1_PART_HPP
 
 #include <cassert>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <variant>

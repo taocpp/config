@@ -42,7 +42,7 @@ namespace tao::config::internal
    };
 
    template<>
-   struct key1_action< rules::star >
+   struct key1_action< rules::asterisk >
    {
       template< typename Input >
       static void apply( const Input& in, std::vector< key1_part >& st )

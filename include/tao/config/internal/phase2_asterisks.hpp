@@ -102,7 +102,7 @@ namespace tao::config::internal
                   continue;
                case entry_kind::ARRAY:
                   if( !j->get_array().function.empty() ) {
-                     throw pegtl::parse_error( "please do not use a star inside of a function", j->get_array().position );
+                     throw pegtl::parse_error( "please do not use an asterisk inside of a function", j->get_array().position );
                   }
                   process_array_concat_entry( j->get_array(), star );
                   continue;
@@ -128,7 +128,7 @@ namespace tao::config::internal
                   continue;
                case entry_kind::ARRAY:
                   if( !j->get_array().function.empty() ) {
-                     throw pegtl::parse_error( "please do not use a star inside of a function", j->get_array().position );
+                     throw pegtl::parse_error( "please do not use an asterisk inside of a function", j->get_array().position );
                   }
                   process_concat_entry_array( star, j->get_array() );
                   continue;

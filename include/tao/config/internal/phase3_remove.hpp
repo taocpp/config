@@ -92,7 +92,7 @@ namespace tao::config::internal
                phase3_remove( e.get_object() );
                continue;
             case entry_kind::ASTERISK:
-               throw pegtl::parse_error( "unresolved star", e.get_asterisk().position );  // Can happen when there are also unresolved references.
+               throw pegtl::parse_error( "unresolved asterisk", e.get_asterisk().position );  // Can happen when there are also unresolved references.
             case entry_kind::REFERENCE:
                throw pegtl::parse_error( "unresolved reference '" + e.get_reference().to_string() + '\'', e.get_reference().at( 0 ).position );
          }

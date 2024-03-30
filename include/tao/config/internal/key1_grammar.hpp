@@ -10,9 +10,9 @@
 namespace tao::config::internal::rules
 {
    // clang-format off
-   struct star : pegtl::one< '*' > {};
+   struct asterisk : pegtl::one< '*' > {};
 
-   struct key1_part : pegtl::sor< ident, quoted, index, star > {};
+   struct key1_part : pegtl::sor< ident, quoted, index, asterisk > {};
    struct key1_rule : pegtl::list_must< key1_part, dot > {};
    // clang-format on
 

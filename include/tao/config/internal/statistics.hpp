@@ -4,8 +4,8 @@
 #ifndef TAO_CONFIG_INTERNAL_STATISTICS_HPP
 #define TAO_CONFIG_INTERNAL_STATISTICS_HPP
 
-#include <cstdlib>
 #include <cstddef>
+#include <cstdlib>
 
 #include "array.hpp"
 #include "concat.hpp"

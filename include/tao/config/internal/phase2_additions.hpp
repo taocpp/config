@@ -67,7 +67,7 @@ namespace tao::config::internal
                         break;
                      }
                   }
-                  else { // r->kind() == entry_kind::UNSIGNED
+                  else {  // r->kind() == entry_kind::UNSIGNED
                      if( l->kind() == entry_kind::UNSIGNED ) {
                         r->get_unsigned_atom().value += l->get_unsigned();
                         break;

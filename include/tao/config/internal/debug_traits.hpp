@@ -118,7 +118,7 @@ namespace tao::config::internal
       template< template< typename... > class Traits, typename Consumer >
       static void produce( Consumer& c, const part_asterisk_t /*unused*/ )
       {
-         c.string( "star" );
+         c.string( "asterisk" );
       }
    };
 
@@ -138,7 +138,7 @@ namespace tao::config::internal
                c.string( "index" );
                return;
             case key1_kind::asterisk:
-               c.string( "star" );
+               c.string( "asterisk" );
                return;
             case key1_kind::append:
                c.string( "append" );

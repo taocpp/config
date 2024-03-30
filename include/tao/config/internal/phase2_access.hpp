@@ -105,7 +105,7 @@ namespace tao::config::internal
             if( down >= 0 ) {
                return nullptr;
             }
-            throw pegtl::parse_error( "cannot index (across) star", p );
+            throw pegtl::parse_error( "cannot index (across) asterisk", p );
          case entry_kind::REFERENCE:
             throw pegtl::parse_error( "cannot index (across) reference", p );
       }
@@ -116,7 +116,7 @@ namespace tao::config::internal
    {
       switch( p.kind() ) {
          case key1_kind::asterisk:
-            throw pegtl::parse_error( "unable to access star", p.position );
+            throw pegtl::parse_error( "unable to access asterisk", p.position );
          case key1_kind::name:
             return phase2_access_name( c, p.position, p.get_name(), suffix, down );
          case key1_kind::index:

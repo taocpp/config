@@ -5,8 +5,8 @@
 #define TAO_CONFIG_INTERNAL_PHASE2_EVERYTHING_HPP
 
 #include "forward.hpp"
-#include "phase2_asterisks.hpp"
 #include "phase2_additions.hpp"
+#include "phase2_asterisks.hpp"
 #include "phase2_functions.hpp"
 #include "phase2_references.hpp"
 #include "state.hpp"

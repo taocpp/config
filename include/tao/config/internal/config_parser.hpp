@@ -28,18 +28,14 @@ namespace tao::config::internal
    {
       config_parser()
          : fm( { { "binary", wrap( binary_function ) },
-                 // { "cbor", wrap( cbor_function ) },
                  { "default", wrap( default_function ) },
                  { "env", wrap( env_function ) },
                  { "env?", wrap( env_if_function ) },
                  { "jaxn", wrap( jaxn_function ) },
-                 // { "json", wrap( json_function ) },
-                 // { "msgpack", wrap( msgpack_function ) },
                  { "read", wrap( read_function ) },
                  { "shell", wrap( shell_function ) },
                  { "split", wrap( split_function ) },
                  { "string", wrap( string_function ) } } )
-                 //{ "ubjson", wrap( ubjson_function ) } } )
       {}
 
       config_parser( config_parser&& ) = delete;

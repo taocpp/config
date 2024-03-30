@@ -70,7 +70,7 @@ namespace tao::config::internal
             case entry_kind::OBJECT:
                throw pegtl::parse_error( "cannot index (across) object", p );
             case entry_kind::ASTERISK:
-               throw pegtl::parse_error( "cannot index (across) star", p );
+               throw pegtl::parse_error( "cannot index (across) asterisk", p );
             case entry_kind::REFERENCE:
                throw pegtl::parse_error( "cannot index (across) reference", p );
          }
