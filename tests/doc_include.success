@@ -8,4 +8,4 @@ foo
 }
 
 // Use include? with a non-existing file, not an error.
-(include? "tests/non_existing_file_is_no_error_with_include?")
+(include? "tests/non_existing_file_is_no_error_with_question_mark")

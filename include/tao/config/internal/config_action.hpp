@@ -22,6 +22,7 @@
 #include "key1_guard.hpp"
 #include "pegtl.hpp"
 #include "phase1_append.hpp"
+#include "string_utility.hpp"
 
 namespace tao::config::internal
 {
@@ -169,11 +170,12 @@ namespace tao::config::internal
             pegtl::parse_nested< rules::config_file, config_action >( ai.position(), static_cast< pegtl_input_t& >( in ), st, fm );
          }
          catch( const std::system_error& e ) {
-            if( ( !st.include_is_optional ) || ( e.code().value() != ENOENT ) ) {
-               throw pegtl::parse_error( "include error", ai.position() );
-               // throw pegtl::parse_error( format( __FILE__, __LINE__, "include failed", { { "filename", f }, { "error", e.what() }, { "errno", e.code().value() } } ), pos );
+            if( !st.include_is_optional ) {
+               throw pegtl::parse_error( strcat( "include error: ", e.what() ), ai.position() );
             }
-            // An optional include file does not exist -- silently ignore and continue with a smile :-)
+            if( e.code().value() != ENOENT ) {
+               throw pegtl::parse_error( strcat( "include optional error: ", e.what() ), ai.position() );
+            }
          }
       }
    };
