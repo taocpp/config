@@ -54,8 +54,8 @@ namespace tao::config::internal
             case entry_kind::STRING:
             case entry_kind::BINARY:
             case entry_kind::SIGNED:
-            case entry_kind::DOUBLE:
             case entry_kind::UNSIGNED:
+            case entry_kind::DOUBLE:
                ++i;
                return;
             case entry_kind::ARRAY:
@@ -75,7 +75,7 @@ namespace tao::config::internal
                ++i;
                return;
             case entry_kind::ASTERISK:
-               process_concat_entry( c, i );
+               process_asterisk( c, i );
                return;
             case entry_kind::REFERENCE:
                ++i;
@@ -84,7 +84,7 @@ namespace tao::config::internal
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
 
-      void process_concat_entry( concat& c, std::list< entry >::iterator& i )
+      void process_asterisk( concat& c, std::list< entry >::iterator& i )
       {
          const concat star = std::move( i->get_asterisk() );
 
@@ -104,7 +104,7 @@ namespace tao::config::internal
                   if( !j->get_array().function.empty() ) {
                      throw pegtl::parse_error( "please do not use an asterisk inside of a function", j->get_array().position );
                   }
-                  process_array_concat_entry( j->get_array(), star );
+                  process_array_and_asterisk( j->get_array(), star );
                   continue;
                case entry_kind::OBJECT:
                   for( const auto& p : j->get_object().object ) {
@@ -130,7 +130,7 @@ namespace tao::config::internal
                   if( !j->get_array().function.empty() ) {
                      throw pegtl::parse_error( "please do not use an asterisk inside of a function", j->get_array().position );
                   }
-                  process_concat_entry_array( star, j->get_array() );
+                  process_asterisk_and_array( star, j->get_array() );
                   continue;
                case entry_kind::OBJECT:
                   for( const auto& p : j->get_object().object ) {
@@ -157,7 +157,7 @@ namespace tao::config::internal
          ++i;
       }
 
-      void process_concat_entry_array( const concat& s, array& a )
+      void process_asterisk_and_array( const concat& s, array& a )
       {
          for( concat& c : a.array ) {
             if( c.remove ) {
@@ -169,7 +169,7 @@ namespace tao::config::internal
          }
       }
 
-      void process_array_concat_entry( array& a, const concat& s )
+      void process_array_and_asterisk( array& a, const concat& s )
       {
          for( concat& c : a.array ) {
             if( s.remove ) {

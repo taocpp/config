@@ -57,7 +57,6 @@ namespace tao::config::internal
                   assert( d->concat.size() == 1 );
 
                   e = d->concat.front();
-                  // TODO: Call phase2_additions( c ) to get things done quicker?
                   ++m_changes;
                }
             }

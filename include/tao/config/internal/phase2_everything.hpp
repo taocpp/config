@@ -21,8 +21,7 @@ namespace tao::config::internal
    inline void phase2_everything( state& st, const function_map& fm )
    {
       while( phase2_iteration( st, fm ) ) {
-         // This loop could do with some major optimisations, though they would only be worth it
-         // if somebody reads some really large config files (or reads one 10^7 times per second).
+         // This loop could do with some major optimisations; might or might not be worth the effort.
       }
    }
 

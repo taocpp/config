@@ -21,11 +21,11 @@ namespace tao::config::internal
       reference2() = default;
 
       reference2( reference2&& ) = default;
-      reference2& operator=( reference2&& ) = default;
+      reference2( const reference2& ) = default;
 
       ~reference2() = default;
 
-      reference2( const reference2& ) = default;
+      reference2& operator=( reference2&& ) = default;
       reference2& operator=( const reference2& ) = default;
 
       explicit reference2( const std::string& s )
