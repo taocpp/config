@@ -20,56 +20,6 @@ namespace tao::config::internal
    inline void phase3_remove( array& a );
    inline void phase3_remove( object& o );
 
-   [[nodiscard]] inline std::string phase3_partial_type( const entry& e )
-   {
-      switch( e.kind() ) {
-         case entry_kind::NULL_:
-            return "null";
-         case entry_kind::BOOLEAN:
-            return "boolean";
-         case entry_kind::STRING:
-            return "string";
-         case entry_kind::BINARY:
-            return "binary";
-         case entry_kind::SIGNED:
-            return "signed";
-         case entry_kind::UNSIGNED:
-            return "unsigned";
-         case entry_kind::DOUBLE:
-            return "double";
-         case entry_kind::ARRAY:
-            return "array";
-         case entry_kind::OBJECT:
-            return "object";
-         case entry_kind::ASTERISK:
-            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-         case entry_kind::REFERENCE:
-            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-      }
-      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-   }
-
-   [[nodiscard]] inline pegtl::position phase3_partial_position( const entry& e )
-   {
-      switch( e.kind() ) {
-         case entry_kind::NULL_:
-         case entry_kind::BOOLEAN:
-         case entry_kind::STRING:
-         case entry_kind::BINARY:
-         case entry_kind::SIGNED:
-         case entry_kind::UNSIGNED:
-         case entry_kind::DOUBLE:
-         case entry_kind::ARRAY:
-         case entry_kind::OBJECT:
-            return e.get_position();
-         case entry_kind::ASTERISK:
-            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-         case entry_kind::REFERENCE:
-            throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-      }
-      throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-   }
-
    inline void phase3_remove( concat& c )
    {
       for( auto& e : c.concat ) {
@@ -100,11 +50,11 @@ namespace tao::config::internal
       }
       if( c.concat.size() > 1 ) {
          auto i = c.concat.begin();
-         const auto lt = phase3_partial_type( *i );
-         const auto lp = phase3_partial_position( *i );
+         const auto lt = to_string( i->kind() );
+         const auto& lp = i->get_position();
          ++i;
-         const auto rt = phase3_partial_type( *i );
-         const auto rp = phase3_partial_position( *i );
+         const auto rt = to_string( i->kind() );
+         const auto& rp = i->get_position();
          throw pegtl::parse_error( strcat( "incompatible types ", lt, "@", lp, " and ", rt, "@", rp ), c.position );
       }
    }

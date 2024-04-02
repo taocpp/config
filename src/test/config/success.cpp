@@ -103,14 +103,10 @@ namespace tao::config
          std::cerr << "Testcase '" << path << "' failed with exception '" << e.what() << "'" << std::endl;
          ++failed;
       }
-      catch( const std::string& s ) {
-         std::cerr << "Testcase '" << path << "' failed with error '" << s << "'" << std::endl;
-         ++failed;
-      }
       // LCOV_EXCL_STOP
    }
 
-}  // namespace tao
+}  // namespace tao::config
 
 int main()
 {

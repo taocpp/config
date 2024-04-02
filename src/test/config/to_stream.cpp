@@ -28,7 +28,8 @@ namespace tao::config
             ++failed;
             // LCOV_EXCL_STOP
          }
-      } {
+      }
+      {
          std::ostringstream oss;
          tao::config::to_stream( oss, parsed, 3 );
          const std::string string2 = oss.str();

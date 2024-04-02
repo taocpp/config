@@ -1,0 +1,1 @@
+foo = (jaxn "[ null, true, false, 42, $ff, 'foo', { a: null, b: true, c: false, d: 42, e: $ff, f: 'foo' } ]")

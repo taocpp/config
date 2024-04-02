@@ -35,9 +35,6 @@ namespace tao
       catch( const pegtl::parse_error_base& e ) {
          std::cout << ansi_text << "pegtl::parse_error: " << ansi_message << e.message() << ": " << ansi_source << e.position_string() << ansi_reset << std::endl;
       }
-      catch( const std::exception& e ) {
-         std::cout << "std::exception: " << e.what() << std::endl;
-      }
    }
 
 }  // namespace tao

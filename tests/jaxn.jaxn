@@ -1,0 +1,18 @@
+{
+   foo: [
+      null,
+      true,
+      false,
+      42,
+      $FF,
+      "foo",
+      {
+         a: null,
+         b: true,
+         c: false,
+         d: 42,
+         e: $FF,
+         f: "foo"
+      }
+   ]
+}
