@@ -24,6 +24,7 @@ namespace tao::config
       TAO_CONFIG_TEST_ASSERT( access( v, key( "c.d.e.1" ) ).key == key( "c.d.e.1" ) );
 
       TAO_CONFIG_TEST_THROWS( (void)access( v, key( "0" ) ) );
+      TAO_CONFIG_TEST_THROWS( (void)access( v, key( "a.0" ) ) );
       TAO_CONFIG_TEST_THROWS( (void)access( v, key( "r" ) ) );
       TAO_CONFIG_TEST_THROWS( (void)access( v, key( "c.d.e.f" ) ) );
       TAO_CONFIG_TEST_THROWS( (void)access( v, key( "c.d.e.2" ) ) );

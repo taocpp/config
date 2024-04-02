@@ -1,0 +1,4 @@
+a = {}
+a.* = 42
+a.a.b = (default (a.a.c) "foo")
+a.a.c = (default (a.a.b) "bar")

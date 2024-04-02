@@ -62,14 +62,14 @@ namespace tao::config::internal
    }
 
 #if !defined( _MSC_VER )
-   [[nodiscard]] inline std::string shell_popen_throws( const pegtl::position& /*pos*/, const std::string& script )
+   [[nodiscard]] inline std::string shell_popen_throws( const pegtl::position& pos, const std::string& script )
    {
       errno = 0;
 
       std::unique_ptr< FILE, void ( * )( FILE* ) > file( ::popen( script.c_str(), "r" ), []( FILE* f ) { ::pclose( f ); } );
 
       if( !file ) {
-         throw std::string( "TODO" );
+         throw pegtl::parse_error( "TODO: Better error message for shell function error.", pos );
          //         throw pegtl::parse_error( format( __FILE__, __LINE__, "popen failed", { { "command", script }, { "errno", errno } } ), pos );
       }
       std::string result;
@@ -81,7 +81,7 @@ namespace tao::config::internal
       errno = 0;
 
       if( ( errno != 0 ) || ( ::pclose( file.release() ) != 0 ) ) {
-         throw std::string( "TODO" );
+         throw pegtl::parse_error( "TODO: Better error message for shell function error.", pos );
       }
       return result;
    }

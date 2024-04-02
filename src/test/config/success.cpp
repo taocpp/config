@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <stdexcept>
 
 #include <tao/config.hpp>
 
@@ -19,10 +20,12 @@ namespace tao
 #else
       errno = 0;
       if( ::setenv( name.c_str(), value.c_str(), 1 ) != 0 ) {
+         // LCOV_EXCL_START
          const auto e = errno;
 #endif
          (void)e;
-         throw std::string( "setenv failed" );
+         throw std::runtime_error( "setenv failed" );
+         // LCOV_EXCL_STOP
       }
    }
 
@@ -31,16 +34,34 @@ namespace tao
    {
       try {
          const auto cc = config::basic_from_file< Traits >( path );
+         const std::vector< std::filesystem::path > paths = { "tests/empty.success", path, "tests/empty.success" };
+         const auto cf = config::basic_from_files< Traits >( paths );
+
          std::filesystem::path jaxn = path;
          jaxn.replace_extension( ".jaxn" );
          const auto cj = config::basic_from_file< Traits >( jaxn );
          const auto jj = json::jaxn::basic_from_file< Traits >( jaxn );
 
          const auto ccs = json::jaxn::to_string( cc );
+         const auto cfs = json::jaxn::to_string( cf );
          const auto cjs = json::jaxn::to_string( cj );
          const auto jjs = json::jaxn::to_string( jj );
 
+         if( ccs != cfs ) {
+            // LCOV_EXCL_START
+            ++failed;
+            std::cerr << std::endl
+                      << "Testcase '" << path << "' failed config test!" << std::endl;
+            std::cerr << "<<< Config parsed as config <<<" << std::endl;
+            std::cerr << ccs << std::endl;
+            std::cerr << ">>> Config parsed as config >>>" << std::endl;
+            std::cerr << "<<< Config parsed as config with empty files <<<" << std::endl;
+            std::cerr << jjs << std::endl;
+            std::cerr << ">>> Config parsed as config with empty files >>>" << std::endl;
+            // LCOV_EXCL_STOP
+         }
          if( ccs != jjs ) {
+            // LCOV_EXCL_START
             ++failed;
             std::cerr << std::endl
                       << "Testcase '" << path << "' failed config test!" << std::endl;
@@ -50,8 +71,10 @@ namespace tao
             std::cerr << "<<< Reference data parsed as jaxn <<<" << std::endl;
             std::cerr << jjs << std::endl;
             std::cerr << ">>> Reference data parsed as jaxn >>>" << std::endl;
+            // LCOV_EXCL_STOP
          }
          if( ccs != cjs ) {
+            // LCOV_EXCL_START
             ++failed;
             std::cerr << std::endl
                       << "Testcase '" << path << "' failed identity test!" << std::endl;
@@ -61,8 +84,10 @@ namespace tao
             std::cerr << "<<< Reference data parsed as config <<<" << std::endl;
             std::cerr << cjs << std::endl;
             std::cerr << ">>> Reference data parsed as config >>>" << std::endl;
+            // LCOV_EXCL_STOP
          }
       }
+      // LCOV_EXCL_START
       catch( const std::exception& e ) {
          std::cerr << "Testcase '" << path << "' failed with exception '" << e.what() << "'" << std::endl;
          ++failed;
@@ -71,6 +96,7 @@ namespace tao
          std::cerr << "Testcase '" << path << "' failed with error '" << s << "'" << std::endl;
          ++failed;
       }
+      // LCOV_EXCL_STOP
    }
 
 }  // namespace tao

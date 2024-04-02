@@ -4,6 +4,7 @@ set(testsources
   access.cpp
   assign.cpp
   custom.cpp
+  debug_traits.cpp
   enumerations.cpp
   failure.cpp
   multi_line_string_position.cpp
@@ -11,6 +12,7 @@ set(testsources
   parse_key.cpp
   parse_reference2.cpp
   success.cpp
+  to_stream.cpp
 )
 
 # file(GLOB ...) is used to validate the above list of test_sources
@@ -27,7 +29,7 @@ foreach(testsourcefile ${testsources})
   add_executable(${exename} ${testsourcefile})
   target_link_libraries(${exename} PRIVATE taocpp::config)
   set_target_properties(${exename} PROPERTIES
-    CXX_STANDARD 11
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
   )

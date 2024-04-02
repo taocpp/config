@@ -182,7 +182,7 @@ namespace tao::config::internal
 
       [[noreturn]] static void throw_type_error( const entry& l, const entry& r )
       {
-         throw pegtl::parse_error( strcat( "incompatible or invalid type(s) in addition", l.kind(), "@", l.get_position(), " and ", r.kind(), "@", r.get_position() ), pegtl::position( 0, 0, 0, "(todo) location of '+'" ) );
+         throw pegtl::parse_error( strcat( "incompatible or invalid type(s) in addition ", l.kind(), "@", l.get_position(), " and ", r.kind(), "@", r.get_position() ), pegtl::position( 0, 0, 0, "(todo) location of '+'" ) );
       }
 
       static void process_object( object&& l, object& r )

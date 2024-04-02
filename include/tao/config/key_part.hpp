@@ -4,7 +4,6 @@
 #ifndef TAO_CONFIG_KEY_PART_HPP
 #define TAO_CONFIG_KEY_PART_HPP
 
-#include <cassert>
 #include <ostream>
 #include <stdexcept>
 #include <string>
@@ -43,16 +42,12 @@ namespace tao::config
 
       [[nodiscard]] std::size_t get_index() const noexcept
       {
-         const auto* s = std::get_if< std::size_t >( &data );
-         assert( s != nullptr );
-         return *s;
+         return std::get< std::size_t >( data );
       }
 
       [[nodiscard]] const std::string& get_name() const noexcept
       {
-         const auto* s = std::get_if< std::string >( &data );
-         assert( s != nullptr );
-         return *s;
+         return std::get< std::string >( data );
       }
 
       data_t data;

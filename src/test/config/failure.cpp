@@ -14,13 +14,15 @@ const char* ansi_text = "\033[33m";
 
 namespace tao
 {
-   int failed = 0;
+   unsigned failed = 0;
 
    template< template< typename... > class Traits >
    void unit_test( const std::filesystem::path& path )
    {
       try {
+         // For a failure testcase to succeed the next line must throw an error.
          const auto cc = config::basic_from_file< Traits >( path );
+         // LCOV_EXCL_START
          const auto ccs = json::jaxn::to_string( cc );
          ++failed;
          std::cerr << std::endl
@@ -28,6 +30,7 @@ namespace tao
          std::cerr << "<<< Config parsed as config <<<" << std::endl;
          std::cerr << ccs << std::endl;
          std::cerr << ">>> Config parsed as config >>>" << std::endl;
+         // LCOV_EXCL_STOP
       }
       catch( const pegtl::parse_error_base& e ) {
          std::cout << ansi_text << "pegtl::parse_error: " << ansi_message << e.message() << ": " << ansi_source << e.position_string() << ansi_reset << std::endl;
@@ -35,24 +38,12 @@ namespace tao
       catch( const std::exception& e ) {
          std::cout << "std::exception: " << e.what() << std::endl;
       }
-      catch( const std::string& s ) {
-         std::cout << "Exception with std::string: " << s << std::endl;
-         // TODO: Remove catch string when all temporary throw strings have been replaced with proper exceptions.
-      }
    }
 
 }  // namespace tao
 
-int main( int argc, char** argv )
+int main()
 {
-   if( argc > 1 ) {
-      for( int i = 1; i < argc; ++i ) {
-         std::cout << "Parsing " << argv[ i ] << std::endl;
-         tao::unit_test< tao::config::traits >( argv[ i ] );
-      }
-      return 0;
-   }
-
    unsigned count = 0;
 
    for( const auto& entry : std::filesystem::directory_iterator( "tests" ) ) {
@@ -62,8 +53,8 @@ int main( int argc, char** argv )
          ++count;
       }
    }
-   if( !tao::failed ) {
+   if( tao::failed == 0 ) {
       std::cerr << "All " << count << " testcases passed." << std::endl;
    }
-   return std::min( tao::failed, 127 );
+   return std::min( int( tao::failed ), 127 );
 }

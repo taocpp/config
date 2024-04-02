@@ -26,6 +26,7 @@ namespace tao::config
       TAO_CONFIG_TEST_THROWS( (void)assign( v, key( "0" ) ) );
       TAO_CONFIG_TEST_THROWS( (void)assign( v, key( "c.d.e.f" ) ) );
       TAO_CONFIG_TEST_THROWS( (void)assign( v, key( "c.d.e.2" ) ) );
+      TAO_CONFIG_TEST_THROWS( (void)assign( v, key( "a.0" ) ) );
 
       TAO_CONFIG_TEST_ASSERT( assign( v, key( "r" ) ) == value( json::empty_object ) );
       TAO_CONFIG_TEST_ASSERT( assign( v, key( "r.s.t" ) ) == value( json::empty_object ) );

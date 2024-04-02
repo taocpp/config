@@ -1,0 +1,2 @@
+a = (default (b) "foo")
+b = (default (a) "bar")

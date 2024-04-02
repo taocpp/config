@@ -84,7 +84,7 @@ namespace tao::config::internal
                continue;
             case entry_kind::ARRAY:
                if( !e.get_array().function.empty() ) {
-                  throw pegtl::parse_error( "unresolved function '" + e.get_array().function + '\'', e.get_array().position );
+                  throw pegtl::parse_error( "function '" + e.get_array().function + "' could not be called", e.get_array().position );
                }
                phase3_remove( e.get_array() );
                continue;
@@ -92,9 +92,9 @@ namespace tao::config::internal
                phase3_remove( e.get_object() );
                continue;
             case entry_kind::ASTERISK:
-               throw pegtl::parse_error( "unresolved asterisk", e.get_asterisk().position );  // Can happen when there are also unresolved references.
+               throw pegtl::parse_error( "asterisk could not be expanded", e.get_asterisk().position );  // Can happen when there are also unresolved references.
             case entry_kind::REFERENCE:
-               throw pegtl::parse_error( "unresolved reference '" + e.get_reference().to_string() + '\'', e.get_reference().at( 0 ).position );
+               throw pegtl::parse_error( "reference '" + e.get_reference().to_string() + "' could not be resolved", e.get_reference().at( 0 ).position );
          }
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
       }
