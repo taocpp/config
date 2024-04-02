@@ -26,3 +26,10 @@ split
     d = (split "a b c")
     e = (split " a b c ")
 }
+
+string
+{
+    a = (string "")
+    b = (string "foo")
+    c = (string $3031)
+}

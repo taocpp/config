@@ -7,6 +7,8 @@ set(testsources
   debug_traits.cpp
   enumerations.cpp
   failure.cpp
+  key.cpp
+  key_part.cpp
   multi_line_string_position.cpp
   parse_key1.cpp
   parse_key.cpp

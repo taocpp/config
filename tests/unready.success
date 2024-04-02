@@ -1,0 +1,24 @@
+a1 = 1
+a2 = (default null (a1) (a3))
+a3 = 3
+a4 = (a2)
+
+b2 = (default null 1 + 2)
+b4 = (b2)
+
+c1 = (default null 1)
+c2 = (default null (c1) (c3))
+c3 = (default null 3)
+c4 = (c2)
+
+d1 = "nu"
+d2 = (parse (d1) + (d3))
+d3 = "ll"
+
+e1 = "nu"
+e2 = (split (e1) + (e3))
+e3 = "ll"
+
+f1 = "asdlfjaslj"
+f2 = (env? (f1) + (f3) "default")
+f3 = "x,cqokxi2$(&!"

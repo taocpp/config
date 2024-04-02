@@ -100,16 +100,20 @@ namespace tao::config::internal
 
       void process_parse_function( entry& e, array& a )
       {
-         state st;
-         std::size_t i = 0;
-         const std::string s = function_traits< std::string >::get( a, i );
-         const key1 k = { key1_part( std::string( "\0", 1 ), a.position ) };
-         const key1_guard kg( st, key1( k ) );
-         pegtl::string_input< pegtl::tracking_mode::eager, pegtl_input_t::eol_t > in( s, __FUNCTION__ );
-         pegtl::parse_nested< rules::value, config_action >( a.position, static_cast< pegtl_input_t& >( in ), st, m_functions );
-         assert( st.root.object.size() == 1 );
-         assert( st.root.object.begin()->second.concat.size() == 1 );
-         e = st.root.object.begin()->second.concat.front();  // TODO: This is slightly hack-ish.
+         try {
+            state st;
+            std::size_t i = 0;
+            const std::string s = function_traits< std::string >::get( a, i );
+            const key1 k = { key1_part( std::string( "\0", 1 ), a.position ) };
+            const key1_guard kg( st, key1( k ) );
+            pegtl::string_input< pegtl::tracking_mode::eager, pegtl_input_t::eol_t > in( s, __FUNCTION__ );
+            pegtl::parse_nested< rules::value, config_action >( a.position, static_cast< pegtl_input_t& >( in ), st, m_functions );
+            assert( st.root.object.size() == 1 );
+            assert( st.root.object.begin()->second.concat.size() == 1 );
+            e = st.root.object.begin()->second.concat.front();  // TODO: This is slightly hack-ish.
+         }
+         catch( const arguments_unready& ) {
+         }
       }
    };
 

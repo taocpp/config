@@ -147,12 +147,9 @@ namespace tao::config::internal
       return result;
    }
 
-   [[nodiscard]] inline string_t string_function( const pegtl::position& p, const std::vector< std::byte >& bv )
+   [[nodiscard]] inline string_t string_function( const pegtl::position& p, const std::string& s )
    {
-      if( !json::internal::validate_utf8_nothrow( std::string_view( reinterpret_cast< const char* >( bv.data() ), bv.size() ) ) ) {
-         throw pegtl::parse_error( "invalid utf8 in binary data", p );
-      }
-      return string_t( std::string( reinterpret_cast< const char* >( bv.data() ), bv.size() ), p );
+      return string_t( s, p );
    }
 
    // [[nodiscard]] inline json_t ubjson_function( const std::vector< std::byte >& bv )

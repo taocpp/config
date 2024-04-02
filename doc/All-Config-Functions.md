@@ -1,18 +1,14 @@
 # All Config Functions
 
  * [binary](#binary)
- * [~~cbor~~](#cbor)
  * [default](#default)
  * [env](#env)
  * [jaxn](#jaxn)
- * [~~json~~](#json)
- * [~~msgpack~~](#msgpack)
  * [parse](#parse)
  * [read](#read)
  * [shell](#shell)
  * [split](#split)
  * [string](#string)
- * [~~ubjson~~](#ubjson)
 
 This page is the reference documentation for all included config functions.
 
@@ -37,32 +33,6 @@ foo = (binary "Hello, world!")
    foo: $48656C6C6F2C20776F726C6421
 }
 ```
-
-
-## ~~cbor~~
-
-The `cbor` function parses binary data as [CBOR] and returns the resulting value.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (cbor $82f5f4)
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: [
-      true,
-      false
-   ]
-}
-```
-
-Note that, in line with the JSON data model, only UTF-8 strings are supported as keys in CBOR mappings.
-
-Note that `cbor` is frequently combined with `read` as in `foo = (cbor (read "filename.cbor"))`.
 
 
 ## default
@@ -132,55 +102,6 @@ foo = (jaxn '[Infinity, $ff]')
 ```
 
 Note that `jaxn` is frequently combined with `read` as in `foo = (jaxn (read "filename.jaxn"))`.
-
-
-## ~~json~~
-
-The `json` function parses string (or binary) data as [JSON] and returns the resulting value.
-In the case of binary data the input is automatically converted to a string, including a check for valid UTF-8.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (json '["a","b"]')
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: [
-      "a",
-      "b"
-   ]
-}
-```
-
-Note that `json` is frequently combined with `read` as in `foo = (json (read "filename.json"))`.
-
-
-## ~~msgpack~~
-
-The `msgpack` value extension parses binary data as [MsgPack] and returns the resulting value.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (msgpack $82a161c3a162c2)
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: {
-      a: true,
-      b: false
-   }
-}
-```
-
-Note that `msgpack` is frequently combined with `read` as in `foo = (msgpack (read "filename.msgpack"))`.
 
 
 ## parse
@@ -282,7 +203,7 @@ foo = (split "a b c ")
 
 ## string
 
-The `string` function transforms a binary value into a string value.
+The `string` function transforms a binary value into a string value and leaves string values unchanged.
 It validates that the binary data is valid UTF-8 and produces an error if that is not the case.
 
 #### Example taoCONFIG Input File
@@ -301,27 +222,6 @@ foo = (string $48656C6C6F2C20776F726C6421)
 
 Note that the conversion from `binary` to `string` is automatic when the binary data is passed to an extension that expects a string.
 The automatic conversion, too, checks whether the binary data is a valid UTF-8 sequence and throws an exception if that is not the case.
-
-
-## ~~ubjson~~
-
-The `ubjson` value function parses binary data as [UBJSON] and returns the resulting value.
-
-#### Example taoCONFIG Input File
-
-```
-foo = (ubjson $4344)
-```
-
-#### Resulting JAXN Config Data
-
-```javascript
-{
-   foo: "D"
-}
-```
-
-Note that `ubjson` is frequently combined with `read` as in `foo = (ubjson (read "filename.ubjson"))`.
 
 
 

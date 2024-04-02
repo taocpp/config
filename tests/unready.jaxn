@@ -1,0 +1,23 @@
+{
+   a1: 1,
+   a2: 1,
+   a3: 3,
+   a4: 1,
+   b2: 3,
+   b4: 3,
+   c1: 1,
+   c2: 1,
+   c3: 3,
+   c4: 1,
+   d1: "nu",
+   d2: null,
+   d3: "ll",
+   e1: "nu",
+   e2: [
+      "null"
+   ],
+   e3: "ll",
+   f1: "asdlfjaslj",
+   f2: "default",
+   f3: "x,cqokxi2$(&!"
+}

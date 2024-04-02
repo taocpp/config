@@ -35,10 +35,9 @@ namespace tao::config::internal
       static_assert( !std::is_same_v< R, void > );
 
       return function( [ x ]( entry& e ) {
-         array& f = e.get_array();
          try {
-            decltype( auto ) a = function_traits< std::decay_t< A > >::get( f, 0 );
-            function_traits< std::decay_t< R > >::put( e, x( f.position, a ) );
+            array& f = e.get_array();
+            function_traits< std::decay_t< R > >::put( e, x( f.position, function_traits< std::decay_t< A > >::get( f, 0 ) ) );
          }
          catch( const arguments_unready& ) {
             return false;
@@ -55,11 +54,9 @@ namespace tao::config::internal
       static_assert( !std::is_same_v< R, void > );
 
       return function( [ x ]( entry& e ) {
-         array& f = e.get_array();
          try {
-            decltype( auto ) a = function_traits< std::decay_t< A > >::get( f, 0 );
-            decltype( auto ) b = function_traits< std::decay_t< B > >::get( f, 1 );
-            function_traits< std::decay_t< R > >::put( e, x( f.position, a, b ) );
+            array& f = e.get_array();
+            function_traits< std::decay_t< R > >::put( e, x( f.position, function_traits< std::decay_t< A > >::get( f, 0 ), function_traits< std::decay_t< B > >::get( f, 1 ) ) );
          }
          catch( const arguments_unready& ) {
             return false;

@@ -55,7 +55,7 @@ namespace tao::config::internal
       }
    };
 
-   [[nodiscard]] inline const entry& function_traits_value( array& f, const std::size_t i )
+   [[nodiscard]] inline const entry& function_traits_entry( array& f, const std::size_t i )
    {
       assert( f.array.size() > i );
 
@@ -75,7 +75,7 @@ namespace tao::config::internal
    {
       [[nodiscard]] static std::string get( array& f, const std::size_t i )
       {
-         const entry& e = function_traits_value( f, i );
+         const entry& e = function_traits_entry( f, i );
 
          if( e.is_string() ) {
             return e.get_string();
@@ -84,7 +84,7 @@ namespace tao::config::internal
             const std::vector< std::byte >& b = e.get_binary();
             const std::string s( reinterpret_cast< const char* >( b.data() ), b.size() );
             if( !json::internal::validate_utf8_nothrow( s ) ) {
-               throw pegtl::parse_error( "invalid utf-8 in binary data used as string argument", e.get_position() );
+               throw pegtl::parse_error( "invalid utf-8 in binary data used as string", e.get_position() );
             }
             return s;
          }
@@ -97,7 +97,7 @@ namespace tao::config::internal
    {
       [[nodiscard]] static std::vector< std::byte > get( array& f, const std::size_t i )
       {
-         const entry& e = function_traits_value( f, i );
+         const entry& e = function_traits_entry( f, i );
 
          if( e.is_binary() ) {
             return e.get_binary();

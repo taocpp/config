@@ -6,12 +6,12 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "test.hpp"
+
 #include <tao/config.hpp>
 
-namespace tao
+namespace tao::config
 {
-   int failed = 0;
-
    void setenv_throws( const std::string& name, const std::string& value )
    {
 #if defined( _MSC_VER )
@@ -33,13 +33,13 @@ namespace tao
    void unit_test( const std::filesystem::path& path )
    {
       try {
-         const auto cc = config::basic_from_file< Traits >( path );
+         const auto cc = basic_from_file< Traits >( path );
          const std::vector< std::filesystem::path > paths = { "tests/empty.success", path, "tests/empty.success" };
-         const auto cf = config::basic_from_files< Traits >( paths );
+         const auto cf = basic_from_files< Traits >( paths );
 
          std::filesystem::path jaxn = path;
          jaxn.replace_extension( ".jaxn" );
-         const auto cj = config::basic_from_file< Traits >( jaxn );
+         const auto cj = basic_from_file< Traits >( jaxn );
          const auto jj = json::jaxn::basic_from_file< Traits >( jaxn );
 
          const auto ccs = json::jaxn::to_string( cc );
@@ -86,6 +86,17 @@ namespace tao
             std::cerr << ">>> Reference data parsed as config >>>" << std::endl;
             // LCOV_EXCL_STOP
          }
+         const auto fc = from_file( path );
+         const auto ff = from_files( paths );
+
+         const auto fcs = json::jaxn::to_string( fc );
+         const auto ffs = json::jaxn::to_string( ff );
+
+         if constexpr( std::is_same_v< decltype( cc ), decltype( fc ) > ) {
+            TAO_CONFIG_TEST_ASSERT( ccs == fcs );
+            TAO_CONFIG_TEST_ASSERT( cfs == ffs );
+         }
+         TAO_CONFIG_TEST_ASSERT( fcs == ffs );
       }
       // LCOV_EXCL_START
       catch( const std::exception& e ) {
@@ -112,14 +123,14 @@ int main()
             continue;
          }
 #endif
-         tao::setenv_throws( "TAO_CONFIG", "env_value" );
-         tao::unit_test< tao::json::traits >( path );
-         tao::unit_test< tao::config::traits >( path );
+         tao::config::setenv_throws( "TAO_CONFIG", "env_value" );
+         tao::config::unit_test< tao::json::traits >( path );
+         tao::config::unit_test< tao::config::traits >( path );
          ++count;
       }
    }
-   if( !tao::failed ) {
+   if( tao::config::failed == 0 ) {
       std::cerr << "All " << count << " testcases passed." << std::endl;
    }
-   return std::min( tao::failed, 127 );
+   return std::min( int( tao::config::failed ), 127 );
 }

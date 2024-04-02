@@ -63,16 +63,6 @@ namespace tao::config
       return l.data == r.data;
    }
 
-   [[nodiscard]] constexpr bool is_alpha( const int c ) noexcept
-   {
-      return ( ( 'a' <= c ) && ( c <= 'z' ) ) || ( ( 'A' <= c ) && ( c <= 'Z' ) );
-   }
-
-   [[nodiscard]] constexpr bool is_first( const int c ) noexcept
-   {
-      return is_alpha( c ) || ( c == '_' );
-   }
-
    [[nodiscard]] inline bool is_identifier( const std::string& n )
    {
       using grammar = pegtl::seq< internal::rules::ident, pegtl::eof >;
