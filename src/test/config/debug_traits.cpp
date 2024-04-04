@@ -14,14 +14,21 @@ namespace tao::config
 {
    void unit_test()
    {
-      const std::string input = "a = 1 b { c = 42 d = [ null, true ] }";
       internal::config_parser cp;
-      cp.parse( std::string_view( input ), __FUNCTION__ );
-      std::ostringstream oss;
-      internal::to_stream( oss, cp.st.root );
-      const std::string output = oss.str();
-      const std::string reference = "{position:\"(root):1:1\",object_data:{a:{remove:true,implicit:false,temporary:false,position:\"unit_test:1:1\",concat_list:[{type:\"unsigned\",data:1}]},b:{remove:false,implicit:false,temporary:false,position:\"unit_test:1:7\",concat_list:[{type:\"object\",data:{position:\"unit_test:1:9\",object_data:{c:{remove:true,implicit:false,temporary:false,position:\"unit_test:1:11\",concat_list:[{type:\"unsigned\",data:42}]},d:{remove:true,implicit:false,temporary:false,position:\"unit_test:1:18\",concat_list:[{type:\"array\",data:{position:\"unit_test:1:22\",function:\"\",array_data:[{remove:false,implicit:false,temporary:false,position:\"unit_test:1:24\",concat_list:[{type:\"null\"}]},{remove:false,implicit:false,temporary:false,position:\"unit_test:1:24\",concat_list:[{type:\"boolean\",data:true}]}]}}]}}}}]}}}";
-      TAO_CONFIG_TEST_ASSERT( output == reference );
+      cp.parse( std::filesystem::path( "tests/debug_traits.config" ) );
+      json::events::to_value consumer;
+      json::events::produce< internal::debug_traits >( consumer, cp.st.root );
+      const json::value config = std::move( consumer.value );
+      const json::value output = json::jaxn::from_file( std::filesystem::path( "tests/debug_traits.output" ) );
+      TAO_CONFIG_TEST_ASSERT( output == config );
+      {
+         std::ostringstream os1;
+         internal::to_stream( os1, cp.st.root );
+         TAO_CONFIG_TEST_ASSERT( json::jaxn::from_string( os1.str() ) == output );
+      }
+      std::ostringstream os2;
+      internal::to_stream( os2, cp.st.root, 3 );
+      TAO_CONFIG_TEST_ASSERT( json::jaxn::from_string( os2.str() ) == output );
    }
 
 }  // namespace tao::config

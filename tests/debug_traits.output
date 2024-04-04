@@ -1,0 +1,231 @@
+{
+   position: "(root):1:1",
+   object_data: {
+      a: {
+         remove: true,
+         implicit: false,
+         temporary: false,
+         position: "tests/debug_traits.config:1:1",
+         concat_list: [
+            {
+               type: "unsigned",
+               data: 1
+            }
+         ]
+      },
+      b: {
+         remove: false,
+         implicit: false,
+         temporary: false,
+         position: "tests/debug_traits.config:1:7",
+         concat_list: [
+            {
+               type: "object",
+               data: {
+                  position: "tests/debug_traits.config:1:9",
+                  object_data: {
+                     c: {
+                        remove: true,
+                        implicit: false,
+                        temporary: false,
+                        position: "tests/debug_traits.config:1:11",
+                        concat_list: [
+                           {
+                              type: "unsigned",
+                              data: 42
+                           }
+                        ]
+                     },
+                     d: {
+                        remove: true,
+                        implicit: false,
+                        temporary: false,
+                        position: "tests/debug_traits.config:1:18",
+                        concat_list: [
+                           {
+                              type: "array",
+                              data: {
+                                 position: "tests/debug_traits.config:1:22",
+                                 function: "",
+                                 array_data: [
+                                    {
+                                       remove: false,
+                                       implicit: false,
+                                       temporary: false,
+                                       position: "tests/debug_traits.config:1:24",
+                                       concat_list: [
+                                          {
+                                             type: "null"
+                                          }
+                                       ]
+                                    },
+                                    {
+                                       remove: false,
+                                       implicit: false,
+                                       temporary: false,
+                                       position: "tests/debug_traits.config:1:24",
+                                       concat_list: [
+                                          {
+                                             type: "boolean",
+                                             data: true
+                                          }
+                                       ]
+                                    }
+                                 ]
+                              }
+                           }
+                        ]
+                     },
+                     e: {
+                        remove: true,
+                        implicit: false,
+                        temporary: false,
+                        position: "tests/debug_traits.config:1:37",
+                        concat_list: [
+                           {
+                              type: "reference",
+                              data: [
+                                 {
+                                    reference2_kind: "name",
+                                    reference2_data: {
+                                       index: 0,
+                                       value: "a"
+                                    },
+                                    position: "tests/debug_traits.config:1:42"
+                                 },
+                                 {
+                                    reference2_kind: "index",
+                                    reference2_data: {
+                                       index: 1,
+                                       value: 42
+                                    },
+                                    position: "tests/debug_traits.config:1:44"
+                                 },
+                                 {
+                                    reference2_kind: "reference",
+                                    reference2_data: {
+                                       index: 2,
+                                       value: [
+                                          {
+                                             reference2_kind: "name",
+                                             reference2_data: {
+                                                index: 0,
+                                                value: "b"
+                                             },
+                                             position: "tests/debug_traits.config:1:48"
+                                          }
+                                       ]
+                                    },
+                                    position: "tests/debug_traits.config:1:47"
+                                 }
+                              ]
+                           }
+                        ]
+                     },
+                     f: {
+                        remove: true,
+                        implicit: false,
+                        temporary: false,
+                        position: "tests/debug_traits.config:1:52",
+                        concat_list: [
+                           {
+                              type: "string",
+                              data: "yo"
+                           }
+                        ]
+                     },
+                     g: {
+                        remove: true,
+                        implicit: false,
+                        temporary: false,
+                        position: "tests/debug_traits.config:1:61",
+                        concat_list: [
+                           {
+                              type: "signed",
+                              data: -3
+                           }
+                        ]
+                     },
+                     h: {
+                        remove: true,
+                        implicit: false,
+                        temporary: false,
+                        position: "tests/debug_traits.config:1:68",
+                        concat_list: [
+                           {
+                              type: "double",
+                              data: 3.14
+                           }
+                        ]
+                     },
+                     i: {
+                        remove: true,
+                        implicit: false,
+                        temporary: false,
+                        position: "tests/debug_traits.config:1:77",
+                        concat_list: [
+                           {
+                              type: "array",
+                              data: {
+                                 position: "tests/debug_traits.config:1:82",
+                                 function: "env",
+                                 array_data: [
+                                    {
+                                       remove: false,
+                                       implicit: false,
+                                       temporary: false,
+                                       position: "tests/debug_traits.config:1:86",
+                                       concat_list: [
+                                          {
+                                             type: "string",
+                                             data: "USER"
+                                          }
+                                       ]
+                                    }
+                                 ]
+                              }
+                           }
+                        ]
+                     },
+                     j: {
+                        remove: true,
+                        implicit: false,
+                        temporary: false,
+                        position: "tests/debug_traits.config:1:94",
+                        concat_list: [
+                           {
+                              type: "binary",
+                              data: $BEEF
+                           }
+                        ]
+                     }
+                  }
+               }
+            }
+         ]
+      },
+      c: {
+         remove: false,
+         implicit: false,
+         temporary: false,
+         position: "tests/debug_traits.config:1:106",
+         concat_list: [
+            {
+               type: "asterisk",
+               data: {
+                  remove: true,
+                  implicit: false,
+                  temporary: false,
+                  position: "tests/debug_traits.config:1:108",
+                  concat_list: [
+                     {
+                        type: "unsigned",
+                        data: 42
+                     }
+                  ]
+               }
+            }
+         ]
+      }
+   }
+}

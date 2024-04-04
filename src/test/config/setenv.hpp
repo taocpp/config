@@ -4,8 +4,8 @@
 #ifndef TAO_CONFIG_SRC_TEST_CONFIG_SETENV_HPP
 #define TAO_CONFIG_SRC_TEST_CONFIG_SETENV_HPP
 
-#include <stdlib.h>
 #include <stdexcept>
+#include <stdlib.h>
 #include <string>
 
 namespace tao::config::internal

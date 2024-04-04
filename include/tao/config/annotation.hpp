@@ -45,7 +45,6 @@ namespace tao::config
 
       void append_message_extension( std::ostream& o ) const
       {
-         o << ' ';
          to_stream( o, key );
          o << ' ';
          position.append_message_extension( o );

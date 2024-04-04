@@ -16,6 +16,7 @@ set(testsources
   parse_reference2.cpp
   success.cpp
   to_stream.cpp
+  value.cpp
 )
 
 # file(GLOB ...) is used to validate the above list of test_sources
