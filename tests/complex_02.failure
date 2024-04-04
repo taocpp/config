@@ -1,4 +1,6 @@
-a = {}
-a.* = 42
-a.a.b = (default (a.a.c) "foo")
-a.a.c = (default (a.a.b) "bar")
+x.* = 3
+x.a += 1
+
+a = 2
+y.a = 1
+y.* += (a)

@@ -21,7 +21,7 @@ namespace tao::config::internal
    inline void phase2_everything( state& st, const function_map& fm )
    {
       while( phase2_iteration( st, fm ) ) {
-         // This loop could do with some major optimisations; might or might not be worth the effort.
+         // This loop could do with some major optimisations; probably not worth the effort for config files.
       }
    }
 

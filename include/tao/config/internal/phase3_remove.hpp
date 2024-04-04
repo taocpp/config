@@ -4,6 +4,7 @@
 #ifndef TAO_CONFIG_INTERNAL_PHASE3_REMOVE_HPP
 #define TAO_CONFIG_INTERNAL_PHASE3_REMOVE_HPP
 
+#include <cassert>
 #include <stdexcept>
 #include <string>
 
@@ -42,20 +43,11 @@ namespace tao::config::internal
                phase3_remove( e.get_object() );
                continue;
             case entry_kind::ASTERISK:
-               throw pegtl::parse_error( "asterisk could not be expanded", e.get_asterisk().position );  // Can happen when there are also unresolved references.
+               throw pegtl::parse_error( "asterisk could not be expanded", e.get_asterisk().position );  // Can happen when there are also unresolved references?
             case entry_kind::REFERENCE:
                throw pegtl::parse_error( "reference '" + e.get_reference().to_string() + "' could not be resolved", e.get_reference().at( 0 ).position );
          }
          throw std::logic_error( "code should be unreachable" );  // LCOV_EXCL_LINE
-      }
-      if( c.concat.size() > 1 ) {
-         auto i = c.concat.begin();
-         const auto lt = to_string( i->kind() );
-         const auto& lp = i->get_position();
-         ++i;
-         const auto rt = to_string( i->kind() );
-         const auto& rp = i->get_position();
-         throw pegtl::parse_error( strcat( "incompatible types ", lt, "@", lp, " and ", rt, "@", rp ), c.position );
       }
    }
 

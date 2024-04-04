@@ -266,7 +266,7 @@ namespace tao::config::internal
                c.string( "object" );
                return;
             case entry_kind::ASTERISK:
-               c.string( "concat" );
+               c.string( "asterisk" );
                return;
             case entry_kind::REFERENCE:
                c.string( "reference" );
