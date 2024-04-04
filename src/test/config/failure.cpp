@@ -51,7 +51,7 @@ int main()
       }
    }
    if( tao::failed == 0 ) {
-      std::cerr << "All " << count << " testcases passed." << std::endl;
+      std::cerr << "All " << count << " failure testcases passed." << std::endl;
    }
    return std::min( int( tao::failed ), 127 );
 }

@@ -6,29 +6,13 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "setenv.hpp"
 #include "test.hpp"
 
 #include <tao/config.hpp>
 
 namespace tao::config
 {
-   void setenv_throws( const std::string& name, const std::string& value )
-   {
-#if defined( _MSC_VER )
-      const auto e = ::_putenv_s( name.c_str(), value.c_str() );
-      if( e != 0 ) {
-#else
-      errno = 0;
-      if( ::setenv( name.c_str(), value.c_str(), 1 ) != 0 ) {
-         // LCOV_EXCL_START
-         const auto e = errno;
-#endif
-         (void)e;
-         throw std::runtime_error( "setenv failed" );
-         // LCOV_EXCL_STOP
-      }
-   }
-
    template< template< typename... > class Traits >
    void unit_test( const std::filesystem::path& path )
    {
@@ -119,14 +103,14 @@ int main()
             continue;
          }
 #endif
-         tao::config::setenv_throws( "TAO_CONFIG", "env_value" );
+         tao::config::internal::setenv_throws( "TAO_CONFIG", "env_value" );
          tao::config::unit_test< tao::json::traits >( path );
          tao::config::unit_test< tao::config::traits >( path );
          ++count;
       }
    }
    if( tao::config::failed == 0 ) {
-      std::cerr << "All " << count << " testcases passed." << std::endl;
+      std::cerr << "All " << count << " success testcases passed." << std::endl;
    }
    return std::min( int( tao::config::failed ), 127 );
 }

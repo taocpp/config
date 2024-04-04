@@ -7,6 +7,7 @@ set(testsources
   debug_traits.cpp
   enumerations.cpp
   failure.cpp
+  independence.cpp
   key.cpp
   key_part.cpp
   multi_line_string_position.cpp
