@@ -1,0 +1,11 @@
+(temporary foo)
+
+foo
+{
+    b1 = true
+    b2 = "Hello, Test!"
+    b3 = [ $00, $deadbeef ]
+    b4 = 42
+}
+
+str = (print (foo))

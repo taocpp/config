@@ -5,6 +5,7 @@
  * [env](#env)
  * [jaxn](#jaxn)
  * [parse](#parse)
+ * [print](#print)
  * [read](#read)
  * [shell](#shell)
  * [split](#split)
@@ -128,6 +129,36 @@ Note that the value described in the string is *not* allowed to use addition/con
 Further, the `parse` function can **only** be used on "top-level", not inside of arguments to other functions.
 
 For example `foo = (parse (default ...))` is allowed, but `foo = (default (parse ...) ...)` is not.
+
+
+## print
+
+The `print` function takes a part of the config and turns it back into a JAXN string (which is the same as a JSON string as long as the JAXN extensions to the JSON data model, binary data and non-finite floating point numbers, are **not** used).
+
+#### Example taoCONFIG Input File
+
+```
+(temporary foo)
+
+foo
+{
+    b1 = true
+    b2 = "Hello, Test!"
+    b3 = [ $00, $deadbeef ]
+    b4 = 42
+}
+
+str = (print (foo))
+```
+
+#### Resulting JAXN Config Data
+
+```javascript
+{
+   str: "{b1:true,b2:\"Hello, Test!\",b3:[$00,$DEADBEEF],b4:42}"
+}
+```
+
 
 ## read
 

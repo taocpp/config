@@ -15,7 +15,11 @@
 #include "jaxn_to_entry.hpp"
 #include "json.hpp"
 #include "pegtl.hpp"
+#include "phase5_repack.hpp"
+#include "statistics.hpp"
 #include "system_utility.hpp"
+
+#include "../key.hpp"
 
 namespace tao::config::internal
 {
@@ -24,11 +28,6 @@ namespace tao::config::internal
       const auto* const d = reinterpret_cast< const std::byte* >( s.data() );
       return binary_t( std::vector< std::byte >( d, d + s.size() ), p );
    }
-
-   // [[nodiscard]] inline json_t cbor_function( const std::vector< std::byte >& bv )
-   // {
-   //    return json::cbor::basic_from_binary< json_traits >( bv );  // TODO: Positions.
-   // }
 
    [[nodiscard]] inline bool default_function( entry& e )
    {
@@ -91,21 +90,28 @@ namespace tao::config::internal
       return std::move( consumer.value ).value();
    }
 
-   // [[nodiscard]] inline json_t json_function( const std::string& s )
-   // {
-   //    return json::basic_from_string< json_traits >( s );  // TODO: Positions.
-   // }
-
-   // [[nodiscard]] inline json_t msgpack_function( const std::vector< std::byte >& bv )
-   // {
-   //    return json::msgpack::basic_from_binary< json_traits >( bv );  // TODO: Positions.
-   // }
-
    [[nodiscard]] inline binary_t read_function( const pegtl::position& p, const std::string& filename )
    {
       const std::string d = read_file_throws( filename );
       const std::byte* x = reinterpret_cast< const std::byte* >( d.data() );
       return binary_t( std::vector< std::byte >( x, x + d.size() ), p );
+   }
+
+   [[nodiscard]] inline bool print_function( entry& e )
+   {
+      array& a = e.get_array();
+      if( a.array.size() != 1 ) {
+         throw pegtl::parse_error( "print function requires exactly one argument", a.position );
+      }
+      concat& c = a.array.front();
+      if( statistics( c ).is_primitive() ) {
+         const tao::json::value v = phase5_repack< json::traits >( c );  // TODO: Optimise away this intermediate data structure.
+         std::string s = json::jaxn::to_string( v );
+         pegtl::position p = c.position;
+         e = entry( string_t( std::move( s ), std::move( p ) ) );
+         return true;
+      }
+      return false;
    }
 
    [[nodiscard]] inline string_t shell_function( const pegtl::position& p, [[maybe_unused]] const std::string& script )
@@ -151,11 +157,6 @@ namespace tao::config::internal
    {
       return string_t( s, p );
    }
-
-   // [[nodiscard]] inline json_t ubjson_function( const std::vector< std::byte >& bv )
-   // {
-   //    return json::ubjson::basic_from_binary< json_traits >( bv );  // TODO: Positions.
-   // }
 
 }  // namespace tao::config::internal
 

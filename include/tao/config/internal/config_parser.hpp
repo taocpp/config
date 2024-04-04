@@ -32,6 +32,7 @@ namespace tao::config::internal
                  { "env", wrap( env_function ) },
                  { "env?", wrap( env_if_function ) },
                  { "jaxn", wrap( jaxn_function ) },
+                 { "print", wrap( print_function ) },
                  { "read", wrap( read_function ) },
                  { "shell", wrap( shell_function ) },
                  { "split", wrap( split_function ) },

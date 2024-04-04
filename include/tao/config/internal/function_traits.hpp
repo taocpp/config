@@ -92,20 +92,6 @@ namespace tao::config::internal
       }
    };
 
-   // template<>
-   // struct function_traits< std::vector< std::byte > >
-   // {
-   //    [[nodiscard]] static std::vector< std::byte > get( array& f, const std::size_t i )
-   //    {
-   //       const entry& e = function_traits_entry( f, i );
-
-   //       if( e.is_binary() ) {
-   //          return e.get_binary();
-   //       }
-   //       throw pegtl::parse_error( "invalid type for binary argument", e.get_position() );
-   //    }
-   // };
-
 }  // namespace tao::config::internal
 
 #endif

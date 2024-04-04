@@ -28,6 +28,11 @@ namespace tao::config::internal
          count( c );
       }
 
+      explicit statistics( const array& a )
+      {
+         count( a );
+      }
+
       void count( const entry& e )
       {
          switch( e.kind() ) {
@@ -102,7 +107,7 @@ namespace tao::config::internal
 
       [[nodiscard]] bool is_primitive() const noexcept
       {
-         return ( m_functions == 0 ) && ( m_variables == 0 ) && ( m_additions == 0 ) && ( m_asterisks == 0 ) && ( m_references == 0 );
+         return ( m_functions == 0 ) && ( m_additions == 0 ) && ( m_asterisks == 0 ) && ( m_references == 0 );
       }
 
    private:
@@ -111,7 +116,6 @@ namespace tao::config::internal
       std::size_t m_arrays = 0;
       std::size_t m_objects = 0;
       std::size_t m_functions = 0;
-      std::size_t m_variables = 0;
       std::size_t m_additions = 0;
       std::size_t m_asterisks = 0;
       std::size_t m_references = 0;
