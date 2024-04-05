@@ -25,10 +25,10 @@ For questions and suggestions regarding The Art of C++ / Config, success or fail
 
  * [JAXN] syntax with extensions (backward compatible with [JSON]).
  * [JAXN] data model ([JSON] extended with binary data and non-finites).
- * Meta data, all sub-values are annotated with filename and position.
- * Copy, reference, replace and delete anything in the [JSON] structure.
- * Multiple ways to read and include other config and data files, and
- * use environment variables and the output of arbitrary shell commands.
+ * Meta data; all sub-values are annotated with filename and position.
+ * Copy via [reference](Writing-Config-Files.md#references), [overwrite](Writing-Config-Files.md#overwrite) and [delete](Writing-Config-Files.md#delete) anything in the [JSON] structure.
+ * [Include](doc/Writing-Config-Files.md#include-files) other config files into any position in the [JSON] structure.
+ * And more, the complete list of basic and advanced features is documented on the [Writing Config Files](doc/Writing-Config-Files.md) page.
  * The function [`tao::config::from_file()`](doc/Parsing-Config-Files.md) is all you need to get going.
 
 Every JSON file with a top-level object can be used as [config file](doc/Writing-Config-Files.md).
@@ -51,7 +51,7 @@ port = 27960
 maps = [ "ztn" "dm13" "t9" ]  // Add dm6 or t4?
 ```
 
-Semantic features like [deleting](doc/Writing-Config-Files.md#delete) and [referencing](doc/Writing-Config-Files.md#references) values, or [including files](doc/Writing-Config-Filesmd#include-files) and [reading environment variables](doc/All-Config-Functions.md#env), usually only make sense with larger, non-trivial real-world examples.
+Semantic features like [deleting](doc/Writing-Config-Files.md#delete) and [referencing](doc/Writing-Config-Files.md#references) values, or [including files](doc/Writing-Config-Files.md#include-files) and [reading environment variables](doc/All-Config-Functions.md#env), usually only make sense with larger, non-trivial real-world examples.
 
 These features can be used to manage situations that go beyond single deployments with a single config, for example providing the tools to manage configuration templates that are adapted to different environments.
 
@@ -63,8 +63,8 @@ These features can be used to manage situations that go beyond single deployment
 const tao::config::value config = tao::config::from_file( "foo.cfg" );
 ```
 
-The resulting value is nothing other but a [JSON Value] from [taoJSON] with a custom traits class that annotates every sub-value with the filename and position it was parsed from.
-It can be inspected -- and manipulated -- using all the facilities of that JSON library.
+The resulting value is a [JSON Value] from [taoJSON] with a custom taoCONFIG traits class that annotates every sub-value with the filename and position it was parsed from.
+It can be inspected -- and manipulated -- using all the facilities of the [taoJSON] library.
 
 ## License
 
