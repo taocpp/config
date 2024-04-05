@@ -26,9 +26,9 @@ For questions and suggestions regarding The Art of C++ / Config, success or fail
  * [JAXN] syntax with extensions (backward compatible with [JSON]).
  * [JAXN] data model ([JSON] extended with binary data and non-finites).
  * Meta data; all sub-values are annotated with filename and position.
- * Copy via [reference](Writing-Config-Files.md#references), [overwrite](Writing-Config-Files.md#overwrite) and [delete](Writing-Config-Files.md#delete) anything in the [JSON] structure.
- * [Include](doc/Writing-Config-Files.md#include-files) other config files into any position in the [JSON] structure.
- * And more, the complete list of basic and advanced features is documented on the [Writing Config Files](doc/Writing-Config-Files.md) page.
+ * Copy via [reference](Writing-Config-Files.md#references), [overwrite](Writing-Config-Files.md#overwrite) and [delete](Writing-Config-Files.md#delete) anything in the data structure.
+ * [Include](doc/Writing-Config-Files.md#include-files) other config files into any position in the data structure.
+ * And more, the complete list of features is documented on the [Writing Config Files](doc/Writing-Config-Files.md) page.
  * The function [`tao::config::from_file()`](doc/Parsing-Config-Files.md) is all you need to get going.
 
 Every JSON file with a top-level object can be used as [config file](doc/Writing-Config-Files.md).
