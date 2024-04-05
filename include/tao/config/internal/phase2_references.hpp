@@ -18,7 +18,6 @@
 #include "json.hpp"
 #include "object.hpp"
 #include "phase2_access.hpp"
-#include "phase2_guard.hpp"
 #include "string_utility.hpp"
 
 namespace tao::config::internal
@@ -31,24 +30,18 @@ namespace tao::config::internal
 
       [[nodiscard]] std::size_t process()
       {
-         assert( m_stack.empty() );
-
          for( auto& p : m_root.object ) {
             process_concat( key1{ key1_part( p.first, m_root.position ) }, p.second );
          }
-         assert( m_stack.empty() );
          return m_changes;
       }
 
    private:
       object& m_root;
       std::size_t m_changes = 0;
-      std::set< const void* > m_stack;
 
       void process_concat( const key1& prefix, concat& c )
       {
-         const phase2_guard dog( m_stack, c );
-
          for( auto& e : c.concat ) {
             if( const concat* d = process_entry( prefix, e ); d != nullptr ) {
                assert( d != &c );  // TODO: This needs to be ensured elsewhere/in another way.
@@ -89,7 +82,7 @@ namespace tao::config::internal
          }
          assert( !prefix.empty() );
 
-         return phase2_access( m_root, pop_back( prefix ), suffix );
+         return phase2_access( m_root, pop_back( prefix ), suffix );  // Returns nullptr if not primitive.
       }
 
       [[nodiscard]] std::optional< key1_part > process_inner_reference( const key1& prefix, const std::vector< reference2_part >& reference )
@@ -142,7 +135,6 @@ namespace tao::config::internal
                }
                return nullptr;
             case entry_kind::ASTERISK:
-               //               process_concat( prefix + key1_part( part_asterisk, m_root.position ), e.get_concat() );
                return nullptr;
             case entry_kind::REFERENCE:
                return process_reference_parts( prefix, e.get_reference() );

@@ -129,13 +129,13 @@ namespace tao::config::internal
 
    [[nodiscard]] inline const concat* phase2_access( const concat& c, const key1& suffix, const int down )
    {
-      if( suffix.empty() ) {
-         if( ( c.concat.size() < 2 ) && ( statistics( c ).references() == 0 ) ) {
-            return &c;
-         }
-         throw phase2_access_return();
+      if( !suffix.empty() ) {
+         return phase2_access( c, suffix.at( 0 ), pop_front( suffix ), down );
       }
-      return phase2_access( c, suffix.at( 0 ), pop_front( suffix ), down );
+      if( statistics( c ).is_primitive() ) {
+         return &c;
+      }
+      throw phase2_access_return();
    }
 
    [[nodiscard]] inline const concat* phase2_access( const object& o, const key1& prefix, const key1& suffix )

@@ -36,5 +36,10 @@
       a: "",
       b: "foo",
       c: "01"
+   },
+   unready: {
+      a: "env_value",
+      b: "env_value",
+      c: "env_value"
    }
 }

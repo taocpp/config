@@ -33,3 +33,10 @@ string
     b = (string "foo")
     c = (string $3031)
 }
+
+unready
+{
+    a = (env "TAO_CONFIG")
+    b = (default (a) (c))
+    c = (env "TAO_CONFIG")
+}

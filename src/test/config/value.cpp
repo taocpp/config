@@ -18,7 +18,7 @@ namespace tao::config
 
       try {
          (void)v.as< std::string >();
-         ++failed;
+         ++failed;  // LCOV_EXCL_LINE
       }
       catch( const std::exception& e ) {
          TAO_CONFIG_TEST_ASSERT( e.what() == s );
