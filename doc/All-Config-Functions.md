@@ -133,7 +133,7 @@ For example `foo = (parse (default ...))` is allowed, but `foo = (default (parse
 
 ## print
 
-The `print` function takes a part of the config and turns it back into a JAXN string (which is the same as a JSON string as long as the JAXN extensions to the JSON data model, binary data and non-finite floating point numbers, are **not** used).
+The `print` function takes a part of the config and turns it back into a JAXN string (which is the same as a JSON string as long as the JAXN extension to the JSON data model, binary data and non-finite floating point numbers, are **not** used).
 
 #### Example taoCONFIG Input File
 
@@ -204,7 +204,7 @@ foo = (shell "uname -s")
 }
 ```
 
-Note that availability and behaviour of the `shell` value extension are inherently system dependent.
+Note that availability and behaviour of the `shell` function are inherently system dependent.
 Currently it is only supported on Unix-style operating systems that are sufficiently POSIX compliant, most prominently Linux and macOS.
 
 
@@ -251,7 +251,7 @@ foo = (string $48656C6C6F2C20776F726C6421)
 }
 ```
 
-Note that the conversion from `binary` to `string` is automatic when the binary data is passed to an extension that expects a string.
+Note that the conversion from `binary` to `string` is automatic when the binary data is passed to a function that expects a string argument.
 The automatic conversion, too, checks whether the binary data is a valid UTF-8 sequence and throws an exception if that is not the case.
 
 
