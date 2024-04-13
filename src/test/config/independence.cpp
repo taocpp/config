@@ -37,7 +37,7 @@ namespace tao::config
       return internal::phase2_asterisks( st.root );
    }
 
-   using func_t = std::size_t( * )( internal::state&, const internal::function_map& );
+   using func_t = std::size_t ( * )( internal::state&, const internal::function_map& );
 
    std::set< func_t > p2funcs = { p2fun, p2add, p2ref, p2ast };
 
@@ -55,7 +55,8 @@ namespace tao::config
             internal::config_parser p;
             p.parse( path );
 
-            while( v[ 0 ]( p.st, p.fm ) | v[ 1 ]( p.st, p.fm ) | v[ 2 ]( p.st, p.fm ) | v[ 3 ]( p.st, p.fm ) );
+            while( v[ 0 ]( p.st, p.fm ) | v[ 1 ]( p.st, p.fm ) | v[ 2 ]( p.st, p.fm ) | v[ 3 ]( p.st, p.fm ) ) {
+            }
 
             internal::phase3_remove( p.st.root );
             const auto cc = internal::phase5_repack< traits >( p.st.root );
