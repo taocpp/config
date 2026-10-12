@@ -36,7 +36,7 @@ namespace tao::config::internal
 
    [[nodiscard]] inline std::optional< std::string > getenv_nothrow( const std::string& name )
    {
-#if defined( _MSC_VER )
+#if defined( _WIN32 )
       char buffer[ 256 ];
       std::size_t s = 0;
       if( ::getenv_s( &s, buffer, name.c_str() ) == 0 ) {
@@ -61,7 +61,7 @@ namespace tao::config::internal
       throw pegtl::parse_error( "environment variable '" + name + "' not found", pos );
    }
 
-#if !defined( _MSC_VER )
+#if !defined( _WIN32 )
    [[nodiscard]] inline std::string shell_popen_throws( const pegtl::position& pos, const std::string& script )
    {
       errno = 0;

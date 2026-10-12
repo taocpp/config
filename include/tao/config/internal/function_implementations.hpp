@@ -116,7 +116,7 @@ namespace tao::config::internal
 
    [[nodiscard]] inline string_t shell_function( const pegtl::position& p, [[maybe_unused]] const std::string& script )
    {
-#if defined( _MSC_VER )
+#if defined( _WIN32 )
       throw pegtl::parse_error( "shell extension not supported on this platform", p );
 #else
       return string_t( shell_popen_throws( p, script ), p );
